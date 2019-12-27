@@ -1,0 +1,64 @@
+---------- Links -------------------------
+
+Day 10: Monitoring Station
+Day 10 - Destroying the Asteroids
+https://www.reddit.com/user/seligman99/comments/ecy7yh/2019_10_monitoring_station/
+
+Day 11: Space Police
+Day 11 - Painting the Code
+https://www.reddit.com/user/seligman99/comments/ecy8ca/2019_11_space_police/
+
+Day 12: The N-Body Problem
+Day 13 - Playing the Arcade Game
+https://www.reddit.com/user/seligman99/comments/ecy8nj/2019_13_care_package/
+
+Day 14: Space Stoichiometry
+Day 15 - Finding the Sensor
+https://www.reddit.com/user/seligman99/comments/ecy8wu/2019_15_oxygen_system/
+
+Day 16: Flawed Frequency Transmission
+Day 17 - Clearing the Dust
+https://www.reddit.com/user/seligman99/comments/ecy978/2019_17_set_and_forget/
+
+Day 18: Many-Worlds Interpretation
+Day 18 - Finding the keys
+https://www.reddit.com/user/seligman99/comments/ecy9h7/2019_18_manyworlds_interpretation/
+
+Day 20: Donut Maze
+Day 20 - Running through the depths of the maze
+https://new.reddit.com/user/seligman99/comments/ed7vee/day_20_running_through_the_depths_of_the_maze/
+
+Day 23: Category Six
+Day 23 - Watching the network traffic
+https://www.reddit.com/r/adventofcode/comments/eeh3df/2019_day_23_watching_the_network_traffic/
+
+Day 24: Planet of Discord
+Day 24 - Multi-dimensional Game of Life
+https://www.reddit.com/r/adventofcode/comments/eexrgb/2019_day_24_part_2_multidimensional_game_of_life/
+
+Day 25: Cryostasis
+Day 25 - One last run through the maze
+https://www.reddit.com/r/adventofcode/comments/efe8kl/2019_day_25_one_last_run_through_the_maze/
+
+---------- Markdown ----------------------
+
+[Day 10 - Destroying the Asteroids](https://www.reddit.com/user/seligman99/comments/ecy7yh/2019_10_monitoring_station/)
+
+[Day 11 - Painting the Code](https://www.reddit.com/user/seligman99/comments/ecy8ca/2019_11_space_police/)
+(and [all of the letters](https://www.reddit.com/r/adventofcode/comments/eao8fr/2019_day_811_all_of_the_letters_for_day_8_and_day/))
+
+[Day 13 - Playing the Arcade Game](https://www.reddit.com/user/seligman99/comments/ecy8nj/2019_13_care_package/)
+
+[Day 15 - Finding the Sensor](https://www.reddit.com/user/seligman99/comments/ecy8wu/2019_15_oxygen_system/)
+
+[Day 17 - Clearing the Dust](https://www.reddit.com/user/seligman99/comments/ecy978/2019_17_set_and_forget/)
+
+[Day 18 - Finding the keys](https://www.reddit.com/user/seligman99/comments/ecy9h7/2019_18_manyworlds_interpretation/)
+
+[Day 20 - Running through the depths of the maze](https://www.reddit.com/user/seligman99/comments/ed7vee/day_20_running_through_the_depths_of_the_maze/)
+
+[Day 23 - Watching the network traffic](https://www.reddit.com/r/adventofcode/comments/eeh3df/2019_day_23_watching_the_network_traffic/)
+
+[Day 24 - Multi-dimensional Game of Life](https://www.reddit.com/r/adventofcode/comments/eexrgb/2019_day_24_part_2_multidimensional_game_of_life/)
+
+[Day 25 - One last run through the maze](https://www.reddit.com/r/adventofcode/comments/efe8kl/2019_day_25_one_last_run_through_the_maze/)

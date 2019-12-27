@@ -1,0 +1,131 @@
+# This syntax is pretty simple, the following commands are
+# supported:
+#
+#  add (opcode 1)
+#  mult (opcode 2)
+#  output (opcode 4)
+#  jump_if_true (opcode 5)
+#  jump_if_false (opcode 6)
+#  less_than (opcode 7)
+#  equals (8)
+#  debug (opcode 90)
+#  terminate (opcode 99)
+#
+#  Opcodes define their variable type with _im for immediate, or _po for position
+#
+# Any value of the <x>:<y> type defines a label "x" for value "y".  If "y" is
+# empty, the label points to the next valid value.  Any label used on it's own
+# is replaced with the correct value
+#
+# Finally, any 0 values at the end of the program are trimmed
+
+add_po_po_po,one,one,three
+
+loop:
+add_im_im_po,0,loop_back,stack
+jump_if_true_im_im,1,inc_and_copy
+loop_back:
+
+equals_po_im_po,digit,99,temp
+jump_if_true_po_im,temp,eol
+
+equals_po_im_po,digit,100,temp
+jump_if_false_po_im,temp,not_color
+
+equals_po_im_po,three,2,temp
+jump_if_false_po_im,temp,show_color
+add_im_im_po,0,skip1,stack
+jump_if_true_im_im,1,inc_and_copy
+skip1:
+add_im_im_po,0,skip2,stack
+jump_if_true_im_im,1,inc_and_copy
+skip2:
+jump_if_true_im_im,1,loop
+
+
+show_color:
+add_im_im_po,0,color_got,stack
+jump_if_true_im_im,1,inc_and_copy
+color_got:
+
+# TODO: Deal with the color
+
+output_im,27
+output_im,91
+
+output_po,digit
+add_im_im_po,0,color_got2,stack
+jump_if_true_im_im,1,inc_and_copy
+color_got2:
+output_po,digit
+
+output_im,109
+
+
+
+jump_if_true_im_im,1,loop
+not_color:
+
+less_than_po_im_po,digit,100,temp
+jump_if_true_po_im,temp,single_digit
+
+redo_digit:
+output_po,running_val
+add_po_im_po,digit,-1,digit
+less_than_po_im_po,digit,100,temp
+jump_if_false_po_im,temp,redo_digit
+
+# TODO: Loop the last digit
+
+jump_if_true_im_im,1,loop
+single_digit:
+
+# Handle a single digit
+add_po_po_po,running_val,digit,running_val
+equals_po_im_po,running_val,31,temp
+jump_if_true_po_im,temp,newline
+output_po,running_val
+jump_if_true_im_im,1,loop
+
+newline:
+output_im,10
+jump_if_true_im_im,1,loop
+
+eol:
+
+
+equals_po_im_po,three,2,temp
+jump_if_true_po_im,temp,really_end
+
+# Reset colors
+output_im,27
+output_im,91
+output_po,48
+output_im,109
+
+really_end:
+
+terminate
+
+inc_and_copy:
+
+add_po_im_po,data_off:data,0,digit
+add_po_im_po,data_off,one:1,data_off
+jump_if_true_im_po,1,stack
+
+data:
+
+100,57,49,1,106,14,-1,101,50,-64,1,105,15,-15,100,51,49,15,-15,100,57,49,15,45,32,-93,
+1,103,15,-15,100,51,49,15,-15,92,-92,100,57,49,60,-60,100,57,51,10,-11,1,102,100,57,49,
+15,-15,0,100,51,49,15,-15,0,60,-60,100,57,49,60,-60,101,45,-8,13,0,7,-57,100,57,50,
+35,5,10,-9,10,1,-7,-12,18,100,57,55,-50,-2,1,101,100,57,49,15,-15,100,51,49,15,-15,
+0,15,-15,60,-60,0,100,57,49,60,-60,101,100,57,48,13,0,-13,83,-14,7,-3,-2,6,-12,13,
+-53,0,-26,1,100,57,55,14,1,79,109,-34,-46,-15,9,-8,14,-12,10,50,-48,-14,13,-11,12,-14,
+7,7,80,-94,9,-10,1,7,87,111,-87,-8,99,
+
+
+running_val:31
+three:0
+temp:0
+digit:0
+stack:0

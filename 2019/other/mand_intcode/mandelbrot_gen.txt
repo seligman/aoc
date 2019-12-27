@@ -1,0 +1,187 @@
+# This syntax is pretty simple, the following commands are
+# supported:
+#
+#  add (opcode 1)
+#  mult (opcode 2)
+#  output (opcode 4)
+#  jump_if_true (opcode 5)
+#  jump_if_false (opcode 6)
+#  less_than (opcode 7)
+#  equals (8)
+#  debug (opcode 90)
+#  terminate (opcode 99)
+#
+#  Opcodes define their variable type with _im for immediate, or _po for position
+#
+# Any value of the <x>:<y> type defines a label "x" for value "y".  If "y" is
+# empty, the label points to the next valid value.  Any label used on it's own
+# is replaced with the correct value
+#
+# Finally, any 0 values at the end of the program are trimmed
+
+# 9 secs
+
+CONST:scale=25
+CONST:min_x=int(-2.15*float(scale))
+CONST:max_x=int(0.85*float(scale))+1
+CONST:min_y=int(-1.5*float(scale))
+CONST:max_y=int(1.5*float(scale))+1
+CONST:scale_minus=-scale
+CONST:escape_val=(scale*5)*(scale*5)
+CONST:width=(max_x - min_x)
+CONST:height=(max_y - min_y)
+
+## # Build a bit table
+## add_im_im_po,0,1,temp_bit
+## build_table:
+## mult_im_po_po,2,mult_from:temp_bit,mult_to:temp_bit_2
+## add_im_po_po,1,mult_from,mult_from
+## add_im_po_po,1,mult_to,mult_to
+## equals_po_im_po,mult_from,temp_bit_32,temp
+## jump_if_false_po_im,temp,build_table
+
+#if FALSE
+# Output the width and height so the SIF has some hope
+output_im,width
+output_im,height
+#endif
+
+x_loop:
+
+# Setup the variables
+add_im_im_po,0,x:min_x,r
+add_im_im_po,0,y:min_y,i
+add_im_im_po,0,-1,iters
+
+# Try some iterations
+iter_again:
+
+# If we went too far, bail out
+less_than_po_im_po,iters,15,temp
+jump_if_false_po_im,temp,bail
+add_po_im,iters,1,iters
+
+# a = (r*r - i*i)
+mult_po_po,i,i,temp
+mult_po_im,temp,-1,temp
+mult_po_po,r,r,a
+add_po_po,a,temp,a
+
+# b = (r*i*2)
+mult_po_po_po,r,i,b
+mult_po_im_po,b,2,b
+
+# r = a // 20 + x
+add_im_po_po,0,a,stack_1
+add_im_im_po,0,scale,stack_2
+add_im_im_po,0,ret_a,stack_ret
+jump_if_true_im_im,1,div_func
+ret_a:
+add_po_po_po,stack_3,x,r
+
+# i = b // 20 + y
+add_im_po_po,0,b,stack_1
+add_im_im_po,0,scale,stack_2
+add_im_im_po,0,ret_i,stack_ret
+jump_if_true_im_im,1,div_func
+ret_i:
+add_po_po_po,stack_3,y,i
+
+# See if the value 'escaped'
+# if r*r+i*i>10000
+mult_po_po_po,r,r,a
+mult_po_po_po,i,i,temp
+add_po_po_po,a,temp,temp
+
+less_than_po_im_po,temp,escape_val,temp
+jump_if_true_po_im,temp,iter_again
+
+bail:
+
+#if TRUE
+# Output the x, y, iter values
+output_po,x
+output_po,y
+
+# And output a ' ' if the value is in the set, otherwise
+# output the iter level starting at 'a'
+equals_po_im_po,iters,15,temp
+jump_if_true_po_im,temp,bailed
+add_po_im_po,iters,96,iters
+jump_if_false_po_im,temp,not_bailed
+bailed:
+add_im_im_po,0,32,iters
+not_bailed:
+output_po,iters
+#endif
+
+#if FALSE
+# Output a single value, in Space Image format
+equals_po_im_po,iters,15,temp
+jump_if_true_po_im,temp,bailed
+less_than_po_im_po,iters,8,temp
+jump_if_false_po_im,temp,bignum
+add_po_im_po,iters,47,iters
+output_po,iters
+jump_if_true_im_im,1,sent_out
+bailed:
+output_im,57
+jump_if_true_im_im,1,sent_out
+bignum:
+output_im,56
+sent_out:
+#endif
+
+
+# increment x one
+add_po_im,x,1,x
+less_than_po_im_po,x,max_x,temp
+jump_if_true_po_im,temp,x_loop
+
+# X hit it's limit, loop around
+add_im_im,0,min_x,x
+
+# increment y one
+add_po_im,y,1,y
+less_than_po_im_po,y,max_y,temp
+jump_if_true_po_im,temp,x_loop
+
+# If we got here, y hit it's limit too, we're done
+terminate
+
+# A helper function to do stack_3 = stack_1 / stack_2 
+div_func:
+mult_im_po_po,-1,stack_2,stack_2
+less_than_po_im_po,stack_1,0,neg
+jump_if_false_po_im,neg,negate
+mult_im_po_po,-1,stack_1,stack_1
+negate:
+add_im_im_po,0,0,stack_3
+div_loop:
+less_than_po_im_po,stack_1,1,temp
+jump_if_true_po_im,temp,div_loop_done
+add_po_im_po,stack_3,1,stack_3
+add_po_po_po,stack_1,stack_2,stack_1
+jump_if_false_po_im,temp,div_loop
+div_loop_done:
+jump_if_false_po_po,neg,stack_ret
+mult_im_po_po,-1,stack_3,stack_3
+jump_if_true_im_po,1,stack_ret
+
+
+# And variables that we don't need to store
+temp:0
+r:0
+i:0
+iters:0
+a:0
+b:0
+neg:0
+stack_1:0
+stack_2:0
+stack_3:0
+stack_ret:0
+## temp_div:0
+## temp_mod:0
+## temp_i:0
+## temp_bit:0,temp_bit_2:0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,temp_bit_32:0
