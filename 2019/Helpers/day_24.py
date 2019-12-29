@@ -11,13 +11,11 @@ def calc(log, values):
 
     seen = set()
     while True:
-        mult = 1
         value = 0
         for y in cur.y_range():
             for x in cur.x_range():
                 if cur.get(x, y) == "#":
-                    value += mult
-                mult *= 2
+                    value += 2 ** (x + y * 5)
 
         if value in seen:
             return value
@@ -32,10 +30,10 @@ def calc(log, values):
                     count += 1 if cur.get(x + xo, y + yo) == "#" else 0
                 if cur.get(x, y) == "#":
                     if count == 1:
-                        n.set(x, y, "#")
+                        n.set("#", x, y)
                 else:
                     if count == 1 or count == 2:
-                        n.set(x, y, "#")
+                        n.set("#", x, y)
 
         cur = n
 
@@ -58,19 +56,19 @@ def calc_ndimension(log, values, animate=False):
             show.grid.clear()
             for x in range(16):
                 for y in range(15*6+1):
-                    show.set(x*6, y, "#")
+                    show.set("#", x*6, y)
             for y in range(16):
                 for x in range(15*6+1):
-                    show.set(x, y*6, "#")
+                    show.set("#", x, y*6)
             for x in range(15):
                 for y in range(15):
-                    show.set(x * 6 + 1 + 2, y * 6 + 1 + 2, "DarkGray")
+                    show.set("DarkGray", x * 6 + 1 + 2, y * 6 + 1 + 2)
             bugs = 0
             for d in range(-100, 101):
                 for x in range(5):
                     for y in range(5):
                         if levels[(d, x, y)] == 1:
-                            show.set(((d + 112) % 15) * 6 + 1 + x, (d + 112) // 15 * 6 + 1 + y, "Gray")
+                            show.set("Gray", ((d + 112) % 15) * 6 + 1 + x, (d + 112) // 15 * 6 + 1 + y)
                             bugs += 1
             for i in range(5):
                 show.draw_grid(extra_text=[
@@ -145,7 +143,7 @@ def test(log):
         #....
     """)
 
-    ret, expected = calc(log, values), 1205552
+    ret, expected = calc(log, values), 2129920
     log.show("Test returned %s, expected %s" % (str(ret), str(expected)))
     if ret != expected:
         return False

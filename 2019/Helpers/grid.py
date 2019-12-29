@@ -51,13 +51,10 @@ class Grid:
     def __init__(self, default=0):
         self.grid = {}
         self.default = default
-        self.min_x = 0
-        self.min_y = 0
-        self.max_x = 0
-        self.max_y = 0
         self.frame = 0
         self.frames = []
         self.fonts = None
+        self._ranges = {}
 
     @staticmethod
     def from_text(values):
@@ -66,7 +63,7 @@ class Grid:
         for row in values:
             x = 0
             for cur in row:
-                grid.set(x, y, cur)
+                grid.set(cur, x, y)
                 x += 1
             y += 1
         return grid
@@ -90,46 +87,50 @@ class Grid:
         print("$ " + " ".join(cmd))
         subprocess.check_call(cmd)
 
-    def get(self, x, y):
-        return self.grid.get((x, y), self.default)
+    def get(self, *coords):
+        return self.grid.get(coords, self.default)
+
+    def axis_min(self, axis):
+        if self._ranges.get(axis, None) is None:
+            self._ranges[axis] = (min([x[axis] for x in self.grid]), max([x[axis] for x in self.grid]))
+        return self._ranges[axis][0]
+
+    def axis_max(self, axis):
+        if self._ranges.get(axis, None) is None:
+            self._ranges[axis] = (min([x[axis] for x in self.grid]), max([x[axis] for x in self.grid]))
+        return self._ranges[axis][1]
+
+    def axis_size(self, axis):
+        return self.axis_max(axis) - self.axis_min(axis) + 1
 
     def width(self):
-        return self.max_x - self.min_x + 1
+        return self.axis_size(0)
 
     def height(self):
-        return self.max_y - self.min_y + 1
+        return self.axis_size(1)
+
+    def axis_range(self, axis):
+        return range(self.axis_min(axis), self.axis_max(axis) + 1)
 
     def x_range(self):
-        return range(self.min_x, self.max_x + 1)
+        return self.axis_range(0)
 
     def y_range(self):
-        return range(self.min_y, self.max_y + 1)
+        return self.axis_range(1)
 
-    def set(self, x, y, value):
-        self.min_x = min(self.min_x, x)
-        self.min_y = min(self.min_y, y)
-        self.max_x = max(self.max_x, x)
-        self.max_y = max(self.max_y, y)
-        self.grid[(x, y)] = value
+    def set(self, value, *coords):
+        self._ranges = {}
+        self.grid[coords] = value
 
-    def value_set(self, x, y):
-        return (x, y) in self.grid
-
-    def enum_grid(self, callback, include_missing=True):
-        for y in range(self.min_y, self.max_y + 1):
-            for x in range(self.min_x, self.max_x + 1):
-                if include_missing:
-                    callback(x, y, self.grid.get((x, y), self.default))
-                else:
-                    if (x, y) in self.grid:
-                        callback(x, y, self.grid[(x, y)])
+    def value_isset(self, *coords):
+        return coords in self.grid
 
     def decode_grid(self, log):
         spaces = {" ", ".", 0}
-        start_x = self.min_x
-        while start_x <= self.max_x:
+        start_x = self.axis_min(0)
+        while start_x <= self.axis_max(0):
             end = False
-            for y in range(self.min_y, self.max_y + 1):
+            for y in self.y_range():
                 if self.get(start_x, y) not in spaces:
                     end = True
                     break
@@ -138,10 +139,10 @@ class Grid:
             else:
                 start_x += 1
 
-        start_y = self.min_y
-        while start_y <= self.max_y:
+        start_y = self.axis_min(1)
+        while start_y <= self.axis_max(1):
             end = False
-            for x in range(self.min_x, self.max_x + 1):
+            for x in self.x_range():
                 if self.get(x, start_y) not in spaces:
                     end = True
                     break
@@ -152,10 +153,10 @@ class Grid:
 
         ret = ""
 
-        for off_y in range(start_y, self.max_y + 1, 7):
+        for off_y in range(start_y, self.axis_max(1) + 1, 7):
             if len(ret) > 0:
                 ret += "/"
-            for off_x in range(start_x, self.max_x + 1, 5):
+            for off_x in range(start_x, self.axis_max(0) + 1, 5):
                 disp = []
                 code = 0
                 for y in range(6):
@@ -176,9 +177,9 @@ class Grid:
             
 
     def show_grid(self, log, disp_map=DEFAULT_DISP_MAP, dump_all=False):
-        for y in range(self.min_y, self.max_y + 1):
+        for y in self.y_range():
             line = ""
-            for x in range(self.min_x, self.max_x + 1):
+            for x in self.x_range():
                 if dump_all:
                     line += self.grid.get((x, y), self.default)
                 else:
@@ -232,8 +233,8 @@ class Grid:
         font_size=14, image_copies=1, extra=None, extra_callback=None, text_xy=None, show_lines=True):
         from PIL import Image, ImageDraw, ImageFont
         import os
-        width = self.max_x - self.min_x + 1
-        height = self.max_y - self.min_y + 1
+        width = self.width()
+        height = self.height()
 
         for_text = 0
         if self.fonts is None:
@@ -279,7 +280,7 @@ class Grid:
 
         for x in range(width):
             for y in range(height):
-                color = self.grid.get((x + self.min_x, y + self.min_y), self.default)
+                color = self.grid.get((x + self.axis_min(0), y + self.axis_min(1)), self.default)
                 text = None
                 if isinstance(color, list):
                     temp = color_map[color[0]]

@@ -22,7 +22,7 @@ def calc(log, values, iterate, animate=False):
                 (x, y - 1, grid.get(x, y) + grid.get(x, y + 1)),
                 (x, y + 2, grid.get(x, y) + grid.get(x, y + 1)),
             ]:
-                outer = x == 0 or x == grid.max_x - 1 or y == 0 or y == grid.max_y - 1
+                outer = x == 0 or x == grid.axis_max(0) - 1 or y == 0 or y == grid.axis_max(1) - 1
                 if grid.get(xo, yo) == "." and name.isalpha():
                     if name not in warps:
                         warps[name] = []
@@ -86,7 +86,7 @@ def calc(log, values, iterate, animate=False):
                             dots = trails[start][dest]
                             total_shown += 2
                             for x, y in dots:
-                                grid.set(x, y, "Target")
+                                grid.set("Target", x, y)
                                 shown += 1
                                 total_shown += 1
                                 if shown == 15:

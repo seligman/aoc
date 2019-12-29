@@ -16,23 +16,23 @@ def calc(log, values, mode, animate=False):
     dirs = deque([(0, -1), (1, 0), (0, 1), (-1, 0)])
     grid = Grid()
     if mode == 2:
-        grid.set(0, 0, 1)
+        grid.set(1, 0, 0)
 
     while True:
         if len(program.output) > 0:
             paint, change_dir = program.get_output(2)
             dirs.rotate(-1 if change_dir == 1 else 1)
 
-            if not grid.value_set(x, y):
+            if not grid.value_isset(x, y):
                 changed += 1
 
             if animate:
                 old = grid.get(x, y)
-                grid.set(x, y, "Star")
+                grid.set("Star", x, y)
                 grid.save_frame()
-                grid.set(x, y, old)
+                grid.set(old, x, y)
 
-            grid.set(x, y, paint)
+            grid.set(paint, x, y)
 
             x += dirs[0][0]
             y += dirs[0][1]

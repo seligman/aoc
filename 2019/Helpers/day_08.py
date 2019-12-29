@@ -32,7 +32,7 @@ def calc(log, values, width, height):
             x, y = i % width, i // width
             if grid.get(x, y) == "." and layer[i] in {"1", "0"}:
                 # "Turn "1" into "#" to make it easier to read
-                grid.set(x, y, "#" if layer[i] == "1" else " ")
+                grid.set("#" if layer[i] == "1" else " ", x, y)
 
     # Show the output, don't try to decode these giant letters
     log.show("")
@@ -80,8 +80,8 @@ def other_glyphs(describe, values):
             for y in range(5, -1, -1):
                 for x in range(4, -1, -1):
                     if value % 2 == 1:
-                        grid_letter.set(x, y, 1)
-                        grid.set(x + x_off, y, 1)
+                        grid_letter.set(1, x, y)
+                        grid.set(1, x + x_off, y)
                     value = value // 2
             for y in range(6):
                 dump += '    "'

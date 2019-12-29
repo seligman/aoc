@@ -21,7 +21,7 @@ def calc(log, values, animate=False):
             x = 0
             y += 1
         else:
-            grid.set(x, y, val)
+            grid.set(val, x, y)
             x += 1
 
     ret = 0
@@ -49,7 +49,7 @@ def calc(log, values, animate=False):
         if grid.get(x + dirs[cur_dir][0], y + dirs[cur_dir][1]) in valid:
             x += dirs[cur_dir][0]
             y += dirs[cur_dir][1]
-            grid.set(x, y, "o")
+            grid.set("o", x, y)
             rotates = 0
             if steps[-1].startswith("F"):
                 steps[-1] += "F"
@@ -143,7 +143,7 @@ def calc(log, values, animate=False):
                         x = 0
                     else:
                         if val in {60, 94, 62, 118}:
-                            grid.set(x, y, val)
+                            grid.set(val, x, y)
                         x += 1
                 if animate:
                     grid.save_frame(extra_text=["Dust Cleared: |%06d" % (prog.ticker[score_offset],)])

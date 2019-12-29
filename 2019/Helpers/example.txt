@@ -9,8 +9,6 @@ def calc(log, values):
     # grid = Grid()
     # from program import Program
     # prog = Program.from_values(values, log)
-    # from gridn import GridN
-    # grid = GridN(3)
 
     # TODO
     return 0

@@ -19,7 +19,7 @@ def calc(log, values, mode, animate=False):
     for row in values:
         x = 0
         for cur in row:
-            grid.set(x, y, cur)
+            grid.set(cur, x, y)
             if cur == "@":
                 start_x, start_y = x, y
             if cur in "ABCDEFGHIJKLMNOPQRSTUVWXYZ":
@@ -38,7 +38,7 @@ def calc(log, values, mode, animate=False):
 
         for x in range(3):
             for y in range(3):
-                grid.set(start_x - 1 + x, start_y - 1 + y, temp.get(x, y))
+                grid.set(temp.get(x, y), start_x - 1 + x, start_y - 1 + y)
 
     skip = False
     if animate:
@@ -127,16 +127,16 @@ def calc(log, values, mode, animate=False):
                         # Region
                         in_region = False
                         if i == 0:
-                            in_region = x < grid.max_x / 2 and y < grid.max_y / 2
+                            in_region = x < grid.axis_max(0) / 2 and y < grid.axis_max(1) / 2
                         elif i == 1:
-                            in_region = x < grid.max_x / 2 and y >= grid.max_y / 2
+                            in_region = x < grid.axis_max(0) / 2 and y >= grid.axis_max(1) / 2
                         elif i == 2:
-                            in_region = x >= grid.max_x / 2 and y < grid.max_y / 2
+                            in_region = x >= grid.axis_max(0) / 2 and y < grid.axis_max(1) / 2
                         elif i == 3:
-                            in_region = x >= grid.max_x / 2 and y >= grid.max_y / 2
+                            in_region = x >= grid.axis_max(0) / 2 and y >= grid.axis_max(1) / 2
 
                         if grid.get(x, y) in {".", "Region"}:
-                            grid.set(x, y, "Region" if in_region else ".")
+                            grid.set("Region" if in_region else ".", x, y)
             else:
                 x, y = desc
                 if steps % 5 == 0:
@@ -150,11 +150,11 @@ def calc(log, values, mode, animate=False):
                     if (lasts[i][0], lasts[i][1]) == (x, y):
                         skip = True
                     else:
-                        grid.set(lasts[i][0], lasts[i][1], lasts[i][2])
+                        grid.set(lasts[i][2], lasts[i][0], lasts[i][1])
                 if not skip:
                     steps += 1
                     lasts[i] = (x, y, grid.get(x, y))
-                    grid.set(x, y, "Target")
+                    grid.set("Target", x, y)
                     grid.draw_grid(extra_text=[
                         "Steps: | %06d" % (steps,), 
                         "Keys: " + "".join(sorted(passed_keys)), 

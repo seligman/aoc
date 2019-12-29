@@ -13,7 +13,7 @@ def calc(log, values, animate=False):
     for row in values:
         x = 0
         for cur in row:
-            grid.set(x, y, cur)
+            grid.set(cur, x, y)
             x += 1
         y += 1
 
@@ -52,7 +52,7 @@ def calc(log, values, animate=False):
     destroyed = 0
     
     if animate:
-        grid.set(x, y, "Star")
+        grid.set("Star", x, y)
 
     spin = get_angles(x, y, grid.width(), grid.height())
     to_clear = []
@@ -70,13 +70,13 @@ def calc(log, values, animate=False):
                         'y': yo,
                     })
                     for x, y in to_clear:
-                        grid.set(x, y, ".")
+                        grid.set(".", x, y)
                     to_clear = []
                 next_dump -= math.radians(10)
             for x, y in angle:
                 if grid.get(x, y) in {"#", "target"}:
                     destroyed += 1
-                    grid.set(x, y, "star")
+                    grid.set("star", x, y)
                     if animate:
                         to_clear.append((x, y))
                     if destroyed == 200:

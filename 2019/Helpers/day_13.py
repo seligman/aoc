@@ -21,7 +21,7 @@ def calc(log, values, play_game, animate=False):
         while len(program.output) >= 3:
             x, y, tile = program.get_output(3)
             if x != -1:
-                grid.set(x, y, tile)
+                grid.set(tile, x, y)
     elif not animate:
         while program.flag_running:
             program.tick_till_end()
@@ -80,7 +80,7 @@ def calc(log, values, play_game, animate=False):
                     if x == -1:
                         score = tile
                     else:
-                        grid.set(x, y, tile)
+                        grid.set(tile, x, y)
                 
                 if not program.flag_running:
                     break

@@ -10,7 +10,7 @@ def calc(log, values, animate=False):
     from collections import deque
 
     grid = Grid("~")
-    grid.set(0, 0, ".")
+    grid.set(".", 0, 0)
 
     # Let the program run it's initialization
     ticker = [int(x) for x in values[0].split(",")]
@@ -40,14 +40,14 @@ def calc(log, values, animate=False):
                 program.add_to_input(value)
                 program.tick_till_end()
                 if program.last_output == 0:
-                    grid.set(x + xo, y + yo, "#")
+                    grid.set("#", x + xo, y + yo)
                 else:
-                    grid.set(x + xo, y + yo, "Robot")
+                    grid.set("Robot", x + xo, y + yo)
                     todo.appendleft((program.ticker, steps + 1, x + xo, y + yo))
                     if sensor_x is None:
                         extra_text[0] = "Sensor: |%04d| steps" % (steps + 1,)
                     if program.last_output == 2 and sensor_x is None:
-                        grid.set(x + xo, y + yo, "Oxygen")
+                        grid.set("Oxygen", x + xo, y + yo)
                         sensor_x, sensor_y = x + xo, y + yo
                         log.show("Steps to sensor: " + str(steps + 1))
 
@@ -61,7 +61,7 @@ def calc(log, values, animate=False):
             last_steps = steps
         for xo, yo, _value in dirs:
             if grid.get(x + xo, y + yo) in {".", "Robot"}:
-                grid.set(x + xo, y + yo, "Flood")
+                grid.set("Flood", x + xo, y + yo)
                 todo.appendleft((x + xo, y + yo, steps + 1))
 
     log.show("Steps to flood oxygen: " + str(last_steps))
