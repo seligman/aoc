@@ -35,11 +35,11 @@ def calc(log, values, width, height):
                 grid.set("#" if layer[i] == "1" else " ", x, y)
 
     # Show the output, don't try to decode these giant letters
-    log.show("")
+    log("")
     grid.show_grid(log)
     grid.decode_grid(log)
     # grid.draw_grid()
-    log.show("")
+    log("")
 
     # And return the number of "1" * "2" on the best layer
     return best_layer["1"] * best_layer["2"]
@@ -51,7 +51,7 @@ def test(log):
     """)
 
     ret, expected = calc(log, values, 3, 2), 1
-    log.show("Test returned %s, expected %s" % (str(ret), str(expected)))
+    log("Test returned %s, expected %s" % (str(ret), str(expected)))
     if ret != expected:
         return False
 
@@ -102,4 +102,4 @@ def other_glyphs(describe, values):
 
 
 def run(log, values):
-    log.show("Part 1: " + str(calc(log, values, 25, 6)))
+    log("Part 1: " + str(calc(log, values, 25, 6)))

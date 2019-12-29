@@ -144,7 +144,7 @@ def test(log):
     """)
 
     ret, expected = calc(log, values), 2129920
-    log.show("Test returned %s, expected %s" % (str(ret), str(expected)))
+    log("Test returned %s, expected %s" % (str(ret), str(expected)))
     if ret != expected:
         return False
 
@@ -163,5 +163,5 @@ def other_animate(describe, values):
 
 
 def run(log, values):
-    log.show("Diversity value: " + str(calc(log, values)))
-    log.show("Number of multi-dimensional bugs: " + str(calc_ndimension(log, values)))
+    log("Diversity value: " + str(calc(log, values)))
+    log("Number of multi-dimensional bugs: " + str(calc_ndimension(log, values)))

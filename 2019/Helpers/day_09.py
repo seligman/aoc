@@ -22,7 +22,7 @@ def test(log):
     """)
 
     ret, expected = calc(log, values, 0), values[0]
-    log.show("Test returned\n  '%s'\nExpected\n  '%s'" % (str(ret), str(expected)))
+    log("Test returned\n  '%s'\nExpected\n  '%s'" % (str(ret), str(expected)))
     if ret != expected:
         return False
 
@@ -30,5 +30,5 @@ def test(log):
 
 
 def run(log, values):
-    log.show(calc(log, values, 1))
-    log.show(calc(log, values, 2))
+    log("BOOST keycode: " + str(calc(log, values, 1)))
+    log("Coordinates of the distress signal: " + str(calc(log, values, 2)))

@@ -39,7 +39,7 @@ def test(log):
 
 
 def run(log, values):
-    log.show(calc(log, values, replace_1=12, replace_2=2))
+    log("Position 0: " + str(calc(log, values, replace_1=12, replace_2=2)))
     found = False
     for a in range(100):
         if found:
@@ -47,7 +47,7 @@ def run(log, values):
         for b in range(200):
             try:
                 if calc(log, values, replace_1=a, replace_2=b) == 19690720:
-                    log.show(100 * a + b)
+                    log("Noun * Verb: " + str(100 * a + b))
                     found = True
                     break
             except:

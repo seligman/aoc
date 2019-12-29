@@ -80,7 +80,7 @@ def calc(log, values, animate=False):
                     if animate:
                         to_clear.append((x, y))
                     if destroyed == 200:
-                        log.show("Destroyed #200 at %d, %d == %d" % (x, y, x * 100 + y))
+                        log("Destroyed #200 at %d, %d == %d" % (x, y, x * 100 + y))
                     clean = False
                     break
         if clean:
@@ -145,7 +145,7 @@ def test(log):
     """)
 
     ret, expected = calc(log, values), 210
-    log.show("Test returned %s, expected %s" % (str(ret), str(expected)))
+    log("Test returned %s, expected %s" % (str(ret), str(expected)))
     if ret != expected:
         return False
 
@@ -153,4 +153,4 @@ def test(log):
 
 
 def run(log, values):
-    log.show(calc(log, values))
+    log("Asteroids detected: " + str(calc(log, values)))

@@ -49,7 +49,7 @@ def calc(log, values, animate=False):
                     if program.last_output == 2 and sensor_x is None:
                         grid.set("Oxygen", x + xo, y + yo)
                         sensor_x, sensor_y = x + xo, y + yo
-                        log.show("Steps to sensor: " + str(steps + 1))
+                        log("Steps to sensor: " + str(steps + 1))
 
     last_steps = 0
     todo.appendleft((sensor_x, sensor_y, 0))
@@ -64,7 +64,7 @@ def calc(log, values, animate=False):
                 grid.set("Flood", x + xo, y + yo)
                 todo.appendleft((x + xo, y + yo, steps + 1))
 
-    log.show("Steps to flood oxygen: " + str(last_steps))
+    log("Steps to flood oxygen: " + str(last_steps))
     
     if animate:
         Grid.clear_frames()

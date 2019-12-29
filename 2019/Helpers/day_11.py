@@ -43,10 +43,10 @@ def calc(log, values, mode, animate=False):
             break
 
     if mode == 2:
-        log.show("")
+        log("")
         grid.show_grid(log)
         grid.decode_grid(log)
-        log.show("")
+        log("")
 
     if animate:
         Grid.clear_frames()
@@ -71,5 +71,5 @@ def test(log):
 
 
 def run(log, values):
-    log.show("Part 1: " + str(calc(log, values, 1)))
-    log.show(calc(log, values, 2))
+    log("Part 1: " + str(calc(log, values, 1)))
+    calc(log, values, 2)

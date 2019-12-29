@@ -28,7 +28,7 @@ def calc(log, values):
         x_stack.append(x)
         if getxy(x + 99, try_y - 99) == 1:
             if skip_y == 1:
-                log.show("The best 100x100 is: " + str(x * 10000 + (try_y - 99)))
+                log("The best 100x100 is: " + str(x * 10000 + (try_y - 99)))
                 break
             else:
                 try_y -= skip_y
@@ -53,7 +53,7 @@ def calc(log, values):
                 if not update_start or bail == 0:
                     break
 
-    log.show("The number in the 50x50 grid is: " + str(count))
+    log("The number in the 50x50 grid is: " + str(count))
 
     return count
 
@@ -63,4 +63,4 @@ def test(log):
 
 
 def run(log, values):
-    log.show(calc(log, values))
+    calc(log, values)

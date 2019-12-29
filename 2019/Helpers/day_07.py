@@ -40,7 +40,7 @@ def calc(log, values, feedback, debug=False):
             best_frames = progs[0].frames
 
     if debug:
-        log.show(best_perm)
+        log(best_perm)
         states = {}
         for cur in best_frames:
             if cur[0] not in {"input", "output"}:
@@ -87,7 +87,7 @@ def test(log):
     """)
 
     ret, expected = calc(log, values, False), 43210
-    log.show("Test returned %s, expected %s" % (str(ret), str(expected)))
+    log("Test returned %s, expected %s" % (str(ret), str(expected)))
     if ret != expected:
         return False
 
@@ -96,7 +96,7 @@ def test(log):
     """)
 
     ret, expected = calc(log, values, True), 139629729
-    log.show("Test returned %s, expected %s" % (str(ret), str(expected)))
+    log("Test returned %s, expected %s" % (str(ret), str(expected)))
     if ret != expected:
         return False
 
@@ -104,8 +104,8 @@ def test(log):
 
 
 def run(log, values):
-    log.show(calc(log, values, False))
-    log.show(calc(log, values, True))
+    log("Highest signal: " + str(calc(log, values, False)))
+    log("Highest signal, with feedback: " + str(calc(log, values, True)))
 
 
 def other_debug(describe, values):

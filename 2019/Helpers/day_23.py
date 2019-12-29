@@ -73,5 +73,5 @@ def test(log):
 
 
 def run(log, values):
-    log.show("First output to 255: " + str(calc(log, values)))
-    log.show("First repeated NAT value: " + str(calc(log, values, use_nat=True)))
+    log("First output to 255: " + str(calc(log, values)))
+    log("First repeated NAT value: " + str(calc(log, values, use_nat=True)))

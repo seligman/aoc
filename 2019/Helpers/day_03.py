@@ -41,12 +41,12 @@ def test(log):
     """)
 
     ret, expected = calc(log, values, False), 159
-    log.show("Test returned %s, expected %s" % (str(ret), str(expected)))
+    log("Test returned %s, expected %s" % (str(ret), str(expected)))
     if ret != expected:
         return False
 
     ret, expected = calc(log, values, True), 610
-    log.show("Test returned %s, expected %s" % (str(ret), str(expected)))
+    log("Test returned %s, expected %s" % (str(ret), str(expected)))
     if ret != expected:
         return False
 
@@ -54,5 +54,5 @@ def test(log):
 
 
 def run(log, values):
-    log.show(calc(log, values, False))
-    log.show(calc(log, values, True))
+    log("Manhattan distance: " + str(calc(log, values, False)))
+    log("Fewest steps: " + str(calc(log, values, True)))

@@ -73,12 +73,12 @@ def test(log):
     """)
 
     ret, expected = calc(log, values, 10), 179
-    log.show("Test returned %s, expected %s" % (str(ret), str(expected)))
+    log("Test returned %s, expected %s" % (str(ret), str(expected)))
     if ret != expected:
         return False
 
     ret, expected = calc(log, values), 2772
-    log.show("Test returned %s, expected %s" % (str(ret), str(expected)))
+    log("Test returned %s, expected %s" % (str(ret), str(expected)))
     if ret != expected:
         return False
 
@@ -86,5 +86,5 @@ def test(log):
 
 
 def run(log, values):
-    log.show(calc(log, values, get_energy=1000))
-    log.show(calc(log, values))
+    log("Total energy: " + str(calc(log, values, get_energy=1000)))
+    log("Steps taken: " + str(calc(log, values)))

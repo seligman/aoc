@@ -140,7 +140,7 @@ def calc(log, values, mode, animate=False):
             else:
                 x, y = desc
                 if steps % 5 == 0:
-                    log.show("Frame: " + str(steps))
+                    log("Frame: " + str(steps))
                 if grid.get(x, y) in keys:
                     passed_keys.add(grid.get(x, y))
                 if grid.get(x, y) in doors:
@@ -184,7 +184,7 @@ def test(log):
     """)
 
     ret, expected = calc(log, values, 0), 81
-    log.show("Test returned %s, expected %s" % (str(ret), str(expected)))
+    log("Test returned %s, expected %s" % (str(ret), str(expected)))
     if ret != expected:
         return False
 
@@ -200,5 +200,5 @@ def other_animate(describe, values):
 
 
 def run(log, values):
-    log.show("With one worker: " + str(calc(log, values, 0)))
-    log.show("With four workers: " + str(calc(log, values, 1)))
+    log("With one worker: " + str(calc(log, values, 0)))
+    log("With four workers: " + str(calc(log, values, 1)))

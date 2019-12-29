@@ -30,11 +30,11 @@ def test(log):
     """)
 
     ret, expected = calc(log, values, 1), 33583 
-    log.show("Test returned %s, expected %s" % (str(ret), str(expected)))
+    log("Test returned %s, expected %s" % (str(ret), str(expected)))
     if ret != expected:
         return False
     ret, expected = calc(log, values, 2), 50346 
-    log.show("Test returned %s, expected %s" % (str(ret), str(expected)))
+    log("Test returned %s, expected %s" % (str(ret), str(expected)))
     if ret != expected:
         return False
 
@@ -42,5 +42,5 @@ def test(log):
 
 
 def run(log, values):
-    log.show(calc(log, values, 1))
-    log.show(calc(log, values, 2))
+    log("Fuel requirements: " + str(calc(log, values, 1)))
+    log("Including mass: " + str(calc(log, values, 2)))

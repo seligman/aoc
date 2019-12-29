@@ -35,7 +35,7 @@ def calc(log, values, animate=False):
                 if count == 4:
                     ret += x * y
 
-    log.show("Intersections sum: " + str(ret))
+    log("Intersections sum: " + str(ret))
 
     # Find a path through
     x, y = start_x, start_y
@@ -119,7 +119,7 @@ def calc(log, values, animate=False):
             score_offset = key
             break
 
-    log.show("Found location for score at: " + str(score_offset))
+    log("Found location for score at: " + str(score_offset))
 
     # And finally, draw the solution (or just run it)
     prog = Program.from_values(values, log)
@@ -161,7 +161,7 @@ def calc(log, values, animate=False):
         }, repeat_final=30)
         Grid.make_animation(output_name="animation_%02d" % (get_desc()[0],), file_format="mp4")
 
-    log.show("Cleaning readout: " + str(prog.last_output))
+    log("Cleaning readout: " + str(prog.last_output))
 
     return prog.last_output
 
@@ -179,4 +179,4 @@ def other_animate(describe, values):
 
 
 def run(log, values):
-    log.show(calc(log, values))
+    calc(log, values)

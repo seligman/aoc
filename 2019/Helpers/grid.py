@@ -170,10 +170,10 @@ class Grid:
                 else:
                     ret += "?"
                     for cur in disp:
-                        log.show("Unknown Glyph: " + cur)
-                    log.show("Code: " + str(code))
+                        log("Unknown Glyph: " + cur)
+                    log("Code: " + str(code))
 
-        log.show("That decodes to: " + ret)
+        log("That decodes to: " + ret)
             
 
     def show_grid(self, log, disp_map=DEFAULT_DISP_MAP, dump_all=False):
@@ -184,7 +184,7 @@ class Grid:
                     line += self.grid.get((x, y), self.default)
                 else:
                     line += disp_map[self.grid.get((x, y), self.default)]
-            log.show(line)
+            log(line)
 
     def save_frame(self, extra_text=None, extra=None):
         self.frames.append((self.grid.copy(), extra_text, extra))

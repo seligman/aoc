@@ -6,6 +6,7 @@ def get_out(prog):
         l += chr(prog.get_output())
     return l
 
+
 def add_in(prog, val):
     for cur in val + "\n":
         prog.add_to_input(ord(cur))
@@ -28,7 +29,7 @@ class Program:
         values = [int(x) for x in values.split(",")]
         variables = {}
         off = 0
-        log.show(" Offset    Val Op Code        'Description'")
+        log(" Offset    Val Op Code        'Description'")
         while off < len(values):
             off += Program.debug_line(log, values, off, variables=variables)
 
@@ -48,7 +49,7 @@ class Program:
         temp = Program([], 0)
 
         if values[off] % 100 not in temp.ops:
-            log.show("{:7d} {:6d}".format(off, values[off]))
+            log("{:7d} {:6d}".format(off, values[off]))
             return 1
         else:
             _func, name, params, desc = temp.ops[values[off] % 100]
@@ -67,7 +68,7 @@ class Program:
                 elif mode == 2:
                     info.append("[{}+rel]".format(values[off + 1 + i]))
             desc = desc.format(*info)
-            log.show("{:7d} {:6d} {:14s} {:5s} {:30s} {}".format(
+            log("{:7d} {:6d} {:14s} {:5s} {:30s} {}".format(
                 off, 
                 values[off], 
                 name, 
@@ -195,7 +196,7 @@ class Program:
         self.off += 2
 
     def op_debug(self):
-        self.log.show("DEBUG: " + str(self.get_value(1)))
+        self.log("DEBUG: " + str(self.get_value(1)))
         self.off += 2
 
     def op_jump_if_true(self):
@@ -333,7 +334,7 @@ def calc(log, values):
                 prog.tick()
             if "Items in your inventory:\n- " + items[i][1] in get_out(prog):
                 items[i][0] = True
-            # log.show("Item: %s is %s" % (items[i][1], "valid" if items[i][0] else "invalid"))
+            # log("Item: %s is %s" % (items[i][1], "valid" if items[i][0] else "invalid"))
 
         items = [x for x in items if x[0]]
 
@@ -383,11 +384,11 @@ def calc(log, values):
                 results = get_out(prog)
 
                 if "keypad" in results:
-                    # log.show("-- Items --")
+                    # log("-- Items --")
                     # for item in cur:
-                    #     log.show(item[1])
-                    # log.show("-- Room --")
-                    # log.show(results)
+                    #     log(item[1])
+                    # log("-- Room --")
+                    # log(results)
 
                     items_to_get = cur
 
@@ -504,6 +505,9 @@ def draw_text(lines, frame):
 class DummyLog:
     def __init__(self):
         pass
+
+    def __call__(self, value):
+        print(value)
 
     def show(self, value):
         print(value)

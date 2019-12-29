@@ -95,7 +95,7 @@ def test(log):
     """)
 
     ret, expected = calc(log, values), (13312, 82892753) 
-    log.show("Test returned %s, expected %s" % (str(ret), str(expected)))
+    log("Test returned %s, expected %s" % (str(ret), str(expected)))
     if ret != expected:
         return False
 
@@ -104,5 +104,5 @@ def test(log):
 
 def run(log, values):
     ret = calc(log, values)
-    log.show("One fuel requires: " + str(ret[0]))
-    log.show("A trillion ore gives: " + str(ret[1]))
+    log("One fuel requires: " + str(ret[0]))
+    log("A trillion ore gives: " + str(ret[1]))

@@ -25,7 +25,7 @@ class Program:
         values = [int(x) for x in values.split(",")]
         variables = {}
         off = 0
-        log.show(" Offset    Val Op Code        'Description'")
+        log(" Offset    Val Op Code        'Description'")
         while off < len(values):
             off += Program.debug_line(log, values, off, variables=variables)
 
@@ -45,7 +45,7 @@ class Program:
         temp = Program([], 0)
 
         if values[off] % 100 not in temp.ops:
-            log.show("{:7d} {:6d}".format(off, values[off]))
+            log("{:7d} {:6d}".format(off, values[off]))
             return 1
         else:
             _func, name, params, desc = temp.ops[values[off] % 100]
@@ -64,7 +64,7 @@ class Program:
                 elif mode == 2:
                     info.append("[{}+rel]".format(values[off + 1 + i]))
             desc = desc.format(*info)
-            log.show("{:7d} {:6d} {:14s} {:5s} {:30s} {}".format(
+            log("{:7d} {:6d} {:14s} {:5s} {:30s} {}".format(
                 off, 
                 values[off], 
                 name, 
@@ -192,7 +192,7 @@ class Program:
         self.off += 2
 
     def op_debug(self):
-        self.log.show("DEBUG: " + str(self.get_value(1)))
+        self.log("DEBUG: " + str(self.get_value(1)))
         self.off += 2
 
     def op_jump_if_true(self):

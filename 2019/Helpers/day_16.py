@@ -33,7 +33,7 @@ def calc(log, values, phases):
         fft = step
 
     ret = "".join(map(str, fft[:8]))
-    log.show("First part: " + ret)
+    log("First part: " + ret)
 
     fft = list(map(int, values[0]))
     offset = int("".join(map(str, fft[:7])))
@@ -46,7 +46,7 @@ def calc(log, values, phases):
             step.append(last)
         fft = step
 
-    log.show("Second part: " + "".join(map(str, fft[:-9:-1])))
+    log("Second part: " + "".join(map(str, fft[:-9:-1])))
 
     return ret
 
@@ -57,7 +57,7 @@ def test(log):
     """)
 
     ret, expected = calc(log, values, 100), "24176176"
-    log.show("Test returned %s, expected %s" % (str(ret), str(expected)))
+    log("Test returned %s, expected %s" % (str(ret), str(expected)))
     if ret != expected:
         return False
 
@@ -65,4 +65,4 @@ def test(log):
 
 
 def run(log, values):
-    log.show(calc(log, values, 100))
+    calc(log, values, 100)

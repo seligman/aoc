@@ -31,7 +31,7 @@ def calc(log, values):
         elif oper == "inc":
             card = card * value % deck
 
-    log.show("Card 2019 is at offset: " + str(card))
+    log("Card 2019 is at offset: " + str(card))
 
     deck = 119315717514047
     card = 2020
@@ -60,7 +60,7 @@ def calc(log, values):
     value = temp_a + b * temp_b * temp_c
     value %= deck
 
-    log.show("Card at position 2020: " + str(value))
+    log("Card at position 2020: " + str(value))
 
 
 def test(log):

@@ -20,7 +20,7 @@ def test(log):
     """)
 
     ret, expected = calc(log, values), 1234
-    log.show("Test returned %s, expected %s" % (str(ret), str(expected)))
+    log("Test returned %s, expected %s" % (str(ret), str(expected)))
     if ret != expected:
         return False
 
@@ -28,4 +28,4 @@ def test(log):
 
 
 def run(log, values):
-    log.show(calc(log, values))
+    log(calc(log, values))

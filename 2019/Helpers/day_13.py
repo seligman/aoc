@@ -148,5 +148,5 @@ def other_animate(describe, values):
 
 
 def run(log, values):
-    log.show("Number of blocks: " + str(calc(log, values, False)))
-    log.show("Final Score: " + str(calc(log, values, True)))
+    log("Number of blocks: " + str(calc(log, values, False)))
+    log("Final Score: " + str(calc(log, values, True)))

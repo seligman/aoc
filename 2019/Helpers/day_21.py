@@ -38,7 +38,7 @@ def calc(log, values, walk):
                 output[-1] += chr(value)
 
     for cur in output:
-        log.show(cur)
+        log(cur)
 
     return "ERROR"
 
@@ -48,5 +48,5 @@ def test(log):
 
 
 def run(log, values):
-    log.show("Walk: " + str(calc(log, values, True)))
-    log.show("Run: " + str(calc(log, values, False)))
+    log("Walk: " + str(calc(log, values, True)))
+    log("Run: " + str(calc(log, values, False)))

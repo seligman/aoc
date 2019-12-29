@@ -153,7 +153,7 @@ def test(log):
     """)
 
     ret, expected = calc(log, values, False), 58
-    log.show("Test returned %s, expected %s" % (str(ret), str(expected)))
+    log("Test returned %s, expected %s" % (str(ret), str(expected)))
     if ret != expected:
         return False
 
@@ -199,7 +199,7 @@ def test(log):
     """)
 
     ret, expected = calc(log, values, True), 396
-    log.show("Test returned %s, expected %s" % (str(ret), str(expected)))
+    log("Test returned %s, expected %s" % (str(ret), str(expected)))
     if ret != expected:
         return False
 
@@ -215,5 +215,5 @@ def other_animate(describe, values):
 
 
 def run(log, values):
-    log.show("One Level: " + str(calc(log, values, False)))
-    log.show("Many Levels: " + str(calc(log, values, True)))
+    log("One Level: " + str(calc(log, values, False)))
+    log("Many Levels: " + str(calc(log, values, True)))

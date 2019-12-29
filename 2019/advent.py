@@ -10,6 +10,7 @@ import textwrap
 import time
 import sys
 import codecs
+from datetime import datetime
 from advent_year import YEAR_NUMBER
 
 ALT_DATA_FILE = None
@@ -19,6 +20,9 @@ SOURCE_CONTROL = "p4"
 class Logger:
     def __init__(self):
         self.rows = []
+
+    def __call__(self, value):
+        self.show(value)
 
     def show(self, value):
         global _print_catcher
@@ -275,15 +279,27 @@ def get_helpers_id(helper_day):
     if helper_day == "all":
         for helper in utils.get_helpers():
             yield helper
-    elif helper_day in {"last", "latest", "cur", "now"}:
-        last = None
-        for helper in utils.get_helpers():
-            last = helper
-        yield last
     else:
-        helper_day = int(helper_day)
+        valid = set()
+        def parse_value(value):
+            if value.lower() in {"last", "latest", "cur", "now"}:
+                last = None
+                for helper in utils.get_helpers():
+                    last = helper.get_desc()[0]
+                return last
+            else:
+                return int(value)
+
+        for part in helper_day.split(","):
+            if "-" in part:
+                part = part.split("-")
+                for x in range(parse_value(part[0]), parse_value(part[1]) + 1):
+                    valid.add(x)
+            else:
+                valid.add(parse_value(part))
+
         for helper in utils.get_helpers():
-            if helper_day == helper.get_desc()[0]:
+            if helper.get_desc()[0] in valid:
                 yield helper
 
 
@@ -330,6 +346,14 @@ class PrintCatcher:
     def undo(self):
         sys.stdout = self.old_stdout
         return None
+
+
+@opt("Run and time duration")
+def run_time(helper_day):
+    start = datetime.utcnow()
+    run(helper_day)
+    end = datetime.utcnow()
+    safe_print("Done, that took %0.2f seconds" % ((end - start).total_seconds()))
 
 
 @opt("Run helper")

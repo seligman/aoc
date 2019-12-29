@@ -6,3 +6,6 @@ class DummyLog:
 
     def show(self, value):
         print(value)
+
+    def __call__(self, value):
+        print(value)

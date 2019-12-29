@@ -47,8 +47,8 @@ def calc(log, values):
             if 2 in counts:
                 hits_double += 1
 
-    log.show("Valid entries: " + str(hits))
-    log.show("Valid entries with a double: " + str(hits_double))
+    log("Valid entries: " + str(hits))
+    log("Valid entries with a double: " + str(hits_double))
 
     return hits, hits_double
 
@@ -59,7 +59,7 @@ def test(log):
     """)
 
     ret, expected = calc(log, values), (1169, 757)
-    log.show("Test returned %s, expected %s" % (str(ret), str(expected)))
+    log("Test returned %s, expected %s" % (str(ret), str(expected)))
     if ret != expected:
         return False
 
@@ -67,4 +67,4 @@ def test(log):
 
 
 def run(log, values):
-    log.show(calc(log, values))
+    calc(log, values)

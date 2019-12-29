@@ -4,17 +4,13 @@ def get_desc():
     return 5, 'Day 5: Sunny with a Chance of Asteroids'
 
 
-def calc(log, values, replace_1=None, replace_2=None):
+def calc(log, values, input_val):
     from program import Program
-    ret = []
-    for val in [1, 5]:
-        ticker = [int(x) for x in values[0].split(",")]
-        prog = Program(ticker, log)
-        prog.add_to_input(val)
-        while prog.tick():
-            pass
-        ret.append(prog.last_output)
-    return tuple(ret)
+
+    prog = Program.from_values(values, log)
+    prog.add_to_input(input_val)
+    prog.tick_till_end()
+    return prog.last_output
 
 
 def test(log):
@@ -22,8 +18,8 @@ def test(log):
         1002,4,3,4,33
     """)
 
-    ret, expected = calc(log, values), (None, None)
-    log.show("Test returned %s, expected %s" % (str(ret), str(expected)))
+    ret, expected = calc(log, values, 1), None
+    log("Test returned %s, expected %s" % (str(ret), str(expected)))
     if ret != expected:
         return False
     
@@ -31,4 +27,5 @@ def test(log):
 
 
 def run(log, values):
-    log.show(calc(log, values))
+    log("Diagnostic for 1: " + str(calc(log, values, 1)))
+    log("Diagnostic for 5: " + str(calc(log, values, 5)))

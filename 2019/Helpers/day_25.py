@@ -63,7 +63,7 @@ def calc(log, values):
             prog.tick()
         if "Items in your inventory:\n- " + items[i][1] in get_out(prog):
             items[i][0] = True
-        log.show("Item: %s is %s" % (items[i][1], "valid" if items[i][0] else "invalid"))
+        log("Item: %s is %s" % (items[i][1], "valid" if items[i][0] else "invalid"))
 
     items = [x for x in items if x[0]]
 
@@ -113,11 +113,11 @@ def calc(log, values):
             results = get_out(prog)
 
             if "keypad" in results:
-                log.show("-- Items --")
+                log("-- Items --")
                 for item in cur:
-                    log.show(item[1])
-                log.show("-- Room --")
-                log.show(results)
+                    log(item[1])
+                log("-- Room --")
+                log(results)
                 break
             else:
                 results = None
