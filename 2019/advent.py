@@ -28,7 +28,7 @@ class Logger:
         if _print_catcher is not None:
             _print_catcher.safe = True
         try:
-            if isinstance(value, unicode):
+            if isinstance(value, unicode): # pylint: disable=undefined-variable
                 value = value.replace(u"\r\n", u"\n")
                 for cur in value.split(u"\n"):
                     cur += u"\n"
