@@ -4,7 +4,6 @@ from command_opts import opt, main_entry
 import utils
 import os
 import subprocess
-import requests
 import re
 import textwrap
 import time
@@ -363,7 +362,7 @@ def run(helper_day):
     run_helper(helper_day, False)
     if _print_catcher.raw_used:
         safe_print("WARNING: Raw 'print' used somewhere!")
-    _print_catcher = _print_catcher.undo()
+    _print_catcher = _print_catcher.undo() # pylint: disable=assignment-from-none
 
 
 @opt("Run helper and save output as correct")
@@ -497,6 +496,7 @@ def get_header_footer():
 
 
 def get_page(url):
+    import urllib.request
     if not os.path.isfile("cookie.txt"):
         print("ERROR: Need 'cookie.txt' with the session information!")
         raise Exception("Need cookie file!")
@@ -504,9 +504,12 @@ def get_page(url):
     with open("cookie.txt") as f:
         cookie = f.read().strip()
 
-    resp = requests.get(url, headers={'Cookie': cookie})
-
-    return resp.text
+    req = urllib.request.Request(
+        url, 
+        headers={'Cookie': cookie},
+    )
+    resp = urllib.request.urlopen(req)
+    return resp.read().decode("utf-8")
 
 
 @opt("Download Index")
