@@ -1,11 +1,11 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 import os
 import sys
 import inspect
 import textwrap
 
-VERSION = 4
+VERSION = 5
 _g_options = []
 
 
@@ -138,17 +138,27 @@ def main_entry(order_by='none', include_other=False, program_desc=None, default_
         for arg in options:
             if not arg.hidden:
                 optional = " ".join(arg.args)
-                max_len = max(len(arg.other) + len(optional), max_len)
+                if len(arg.other) + len(optional) <= 25:
+                    max_len = max(len(arg.other) + len(optional), max_len)
 
         dec_len = 70
         for arg in options:
             if not arg.hidden:
                 optional = " ".join(arg.args)
-                dec_len = max(dec_len, len("%s %s%s = %s" % (
-                    arg.other,
-                    optional,
-                    " " * (max_len - (len(arg.other) + len(optional))),
-                    arg.help)))
+                if len(arg.other) + len(optional) <= max_len:
+                    dec_len = max(dec_len, len("%s %s%s = %s" % (
+                        arg.other,
+                        optional,
+                        " " * (max_len - (len(arg.other) + len(optional))),
+                        arg.help)))
+                else:
+                    dec_len = max(dec_len, len("%s %s%s" % (
+                        arg.other,
+                        optional,
+                        " " * (max_len - (len(arg.other) + len(optional))))))
+                    dec_len = max(dec_len, len("%s  = %s" % (
+                        " " * max_len,
+                        arg.help)))
 
         if program_desc is not None:
             program_desc = textwrap.dedent(program_desc)
@@ -177,11 +187,20 @@ def main_entry(order_by='none', include_other=False, program_desc=None, default_
         for arg in options:
             if not arg.hidden:
                 optional = " ".join(arg.args)
-                print("%s %s%s = %s" % (
-                    arg.other,
-                    optional,
-                    " " * (max_len - (len(arg.other) + len(optional))),
-                    arg.help))
+                if len(arg.other) + len(optional) <= max_len:
+                    print("%s %s%s = %s" % (
+                        arg.other,
+                        optional,
+                        " " * (max_len - (len(arg.other) + len(optional))),
+                        arg.help))
+                else:
+                    print("%s %s%s" % (
+                        arg.other,
+                        optional,
+                        " " * (max_len - (len(arg.other) + len(optional)))))
+                    print("%s  = %s" % (
+                        " " * max_len,
+                        arg.help))
                 if len(arg.aka) > 0:
                     print("%s Or: %s" % (" " * (max_len + 3), ", ".join(arg.aka)))
 
@@ -215,6 +234,7 @@ def getch():
 
 
 def _getch_unix():
+    #pylint: disable=import-error
     import sys, tty, termios
     fd = sys.stdin.fileno()
     old_settings = termios.tcgetattr(fd)
@@ -232,7 +252,12 @@ def _getch_windows():
 
 
 def getkey():
-    ret = getch()
+    def safe_getch():
+        temp = getch()
+        if not isinstance(temp, str):
+            temp = "".join(map(chr, temp))
+        return temp
+    ret = safe_getch()
     if ret == "\x03":
         raise KeyboardInterrupt()
     elif ret == "\x08" or ret == "\x7f":
@@ -240,7 +265,7 @@ def getkey():
     elif ret == "\x0d":
         ret = "enter"
     elif ret == "\xe0":
-        ret = getch()
+        ret = safe_getch()
         ret = {
             "\x48": "up",
             "\x50": "down",
@@ -248,9 +273,9 @@ def getkey():
             "\x4d": "right",
         }.get(ret, ret)
     elif ret == "\x1b":
-        ret = getch()
+        ret = safe_getch()
         if ret == "\x5b" or ret == "\x4f":
-            ret = getch()
+            ret = safe_getch()
             ret = {
                 "\x41": "up",
                 "\x42": "down",
@@ -301,11 +326,11 @@ def _update_picker(options, hide_colors=False):
     if last_entry_item != entry_item or hide_colors:
         for menu_item in [last_entry_item, entry_item]:
             if menu_item is not None:
-                sys.stdout.write("\033[s\r\033[%dA" % (options["rows"] - menu_item["row"],))
+                sys.stdout.write("\033" + ("[s" if os.name != "posix" else "7") + "\r\033[%dA" % (options["rows"] - menu_item["row"],))
                 if menu_item["col"] > 0:
                     sys.stdout.write("\033[%dC" % (menu_item["col"] * (options["max_len"] + 6)))
                 _show_item(options, menu_item, hide_colors=hide_colors)
-                sys.stdout.write("\033[u")
+                sys.stdout.write("\033" + ("[u" if os.name != "posix" else "8"))
             
     sys.stdout.flush()
 
@@ -472,7 +497,7 @@ if __name__ == "__main__":
         # and call the function the user wants to invoke:
         # --------------------------------------------------------------------------
         
-        #!/usr/bin/env python
+        #!/usr/bin/env python3
 
         from command_opts import opt, main_entry
 
