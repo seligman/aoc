@@ -4,12 +4,12 @@ from command_opts import opt, main_entry
 import utils
 import os
 import subprocess
-import requests
 import re
 import textwrap
 import time
 import sys
 import codecs
+from datetime import datetime
 from advent_year import YEAR_NUMBER
 
 ALT_DATA_FILE = None
@@ -20,12 +20,15 @@ class Logger:
     def __init__(self):
         self.rows = []
 
+    def __call__(self, value):
+        self.show(value)
+
     def show(self, value):
         global _print_catcher
         if _print_catcher is not None:
             _print_catcher.safe = True
         try:
-            if isinstance(value, unicode):
+            if isinstance(value, unicode): # pylint: disable=undefined-variable
                 value = value.replace(u"\r\n", u"\n")
                 for cur in value.split(u"\n"):
                     cur += u"\n"
@@ -275,15 +278,27 @@ def get_helpers_id(helper_day):
     if helper_day == "all":
         for helper in utils.get_helpers():
             yield helper
-    elif helper_day in {"last", "latest", "cur", "now"}:
-        last = None
-        for helper in utils.get_helpers():
-            last = helper
-        yield last
     else:
-        helper_day = int(helper_day)
+        valid = set()
+        def parse_value(value):
+            if value.lower() in {"last", "latest", "cur", "now"}:
+                last = None
+                for helper in utils.get_helpers():
+                    last = helper.get_desc()[0]
+                return last
+            else:
+                return int(value)
+
+        for part in helper_day.split(","):
+            if "-" in part:
+                part = part.split("-")
+                for x in range(parse_value(part[0]), parse_value(part[1]) + 1):
+                    valid.add(x)
+            else:
+                valid.add(parse_value(part))
+
         for helper in utils.get_helpers():
-            if helper_day == helper.get_desc()[0]:
+            if helper.get_desc()[0] in valid:
                 yield helper
 
 
@@ -332,6 +347,14 @@ class PrintCatcher:
         return None
 
 
+@opt("Run and time duration")
+def run_time(helper_day):
+    start = datetime.utcnow()
+    run(helper_day)
+    end = datetime.utcnow()
+    safe_print("Done, that took %0.2f seconds" % ((end - start).total_seconds()))
+
+
 @opt("Run helper")
 def run(helper_day):
     global _print_catcher
@@ -339,7 +362,7 @@ def run(helper_day):
     run_helper(helper_day, False)
     if _print_catcher.raw_used:
         safe_print("WARNING: Raw 'print' used somewhere!")
-    _print_catcher = _print_catcher.undo()
+    _print_catcher = _print_catcher.undo() # pylint: disable=assignment-from-none
 
 
 @opt("Run helper and save output as correct")
@@ -473,6 +496,7 @@ def get_header_footer():
 
 
 def get_page(url):
+    import urllib.request
     if not os.path.isfile("cookie.txt"):
         print("ERROR: Need 'cookie.txt' with the session information!")
         raise Exception("Need cookie file!")
@@ -480,9 +504,12 @@ def get_page(url):
     with open("cookie.txt") as f:
         cookie = f.read().strip()
 
-    resp = requests.get(url, headers={'Cookie': cookie})
-
-    return resp.text
+    req = urllib.request.Request(
+        url, 
+        headers={'Cookie': cookie},
+    )
+    resp = urllib.request.urlopen(req)
+    return resp.read().decode("utf-8")
 
 
 @opt("Download Index")
