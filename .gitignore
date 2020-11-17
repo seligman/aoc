@@ -1,18 +1,25 @@
-*.pyc
+# Ignore the root helpers
+command_opts.py
+git_helper.py
+
+# Ignore my little stats side-project
+stats/
+
+# Ignore VS Code stuff
+**/.vscode/
 *.resx
 
-*/__pycache__/
-*/.DS_Store/
-*/.vs/
-*/.vscode/
-*/bin/
-*/obj/
-*/pythonenv3.8/
+# Python pre-compiled things
+**/__pycache__/
+*.py[cod]
+*$py.class
+**/pythonenv*/
 
-__pycache__/
-.DS_Store/
-.vs/
-.vscode/
-bin/
-obj/
-pythonenv3.8/
+# Visual Studio folders
+**/.vs/
+**/bin/
+**/obj/
+
+# Temp files
+*~
+**/.DS_Store/
