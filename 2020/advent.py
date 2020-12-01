@@ -255,7 +255,7 @@ def make_day_helper(offline):
                 data = f_src.read()
                 data = data.replace("DAY0_NUM", "%02d" % (helper_day,))
                 data = data.replace("DAY_NUM", "%d" % (helper_day,))
-                data = data.replace("DAY_TODO", codecs.escape_encode(todo.encode("utf8"))[0])
+                data = data.replace("DAY_TODO", todo)
                 f_dest.write(data)
 
     with open(os.path.join("Puzzles", "day_%02d.html.DO_NOT_CHECK_THIS_FILE_IN" % (helper_day,)), "w") as f:
