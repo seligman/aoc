@@ -3,7 +3,6 @@
 def get_desc():
     return 3, 'Day 3: Toboggan Trajectory'
 
-
 def calc(log, values, mode):
     from grid import Grid
     grid = Grid.from_text(values)
@@ -31,7 +30,6 @@ def calc(log, values, mode):
 
     return value
 
-
 def test(log):
     values = log.decode_values("""
         ..##.......
@@ -47,18 +45,8 @@ def test(log):
         .#..#...#.#
     """)
 
-    ret, expected = calc(log, values, 1), 7
-    log("Test returned %s, expected %s" % (str(ret), str(expected)))
-    if ret != expected:
-        return False
-
-    ret, expected = calc(log, values, 2), 336
-    log("Test returned %s, expected %s" % (str(ret), str(expected)))
-    if ret != expected:
-        return False
-
-    return True
-
+    log.test(calc(log, values, 1), 7)
+    log.test(calc(log, values, 2), 336)
 
 def run(log, values):
     log(calc(log, values, 1))

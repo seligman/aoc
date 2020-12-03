@@ -3,11 +3,10 @@
 def get_desc():
     return 1, 'Day 1: Report Repair'
 
-
-def calc(log, values, step):
+def calc(log, values, mode):
     values = [int(x) for x in values]
 
-    if step == 1:
+    if mode == 1:
         for x in range(len(values)):
             for y in range(x + 1, len(values)):
                 if values[x] + values[y] == 2020:
@@ -21,7 +20,6 @@ def calc(log, values, step):
 
     return 10
 
-
 def test(log):
     values = log.decode_values("""
         1721
@@ -32,18 +30,8 @@ def test(log):
         1456
     """)
 
-    ret, expected = calc(log, values, 1), 514579
-    log("Test returned %s, expected %s" % (str(ret), str(expected)))
-    if ret != expected:
-        return False
-
-    ret, expected = calc(log, values, 2), 241861950
-    log("Test returned %s, expected %s" % (str(ret), str(expected)))
-    if ret != expected:
-        return False
-
-    return True
-
+    log.test(calc(log, values, 1), 514579)
+    log.test(calc(log, values, 2), 241861950)
 
 def run(log, values):
     log(calc(log, values, 1))

@@ -82,6 +82,11 @@ class Logger:
                 ret.append(cur)
         return ret
 
+    def test(self, actual, expected):
+        self.show("Test returned %s, expected %s" % (str(actual), str(expected)))
+        if actual != expected:
+            raise ValueError("Test failure")
+
 
 def edit_file(filename):
     if SOURCE_CONTROL is not None:
@@ -319,10 +324,11 @@ def test(helper_day):
 
     for helper in get_helpers_id(helper_day):
         print("## %s" % (helper.get_desc()[1]))
-        if helper.test(Logger()):
+        try:
+            helper.test(Logger())
             print("That worked!")
             good += 1
-        else:
+        except ValueError:
             print("FAILURE!")
             bad += 1
 

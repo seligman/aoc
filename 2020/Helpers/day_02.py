@@ -6,7 +6,6 @@ from collections import defaultdict
 def get_desc():
     return 2, 'Day 2: Password Philosophy'
 
-
 def calc(log, values, mode):
     r = re.compile("([0-9]+)-([0-9]+) ([a-z]): ([a-z]+)")
     ret = 0
@@ -28,7 +27,6 @@ def calc(log, values, mode):
 
     return ret
 
-
 def test(log):
     values = log.decode_values("""
         1-3 a: abcde
@@ -36,18 +34,8 @@ def test(log):
         2-9 c: ccccccccc
     """)
 
-    ret, expected = calc(log, values, 1), 2
-    log("Test returned %s, expected %s" % (str(ret), str(expected)))
-    if ret != expected:
-        return False
-
-    ret, expected = calc(log, values, 2), 1
-    log("Test returned %s, expected %s" % (str(ret), str(expected)))
-    if ret != expected:
-        return False
-
-    return True
-
+    log.test(calc(log, values, 1), 2)
+    log.test(calc(log, values, 2), 1)
 
 def run(log, values):
     log(calc(log, values, 1))

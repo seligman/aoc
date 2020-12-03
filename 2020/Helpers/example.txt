@@ -3,29 +3,21 @@
 def get_desc():
     return DAY_NUM, 'DAY_TODO'
 
-
-def calc(log, values):
+def calc(log, values, mode):
     # from grid import Grid
     # grid = Grid()
-    # from program import Program
-    # prog = Program.from_values(values, log)
 
     # TODO
     return 0
-
 
 def test(log):
     values = log.decode_values("""
         TODO
     """)
 
-    ret, expected = calc(log, values), 1234
-    log("Test returned %s, expected %s" % (str(ret), str(expected)))
-    if ret != expected:
-        return False
-
-    return True
-
+    log.test(calc(values, 1), 1234)
+    log.test(calc(values, 2), 1234)
 
 def run(log, values):
-    log(calc(log, values))
+    log(calc(log, values, 1))
+    log(calc(log, values, 2))
