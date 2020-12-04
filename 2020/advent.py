@@ -14,7 +14,15 @@ from advent_year import YEAR_NUMBER
 
 ALT_DATA_FILE = None
 SOURCE_CONTROL = "p4"
-
+DESC = """
+### The suggested dail routine looks like this:
+advent.py launch      # This launches some useful links
+advent.py make_day    # This makes a day, only run it when the site is ready
+advent.py test cur    # This tests the current day, keep going till it works!
+advent.py run cur     # This runs on the same data
+### And finally, when everything's done, some clean up, and make a comment to post
+advent.py dl_day cur get_index gen_comment
+"""
 
 class Logger:
     def __init__(self):
@@ -138,18 +146,19 @@ def update_selfs():
         source_data = f.read()
 
     for year in os.listdir(".."):
-        year = os.path.join("..", year)
-        if os.path.isdir(year):
-            dest = os.path.join(year, "advent.py")
-            with open(dest, "rb") as f:
-                dest_data = f.read()
-            if dest_data == source_data:
-                print("%s is already up to date" % (dest,))
-            else:
-                print("Updating %s..." % (dest,))
-                edit_file(dest)
-                with open(dest, "wb") as f:
-                    f.write(source_data)
+        if re.search("^[0-9]{4}$", year) is not None:
+            year = os.path.join("..", year)
+            if os.path.isdir(year):
+                dest = os.path.join(year, "advent.py")
+                with open(dest, "rb") as f:
+                    dest_data = f.read()
+                if dest_data == source_data:
+                    print("%s is already up to date" % (dest,))
+                else:
+                    print("Updating %s..." % (dest,))
+                    edit_file(dest)
+                    with open(dest, "wb") as f:
+                        f.write(source_data)
 
 
 @opt("Use alt data file")
@@ -167,12 +176,43 @@ def get_input_file(helper, file_type="input"):
     return os.path.join("Puzzles", fn)
 
 
+@opt("Generate a comment based off scores")
+def gen_comment():
+    max_day = 0
+    for helper in utils.get_helpers():
+        max_day = max(helper.get_desc()[0], max_day)
+    
+    scores_url = "https://adventofcode.com/2020/leaderboard/self"
+    score_re = re.compile(r"^ *(?P<day>\d+) +\d+:\d+:\d+ +(?P<score1>\d+) +\d+ +\d+:\d+:\d+ +(?P<score2>\d+) +\d+ *$")
+    scores = get_page(scores_url)
+
+    found = False
+    day, score1, score2 = -1, -1, -1
+
+    for cur in scores.split("\n"):
+        m = score_re.search(cur)
+        if m is not None:
+            day, score1, score2 = int(m.group("day")), int(m.group("score1")), int(m.group("score2"))
+            if day == max_day:
+                found = True
+                break
+    
+    print("-" * 70)
+
+    if not found:
+        print("Warning: Couldn't find day!")
+        print("")
+    
+    print("Python, %d / %d" % (score1, score2))
+    print("")
+    print("[github](https://github.com/seligman/aoc/blob/master/2020/Helpers/day_%02d.py)" % (max_day,))
+
+
 @opt("Launch website")
 def launch():
     urls = [
         "https://adventofcode.com/" + YEAR_NUMBER,
         "https://www.reddit.com/r/adventofcode/",
-        "https://topaz.github.io/paste/",
         "https://imgur.com/upload",
     ]
 
@@ -334,7 +374,9 @@ def test(helper_day):
     for helper in get_helpers_id(helper_day):
         print("## %s" % (helper.get_desc()[1]))
         try:
-            helper.test(Logger())
+            resp = helper.test(Logger())
+            if resp is not None and resp == False:
+                raise ValueError("Returned false")
             print("That worked!")
             good += 1
         except ValueError:
@@ -599,5 +641,5 @@ def dl_day(helper_day):
 
 
 if __name__ == "__main__":
-    main_entry('func')
+    main_entry('func', program_desc=DESC)
 

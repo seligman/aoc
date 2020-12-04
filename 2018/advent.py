@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 from command_opts import opt, main_entry
 import utils
@@ -14,7 +14,15 @@ from advent_year import YEAR_NUMBER
 
 ALT_DATA_FILE = None
 SOURCE_CONTROL = "p4"
-
+DESC = """
+### The suggested dail routine looks like this:
+advent.py launch      # This launches some useful links
+advent.py make_day    # This makes a day, only run it when the site is ready
+advent.py test cur    # This tests the current day, keep going till it works!
+advent.py run cur     # This runs on the same data
+### And finally, when everything's done, some clean up, and make a comment to post
+advent.py dl_day cur get_index gen_comment
+"""
 
 class Logger:
     def __init__(self):
@@ -75,12 +83,26 @@ class Logger:
         return True
 
     def decode_values(self, values):
-        ret = []
-        for cur in values.split("\n"):
-            cur = cur.strip()
-            if len(cur) > 0:
-                ret.append(cur)
+        ret = values.replace("\t", "    ").split("\n")
+        # Only remove empty lines at the start and end
+        while len(ret) > 0 and len(ret[0].strip()) == 0:
+            ret = ret[1:]
+        while len(ret) > 0 and len(ret[-1].strip()) == 0:
+            ret = ret[:-1]
+        # Remove the indenting based off the first line
+        if len(ret) > 0:
+            pad = len(ret[0]) - len(ret[0].lstrip(' '))
+            pad -= pad % 4
+        if pad > 0 and len(ret) > 0:
+            for i in range(len(ret)):
+                if ret[i].startswith(" " * pad):
+                    ret[i] = ret[i][pad:]
         return ret
+
+    def test(self, actual, expected):
+        self.show("Test returned %s, expected %s" % (str(actual), str(expected)))
+        if actual != expected:
+            raise ValueError("Test failure")
 
 
 def edit_file(filename):
@@ -124,18 +146,19 @@ def update_selfs():
         source_data = f.read()
 
     for year in os.listdir(".."):
-        year = os.path.join("..", year)
-        if os.path.isdir(year):
-            dest = os.path.join(year, "advent.py")
-            with open(dest, "rb") as f:
-                dest_data = f.read()
-            if dest_data == source_data:
-                print("%s is already up to date" % (dest,))
-            else:
-                print("Updating %s..." % (dest,))
-                edit_file(dest)
-                with open(dest, "wb") as f:
-                    f.write(source_data)
+        if re.search("^[0-9]{4}$", year) is not None:
+            year = os.path.join("..", year)
+            if os.path.isdir(year):
+                dest = os.path.join(year, "advent.py")
+                with open(dest, "rb") as f:
+                    dest_data = f.read()
+                if dest_data == source_data:
+                    print("%s is already up to date" % (dest,))
+                else:
+                    print("Updating %s..." % (dest,))
+                    edit_file(dest)
+                    with open(dest, "wb") as f:
+                        f.write(source_data)
 
 
 @opt("Use alt data file")
@@ -153,12 +176,43 @@ def get_input_file(helper, file_type="input"):
     return os.path.join("Puzzles", fn)
 
 
+@opt("Generate a comment based off scores")
+def gen_comment():
+    max_day = 0
+    for helper in utils.get_helpers():
+        max_day = max(helper.get_desc()[0], max_day)
+    
+    scores_url = "https://adventofcode.com/2020/leaderboard/self"
+    score_re = re.compile(r"^ *(?P<day>\d+) +\d+:\d+:\d+ +(?P<score1>\d+) +\d+ +\d+:\d+:\d+ +(?P<score2>\d+) +\d+ *$")
+    scores = get_page(scores_url)
+
+    found = False
+    day, score1, score2 = -1, -1, -1
+
+    for cur in scores.split("\n"):
+        m = score_re.search(cur)
+        if m is not None:
+            day, score1, score2 = int(m.group("day")), int(m.group("score1")), int(m.group("score2"))
+            if day == max_day:
+                found = True
+                break
+    
+    print("-" * 70)
+
+    if not found:
+        print("Warning: Couldn't find day!")
+        print("")
+    
+    print("Python, %d / %d" % (score1, score2))
+    print("")
+    print("[github](https://github.com/seligman/aoc/blob/master/2020/Helpers/day_%02d.py)" % (max_day,))
+
+
 @opt("Launch website")
 def launch():
     urls = [
         "https://adventofcode.com/" + YEAR_NUMBER,
         "https://www.reddit.com/r/adventofcode/",
-        "https://topaz.github.io/paste/",
         "https://imgur.com/upload",
     ]
 
@@ -212,10 +266,18 @@ def make_day():
     make_day_helper(False)
 
 
-def make_day_helper(offline):
-    if not os.path.isfile("cookie.txt"):
-        print("ERROR: Need 'cookie.txt' with the session information!")
+def get_cookie():
+    fn = os.path.join(os.environ['USERPROFILE'], "cookie.txt")
+    if not os.path.isfile(fn):
+        print("ERROR: Need '" + fn + "' with the session information!")
         raise Exception("Need cookie file!")
+
+    with open(fn) as f:
+        return f.read().strip()
+
+
+def make_day_helper(offline):
+    get_cookie()
 
     for cur in os.listdir("Puzzles"):
         if "DO_NOT_CHECK_THIS_FILE_IN" in cur:
@@ -247,7 +309,7 @@ def make_day_helper(offline):
                 data = f_src.read()
                 data = data.replace("DAY0_NUM", "%02d" % (helper_day,))
                 data = data.replace("DAY_NUM", "%d" % (helper_day,))
-                data = data.replace("DAY_TODO", codecs.escape_encode(todo.encode("utf8"))[0])
+                data = data.replace("DAY_TODO", todo)
                 f_dest.write(data)
 
     with open(os.path.join("Puzzles", "day_%02d.html.DO_NOT_CHECK_THIS_FILE_IN" % (helper_day,)), "w") as f:
@@ -311,10 +373,13 @@ def test(helper_day):
 
     for helper in get_helpers_id(helper_day):
         print("## %s" % (helper.get_desc()[1]))
-        if helper.test(Logger()):
+        try:
+            resp = helper.test(Logger())
+            if resp is not None and resp == False:
+                raise ValueError("Returned false")
             print("That worked!")
             good += 1
-        else:
+        except ValueError:
             print("FAILURE!")
             bad += 1
 
@@ -497,12 +562,7 @@ def get_header_footer():
 
 def get_page(url):
     import urllib.request
-    if not os.path.isfile("cookie.txt"):
-        print("ERROR: Need 'cookie.txt' with the session information!")
-        raise Exception("Need cookie file!")
-
-    with open("cookie.txt") as f:
-        cookie = f.read().strip()
+    cookie = get_cookie()
 
     req = urllib.request.Request(
         url, 
@@ -527,7 +587,7 @@ def get_index():
     edit_file(os.path.join("Puzzles", "index.html"))
 
     with open(os.path.join("Puzzles", "index.html"), "w") as f:
-        f.write(header + resp.encode("utf8") + footer)
+        f.write(header + resp + footer)
 
     print("Wrote out index")
 
@@ -581,5 +641,5 @@ def dl_day(helper_day):
 
 
 if __name__ == "__main__":
-    main_entry('func')
+    main_entry('func', program_desc=DESC)
 
