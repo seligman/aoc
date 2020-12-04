@@ -15,8 +15,8 @@ def test(log):
         TODO
     """)
 
-    log.test(calc(values, 1), 1234)
-    log.test(calc(values, 2), 1234)
+    log.test(calc(log, values, 1), 1234)
+    log.test(calc(log, values, 2), 1234)
 
 def run(log, values):
     log(calc(log, values, 1))

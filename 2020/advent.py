@@ -75,11 +75,20 @@ class Logger:
         return True
 
     def decode_values(self, values):
-        ret = []
-        for cur in values.split("\n"):
-            cur = cur.strip()
-            if len(cur) > 0:
-                ret.append(cur)
+        ret = values.replace("\t", "    ").split("\n")
+        # Only remove empty lines at the start and end
+        while len(ret) > 0 and len(ret[0].strip()) == 0:
+            ret = ret[1:]
+        while len(ret) > 0 and len(ret[-1].strip()) == 0:
+            ret = ret[:-1]
+        # Remove the indenting based off the first line
+        if len(ret) > 0:
+            pad = len(ret[0]) - len(ret[0].lstrip(' '))
+            pad -= pad % 4
+        if pad > 0 and len(ret) > 0:
+            for i in range(len(ret)):
+                if ret[i].startswith(" " * pad):
+                    ret[i] = ret[i][pad:]
         return ret
 
     def test(self, actual, expected):
