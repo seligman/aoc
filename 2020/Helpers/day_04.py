@@ -68,11 +68,6 @@ def calc(log, values, mode):
                 x = x.split(":")
                 seen[x[0]] = x[1]
 
-
-    # from grid import Grid
-    # grid = Grid()
-
-    # TODO
     return ret
 
 def test(log):
