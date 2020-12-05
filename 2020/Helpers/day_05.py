@@ -8,20 +8,28 @@ def calc(log, values, mode):
 
     ret = 0
     for value in values:
-        rows = list(range(128))
-        seats = list(range(8))
+        row, row_part = 127, 64
+        seat, seat_part = 7, 4
         for cur in value:
             if cur == "F":
-                rows = rows[:len(rows)//2]
+                row -= row_part
+                row_part //= 2
             elif cur == "B":
-                rows = rows[len(rows)//2:]
-            elif cur == "R":
-                seats = seats[len(seats)//2:]
+                row += row_part
+                row_part //= 2
             elif cur == "L":
-                seats = seats[:len(seats)//2]
+                seat -= seat_part
+                seat_part //= 2
+            elif cur == "R":
+                seat += seat_part
+                seat_part //= 2
 
-        final.append(rows[0] * 8 + seats[0])
-        ret = max(ret, rows[0] * 8 + seats[0])
+        row //= 2
+        seat //= 2
+
+        seat_id = row * 8 + seat
+        final.append(seat_id)
+        ret = max(ret, seat_id)
 
     if mode == 1:
         return ret
@@ -29,7 +37,7 @@ def calc(log, values, mode):
         final.sort()
         for i in range(len(final)-1):
             if final[i] + 2 == final[i+1]:
-                print(final[i] + 1)
+                return final[i] + 1
 
 def test(log):
     values = log.decode_values("""
