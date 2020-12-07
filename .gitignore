@@ -1,10 +1,10 @@
 # Ignore the root helpers, and the private code
-command_opts.py
-git_helper.py
-private/*
+/command_opts.py
+/git_helper.py
+/private/*
 
 # Ignore my little stats side-project
-stats/
+/stats/*
 
 # Ignore VS Code stuff
 **/.vscode/
