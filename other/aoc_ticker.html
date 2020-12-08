@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en-us">
+<head>
+<!-- 
+
+    This page is available at https://seligman.github.io/aoc_ticker.html
+
+-->
+<meta charset="utf-8"/>
+<link id="favicon" rel="shortcut icon" type="image/png" href="aoc/favicon.png">
+<title>Advent of Code Ticker</title>
+<style>
+@font-face {
+  font-family: 'Source Code Pro';
+  font-style: normal;
+  font-weight: 300;
+  src: url(https://fonts.gstatic.com/s/sourcecodepro/v13/HI_XiYsKILxRpg3hIP6sJ7fM7PqtlsnDs-cq.woff2) format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+body {
+  background: #0f0f23;
+  color: #cccccc;
+  font-family: "Source Code Pro", monospace;
+  font-size: 18pt;
+  min-width: 60em;
+}
+</style>
+<script>
+    var next = null;
+    function pad(n, width, z) {
+        z = z || '0';
+        n = Math.floor(n) + '';
+        return n.length >= width ? n : new Array(width - n.length + 1).join(z) + n;
+    }
+    function updateTicker() {
+        if (next === null) {
+            var date = new Date(); 
+            next = new Date(date.getTime());
+            next = new Date(next.getTime() + (1000 - next.getUTCMilliseconds()));
+            next = new Date(next.getTime() + (1000 * (60 - next.getUTCSeconds())));
+            while (next.getUTCMinutes() != 50) {
+                next = new Date(next.getTime() + 60000);
+            }
+            while (next.getUTCHours() != 4) {
+                next = new Date(next.getTime() + 3600000);
+            }
+        }
+        var left = next.getTime() - (new Date()).getTime();
+        var msg = "";
+        if (next.getUTCDate() >= 1 && next.getUTCDate() <= 25 && next.getUTCMonth() == 11) {
+            if (left < 0) {
+                msg = "Past time for day " + next.getUTCDate() + "!";
+                document.title = "TIME'S UP!";
+            } else {
+                msg = pad(left / 3600000, 1) + ":" + pad((left / 60000) % 60, 2) + ":" + pad((left / 1000) % 60, 2);
+                msg += " to go till day " + next.getUTCDate();
+            }
+        } else {
+            msg = "Come back next year."
+        }
+        document.getElementById("ticker").innerHTML = msg;
+    };
+
+    setInterval(updateTicker, 1000);
+    window.onload = updateTicker;
+</script>
+</head>
+<body>
+    <div id="ticker" style="text-align:center">Loading...</div>
+</body>
+</html>
