@@ -5,7 +5,9 @@ def get_desc():
 
 def calc(log, values, mode):
     # from grid import Grid
-    # grid = Grid()
+    # grid = Grid.from_text(values)
+    # from program import Program
+    # prog = Program(values)
 
     # TODO
     return 0

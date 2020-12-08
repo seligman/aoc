@@ -1,45 +1,28 @@
 #!/usr/bin/env python
 
-import re
-
 def get_desc():
     return 8, 'Day 8: Handheld Halting'
 
-def calc(log, values, mode):
-    r = re.compile("^(?P<op>[a-z]{3}) (?P<val>[\\+\\-][0-9]+)$")
-
-    for i in range(len(values)):
-        temp = values[:]
-        if mode == 2:
-            if temp[i].startswith("nop"):
-                temp[i] = "jmp" + temp[i][3:]
-            elif temp[i].startswith("jmp"):
-                temp[i] = "nop" + temp[i][3:]
-
-        visited = set()
-        pc = 0
-        acc = 0
-
-        while True:
-            if pc in visited:
-                if mode == 1:
-                    return acc
-                break
-            if pc >= len(values):
-                return acc
-            cur = temp[pc]
-            visited.add(pc)
-
-            m = r.search(cur)
-            op, val = m.group("op"), int(m.group("val"))
-            if op == "nop":
-                pass
-            elif op == "acc":
-                acc += val
-            elif op == "jmp":
-                pc += val - 1
-            
-            pc += 1
+def calc(log, values, mode, debug=False):
+    from program import Program
+    if mode == 1:
+        prog = Program(values, log if debug else None)
+        while not prog.seen_pc():
+            prog.step()
+        return prog.acc
+    else:
+        for i in range(len(values)):
+            prog = Program(values)
+            swap = {"jmp": "nop", "nop": "jmp"}
+            if prog.instructions[i].op in swap:
+                prog.instructions[i].op = swap[prog.instructions[i].op]
+                hit_end = True
+                while prog.step():
+                    if prog.seen_pc():
+                        hit_end = False
+                        break
+                if hit_end:
+                    return prog.acc
 
     return 0
 
@@ -56,7 +39,7 @@ def test(log):
         acc +6
     """)
 
-    log.test(calc(log, values, 1), 5)
+    log.test(calc(log, values, 1, True), 5)
     log.test(calc(log, values, 2), 8)
 
 def run(log, values):
