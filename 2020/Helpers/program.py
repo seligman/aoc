@@ -1,12 +1,17 @@
 #!/usr/bin/env python
 
 from collections import defaultdict
+import inspect
 
 class Instruction:
     def __init__(self, value):
         value = value.split(' ')
         self.op = value[0]
-        self.val = int(value[1])
+        self.vals = [value[1]]
+    
+    def get_val(self, program, index=0):
+        return int(self.vals[index])
+
 
 class Program:
     def __init__(self, values, log=None):
@@ -15,30 +20,45 @@ class Program:
         self.pc = 0
         self.instructions = [Instruction(x) for x in values]
         self.visited = defaultdict(int)
+        self.increment_pc = True
+
+        self.ops = {x[0][3:]:x[1] for x in inspect.getmembers(self) if x[0].startswith("op_")}
+
+    def op_nop(self, ins):
+        if ins is None:
+            return "No op"
+        pass
+
+    def op_acc(self, ins):
+        if ins is None:
+            return "Accumulate"
+        self.acc += ins.get_val(self)
+
+    def op_jmp(self, ins):
+        if ins is None:
+            return "Jump by offset"
+        self.increment_pc = False
+        self.pc += ins.get_val(self)
 
     def step(self):
         self.visited[self.pc] += 1
-
-        cur = self.instructions[self.pc]
+        self.increment_pc = True
+        ins = self.instructions[self.pc]
         old_pc = self.pc
-        increment_pc = True
-        if cur.op == "nop":
-            pass # No Op
-        elif cur.op == "acc":
-            # Accumulate
-            self.acc += cur.val
-        elif cur.op == "jmp":
-            # Offset Jump
-            self.pc += cur.val
-            increment_pc = False
+
+        if ins.op in self.ops:
+            self.ops[ins.op](ins)
         else:
-            raise Exception("Invalid op " + cur.op)
-        
-        if increment_pc:
+            raise Exception("Invalid op " + ins.op)
+
+        if self.increment_pc:
             self.pc += 1
 
         if self.log:
-            self.log(f"{old_pc:3d}: {cur.op} {cur.val:4d} -> {self.pc}: {self.acc}")
+            msg = f"{old_pc:3d} [acc:{self.acc}]: {ins.op} {','.join(ins.vals)} # {self.ops[ins.op](None)}"
+            if not self.increment_pc:
+                msg += f", jump to {self.pc}"
+            self.log(msg)
 
         return self.pc < len(self.instructions)
 

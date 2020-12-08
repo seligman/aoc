@@ -11,18 +11,23 @@ def calc(log, values, mode, debug=False):
             prog.step()
         return prog.acc
     else:
+        prog = Program(values)
+        swap = {"jmp": "nop", "nop": "jmp"}
+        to_test = []
         for i in range(len(values)):
-            prog = Program(values)
-            swap = {"jmp": "nop", "nop": "jmp"}
             if prog.instructions[i].op in swap:
-                prog.instructions[i].op = swap[prog.instructions[i].op]
-                hit_end = True
-                while prog.step():
-                    if prog.seen_pc():
-                        hit_end = False
-                        break
-                if hit_end:
-                    return prog.acc
+                to_test.append(i)
+        
+        for i in to_test:
+            prog = Program(values)
+            prog.instructions[i].op = swap[prog.instructions[i].op]
+            hit_end = True
+            while prog.step():
+                if prog.seen_pc():
+                    hit_end = False
+                    break
+            if hit_end:
+                return prog.acc
 
     return 0
 
