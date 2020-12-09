@@ -21,7 +21,7 @@ advent.py make_day    # This makes a day, only run it when the site is ready
 advent.py test cur    # This tests the current day, keep going till it works!
 advent.py run cur     # This runs on the same data
 ### And finally, when everything's done, some clean up, and make a comment to post
-advent.py dl_day cur get_index gen_comment
+advent.py run_save cur dl_day cur get_index gen_comment
 """
 
 class Logger:
