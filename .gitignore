@@ -1,6 +1,6 @@
 # Ignore the root helpers, and the private code
 /command_opts.py
-/git_helper.py
+/bounce_git.py
 /private/*
 
 # Ignore my little stats side-project
