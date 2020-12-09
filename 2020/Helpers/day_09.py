@@ -58,7 +58,7 @@ def test(log):
     """)
 
     log.test(calc(log, values, 1, 5), 127)
-    log.test(calc(log, values, 2, 5), 1234)
+    log.test(calc(log, values, 2, 5), 62)
 
 def run(log, values):
     log(calc(log, values, 1, 25))
