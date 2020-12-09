@@ -25,8 +25,11 @@ def calc(log, values, mode, preamble):
             else:
                 for i in range(len(orig)):
                     for j in range(len(orig) - (i + 1)):
-                        if sum(orig[i:j]) == values[0]:
+                        temp = sum(orig[i:j])
+                        if temp == values[0]:
                             return min(orig[i:j]) + max(orig[i:j])
+                        if temp > values[0]:
+                            break
 
     return -1
 
