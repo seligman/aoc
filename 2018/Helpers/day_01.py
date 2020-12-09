@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 def get_desc():
     return 1, 'Day 1: Chronal Calibration'

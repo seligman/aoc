@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 def get_desc():
     return 4, 'Day 4: High-Entropy Passphrases'

@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 def get_desc():
     return 19, 'Day 19: A Series of Tubes'

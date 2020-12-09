@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 def get_desc():
     return 24, 'Day 24: Planet of Discord'

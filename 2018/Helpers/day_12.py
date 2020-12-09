@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 def get_desc():
     return 12, 'Day 12: Subterranean Sustainability'

@@ -21,7 +21,7 @@ advent.py make_day    # This makes a day, only run it when the site is ready
 advent.py test cur    # This tests the current day, keep going till it works!
 advent.py run cur     # This runs on the same data
 ### And finally, when everything's done, some clean up, and make a comment to post
-advent.py dl_day cur get_index gen_comment
+advent.py run_save cur dl_day cur get_index gen_comment
 """
 
 class Logger:
@@ -457,7 +457,10 @@ def run_helper(helper_day, save):
             for cur in f:
                 values.append(cur.strip("\r\n"))
         log = Logger()
+        start = datetime.utcnow()
         helper.run(log, values)
+        finish = datetime.utcnow()
+        safe_print("# That took %.4f seconds to complete" % ((finish - start).total_seconds(),))
         filename = get_input_file(helper, file_type="expect")
         if save:
             if os.path.isfile(filename):
