@@ -3,9 +3,13 @@
 def get_desc():
     return 11, 'Day 11: Seating System'
 
-def calc(log, values, mode):
+def calc(log, values, mode, draw=False):
     from grid import Grid
     grid = Grid.from_text(values)
+
+    if draw:
+        grid.save_frame()
+        frame = 0
 
     width = grid.width()
     height = grid.height()
@@ -44,13 +48,35 @@ def calc(log, values, mode):
 
         for x, y, spot in todo:
             grid.set(spot, x, y)
+        if draw:
+            frame += 1
+            if frame % 2 == 0:
+                grid.save_frame()
+                grid.save_frame()
         dump = grid.dump_grid()
         if dump == last_seen:
             break
         last_seen = dump
 
+    if draw:
+        grid.draw_frames(repeat_final=30, color_map={' ': (0, 0, 0), '.': (0, 0, 0), 'L': (255, 255, 255), '#': (128, 128, 192)})
+        Grid.make_animation(file_format="mp4", output_name="animation_%02d_%d" % (get_desc()[0], mode))
+
     return len([x for x in grid.dump_grid() if x == "#"])
 
+def other_draw_1(describe, values):
+    if describe:
+        return "Animate this"
+    else:
+        from dummylog import DummyLog
+        calc(DummyLog(), values, 1, draw=True)
+
+def other_draw_2(describe, values):
+    if describe:
+        return "Animate this"
+    else:
+        from dummylog import DummyLog
+        calc(DummyLog(), values, 2, draw=True)
 
 def test(log):
     values = log.decode_values("""
