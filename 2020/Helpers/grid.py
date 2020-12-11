@@ -56,8 +56,13 @@ class Grid:
         self.fonts = None
         self._ranges = {}
 
+    def copy(self):
+        ret = Grid()
+        ret.grid = self.grid.copy()
+        return ret
+
     @staticmethod
-    def from_text(values):
+    def from_text(values, changes=True):
         grid = Grid()
         y = 0
         for row in values:
@@ -175,6 +180,9 @@ class Grid:
 
         log("That decodes to: " + ret)
             
+
+    def dump_grid(self):
+        return "".join([self.grid[x] for x in sorted(self.grid)])
 
     def show_grid(self, log, disp_map=DEFAULT_DISP_MAP, dump_all=False):
         for y in self.y_range():

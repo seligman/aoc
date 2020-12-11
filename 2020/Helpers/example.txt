@@ -4,6 +4,7 @@ def get_desc():
     return DAY_NUM, 'DAY_TODO'
 
 def calc(log, values, mode):
+    # TODO: Delete or use these
     # from grid import Grid
     # grid = Grid.from_text(values)
     # from program import Program
@@ -17,8 +18,8 @@ def test(log):
         TODO
     """)
 
-    log.test(calc(log, values, 1), 1234)
-    log.test(calc(log, values, 2), 1234)
+    log.test(calc(log, values, 1), 'TODO')
+    log.test(calc(log, values, 2), 'TODO')
 
 def run(log, values):
     log(calc(log, values, 1))
