@@ -7,31 +7,32 @@ def calc(log, values, mode):
     from grid import Grid
     grid = Grid.from_text(values)
 
+    width = grid.width()
+    height = grid.height()
+
     last_seen = ""
-    dirs = [[-1,-1],[0,-1],[1,-1],[-1,1],[0,1],[1,1],[-1,0],[1,0]]
+    dirs = [(x // 3 - 1, x % 3 - 1) for x in range(9) if x != 4]
 
     while True:
         todo = []
-        # g2 = grid.copy()
-        for x in grid.x_range():
-            for y in grid.y_range():
+        for x in range(width):
+            for y in range(height):
                 occupied = 0
                 if mode == 1:
-                    for dir in dirs:
-                        if grid.get(x + dir[0], y + dir[1]) == "#":
+                    for dx, dy in dirs:
+                        if grid.get(x + dx, y + dy) == "#":
                             occupied += 1
                 else:
-                    for dir in dirs:
-                        tx, ty = x + dir[0], y + dir[1]
-                        while tx >= 0 and ty >= 0 and tx < grid.width() and ty < grid.height():
+                    for dx, dy in dirs:
+                        tx, ty = x + dx, y + dy
+                        while tx >= 0 and ty >= 0 and tx < width and ty < height:
                             spot = grid.get(tx, ty)
                             if spot == "L":
                                 break
                             if spot == "#":
                                 occupied += 1
                                 break
-                            tx += dir[0]
-                            ty += dir[1]
+                            tx, ty = tx + dx, ty + dy
 
                 spot = grid.get(x, y)
                 if spot == "L":
@@ -48,12 +49,7 @@ def calc(log, values, mode):
             break
         last_seen = dump
 
-    occupied = 0
-    for x in grid.x_range():
-        for y in grid.y_range():
-            if grid.get(x, y) == "#":
-                occupied += 1
-    return occupied
+    return len([x for x in grid.dump_grid() if x == "#"])
 
 
 def test(log):
