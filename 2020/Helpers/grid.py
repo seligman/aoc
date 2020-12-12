@@ -205,7 +205,7 @@ class Grid:
             if re.search("frame_[0-9]{5}\\.png", cur):
                 os.unlink(cur)
 
-    def draw_frames(self, color_map=DEFAULT_COLOR_MAP, cell_size=10, repeat_final=0, font_size=10, extra_callback=None):
+    def draw_frames(self, color_map=DEFAULT_COLOR_MAP, cell_size=10, repeat_final=0, font_size=10, extra_callback=None, show_lines=True):
         from datetime import datetime, timedelta
 
         msg = datetime.utcnow()
@@ -231,7 +231,8 @@ class Grid:
                 extra_text_rows=max_rows, 
                 image_copies=1 + repeat_final if i == len(self.frames) else 1,
                 extra=extra,
-                extra_callback=extra_callback
+                extra_callback=extra_callback,
+                show_lines=show_lines
             )
 
         print("Done with drawing")
@@ -289,30 +290,35 @@ class Grid:
         for x in range(width):
             for y in range(height):
                 color = self.grid.get((x + self.axis_min(0), y + self.axis_min(1)), self.default)
-                text = None
-                if isinstance(color, list):
-                    temp = color_map[color[0]]
-                    color = (
-                        max(0, min(255, temp[0] + color[1])), 
-                        max(0, min(255, temp[1] + color[1])), 
-                        max(0, min(255, temp[2] + color[1])), 
-                    )
-                else:
-                    if color in color_map:
-                        color = color_map[color]
+                use = True
+                if not show_lines:
+                    if color == 0:
+                        use = False
+                if use:
+                    text = None
+                    if isinstance(color, list):
+                        temp = color_map[color[0]]
+                        color = (
+                            max(0, min(255, temp[0] + color[1])), 
+                            max(0, min(255, temp[1] + color[1])), 
+                            max(0, min(255, temp[2] + color[1])), 
+                        )
                     else:
-                        text = color
-                        color = (64, 64, 64)
-                d.rectangle(
-                    (
-                        (border + x * (cell_size + 1) + 1, border + y * (cell_size + 1) + 1), 
-                        (border + x * (cell_size + 1) + cell_size + (0 if show_lines else 1), border + y * (cell_size + 1) + cell_size + (0 if show_lines else 1))
-                    ),
-                    color, color
-                )
-                if text is not None:
-                    w, h = d.textsize(text)
-                    d.text((border + x * (cell_size + 1) + 1 + (cell_size - w) / 2, border + y * (cell_size + 1) + 1 + (cell_size - h) / 2), text, fill=(255, 255, 255))
+                        if color in color_map:
+                            color = color_map[color]
+                        else:
+                            text = color
+                            color = (64, 64, 64)
+                    d.rectangle(
+                        (
+                            (border + x * (cell_size + 1) + 1, border + y * (cell_size + 1) + 1), 
+                            (border + x * (cell_size + 1) + cell_size + (0 if show_lines else 1), border + y * (cell_size + 1) + cell_size + (0 if show_lines else 1))
+                        ),
+                        color, color
+                    )
+                    if text is not None:
+                        w, h = d.textsize(text)
+                        d.text((border + x * (cell_size + 1) + 1 + (cell_size - w) / 2, border + y * (cell_size + 1) + 1 + (cell_size - h) / 2), text, fill=(255, 255, 255))
 
         if extra_text is not None:
             y = offset if text_xy is None else text_xy[1]
