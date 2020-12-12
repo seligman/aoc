@@ -21,10 +21,10 @@ def calc(log, values, mode, draw=False):
             if pass_no == 1:
                 if draw:
                     from PIL import Image
-                    print(max_pos, min_pos)
                     im = Image.new('RGB',(int(max_pos.real - min_pos.real) + 10, int(max_pos.imag - min_pos.imag) + 10), color=(0,0,0))
                     pixels = im.load()
                     frame = 0
+                    fade = []
             dir = 'E'
             for cur in values:
                 cardinal = cur[0]
@@ -49,21 +49,49 @@ def calc(log, values, mode, draw=False):
                             min_pos = complex(min(min_pos.real, pos.real), min(min_pos.imag, pos.imag))
                             max_pos = complex(max(max_pos.real, pos.real), max(max_pos.imag, pos.imag))
                         else:
-                            while last_pos.real < pos.real:
-                                last_pos += complex(1, 0)
-                                pixels[int(last_pos.real - min_pos.real)+5, int(last_pos.imag - min_pos.imag)+5] = (192, 192, 255)
-                            while last_pos.real > pos.real:
-                                last_pos += complex(-1, 0)
-                                pixels[int(last_pos.real - min_pos.real)+5, int(last_pos.imag - min_pos.imag)+5] = (192, 192, 255)
-                            while last_pos.imag < pos.imag:
-                                last_pos += complex(0, 1)
-                                pixels[int(last_pos.real - min_pos.real)+5, int(last_pos.imag - min_pos.imag)+5] = (192, 192, 255)
-                            while last_pos.imag > pos.imag:
-                                last_pos += complex(0, -1)
-                                pixels[int(last_pos.real - min_pos.real)+5, int(last_pos.imag - min_pos.imag)+5] = (192, 192, 255)
+                            def make_line(a, b):
+                                while a.real != b.real:
+                                    a = complex((b.real - a.real) / abs(b.real - a.real) + a.real, a.imag)
+                                    yield a
+                                while a.imag != b.imag:
+                                    a = complex(a.real, (b.imag - a.imag) / abs(b.imag - a.imag) + a.imag)
+                                    yield a
+                            fade.append(set())
+                            for x in make_line(last_pos, pos):
+                                x = x - min_pos + complex(5,5)
+                                for xo in range(-2, 3):
+                                    for yo in range(-2, 3):
+                                        fade[-1].add((int(x.real)+xo, int(x.imag)+yo))
+
+                            while len(fade) > 8:
+                                fade.pop(0)
+                            
+                            blue = 255
+                            for cur in fade[::-1]:
+                                for x in cur:
+                                    pixels[x[0], x[1]] = (127, 127, blue)
+                                blue -= 16
+
                             frame += 1
-                            im.save("frame_%05d.png" % (frame,))
-                            log.show(str(frame))
+                            fn = "frame_%05d.png" % (frame,)
+                            im.save(fn)
+                            if frame % 10 == 0:
+                                log.show("Saving " + fn)
+
+        if draw:
+            cmd = [
+                "ffmpeg", 
+                "-y",
+                "-hide_banner",
+                "-f", "image2",
+                "-framerate", str(30), 
+                "-i", "frame_%05d.png", 
+                "animation_" + str(get_desc()[0]) + ".mp4",
+            ]
+            log.show("$ " + " ".join(cmd))
+            import subprocess
+            subprocess.check_call(cmd)
+
     else:
         for cur in values:
             if cur[0] == "F":
