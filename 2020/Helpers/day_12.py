@@ -19,11 +19,12 @@ def calc(log, values, mode, draw=False):
         for pass_no in range(2 if draw else 1):
             pos = complex(0, 0)
             if pass_no == 1:
-                from PIL import Image
-                print(max_pos, min_pos)
-                im = Image.new('RGB',(int(max_pos.real - min_pos.real) + 10, int(max_pos.imag - min_pos.imag) + 10), color=(0,0,0))
-                pixels = im.load()
-                frame = 0
+                if draw:
+                    from PIL import Image
+                    print(max_pos, min_pos)
+                    im = Image.new('RGB',(int(max_pos.real - min_pos.real) + 10, int(max_pos.imag - min_pos.imag) + 10), color=(0,0,0))
+                    pixels = im.load()
+                    frame = 0
             dir = 'E'
             for cur in values:
                 cardinal = cur[0]
