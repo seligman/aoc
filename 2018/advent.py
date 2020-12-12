@@ -288,10 +288,10 @@ def make_day_helper(offline):
         helper_day += 1
 
     files = [
+        os.path.join("Puzzles", "day_%02d_input.txt" % (helper_day,)),
         os.path.join("Helpers", "day_%02d.py" % (helper_day,)),
         os.path.join("Puzzles", "day_%02d.html" % (helper_day,)),
         os.path.join("Puzzles", "day_%02d.html.DO_NOT_CHECK_THIS_FILE_IN" % (helper_day,)),
-        os.path.join("Puzzles", "day_%02d_input.txt" % (helper_day,)),
     ]
 
     for filename in files:
