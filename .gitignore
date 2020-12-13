@@ -24,3 +24,4 @@
 # Temp files
 *~
 **/.DS_Store/
+**/debug.log
