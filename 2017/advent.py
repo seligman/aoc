@@ -211,9 +211,9 @@ def gen_comment():
 @opt("Launch website")
 def launch():
     urls = [
-        "https://adventofcode.com/" + YEAR_NUMBER,
-        "https://www.reddit.com/r/adventofcode/",
         "https://imgur.com/upload",
+        "https://www.reddit.com/r/adventofcode/",
+        "https://adventofcode.com/" + YEAR_NUMBER,
     ]
 
     for url in urls:
