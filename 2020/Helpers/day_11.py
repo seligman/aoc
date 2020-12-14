@@ -24,13 +24,13 @@ def calc(log, values, mode, draw=False):
                 occupied = 0
                 if mode == 1:
                     for dx, dy in dirs:
-                        if grid.get(x + dx, y + dy) == "#":
+                        if grid[x + dx, y + dy] == "#":
                             occupied += 1
                 else:
                     for dx, dy in dirs:
                         tx, ty = x + dx, y + dy
                         while tx >= 0 and ty >= 0 and tx < width and ty < height:
-                            spot = grid.get(tx, ty)
+                            spot = grid[tx, ty]
                             if spot == "L":
                                 break
                             if spot == "#":
@@ -38,7 +38,7 @@ def calc(log, values, mode, draw=False):
                                 break
                             tx, ty = tx + dx, ty + dy
 
-                spot = grid.get(x, y)
+                spot = grid[x, y]
                 if spot == "L":
                     if occupied == 0:
                         todo.append((x, y, "#"))
@@ -47,7 +47,7 @@ def calc(log, values, mode, draw=False):
                         todo.append((x, y, "L"))
 
         for x, y, spot in todo:
-            grid.set(spot, x, y)
+            grid[x, y] = spot
         if draw:
             frame += 1
             if frame % 2 == 0:

@@ -14,7 +14,7 @@ def calc(log, values, mode, draw=False):
         grid = Grid()
         for x in range(8):
             for y in range(111):
-                grid.set('.', x, y)
+                grid[x, y] = '.'
 
     for value in values:
         row, row_part = 127, 64
@@ -28,7 +28,7 @@ def calc(log, values, mode, draw=False):
                 seat_part //= 2
 
         if draw:
-            grid.set("#", seat // 2, row // 2)
+            grid[seat // 2, row // 2] = "#"
             grid.save_frame()
 
         seat_id = (row // 2) * 8 + (seat // 2)
@@ -40,7 +40,7 @@ def calc(log, values, mode, draw=False):
     if draw:
         me = [x for x in neighbors if neighbors[x] == 2 and x not in seats][0]
 
-        grid.set("target", me % 8, me // 8)
+        grid[me % 8, me // 8] = "target"
         grid.save_frame()
 
         grid.draw_frames(repeat_final=30)

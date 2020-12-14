@@ -21,7 +21,7 @@ def calc(log, values, mode):
             x = x % grid.width()
             if y >= grid.height():
                 break
-            if grid.get(x, y) == "#":
+            if grid[x, y] == "#":
                 ret[-1] += 1
 
     value = 1

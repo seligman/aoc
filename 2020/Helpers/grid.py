@@ -92,6 +92,12 @@ class Grid:
         print("$ " + " ".join(cmd))
         subprocess.check_call(cmd)
 
+    def __getitem__(self, key):
+        if isinstance(key, tuple):
+            return self.grid.get(key, self.default)
+        else:
+            return self.grid.get((key,), self.default)
+
     def get(self, *coords):
         return self.grid.get(coords, self.default)
 
@@ -122,6 +128,13 @@ class Grid:
 
     def y_range(self):
         return self.axis_range(1)
+
+    def __setitem__(self, key, value):
+        self._ranges = {}
+        if isinstance(key, tuple):
+            self.grid[key] = value
+        else:
+            self.grid[(key,)] = value
 
     def set(self, value, *coords):
         self._ranges = {}
