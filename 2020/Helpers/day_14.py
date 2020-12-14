@@ -18,13 +18,15 @@ def int_to_bits(mask, val):
 def bits_to_int(val):
     return int("".join([val[x] for x in val.x_range()]), 2)
 
-def calc(log, values, mode):
+def calc(log, values, mode, save_state=False):
     from grid import Grid
     memory = defaultdict(int)
     mask = Grid()
     floating_bits = []
     floating_max = 0
     for cur in values:
+        if save_state:
+            log(cur)
         if cur.startswith("mask = "):
             mask = Grid.from_row(cur[7:])
             floating_bits = [mask.width() - i for i in mask.x_range() if mask[i] == "X"]
@@ -48,8 +50,21 @@ def calc(log, values, mode):
                             register ^= 1 << (bit - 1)
                         bits >>= 1
                     memory[register] = val
+            if save_state:
+                log("memory_sum = " + str(sum(memory.values())))
 
     return sum(memory.values())
+
+def other_save_state(describe, values):
+    if describe:
+        return "Save the state from part 2"
+    else:
+        from dummylog import DummyLog
+        import os
+        fn = os.path.join("Puzzles", "day_14_state.txt")
+        log = DummyLog(fn)
+        calc(log, values, 2, save_state=True)
+        print("Done, created " + fn)
 
 def test(log):
     values = log.decode_values("""

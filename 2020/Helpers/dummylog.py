@@ -1,14 +1,18 @@
 #!/usr/bin/env python3
 
 class DummyLog:
-    def __init__(self):
-        pass
+    def __init__(self, filename=None):
+        self.filename = filename
 
     def show(self, value):
-        print(value)
+        if self.filename is not None:
+            with open(self.filename, "at") as f:
+                f.write(str(value) + "\n")
+        else:
+            print(value)
 
     def __call__(self, value):
-        print(value)
+        self.show(value)
 
     def decode_values(self, values):
         ret = values.replace("\t", "    ").split("\n")
