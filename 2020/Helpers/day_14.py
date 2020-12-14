@@ -27,15 +27,7 @@ def calc(log, values, mode):
                 memory[register] = int(val, 2)
             else:
                 register = to_bits(mask, register)
-                temp = []
-                for i in range(len(mask)):
-                    if mask[i] == "0":
-                        temp.append(register[i])
-                    elif mask[i] == "1":
-                        temp.append("1")
-                    else:
-                        temp.append("X")
-
+                temp = [register[i] if mask[i] == "0" else "1" if mask[i] == "1" else "X" for i in range(len(mask))]
                 max = 1 << len([x for x in temp if x == "X"])
                 for bits in range(max):
                     copy = temp[:]
@@ -43,8 +35,7 @@ def calc(log, values, mode):
                         if copy[i] == "X":
                             copy[i] = str(bits & 1)
                             bits >>= 1
-                    copy = int("".join(copy), 2)
-                    memory[copy] = int(val, 2)
+                    memory[int("".join(copy), 2)] = int(val, 2)
 
     return sum(memory.values())
 
