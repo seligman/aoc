@@ -74,6 +74,15 @@ class Grid:
         return grid
 
     @staticmethod
+    def from_row(value, changes=True):
+        grid = Grid()
+        x = 0
+        for cur in value:
+            grid.set(cur, x)
+            x += 1
+        return grid
+
+    @staticmethod
     def make_animation(frame_rate=30, file_format="gif", output_name="animation"):
         import os
         import subprocess
@@ -97,6 +106,9 @@ class Grid:
             return self.grid.get(key, self.default)
         else:
             return self.grid.get((key,), self.default)
+
+    def __iter__(self):
+        return self.grid.values().__iter__()
 
     def get(self, *coords):
         return self.grid.get(coords, self.default)
@@ -193,7 +205,6 @@ class Grid:
 
         log("That decodes to: " + ret)
             
-
     def dump_grid(self):
         return "".join([self.grid[x] for x in sorted(self.grid)])
 

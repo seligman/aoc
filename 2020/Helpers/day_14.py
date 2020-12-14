@@ -6,36 +6,48 @@ import re
 def get_desc():
     return 14, 'Day 14: Docking Data'
 
-def to_bits(mask, val):
+def int_to_bits(mask, val):
+    if isinstance(val, str):
+        val = int(val)
+    from grid import Grid
     val = bin(val)[2:]
-    val = "0" * len(mask) + val
-    val = val[-len(mask):]
-    return val
+    val = "0" * mask.width() + val
+    val = val[-mask.width():]
+    return Grid.from_row(val)
+
+def bits_to_int(val):
+    return int("".join([val[x] for x in val.x_range()]), 2)
 
 def calc(log, values, mode):
+    from grid import Grid
     memory = defaultdict(int)
-    mask = ""
+    mask = Grid()
+    floating_bits = []
+    floating_max = 0
     for cur in values:
         if cur.startswith("mask = "):
-            mask = cur[7:]
+            mask = Grid.from_row(cur[7:])
+            floating_bits = [mask.width() - i for i in mask.x_range() if mask[i] == "X"]
+            floating_max = 1 << len(floating_bits)
         else:
             m = re.search(r"mem\[(\d+)\] = (\d+)", cur)
-            register, val = int(m.group(1)), int(m.group(2))
-            val = to_bits(mask, val)
+            register, val = int(m.group(1)), int_to_bits(mask, m.group(2))
             if mode == 1:
-                val = "".join([val[i] if mask[i] == "X" else mask[i] for i in range(len(mask))])
-                memory[register] = int(val, 2)
+                [val.set(mask[i], i) for i in mask.x_range() if mask[i] != "X"]
+                memory[register] = bits_to_int(val)
             else:
-                register = to_bits(mask, register)
-                temp = [register[i] if mask[i] == "0" else "1" if mask[i] == "1" else "X" for i in range(len(mask))]
-                max = 1 << len([x for x in temp if x == "X"])
-                for bits in range(max):
-                    copy = temp[:]
-                    for i in range(len(copy)):
-                        if copy[i] == "X":
-                            copy[i] = str(bits & 1)
-                            bits >>= 1
-                    memory[int("".join(copy), 2)] = int(val, 2)
+                val = bits_to_int(val)
+                register = int_to_bits(mask, register)
+                [register.set(mask[i], i) for i in mask.x_range() if mask[i] in {"X", "1"}]
+                [register.set("0", i) for i in mask.x_range() if mask[i] == "X"]
+                register = bits_to_int(register)
+                for bits in range(floating_max):
+                    for bit in floating_bits:
+                        register |= 1 << (bit - 1)
+                        if bits & 1 == 0:
+                            register ^= 1 << (bit - 1)
+                        bits >>= 1
+                    memory[register] = val
 
     return sum(memory.values())
 
