@@ -24,12 +24,14 @@ def calc(log, values, mode, save_state=False):
     mask = Grid()
     floating_bits = []
     floating_max = 0
+    patterns = {}
+
     for cur in values:
         if save_state:
             log(cur)
         if cur.startswith("mask = "):
             mask = Grid.from_row(cur[7:])
-            floating_bits = [mask.width() - i for i in mask.x_range() if mask[i] == "X"]
+            floating_bits = tuple([1 << ((mask.width() - i) - 1) for i in mask.x_range() if mask[i] == "X"])
             floating_max = 1 << len(floating_bits)
         else:
             m = re.search(r"mem\[(\d+)\] = (\d+)", cur)
@@ -43,13 +45,19 @@ def calc(log, values, mode, save_state=False):
                 [register.set(mask[i], i) for i in mask.x_range() if mask[i] in {"X", "1"}]
                 [register.set("0", i) for i in mask.x_range() if mask[i] == "X"]
                 register = bits_to_int(register)
-                for bits in range(floating_max):
-                    for bit in floating_bits:
-                        register |= 1 << (bit - 1)
-                        if bits & 1 == 0:
-                            register ^= 1 << (bit - 1)
-                        bits >>= 1
-                    memory[register] = val
+                combinations = patterns.get(floating_bits, None)
+                if combinations is None:
+                    combinations = []
+                    for bits in range(floating_max):
+                        temp = 0
+                        for bit in floating_bits:
+                            if bits & 1 == 0:
+                                temp |= bit
+                            bits >>= 1
+                        combinations.append(temp)
+                    patterns[floating_bits] = combinations
+                for bits in combinations:
+                    memory[register | bits] = val
             if save_state:
                 log("memory_sum = " + str(sum(memory.values())))
 
