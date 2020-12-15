@@ -258,19 +258,11 @@ def run_other(helper_day, command):
 
 @opt("Make new day (Offline)")
 def make_day_offline(target_day="cur"):
-    if target_day.lower() == "cur":
-        target_day = None
-    else:
-        target_day = int(target_day)
     make_day_helper(True, force_day=target_day)
 
 
 @opt("Make new day")
 def make_day(target_day="cur"):
-    if target_day.lower() == "cur":
-        target_day = None
-    else:
-        target_day = int(target_day)
     make_day_helper(False, force_day=target_day)
 
 
@@ -292,12 +284,12 @@ def make_day_helper(offline, force_day=None):
         if "DO_NOT_CHECK_THIS_FILE_IN" in cur:
             raise Exception("You appear to be trying to rerun make_day before a day is done!")
 
-    if force_day is not None:
+    if force_day is None or force_day.lower() == "cur":
         helper_day = 1
         while os.path.isfile(os.path.join("Helpers", "day_%02d.py" % (helper_day,))):
             helper_day += 1
     else:
-        helper_day = force_day
+        helper_day = int(force_day)
 
     files = [
         os.path.join("Puzzles", "day_%02d_input.txt" % (helper_day,)),
