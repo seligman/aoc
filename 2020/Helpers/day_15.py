@@ -24,8 +24,8 @@ def calc(log, values, mode):
             else:
                 said[last] = i - 1
                 last = 0
-        if i % 1000000 == 0:
-            log.show(f"For round {i:8d}, {last} was said")
+        if (mode == 1 and i % 1000 == 19) or (mode == 2 and i % 5000000 == 999999):
+            log.show(f"For round {i:8d}, {last:8d} was said")
     return last
 
 def test(log):
