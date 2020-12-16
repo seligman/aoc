@@ -6,6 +6,7 @@ def get_desc():
 def calc(log, values, mode, draw=False):
     from grid import Grid
     grid = Grid.from_text(values)
+    next_grid = Grid.from_text(values)
 
     if draw:
         grid.save_frame()
@@ -16,38 +17,36 @@ def calc(log, values, mode, draw=False):
 
     last_seen = ""
     dirs = [(x // 3 - 1, x % 3 - 1) for x in range(9) if x != 4]
+    xys = [(x % grid.width(), x // grid.width()) for x in range(grid.width() * grid.height())]
 
     while True:
-        todo = []
-        for x in range(width):
-            for y in range(height):
-                occupied = 0
-                if mode == 1:
-                    for dx, dy in dirs:
-                        if grid[x + dx, y + dy] == "#":
+        for x, y in xys:
+            occupied = 0
+            if mode == 1:
+                for dx, dy in dirs:
+                    if grid[x + dx, y + dy] == "#":
+                        occupied += 1
+            else:
+                for dx, dy in dirs:
+                    tx, ty = x + dx, y + dy
+                    while tx >= 0 and ty >= 0 and tx < width and ty < height:
+                        spot = grid[tx, ty]
+                        if spot == "L":
+                            break
+                        if spot == "#":
                             occupied += 1
-                else:
-                    for dx, dy in dirs:
-                        tx, ty = x + dx, y + dy
-                        while tx >= 0 and ty >= 0 and tx < width and ty < height:
-                            spot = grid[tx, ty]
-                            if spot == "L":
-                                break
-                            if spot == "#":
-                                occupied += 1
-                                break
-                            tx, ty = tx + dx, ty + dy
+                            break
+                        tx, ty = tx + dx, ty + dy
 
-                spot = grid[x, y]
-                if spot == "L":
-                    if occupied == 0:
-                        todo.append((x, y, "#"))
-                elif spot == "#":
-                    if occupied >= (4 if mode == 1 else 5):
-                        todo.append((x, y, "L"))
+            spot = grid[x, y]
+            if spot == "L":
+                if occupied == 0:
+                    next_grid[x, y] = "#"
+            elif spot == "#":
+                if occupied >= (4 if mode == 1 else 5):
+                    next_grid[x, y] = "L"
 
-        for x, y, spot in todo:
-            grid[x, y] = spot
+        grid, next_grid = next_grid, next_grid.copy()
         if draw:
             frame += 1
             if frame % 2 == 0:
