@@ -6,30 +6,36 @@ from collections import defaultdict
 def get_desc():
     return 16, 'Day 16: Ticket Translation'
 
-def calc(log, values, mode):
+def in_range(value, rule):
+    for range in rule["ranges"]:
+        if range[0] <= value <= range[1]:
+            return True
+    return False
+
+def calc(log, values, mode, draw=0):
     rules = []
-    names = []
     valid_values = []
     invalid = 0
 
     for cur in values:
-        m = re.search(r"^([a-z ]+): ([\d]+)-([\d]+) or ([\d]+)-([\d]+)", cur)
+        m = re.search(r"^(?P<name>[a-z ]+): (?P<x1>[\d]+)-(?P<y1>[\d]+) or (?P<x2>[\d]+)-(?P<y2>[\d]+)", cur)
         if m is not None:
-            rules.append([int(x) for x in m.groups()[1:]])
-            names.append(m.groups()[0])
+            rules.append({
+                "name": m.group("name"),
+                "ranges": [
+                    [int(m.group("x1")), int(m.group("y1"))],
+                    [int(m.group("x2")), int(m.group("y2"))],
+                ],
+                "position": None,
+                'possibles': set(),
+            })
 
         m = re.search(r"^[\d,]+$", cur)
         if m is not None:
             cur = [int(x) for x in cur.split(",")]
             all_valid = True
             for x in cur:
-                valid = False
-                for rule in rules:
-                    if x >= rule[0] and x <= rule[1]:
-                        valid = True
-                    if x >= rule[2] and x <= rule[3]:
-                        valid = True
-                if not valid:
+                if not max([in_range(x, rule) for rule in rules]):
                     invalid += x
                     all_valid = False
 
@@ -40,48 +46,158 @@ def calc(log, values, mode):
         return invalid
 
     if mode == 2:
-        possibles = {}
-        for i in range(len(valid_values[0])):
-            for j in range(len(rules)):
-                name = names[j]
-                rule = rules[j]
-                all_valid = True
-                for x in [z[i] for z in valid_values]:
-                    valid = False
-                    if x >= rule[0] and x <= rule[1]:
-                        valid = True
-                    if x >= rule[2] and x <= rule[3]:
-                        valid = True
-                    if not valid:
-                        all_valid = False
-                        break
-                if all_valid:
-                    if name not in possibles:
-                        possibles[name] = set()
-                    possibles[name].add(i)
+        steps = []
+        ticket, valid_values = valid_values[0], valid_values[1:]
+        for i in range(len(ticket)):
+            for rule in rules:
+                if min([in_range(x[i], rule) for x in valid_values]):
+                    rule["possibles"].add(i)
 
-        final = {}
-        ticket = valid_values[0]
-
-        while True:
-            temp = {}
-            for name, targets in possibles.items():
-                for x in targets:
-                    temp[x] = temp.get(x, []) + [name]
-
-            if sum([len(x) for x in temp.values()]) == 0:
-                break
+        left = len(rules)
+        while left > 0:
+            temp = {x:[] for x in range(len(ticket))}
+            for rule in rules:
+                for x in rule["possibles"]:
+                    temp[x].append(rule)
 
             for val, targets in temp.items():
                 if len(targets) == 1:
-                    final[val] = targets[0]
-                    possibles[targets[0]] = set()
-    
+                    targets[0]['position'] = val
+                    targets[0]['possibles'] = set()
+                    steps.append(targets[0]['name'])
+                    left -= 1
+
+        xys = {}
+        for cur in ["departure", "arrival", "-"]:
+            xys[cur] = {
+                "x": 0,
+                "y": 0,
+                "max": 0,
+                "data": []
+            }
+        
         ret = 1
-        for i in range(len(ticket)):
-            if final[i].startswith("departure"):
-                ret *= ticket[i]
+        for rule in rules:
+            if rule['name'].startswith("departure"):
+                ret *= ticket[rule['position']]
+
+        if draw == 1:
+            for rule in rules:
+                temp = rule['name']
+                cat = "-"
+                for cur in ["departure", "arrival"]:
+                    if temp.startswith(cur + " "):
+                        cat = cur
+                        temp = temp[len(cur)+1:]
+                rule['xy'] = (xys[cat]['x'], xys[cat]['y'])
+                rule['temp'] = temp
+                rule['value'] = "%3s" % (ticket[rule['position']],)
+                xys[cat]['max'] = max(len(temp), xys[cat]['max'])
+                xys[cat]['x'] += 1
+                xys[cat]['data'].append(rule)
+                if xys[cat]['x'] == 2:
+                    xys[cat]['x'] = 0
+                    xys[cat]['y'] += 1
+            
+            from grid import Grid
+            disp = Grid(default = ' ')
+            def insert(disp, x, y, value, fixup=None, fixup_name=None, target=None):
+                for cur in value:
+                    disp[x, y] = cur
+                    if fixup is not None:
+                        fixup[fixup_name].append((x, y, cur))
+                    x += 1
+                if fixup is not None:
+                    temp = len(value)
+                    while temp < target:
+                        fixup[fixup_name].append((x, y, ' '))
+                        x += 1
+                        temp += 1
+
+            disp[0, 0] = " "
+            fixup = {}
+            y = 0
+            insert(disp, 2, 1, " -- departure --")
+            for rule in xys["departure"]['data']:
+                y = max(y, rule['xy'][1])
+                fixup[rule['name']] = []
+                insert(disp, 2 + rule['xy'][0] * (xys['departure']['max'] + 5), rule['xy'][1] + 2, rule['temp'], fixup=fixup, fixup_name=rule['name'], target=xys['departure']['max'])
+                insert(disp, 2 + xys['departure']['max'] + 1 + rule['xy'][0] * (xys['departure']['max'] + 5), rule['xy'][1] + 2, rule['value'])
+
+            y += 3
+            insert(disp, 2, y, " -- arrival --")
+            for rule in xys["arrival"]['data']:
+                fixup[rule['name']] = []
+                insert(disp, 2 + rule['xy'][0] * (xys['arrival']['max'] + 5), rule['xy'][1] + 1 + y, rule['temp'], fixup=fixup, fixup_name=rule['name'], target=xys['arrival']['max'])
+                insert(disp, 2 + xys['arrival']['max'] + 1 + rule['xy'][0] * (xys['arrival']['max'] + 5), rule['xy'][1] + 1 + y, rule['value'])
+
+            x = disp.width() + 5
+            for rule in xys['-']['data']:
+                fixup[rule['name']] = []
+                insert(disp, x + rule['xy'][0] * (xys['-']['max'] + 5), rule['xy'][1] + 2, rule['temp'], fixup=fixup, fixup_name=rule['name'], target=xys['-']['max'])
+                insert(disp, x + xys['-']['max'] + 1 + rule['xy'][0] * (xys['-']['max'] + 5), rule['xy'][1] + 2, rule['value'])
+            y = disp.height()
+
+            for x in range(disp.width() + 2):
+                disp[x, 0] = "-"
+                disp[x, y] = "-"
+            disp[0, 0] = "+"
+            disp[disp.width() - 1, 0] = "+"
+            disp[0, disp.height() - 1] = "+"
+            disp[disp.width() - 1, disp.height() - 1] = "+"
+            for y in range(1, disp.height() - 1):
+                disp[0, y] = "|"
+                disp[disp.width() - 1, y] = "|"
+            
+            return disp, fixup, steps
+
         return ret
+
+def other_draw(describe, values):
+    if describe:
+        return "Animate this"
+    
+    from dummylog import DummyLog
+    disp, fixup, steps = calc(DummyLog(), values, 2, draw=1)
+
+    for cur in steps:
+        for x, y, _ in fixup[cur]:
+            disp[x, y] = "*"
+
+    import random
+
+    for cur in steps:
+        print(cur)
+        reveal = list(range(len(fixup[cur])))
+        random.shuffle(reveal)
+        revealed = set()
+        for to_reveal in reveal:
+            revealed.add(to_reveal)
+            for _ in range(2):
+                i = 0
+                for x, y, digit in fixup[cur]:
+                    if i not in revealed:
+                        digit = chr(random.randint(33, 125))
+                    disp[x, y] = digit
+                    i += 1
+                disp.draw_grid(show_lines=False, default_color=(0,0,0), font_size=13, cell_size=(12,30), color_map={})
+
+    for y in disp.y_range():
+        row = "".join([disp[x, y] for x in disp.x_range()])
+        print(row)
+
+    import subprocess
+    cmd = [
+        "ffmpeg", 
+        "-hide_banner",
+        "-f", "image2",
+        "-framerate", "30", 
+        "-i", "frame_%05d.png", 
+        "animation_16.mp4",
+    ]
+    print("$ " + " ".join(cmd))
+    subprocess.check_call(cmd)
+
 
 def test(log):
     values = log.decode_values("""

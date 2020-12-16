@@ -229,7 +229,7 @@ class Grid:
             if re.search("frame_[0-9]{5}\\.png", cur):
                 os.unlink(cur)
 
-    def draw_frames(self, color_map=DEFAULT_COLOR_MAP, cell_size=10, repeat_final=0, font_size=10, extra_callback=None, show_lines=True):
+    def draw_frames(self, color_map=DEFAULT_COLOR_MAP, cell_size=(10, 10), repeat_final=0, font_size=10, extra_callback=None, show_lines=True):
         from datetime import datetime, timedelta
 
         msg = datetime.utcnow()
@@ -262,8 +262,8 @@ class Grid:
         print("Done with drawing")
         self.grid = temp
 
-    def draw_grid(self, color_map=DEFAULT_COLOR_MAP, cell_size=10, extra_text=None, extra_text_rows=None, 
-        font_size=14, image_copies=1, extra=None, extra_callback=None, text_xy=None, show_lines=True):
+    def draw_grid(self, color_map=DEFAULT_COLOR_MAP, cell_size=(10, 10), extra_text=None, extra_text_rows=0, 
+        font_size=14, image_copies=1, extra=None, extra_callback=None, text_xy=None, show_lines=True, default_color=(64, 64, 64)):
         from PIL import Image, ImageDraw, ImageFont
         import os
         width = self.width()
@@ -294,18 +294,18 @@ class Grid:
         border = 5
 
         im = Image.new('RGB', (
-            width * (cell_size + 1) + 1 + (border * 2), 
-            height * (cell_size + 1) + 1 + (border * 2) + for_text,
+            width * (cell_size[0] + 1) + 1 + (border * 2), 
+            height * (cell_size[1] + 1) + 1 + (border * 2) + for_text,
         ), color=BACKGROUND_COLOR)
 
-        offset = height * (cell_size + 1) + 1 + (border * 2)
+        offset = height * (cell_size[1] + 1) + 1 + (border * 2)
 
         d = ImageDraw.Draw(im, 'RGBA')
 
         d.rectangle(
             (
                 (border, border), 
-                (border + width * (cell_size + 1), border + height * (cell_size + 1))
+                (border + width * (cell_size[0] + 1), border + height * (cell_size[0] + 1))
             ), 
             LINE_COLOR, 
             LINE_COLOR,
@@ -321,28 +321,23 @@ class Grid:
                 if use:
                     text = None
                     if isinstance(color, list):
-                        temp = color_map[color[0]]
-                        color = (
-                            max(0, min(255, temp[0] + color[1])), 
-                            max(0, min(255, temp[1] + color[1])), 
-                            max(0, min(255, temp[2] + color[1])), 
-                        )
+                        text, color = color
                     else:
                         if color in color_map:
                             color = color_map[color]
                         else:
                             text = color
-                            color = (64, 64, 64)
+                            color = default_color
                     d.rectangle(
                         (
-                            (border + x * (cell_size + 1) + 1, border + y * (cell_size + 1) + 1), 
-                            (border + x * (cell_size + 1) + cell_size + (0 if show_lines else 1), border + y * (cell_size + 1) + cell_size + (0 if show_lines else 1))
+                            (border + x * (cell_size[0] + 1) + 1, border + y * (cell_size[1] + 1) + 1), 
+                            (border + x * (cell_size[0] + 1) + cell_size[0] + (0 if show_lines else 1), border + y * (cell_size[1] + 1) + cell_size[1] + (0 if show_lines else 1))
                         ),
                         color, color
                     )
                     if text is not None:
                         w, h = d.textsize(text)
-                        d.text((border + x * (cell_size + 1) + 1 + (cell_size - w) / 2, border + y * (cell_size + 1) + 1 + (cell_size - h) / 2), text, fill=(255, 255, 255))
+                        d.text((border + x * (cell_size[0] + 1) + 1 + (cell_size[0] - w) / 2, border + y * (cell_size[1] + 1) + 1 + (cell_size[1] - h) / 2), text, fill=(255, 255, 255), font=self.fonts[0])
 
         if extra_text is not None:
             y = offset if text_xy is None else text_xy[1]
@@ -359,8 +354,8 @@ class Grid:
             if extra is not None:
                 if 'x' in extra and 'y' in extra:
                     extra['x_calc'], extra['y_calc'] = (
-                        border + extra['x'] * (cell_size + 1) + 1 + cell_size / 2, 
-                        border + extra['y'] * (cell_size + 1) + 1 + cell_size / 2,
+                        border + extra['x'] * (cell_size[0] + 1) + 1 + cell_size[0] / 2, 
+                        border + extra['y'] * (cell_size[1] + 1) + 1 + cell_size[1] / 2,
                     )
             extra_callback(d, extra)
         del d
