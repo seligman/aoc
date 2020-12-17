@@ -3,7 +3,7 @@
 def get_desc():
     return 17, 'Day 17: Conway Cubes'
 
-def calc(log, values, mode, draw=False):
+def calc(log, values, mode, draw=False, sample=(0,), max_count=None):
     from grid import Grid
     grid = Grid(default=".")
     y = 0
@@ -57,7 +57,25 @@ def calc(log, values, mode, draw=False):
 
     draw_disp()
 
-    for _ in range(6):
+    def show_grid():
+        for z in grid.axis_range(2):
+            for a in grid.axis_range(3):
+                if mode == 1:
+                    log(f"z={z}")
+                else:
+                    log(f"z={z}, w={a}")
+                for y in sample[2]:
+                    row = ""
+                    for x in sample[1]:
+                        row += grid[x, y, z, a]
+                    log(row)
+                log("")
+
+    if sample[0] == 2:
+        log("Before any cycles:")
+        show_grid()
+
+    for round in range(6 if max_count is None else max_count):
         todo = []
         actives = 0
         for x in [-4, -3, -2, -1, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12] if draw else grid.axis_range(0, 1):
@@ -78,7 +96,14 @@ def calc(log, values, mode, draw=False):
                             actives += 1
         for x, y, z, a, value in todo:
             grid[x, y, z, a] = value
+
+        if sample[0] == 2:
+            log(f"Round {round+1}")
+            show_grid()
         draw_disp()
+
+    if sample[0] == 1:
+        return list(grid.axis_range(0)), list(grid.axis_range(1))
 
     # print("x", list(grid.axis_range(0)))
     # print("y", list(grid.axis_range(1)))
@@ -86,6 +111,26 @@ def calc(log, values, mode, draw=False):
     # print("a", list(grid.axis_range(3)))
 
     return actives
+
+def other_sample(describe, values):
+    if describe:
+        return "Produce a sample output"
+
+    from dummylog import DummyLog
+    log = DummyLog()
+    values = log.decode_values("""
+        .#.
+        ..#
+        ###
+    """)
+    log("---- Part 1 ----")
+    xr, yr = calc(log, values, 1, sample=(1,), max_count=2)
+    calc(log, values, 1, sample=(2, xr, yr), max_count=2)
+
+    log("")
+    log("---- Part 2 ----")
+    xr, yr = calc(log, values, 2, sample=(1,), max_count=2)
+    calc(log, values, 2, sample=(2, xr, yr), max_count=2)
 
 def other_draw(describe, values):
     if describe:
