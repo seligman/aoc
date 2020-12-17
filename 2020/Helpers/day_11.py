@@ -16,7 +16,7 @@ def calc(log, values, mode, draw=False):
     height = grid.height()
 
     last_seen = ""
-    dirs = [(x // 3 - 1, x % 3 - 1) for x in range(9) if x != 4]
+    dirs = Grid.get_dirs(2)
     xys = [(x % grid.width(), x // grid.width()) for x in range(grid.width() * grid.height())]
 
     while True:

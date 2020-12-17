@@ -62,6 +62,28 @@ class Grid:
         return ret
 
     @staticmethod
+    def get_dirs(axis_count):
+        ret = []
+        temp = [-1] * axis_count
+        found = True
+        while found:
+            if sum([abs(x) for x in temp]) > 0:
+                ret.append(temp[:])
+            found = False
+            i = len(temp) - 1
+            while True:
+                temp[i] += 1
+                if temp[i] == 2:
+                    temp[i] = -1
+                    i -= 1
+                    if i == -1:
+                        break
+                else:
+                    found = True
+                    break
+        return ret
+
+    @staticmethod
     def from_text(values, changes=True):
         grid = Grid()
         y = 0

@@ -14,13 +14,10 @@ def calc(log, values, mode, draw={"mode": "none"}, sample=(0,), max_count=None):
             x += 1
         y += 1
 
-    dirs = []
-    for x in [-1, 0, 1]:
-        for y in [-1, 0, 1]:
-            for z in [-1, 0, 1]:
-                for w in [0] if mode == 1 else [-1, 0, 1]:
-                    if sum([abs(x), abs(y), abs(z)]) > 0 if mode == 1 else sum([abs(x), abs(y), abs(z), abs(w)]) > 0:
-                        dirs.append((x, y, z, w))
+    if mode == 1:
+        dirs = [x + [0] for x in Grid.get_dirs(3)]
+    else:
+        dirs = Grid.get_dirs(4)
         
     actives = 0
     if draw["mode"] == "draw":
