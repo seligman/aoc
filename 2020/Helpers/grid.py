@@ -132,8 +132,8 @@ class Grid:
     def height(self):
         return self.axis_size(1)
 
-    def axis_range(self, axis):
-        return range(self.axis_min(axis), self.axis_max(axis) + 1)
+    def axis_range(self, axis, pad=0):
+        return range(self.axis_min(axis) - pad, self.axis_max(axis) + 1 + pad)
 
     def x_range(self):
         return self.axis_range(0)
