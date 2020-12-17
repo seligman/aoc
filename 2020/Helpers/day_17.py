@@ -3,7 +3,7 @@
 def get_desc():
     return 17, 'Day 17: Conway Cubes'
 
-def calc(log, values, mode, draw=False, sample=(0,), max_count=None):
+def calc(log, values, mode, draw={"mode": "none"}, sample=(0,), max_count=None):
     from grid import Grid
     grid = Grid(default=".")
     y = 0
@@ -15,60 +15,49 @@ def calc(log, values, mode, draw=False, sample=(0,), max_count=None):
         y += 1
 
     dirs = []
-    if mode == 1:
-        for x in [-1, 0, 1]:
-            for y in [-1, 0, 1]:
-                for z in [-1, 0, 1]:
-                    if not (x == 0 and y == 0 and z == 0):
-                        dirs.append((x, y, z, 0))
-    else:
-        for x in [-1, 0, 1]:
-            for y in [-1, 0, 1]:
-                for z in [-1, 0, 1]:
-                    for a in [-1, 0, 1]:
-                        if not (x == 0 and y == 0 and z == 0 and a == 0):
-                            dirs.append((x, y, z, a))
+    for x in [-1, 0, 1]:
+        for y in [-1, 0, 1]:
+            for z in [-1, 0, 1]:
+                for w in [0] if mode == 1 else [-1, 0, 1]:
+                    if sum([abs(x), abs(y), abs(z)]) > 0 if mode == 1 else sum([abs(x), abs(y), abs(z), abs(w)]) > 0:
+                        dirs.append((x, y, z, w))
         
     actives = 0
-
-    if draw:
+    if draw["mode"] == "draw":
         disp = Grid(' ')
-        for x in range(13):
-            for y in range(13):
-                for xo in range(19):
-                    for yo in range(18):
-                        if xo == 0 or yo == 0 or xo == 18 or yo == 17:
-                            disp[x * 18 + xo, y * 17+ yo] = "Gray"
+        for x in range(len(draw["z"])):
+            for y in range(len(draw["w"])):
+                for xo in range(len(draw["x"]) + 2):
+                    for yo in range(len(draw["y"]) + 2):
+                        if xo == 0 or yo == 0 or xo == len(draw["x"]) + 1 or yo == len(draw["y"]) + 1:
+                            disp[x * (len(draw["x"]) + 1) + xo, y * (len(draw["y"]) + 1) + yo] = "Gray"
         disp.draw_grid(show_lines=False)
 
     def draw_disp():
-        if draw:
-            for x in range(-4, 13):
-                for y in range(-4, 12):
-                    for z in range(-6, 7):
-                        for a in range(-6, 7):
-                            xo = (z + 6) * 18 + 1 + (x + 4)
-                            yo = (a + 6) * 17 + 1 + (y + 4)
-                            if grid[x, y, z, a] == ".":
-                                disp[xo, yo] = " "
-                            else:
-                                disp[xo, yo] = "star"
-            disp.draw_grid(show_lines=False)
+        for x in draw["x"]:
+            for y in draw["y"]:
+                for z in draw["z"]:
+                    for w in draw["w"]:
+                        xo = (z - draw["z"][0]) * (len(draw["x"]) + 1) + 1 + (x - draw["x"][0])
+                        yo = (w - draw["w"][0]) * (len(draw["y"]) + 1) + 1 + (y - draw["y"][0])
+                        if grid[x, y, z, w] == ".":
+                            disp[xo, yo] = " "
+                        else:
+                            disp[xo, yo] = "star"
+        disp.draw_grid(show_lines=False)
 
-    draw_disp()
+    if draw["mode"] == "draw":
+        draw_disp()
 
     def show_grid():
         for z in grid.axis_range(2):
-            for a in grid.axis_range(3):
+            for w in grid.axis_range(3):
                 if mode == 1:
                     log(f"z={z}")
                 else:
-                    log(f"z={z}, w={a}")
+                    log(f"z={z}, w={w}")
                 for y in sample[2]:
-                    row = ""
-                    for x in sample[1]:
-                        row += grid[x, y, z, a]
-                    log(row)
+                    log("".join([grid[x, y, z, w] for x in sample[1]]))
                 log("")
 
     if sample[0] == 2:
@@ -78,37 +67,44 @@ def calc(log, values, mode, draw=False, sample=(0,), max_count=None):
     for round in range(6 if max_count is None else max_count):
         todo = []
         actives = 0
-        for x in [-4, -3, -2, -1, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12] if draw else grid.axis_range(0, 1):
-            for y in [-4, -3, -2, -1, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11] if draw else grid.axis_range(1, 1):
-                for z in [-6, -5, -4, -3, -2, -1, 0, 1, 2, 3, 4, 5, 6] if draw else grid.axis_range(2, 1):
-                    for a in [-6, -5, -4, -3, -2, -1, 0, 1, 2, 3, 4, 5, 6] if draw else grid.axis_range(3, 1):
+        for x in grid.axis_range(0, 1):
+            for y in grid.axis_range(1, 1):
+                for z in grid.axis_range(2, 1):
+                    for w in grid.axis_range(3, 1):
                         temp = 0
-                        for xo, yo, zo, ao in dirs:
-                            if grid[x+xo, y+yo, z+zo, a+ao] == "#":
+                        for xo, yo, zo, wo in dirs:
+                            if grid[x+xo, y+yo, z+zo, w+wo] == "#":
                                 temp += 1
-                        if grid[x, y, z, a] == "#":
+                        if grid[x, y, z, w] == "#":
                             if temp not in {2, 3}:
-                                todo.append((x, y, z, a, "."))
+                                todo.append((x, y, z, w, "."))
                             else:
                                 actives += 1
-                        elif grid[x, y, z, a] == "." and temp == 3:
-                            todo.append((x, y, z, a, "#"))
+                        elif grid[x, y, z, w] == "." and temp == 3:
+                            todo.append((x, y, z, w, "#"))
                             actives += 1
-        for x, y, z, a, value in todo:
-            grid[x, y, z, a] = value
+        for x, y, z, w, value in todo:
+            grid[x, y, z, w] = value
 
         if sample[0] == 2:
             log(f"Round {round+1}")
             show_grid()
-        draw_disp()
+
+        if draw["mode"] == "draw":
+            log(f"Drawing round {round+1}")
+            draw_disp()
 
     if sample[0] == 1:
         return list(grid.axis_range(0)), list(grid.axis_range(1))
 
-    # print("x", list(grid.axis_range(0)))
-    # print("y", list(grid.axis_range(1)))
-    # print("z", list(grid.axis_range(2)))
-    # print("a", list(grid.axis_range(3)))
+    if draw["mode"] == "calc":
+        return {
+            "mode": "draw",
+            "x": list(grid.axis_range(0)),
+            "y": list(grid.axis_range(1)),
+            "z": list(grid.axis_range(2)),
+            "w": list(grid.axis_range(3)),
+        }
 
     return actives
 
@@ -137,7 +133,10 @@ def other_draw(describe, values):
         return "Animate this"
     
     from dummylog import DummyLog
-    calc(DummyLog(), values, 2, draw=True)
+    print("Finding ranges...")
+    ranges = calc(DummyLog(), values, 2, draw={"mode": "calc"})
+    print("Drawing frames...")
+    calc(DummyLog(), values, 2, draw=ranges)
 
     import subprocess
     cmd = [
@@ -150,7 +149,6 @@ def other_draw(describe, values):
     ]
     print("$ " + " ".join(cmd))
     subprocess.check_call(cmd)
-
 
 def test(log):
     values = log.decode_values("""
