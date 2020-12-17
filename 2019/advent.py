@@ -576,15 +576,18 @@ def get_page(url):
         headers={'Cookie': cookie},
     )
     resp = urllib.request.urlopen(req)
-    return resp.read().decode("utf-8")
+    resp = resp.read().decode("utf-8")
+    resp = resp.encode('ascii', 'xmlcharrefreplace')
+    resp = resp.decode("utf-8")
+    return resp
 
 
 @opt("Download Index")
 def get_index():
     resp = get_page("https://adventofcode.com/%s" % (YEAR_NUMBER,))
 
-    resp = re.sub("[\x00-\xff]+<main>", "", resp)
-    resp = re.sub("</main>[\x00-\xff]+", "", resp)
+    resp = re.sub("^.*<main>", "", resp, flags=re.DOTALL)
+    resp = re.sub("</main>.*$", "", resp, flags=re.DOTALL)
 
     for i in range(30, 0, -1):
         resp = resp.replace("/%s/day/%d" % (YEAR_NUMBER, i), "day_%02d.html" % (i,))
@@ -593,7 +596,7 @@ def get_index():
 
     edit_file(os.path.join("Puzzles", "index.html"))
 
-    with open(os.path.join("Puzzles", "index.html"), "w") as f:
+    with open(os.path.join("Puzzles", "index.html"), "wt", encoding="utf-8") as f:
         f.write(header + resp + footer)
 
     print("Wrote out index")
@@ -619,20 +622,20 @@ def dl_day(helper_day):
         if not os.path.isfile(filename):
             resp = get_page("https://adventofcode.com/%s/day/%d/input" % (YEAR_NUMBER, helper_day))
 
-            with open(filename, "w") as f:
+            with open(filename, "wt", encoding="utf-8") as f:
                 f.write(resp)
 
             print("Wrote out puzzle input for day #%d" % (helper_day,))
 
         resp = get_page("https://adventofcode.com/%s/day/%d" % (YEAR_NUMBER, helper_day))
 
-        resp = re.sub("[\x00-\xff]+<main>", "", resp)
-        resp = re.sub("</main>[\x00-\xff]+", "", resp)
-        resp = re.sub('<p>At this point, you should <a href="/[0-9]+">return to your advent calendar</a> and try another puzzle.</p>[\x00-\xff]+', "", resp, flags=re.MULTILINE)
+        resp = re.sub("^.*<main>", "", resp, flags=re.DOTALL)
+        resp = re.sub("</main>.*$", "", resp, flags=re.DOTALL)
+        resp = re.sub('<p>At this point, you should <a href="/[0-9]+">return to your advent calendar</a> and try another puzzle.</p>.+', "", resp, flags=(re.MULTILINE | re.DOTALL))
 
         header, footer = get_header_footer()
 
-        with open(os.path.join("Puzzles", "day_%02d.html" % (helper_day,)), "w") as f:
+        with open(os.path.join("Puzzles", "day_%02d.html" % (helper_day,)), "wt", encoding="utf-8") as f:
             f.write(header + resp + footer)
 
         print("Wrote out puzzle for day #%d" % (helper_day,))
