@@ -76,7 +76,7 @@ def eval_expr(value):
 
     return ops[0]
 
-def calc(log, values, mode, target=None):
+def calc(log, values, mode, target=None, pad=0):
     global precedence
     precedence = mode
 
@@ -106,9 +106,23 @@ def calc(log, values, mode, target=None):
                 target.append(None)
                 for x in range(old_len):
                     target.append([x, ' ', (0, 0, 0)])
+                final = False
+                if " " not in cur:
+                    final = True
                 for x in range(len(cur)):
                     target.append([x, cur[x], (0, 0, 0)])
                 target.append(None)
+                if final:
+                    if len(cur) < pad:
+                        for x in range(pad):
+                            target.append([x, cur[x] if x < len(cur) else ' ', (128, 128, 0)])
+                        target.append(None)
+                        cur = " " * pad + cur
+                        cur = cur[-pad:]
+                        for x in range(pad):
+                            target.append([x, cur[x], (0, 0, 0)])
+                        target.append(None)
+                    return cur
         else:
             while True:
                 before = cur
@@ -128,8 +142,14 @@ def other_animate(describe, values):
     targets = []
     rows = []
     for cur in values[:50]:
+        rows.append(calc(DummyLog(), [cur], 2, target=[], pad=0))
+    total = sum([int(x.strip()) for x in rows])
+    pad = len(str(total))
+    rows = []
+
+    for cur in values[:50]:
         targets.append([])
-        rows.append(str(calc(DummyLog(), [cur], 2, target=targets[-1])))
+        rows.append(calc(DummyLog(), [cur], 2, target=targets[-1], pad=pad))
 
     from grid import Grid
     disp = Grid(default = ' ')
@@ -150,20 +170,20 @@ def other_animate(describe, values):
         disp.draw_grid(show_lines=False, default_color=(0,0,0), font_size=13, cell_size=(11,19), color_map={})
 
     while len(rows) >= 2:
-        target = 0
-        while disp[target, 0][0] != ' ' or disp[target, 1][0] != ' ':
-            target += 1
-        for x in range(target):
+        for x in range(pad):
             disp[x, 0][1] = (128, 128, 0)
             disp[x, 1][1] = (128, 128, 0)
         disp.draw_grid(show_lines=False, default_color=(0,0,0), font_size=13, cell_size=(11,19), color_map={})
-        for x in range(target):
+        for x in range(pad):
             disp[x, 0][1] = (0, 0, 0)
             disp[x, 1][1] = (0, 0, 0)
-        for x in disp.x_range():
+        for x in range(pad):
             for y in disp.y_range():
                 disp[x, y] = [' ', (0, 0, 0)]
-        rows = [str(int(rows[0]) + int(rows[1]))] + rows[2:]
+        temp = str(int(rows[0].strip()) + int(rows[1].strip()))
+        temp = " " * pad + temp
+        temp = temp[-pad:]
+        rows = [temp] + rows[2:]
         for y in range(len(rows)):
             for x in range(len(rows[y])):
                 disp[x, y] = [rows[y][x], (0, 0, 0)]
