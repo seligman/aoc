@@ -14,10 +14,9 @@ def calc(log, values, mode, draw={"mode": "none"}, sample=(0,), max_count=None):
             x += 1
         y += 1
 
+    dirs = Grid.get_dirs(4)
     if mode == 1:
-        dirs = [x + [0] for x in Grid.get_dirs(3)]
-    else:
-        dirs = Grid.get_dirs(4)
+        dirs = [x for x in dirs if x[3] == 0]
         
     actives = 0
     if draw["mode"] == "draw":
@@ -77,14 +76,17 @@ def calc(log, values, mode, draw={"mode": "none"}, sample=(0,), max_count=None):
                                 temp += 1
                         if grid[x, y, z, w] == "#":
                             if temp not in {2, 3}:
-                                todo.append((x, y, z, w, "."))
+                                todo.append((x, y, z, w, None))
                             else:
                                 actives += 1
                         elif grid[x, y, z, w] == "." and temp == 3:
                             todo.append((x, y, z, w, "#"))
                             actives += 1
         for x, y, z, w, value in todo:
-            grid[x, y, z, w] = value
+            if value is None:
+                del grid[x, y, z, w]
+            else:
+                grid[x, y, z, w] = value
 
         if sample[0] == 2:
             log(f"Round {round+1}")

@@ -129,6 +129,12 @@ class Grid:
         else:
             return self.grid.get((key,), self.default)
 
+    def __delitem__(self, key):
+        if isinstance(key, tuple):
+            del self.grid[key]
+        else:
+            del self.grid[(key,)]
+
     def __iter__(self):
         return self.grid.values().__iter__()
 
