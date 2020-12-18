@@ -324,14 +324,15 @@ class Grid:
 
         d = ImageDraw.Draw(im, 'RGBA')
 
-        d.rectangle(
-            (
-                (border, border), 
-                (border + width * (cell_size[0] + 1), border + height * (cell_size[0] + 1))
-            ), 
-            LINE_COLOR, 
-            LINE_COLOR,
-        )
+        if show_lines:
+            d.rectangle(
+                (
+                    (border, border), 
+                    (border + width * (cell_size[0] + 1), border + height * (cell_size[0] + 1))
+                ), 
+                LINE_COLOR, 
+                LINE_COLOR,
+            )
 
         for x in range(width):
             for y in range(height):
@@ -358,8 +359,11 @@ class Grid:
                         color, color
                     )
                     if text is not None:
-                        w, h = d.textsize(text)
-                        d.text((border + x * (cell_size[0] + 1) + 1 + (cell_size[0] - w) / 2, border + y * (cell_size[1] + 1) + 1 + (cell_size[1] - h) / 2), text, fill=(255, 255, 255), font=self.fonts[0])
+                        w, h = d.textsize(text, font=self.fonts[0])
+                        d.text((
+                            border + x * (cell_size[0] + 1) + 1 + (cell_size[0] - w) / 2, 
+                            border + y * (cell_size[1] + 1) + 1 + (cell_size[1] - h) / 2), 
+                            text, fill=(255, 255, 255), font=self.fonts[0])
 
         if extra_text is not None:
             y = offset if text_xy is None else text_xy[1]

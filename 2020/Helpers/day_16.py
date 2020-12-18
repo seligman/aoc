@@ -193,7 +193,7 @@ def other_draw(describe, values):
         "-f", "image2",
         "-framerate", "30", 
         "-i", "frame_%05d.png", 
-        "animation_16.mp4",
+        "animation_" + str(get_desc()[0]) + ".mp4",
     ]
     print("$ " + " ".join(cmd))
     subprocess.check_call(cmd)
