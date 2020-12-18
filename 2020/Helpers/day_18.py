@@ -30,7 +30,6 @@ def eval_expr(value):
                 if ops[i] == "+":
                     found = True
                     ops = ops[:i-1] + [str(int(ops[i - 1]) + int(ops[i + 1]))] + ops[i + 2:]
-
                     break
         found = True
         while found:
