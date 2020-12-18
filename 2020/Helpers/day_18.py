@@ -6,7 +6,7 @@ def get_desc():
     return 18, 'Day 18: Operation Order'
 
 def eval_ops(val1, op, val2):
-    bail["evaled"] = val1 + " " + op + " " + val2
+    bail["last_eval"] = val1 + " " + op + " " + val2
     ret = ""
     if op == "+":
         ret = str(int(val1) + int(val2))
@@ -14,20 +14,17 @@ def eval_ops(val1, op, val2):
         ret = str(int(val1) * int(val2))
     else:
         raise Exception()
-    bail["evaled_to"] = ret
+    bail["last_eval_result"] = ret
     return ret
 
 precedence = None
 bail = {
-    "op_count": None,
+    "bail_after_ops": None,
     "in_paren": False,
-    "evaled": "",
-    "evaled_to": "",
-    "off": 0,
+    "last_eval": "",
+    "last_eval_result": "",
+    "last_eval_offset": 0,
 }
-
-def underscore(value):
-    return "_" * len(value)
 
 def paren(value):
     if isinstance(value, list):
@@ -43,8 +40,8 @@ def eval_expr(value):
         off = value.span()[0] + 1
         value = value.group("expr")
 
-    if bail["op_count"] is not None:
-        if bail["op_count"] == 0:
+    if bail["bail_after_ops"] is not None:
+        if bail["bail_after_ops"] == 0:
             return paren(value)
 
     ops = []
@@ -66,11 +63,11 @@ def eval_expr(value):
                 if ops[i] in operators:
                     found = True
 
-                    bail["off"] = offs[i - 1]
+                    bail["last_eval_offset"] = offs[i - 1]
                     ops = ops[:i-1] + [eval_ops(ops[i - 1], ops[i], ops[i + 1])] + ops[i + 2:]
-                    if bail["op_count"] is not None:
-                        bail["op_count"] -= 1
-                        if bail["op_count"] == 0:
+                    if bail["bail_after_ops"] is not None:
+                        bail["bail_after_ops"] -= 1
+                        if bail["bail_after_ops"] == 0:
                             return paren(ops)
                     break
 
@@ -89,7 +86,7 @@ def calc(log, values, mode, target=None, pad=0):
             while True:
                 old_len = len(cur)
                 old_value = cur
-                bail["op_count"] = 1
+                bail["bail_after_ops"] = 1
                 while True:
                     before = cur
                     bail["in_paren"] = True
@@ -98,11 +95,11 @@ def calc(log, values, mode, target=None, pad=0):
                     if cur == before:
                         break
                 cur = eval_expr(cur)
-                if bail["op_count"] == 1:
+                if bail["bail_after_ops"] == 1:
                     break
 
-                for x in range(len(bail["evaled"])):
-                    target.append([x + bail["off"], old_value[x + bail["off"]], (128, 128, 0)])
+                for x in range(len(bail["last_eval"])):
+                    target.append([x + bail["last_eval_offset"], old_value[x + bail["last_eval_offset"]], (128, 128, 0)])
                 target.append(None)
                 for x in range(old_len):
                     target.append([x, ' ', (0, 0, 0)])
