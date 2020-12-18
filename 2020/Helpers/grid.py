@@ -138,6 +138,13 @@ class Grid:
     def __iter__(self):
         return self.grid.values().__iter__()
 
+    def set_text(self, x, y, text, color=None):
+        for xo in range(len(text)):
+            if color is None:
+                self[x + xo, y] = text[xo]
+            else:
+                self[x + xo, y] = [text[xo], color]
+
     def get(self, *coords):
         return self.grid.get(coords, self.default)
 
@@ -289,6 +296,17 @@ class Grid:
 
         print("Done with drawing")
         self.grid = temp
+
+    def get_font_size(self, font_size):
+        from PIL import Image, ImageDraw, ImageFont
+        import os
+        source_code = os.path.join('Helpers', 'Font-SourceCodePro-Bold.ttf')
+        source_code = ImageFont.truetype(source_code, int(float(font_size) * 1.5))
+        w, h = 0, 0
+        for x in range(32, 126):
+            test = source_code.getsize(chr(x))
+            w, h = max(w, test[0]), max(h, test[1])
+        return w, h
 
     def draw_grid(self, color_map=DEFAULT_COLOR_MAP, cell_size=(10, 10), extra_text=None, extra_text_rows=0, 
         font_size=14, image_copies=1, extra=None, extra_callback=None, text_xy=None, show_lines=True, default_color=(64, 64, 64)):
