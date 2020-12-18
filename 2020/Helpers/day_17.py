@@ -47,6 +47,7 @@ def calc(log, values, mode, draw={"mode": "none"}, sample=(0,), max_count=None):
         draw_disp()
 
     def show_grid():
+        active_count = 0
         for z in grid.axis_range(2):
             for w in grid.axis_range(3):
                 if mode == 1:
@@ -55,7 +56,9 @@ def calc(log, values, mode, draw={"mode": "none"}, sample=(0,), max_count=None):
                     log(f"z={z}, w={w}")
                 for y in sample[2]:
                     log("".join([grid[x, y, z, w] for x in sample[1]]))
+                    active_count += len([grid[x, y, z, w] for x in sample[1] if grid[x, y, z, w] == "#"])
                 log("")
+        print(f"Total of {active_count} cells")
 
     if sample[0] == 2:
         log("Before any cycles:")
