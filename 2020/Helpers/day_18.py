@@ -12,6 +12,8 @@ def eval_ops(val1, op, val2):
         ret = str(int(val1) + int(val2))
     elif op == "*":
         ret = str(int(val1) * int(val2))
+    elif op == "tree":
+        ret = str((int(val1) + int(val2)) // 2)
     else:
         raise Exception()
     bail["last_eval_result"] = ret
@@ -46,14 +48,14 @@ def eval_expr(value):
 
     ops = []
     offs = []
-    for m in re.finditer(r"([\d]+|\+|\*)", value):
+    for m in re.finditer(r"([\d]+|\+|\*|tree)", value):
         ops.append(m.group(1))
         offs.append(off + m.span()[0])
 
     if precedence == 1:
-        passes = [{"+", "*"}]
+        passes = [{"+", "*", "tree"}]
     else:
-        passes = [{"+"}, {"*"}]
+        passes = [{"tree"}, {"+"}, {"*"}]
 
     for operators in passes:
         found = True
@@ -211,6 +213,10 @@ def test(log):
     log.test(calc(log, ["5 + (8 * 3 + 9 + 3 * 4 * 3)"], 2), 1445)
     log.test(calc(log, ["5 * 9 * (7 * 3 * 3 + 9 * 3 + (8 + 6 * 4))"], 2), 669060)
     log.test(calc(log, ["((2 + 4 * 9) * (6 + 9 * 8 + 6) + 6) + 2 + 4 * 2"], 2), 23340)
+
+    log.test(calc(log, ["4 tree 8"], 2), 6)
+    log.test(calc(log, ["4 tree 9"], 2), 6)
+    log.test(calc(log, ["5 + 1 tree 3"], 2), 7)
 
 def run(log, values):
     log(calc(log, values, 1))
