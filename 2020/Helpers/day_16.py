@@ -165,9 +165,12 @@ def other_draw(describe, values):
             disp[x, y] = "*"
 
     import random
+    w, h = disp.get_font_size(13)
+    index = 0
 
     for cur in steps:
-        print(cur)
+        index += 1
+        print(f"{index:2d} / {len(steps):2d}: {cur}")
         reveal = list(range(len(fixup[cur])))
         random.shuffle(reveal)
         revealed = set()
@@ -176,15 +179,16 @@ def other_draw(describe, values):
             for _ in range(2):
                 i = 0
                 for x, y, digit in fixup[cur]:
+                    color = (0, 0, 0)
                     if i not in revealed:
                         digit = chr(random.randint(33, 125))
-                    disp[x, y] = digit
+                        color = (32, 32, 32)
+                    disp[x, y] = [digit, color]
                     i += 1
-                disp.draw_grid(show_lines=False, default_color=(0,0,0), font_size=13, cell_size=(12,30), color_map={})
+                disp.draw_grid(show_lines=False, default_color=(0,0,0), font_size=13, cell_size=(w,h), color_map={})
 
     for y in disp.y_range():
-        row = "".join([disp[x, y] for x in disp.x_range()])
-        print(row)
+        print("".join([x if isinstance(x, str) else x[0] for x in [disp[x, y] for x in disp.x_range()]]))
 
     import subprocess
     cmd = [
