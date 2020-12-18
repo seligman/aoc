@@ -5,6 +5,13 @@ import re
 def get_desc():
     return 18, 'Day 18: Operation Order'
 
+def eval_ops(val1, op, val2):
+    if op == "+":
+        return str(int(val1) + int(val2))
+    if op == "*":
+        return str(int(val1) * int(val2))
+    raise Exception()
+
 precedence = None
 def eval_expr(value):
     if isinstance(value, re.Match):
@@ -15,29 +22,18 @@ def eval_expr(value):
         ops.append(m.group(1))
 
     if precedence == 1:
-        while len(ops) > 2:
-            if ops[1] == "+":
-                ops = [str(int(ops[0]) + int(ops[2]))] + ops[3:]
-            elif ops[1] == "*":
-                ops = [str(int(ops[0]) * int(ops[2]))] + ops[3:]
-            else:
-                raise Exception()
+        passes = [{"+", "*"}]
     else:
+        passes = [{"+"}, {"*"}]
+
+    for operators in passes:
         found = True
         while found:
             found = False
             for i in range(len(ops) - 1):
-                if ops[i] == "+":
+                if ops[i] in operators:
                     found = True
-                    ops = ops[:i-1] + [str(int(ops[i - 1]) + int(ops[i + 1]))] + ops[i + 2:]
-                    break
-        found = True
-        while found:
-            found = False
-            for i in range(len(ops) - 1):
-                if ops[i] == "*":
-                    found = True
-                    ops = ops[:i-1] + [str(int(ops[i - 1]) * int(ops[i + 1]))] + ops[i + 2:]
+                    ops = ops[:i-1] + [eval_ops(ops[i - 1], ops[i], ops[i + 1])] + ops[i + 2:]
                     break
 
     return ops[0]
