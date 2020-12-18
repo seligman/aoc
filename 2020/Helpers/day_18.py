@@ -53,7 +53,7 @@ def eval_expr(value):
         offs.append(off + m.span()[0])
 
     if precedence == 1:
-        passes = [{"+", "*", "tree"}]
+        passes = [{"tree"}, {"+", "*"}]
     else:
         passes = [{"tree"}, {"+"}, {"*"}]
 
