@@ -38,10 +38,11 @@ def calc(log, values, mode):
         rule = "".join(decode(rules[key].split(' ')))
         compiled.append(re.compile("^" + rule.replace(" ", "") + "$"))
 
-    r42 = "".join(decode(rules["42"].split(' ')))
-    r31 = "".join(decode(rules["31"].split(' ')))
-    r42 = re.compile("^" + r42.replace(" ", ""))
-    r31 = re.compile(r31.replace(" ", "") + "$")
+    if mode == 2:
+        r42 = "".join(decode(rules["42"].split(' ')))
+        r31 = "".join(decode(rules["31"].split(' ')))
+        r42 = re.compile("^" + r42.replace(" ", ""))
+        r31 = re.compile(r31.replace(" ", "") + "$")
 
     count = 0
     for cur in [x for x in values if ":" not in x and len(x) > 0]:
