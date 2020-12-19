@@ -1,20 +1,22 @@
 #!/usr/bin/env python3
 
 import re
+from collections import defaultdict
 
 def get_desc():
     return 19, 'Day 19: Monster Messages'
 
 def calc(log, values, mode):
     rules = {}
-    tail = set()
+    tail = {}
 
     for cur in values:
         if ":" in cur:
             cur = cur.split(":")
-            rules[cur[0]] = "( " + cur[1].replace('"', '').strip() + " )"
             if '"' in cur[1]:
-                tail.add(cur[0])
+                tail[cur[0]] = cur[1].replace('"', '').strip()
+            else:
+                rules[cur[0]] = "( " + cur[1].strip() + " )"
 
     if mode == 2:
         rules["8"] = "( 42 | 42 8 )"
@@ -22,36 +24,29 @@ def calc(log, values, mode):
 
     compiled = []
     for key in rules if mode == 1 else ["0"]:
-        temp = rules[key]
-        temp = temp.split(' ')
-
         def decode(temp, used):
             ret = []
             for x in temp:
-                if x in rules and (used.get(x, 0) < 10 not in used or x in tail):
+                if x in tail:
+                    ret.append(tail[x])
+                elif x in rules and used[x] < 5:
                     used2 = used.copy()
-                    used2[x] = used2.get(x, 0) + 1
+                    used2[x] += 1
                     ret += decode(rules[x].split(' '), used2)
                 else:
-                    if x in rules:
-                        ret.append(rules[x])
-                    else:
-                        ret.append(x)
+                    ret.append(x)
             return ret
 
-        rule = "".join(decode(temp, {}))
+        rule = "".join(decode(rules[key].split(' '), defaultdict(int)))
         rule = rule.replace(' ', '')
-        rule = re.compile("^" + rule.replace(" ", "") + "$")
-        compiled.append(rule)
+        compiled.append(re.compile("^" + rule.replace(" ", "") + "$"))
 
-    valid = set()
-    for cur in values:
-        if len(cur) > 0 and ":" not in cur:
-            for rule in compiled:
-                if rule.match(cur):
-                    valid.add(cur)
+    count = 0
+    for cur in [x for x in values if ":" not in x and len(x) > 0]:
+        if len([x for x in [x.match(cur) for x in compiled] if x is not None]) > 0:
+            count += 1
 
-    return len(valid)
+    return count
 
 def test(log):
     values = log.decode_values("""
