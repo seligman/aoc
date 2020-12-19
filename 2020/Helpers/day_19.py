@@ -7,11 +7,14 @@ def get_desc():
 
 def calc(log, values, mode):
     rules = {}
+    tail = set()
 
     for cur in values:
         if ":" in cur:
             cur = cur.split(":")
             rules[cur[0]] = "( " + cur[1].replace('"', '').strip() + " )"
+            if '"' in cur[1]:
+                tail.add(cur[0])
 
     if mode == 2:
         rules["8"] = "( 42 | 42 8 )"
@@ -20,26 +23,24 @@ def calc(log, values, mode):
     compiled = []
     for key in rules if mode == 1 else ["0"]:
         temp = rules[key]
-        rule = temp.split(' ')
-        bail = 0
-        while True:
-            found = False
-            temp = rule
-            rule = []
-            for cur in temp:
-                if cur in rules:
-                    rule += rules[cur].split(' ')
-                    found = True
+        temp = temp.split(' ')
+
+        def decode(temp, used):
+            ret = []
+            for x in temp:
+                if x in rules and (used.get(x, 0) < 10 not in used or x in tail):
+                    used2 = used.copy()
+                    used2[x] = used2.get(x, 0) + 1
+                    ret += decode(rules[x].split(' '), used2)
                 else:
-                    rule.append(cur)
-            bail += 1
-            if mode == 1:
-                if not found:
-                    break
-            else:
-                if bail >= 30:
-                    break
-        rule = "".join(rule)
+                    if x in rules:
+                        ret.append(rules[x])
+                    else:
+                        ret.append(x)
+            return ret
+
+        rule = "".join(decode(temp, {}))
+        rule = rule.replace(' ', '')
         rule = re.compile("^" + rule.replace(" ", "") + "$")
         compiled.append(rule)
 
