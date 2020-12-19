@@ -3,7 +3,7 @@
 def get_desc():
     return 8, 'Day 8: Handheld Halting'
 
-def calc(log, values, mode, debug=False):
+def calc(log, values, mode, debug=False, draw=False):
     from program import Program
     if mode == 1:
         prog = Program(values, log if debug else None)
@@ -21,15 +21,42 @@ def calc(log, values, mode, debug=False):
         for i in to_test:
             prog = Program(values)
             prog.instructions[i].op = swap[prog.instructions[i].op]
+            backup = prog.clone()
             hit_end = True
             while prog.step():
                 if prog.seen_pc():
                     hit_end = False
                     break
             if hit_end:
+                if draw:
+                    while True:
+                        print(f"Drawing frame {backup.steps} of {prog.steps}")
+                        backup.show()
+                        if not backup.step():
+                            break
                 return prog.acc
 
     return 0
+
+def other_draw(describe, values):
+    if describe:
+        return "Animate this"
+    
+    from dummylog import DummyLog
+    calc(DummyLog(), values, 2, draw=True)
+
+    import subprocess
+    cmd = [
+        "ffmpeg", 
+        "-hide_banner",
+        "-f", "image2",
+        "-framerate", "10", 
+        "-i", "frame_%05d.png", 
+        "animation_%02d.mp4" % (get_desc()[0],),
+    ]
+    print("$ " + " ".join(cmd))
+    subprocess.check_call(cmd)
+
 
 def test(log):
     values = log.decode_values("""

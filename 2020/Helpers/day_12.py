@@ -86,7 +86,7 @@ def calc(log, values, mode, draw=False):
                 "-f", "image2",
                 "-framerate", str(30), 
                 "-i", "frame_%05d.png", 
-                "animation_" + str(get_desc()[0]) + ".mp4",
+                "animation_%02d.mp4" % (get_desc()[0],),
             ]
             log.show("$ " + " ".join(cmd))
             import subprocess
