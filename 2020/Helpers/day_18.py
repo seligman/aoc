@@ -133,7 +133,7 @@ def calc(log, values, mode, target=None, pad=0):
         ret += int(cur)
     return ret
 
-def other_animate(describe, values):
+def other_draw(describe, values):
     if describe:
         return "Animate this"
 
@@ -189,13 +189,20 @@ def other_animate(describe, values):
         disp.draw_grid(show_lines=False, default_color=(0,0,0), font_size=13, cell_size=(11,19), color_map={})
 
     import subprocess
+    import os
     cmd = [
-        "ffmpeg", 
+        "ffmpeg", "-y",
         "-hide_banner",
         "-f", "image2",
         "-framerate", "10", 
         "-i", "frame_%05d.png", 
-        "animation_%02d.mp4" % (get_desc()[0],),
+        "-c:v", "libx264", 
+        "-profile:v", "main", 
+        "-pix_fmt", "yuv420p", 
+        "-vf", "pad=ceil(iw/2)*2:ceil(ih/2)*2",
+        "-an", 
+        "-movflags", "+faststart",
+        os.path.join("animations", "animation_%02d.mp4" % (get_desc()[0],)),
     ]
     print("$ " + " ".join(cmd))
     subprocess.check_call(cmd)

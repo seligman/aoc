@@ -59,6 +59,7 @@ class Grid:
     def copy(self):
         ret = Grid()
         ret.grid = self.grid.copy()
+        ret.frames = self.frames
         return ret
 
     @staticmethod
@@ -108,17 +109,24 @@ class Grid:
     def make_animation(frame_rate=30, file_format="gif", output_name="animation"):
         import os
         import subprocess
+        output_name = os.path.join("animations", output_name + "." + file_format)
 
-        if os.path.isfile(output_name + "." + file_format):
-            os.unlink(output_name + "." + file_format)
+        if os.path.isfile(output_name):
+            os.unlink(output_name)
 
         cmd = [
-            "ffmpeg", 
+            "ffmpeg", "-y",
             "-hide_banner",
             "-f", "image2",
             "-framerate", str(frame_rate), 
             "-i", "frame_%05d.png", 
-            output_name + "." + file_format,
+            "-c:v", "libx264", 
+            "-profile:v", "main", 
+            "-pix_fmt", "yuv420p", 
+            "-vf", "pad=ceil(iw/2)*2:ceil(ih/2)*2",
+            "-an", 
+            "-movflags", "+faststart",
+            output_name,
         ]
         print("$ " + " ".join(cmd))
         subprocess.check_call(cmd)
