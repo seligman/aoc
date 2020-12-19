@@ -19,8 +19,8 @@ def calc(log, values, mode):
                 rules[cur[0]] = "( " + cur[1].strip() + " )"
 
     if mode == 2:
-        rules["8"] = "(?P<r8> 42 + )"
-        rules["11"] = "(?P<r11> 42 + 31 + )"
+        rules["8"] = "( 42 + )"
+        rules["11"] = "( 42 + 31 + )"
 
     compiled = []
     for key in rules if mode == 1 else ["0"]:
@@ -44,6 +44,13 @@ def calc(log, values, mode):
         r42 = re.compile("^" + r42.replace(" ", ""))
         r31 = re.compile(r31.replace(" ", "") + "$")
 
+    def count_matches(rule, value):
+        ret = 0
+        while rule.search(value):
+            ret += 1
+            value = rule.sub("", value)
+        return ret
+
     count = 0
     for cur in [x for x in values if ":" not in x and len(x) > 0]:
         for rule in compiled:
@@ -52,16 +59,7 @@ def calc(log, values, mode):
                 if mode == 1:
                     count += 1
                 else:
-                    temp = m.group("r8") + m.group("r11")
-                    c42 = 0
-                    c31 = 0
-                    while r42.search(temp):
-                        c42 += 1
-                        temp = r42.sub("", temp)
-                    while r31.search(temp):
-                        c31 += 1
-                        temp = r31.sub("", temp)
-                    if c31 < c42:
+                    if count_matches(r31, cur) < count_matches(r42, cur):
                         count += 1
                 break
     return count
