@@ -165,10 +165,20 @@ class Grid:
                     break
         return ret
 
-    def blit(self, source, x, y):
+    def blit(self, source, x, y, color_map=None, text_map=None):
         for xo in source.x_range():
             for yo in source.y_range():
-                self[x + xo, y + yo] = source[xo, yo]
+                value = source[xo, yo]
+                if isinstance(value, list):
+                    raise Exception()
+                if color_map is not None:
+                    value = [value, color_map[value]]
+                    if text_map is not None:
+                        value[0] = text_map[value[0]]
+                else:
+                    if text_map is not None:
+                        value = text_map[value]
+                self[x + xo, y + yo] = value
 
     @staticmethod
     def from_text(values, axis=2):
@@ -351,7 +361,12 @@ class Grid:
             log(line)
 
     def save_frame(self, extra_text=None, extra=None):
-        self.frames.append((self.grid.copy(), extra_text, extra))
+        temp = {}
+        for key, value in self.grid.items():
+            if isinstance(value, list):
+                value = value[:]
+            temp[key] = value
+        self.frames.append((temp, extra_text, extra))
 
     @staticmethod
     def clear_frames():
@@ -392,7 +407,8 @@ class Grid:
                 image_copies=1 + repeat_final if i == len(self.frames) else 1,
                 extra=extra,
                 extra_callback=extra_callback,
-                show_lines=show_lines
+                show_lines=show_lines,
+                font_size=font_size
             )
 
         print("Done with drawing")

@@ -65,9 +65,12 @@ def calc(log, values, mode, draw=False):
                 break
 
     if draw:
-        drawing = Grid(".")
+        drawing = Grid([None, (0,0,0)])
         drawing.save_frame()
-        drawing.blit(temp, 0, 0)
+        drawing.blit(temp, 0, 0, 
+            color_map={'.': (0,0,0), '#': (21, 21, 128)},
+            text_map={'.': None, '#': None},
+        )
         drawing.save_frame()
 
     layout = {
@@ -104,7 +107,10 @@ def calc(log, values, mode, draw=False):
                         if valid:
                             layout[(x, y)] = grid
                             if draw:
-                                drawing.blit(grid, x * side_len, y * side_len)
+                                drawing.blit(grid, x * side_len, y * side_len,
+                                    color_map={'.': (0,0,0), '#': (21, 21, 128)},
+                                    text_map={'.': None, '#': None},
+                                )
                                 drawing.save_frame()
                             used.add(grid.extra['name'])
                             break
@@ -125,13 +131,13 @@ def calc(log, values, mode, draw=False):
         for x in drawing.x_range():
             for y in drawing.y_range():
                 if (x, y) not in draw_map:
-                    drawing[x, y] = "="
+                    drawing[x, y] = [None, (50, 50, 50)]
         drawing.save_frame()
 
     monster = Grid.from_text([
-        "                  # ",
-        "#    ##    ##    ###",
-        " #  #  #  #  #  #   ",
+        r"                  . ",
+        r"\    __    __    /O>",
+        r" \  /  \  /  \  /   ",
     ])
 
     todo = []
@@ -142,29 +148,34 @@ def calc(log, values, mode, draw=False):
             hit = True
             for xo in monster.x_range():
                 for yo in monster.y_range():
-                    if monster[xo, yo] == "#" and big[x + xo, y + yo][0] != "#":
+                    if monster[xo, yo] != " " and big[x + xo, y + yo][0] != "#":
                         hit = False
                         break
                 if not hit:
                     break
             if hit:
                 if draw:
-                    while len(todo) < 7:
+                    while len(todo) < 12:
                         todo.append([])
                     todo.append([])
                 for xo in monster.x_range():
                     for yo in monster.y_range():
-                        if monster[xo, yo] == "#":
+                        if monster[xo, yo] != " ":
                             big[x + xo, y + yo][0] = "O"
                             if draw:
                                 draw_x, draw_y = big[x + xo, y + yo][1:]
-                                drawing[draw_x, draw_y] = "1"
-                                todo[-1].append((draw_x, draw_y, "7"))
-                                todo[-2].append((draw_x, draw_y, "6"))
-                                todo[-3].append((draw_x, draw_y, "5"))
-                                todo[-4].append((draw_x, draw_y, "4"))
-                                todo[-5].append((draw_x, draw_y, "3"))
-                                todo[-6].append((draw_x, draw_y, "2"))
+                                drawing[draw_x, draw_y] = [monster[xo, yo], (255, 255, 255)]
+                                todo[-11].append((draw_x, draw_y, [monster[xo, yo], (224, 224, 255)]))
+                                todo[-10].append((draw_x, draw_y, [monster[xo, yo], (192, 192, 255)]))
+                                todo[-9].append((draw_x, draw_y, [monster[xo, yo], (160, 160, 255)]))
+                                todo[-8].append((draw_x, draw_y, [monster[xo, yo], (128, 128, 255)]))
+                                todo[-7].append((draw_x, draw_y, [monster[xo, yo], (96, 96, 192)]))
+                                todo[-6].append((draw_x, draw_y, [monster[xo, yo], (64, 64, 160)]))
+                                todo[-5].append((draw_x, draw_y, [monster[xo, yo], (32, 32, 128)]))
+                                todo[-4].append((draw_x, draw_y, [monster[xo, yo], (0, 0, 96)]))
+                                todo[-3].append((draw_x, draw_y, [monster[xo, yo], (0, 0, 64)]))
+                                todo[-2].append((draw_x, draw_y, [monster[xo, yo], (0, 0, 32)]))
+                                todo[-1].append((draw_x, draw_y, [monster[xo, yo], (0, 0, 0)]))
                 if draw:
                     for draw_x, draw_y, val in todo.pop(0):
                         drawing[draw_x, draw_y] = val
@@ -181,19 +192,7 @@ def calc(log, values, mode, draw=False):
             for _ in range(2):
                 drawing.save_frame()
 
-        drawing.draw_frames(color_map={
-            '.': (0, 0, 0),
-            '#': (21, 21, 128),
-            '=': (50, 50, 50),
-            'O': (80, 40, 255),
-            '1': (255, 255, 255),
-            '2': (224, 224, 255),
-            '3': (192, 192, 255),
-            '4': (160, 160, 255),
-            '5': (128, 128, 255),
-            '6': (96, 96, 255),
-            '7': (80, 40, 255),
-        }, repeat_final=30)
+        drawing.draw_frames(repeat_final=30, font_size=6)
         drawing.make_animation(output_name="animation_%02d" % (get_desc()[0],))
 
     ret = 0
