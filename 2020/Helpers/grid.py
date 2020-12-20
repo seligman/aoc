@@ -55,12 +55,148 @@ class Grid:
         self.frames = []
         self.fonts = None
         self._ranges = {}
+        # self.x_1_edge = None
+        # self.x_2_edge = None
+        # self.y_1_edge = None
+        # self.y_2_edge = None
+        self.values = None
+        self.any = None
+
+    def get_column(self, x):
+        if x == -1:
+            x = self.width() - 1
+        return "".join([self[x, y] for y in self.y_range()])
+
+    def get_row(self, y):
+        if y == -1:
+            y = self.height() - 1
+        return "".join([self[x, y] for x in self.x_range()])
+
+    def any_side(self):
+        yield self.get_column(0)
+        yield self.get_column(-1)
+        yield self.get_row(0)
+        yield self.get_row(-1)
+        yield self.get_column(0)[::-1]
+        yield self.get_column(-1)[::-1]
+        yield self.get_row(0)[::-1]
+        yield self.get_row(-1)[::-1]
+
+    def rotate_all(self):
+        for _ in range(2):
+            self.flip_x()
+            for _ in range(4):
+                self.rotate()
+                yield self
+
+    # def any_side(self):
+    #     if self.any is None:
+    #         self.any = set()
+    #         for _ in self.rotate_edges():
+    #             self.any.add(self.x_1_edge)
+    #     return self.any
+
+    # def rotate_edges(self):
+    #     def rotate():
+    #         (self.x_1_edge, self.y_1_edge, self.x_2_edge, self.y_2_edge) = (
+    #             self.y_1_edge[::-1], self.x_2_edge, self.y_2_edge[::-1], self.x_1_edge
+    #         )
+
+    #     def flip_x():
+    #         self.x_1_edge, self.x_2_edge = self.x_2_edge, self.x_1_edge
+    #         self.y_1_edge = self.y_1_edge[::-1]
+    #         self.y_2_edge = self.y_2_edge[::-1]
+
+    #     def flip_y():
+    #         self.y_1_edge, self.y_2_edge = self.y_2_edge, self.y_1_edge
+    #         self.x_1_edge = self.x_1_edge[::-1]
+    #         self.x_2_edge = self.x_2_edge[::-1]
+
+    #     if self.values is None:
+    #         self.values = []
+    #         # self.values.append((self.x_1_edge, self.x_2_edge, self.y_1_edge, self.y_2_edge))
+    #         rotate()
+    #         self.values.append((self.x_1_edge, self.x_2_edge, self.y_1_edge, self.y_2_edge))
+    #         rotate()
+    #         self.values.append((self.x_1_edge, self.x_2_edge, self.y_1_edge, self.y_2_edge))
+    #         rotate()
+    #         self.values.append((self.x_1_edge, self.x_2_edge, self.y_1_edge, self.y_2_edge))
+    #         rotate()
+
+    #         flip_x()
+    #         self.values.append((self.x_1_edge, self.x_2_edge, self.y_1_edge, self.y_2_edge))
+    #         rotate()
+    #         self.values.append((self.x_1_edge, self.x_2_edge, self.y_1_edge, self.y_2_edge))
+    #         rotate()
+    #         self.values.append((self.x_1_edge, self.x_2_edge, self.y_1_edge, self.y_2_edge))
+    #         rotate()
+    #         self.values.append((self.x_1_edge, self.x_2_edge, self.y_1_edge, self.y_2_edge))
+    #         rotate()
+
+    #         flip_y()
+    #         self.values.append((self.x_1_edge, self.x_2_edge, self.y_1_edge, self.y_2_edge))
+    #         rotate()
+    #         self.values.append((self.x_1_edge, self.x_2_edge, self.y_1_edge, self.y_2_edge))
+    #         rotate()
+    #         self.values.append((self.x_1_edge, self.x_2_edge, self.y_1_edge, self.y_2_edge))
+    #         rotate()
+    #         self.values.append((self.x_1_edge, self.x_2_edge, self.y_1_edge, self.y_2_edge))
+    #         rotate()
+
+    #         flip_x()
+    #         self.values.append((self.x_1_edge, self.x_2_edge, self.y_1_edge, self.y_2_edge))
+    #         rotate()
+    #         self.values.append((self.x_1_edge, self.x_2_edge, self.y_1_edge, self.y_2_edge))
+    #         rotate()
+    #         self.values.append((self.x_1_edge, self.x_2_edge, self.y_1_edge, self.y_2_edge))
+    #         rotate()
+    #         self.values.append((self.x_1_edge, self.x_2_edge, self.y_1_edge, self.y_2_edge))
+    #         rotate()
+
+    #         flip_y()
+    #         self.values.append((self.x_1_edge, self.x_2_edge, self.y_1_edge, self.y_2_edge))
+
+    #     for self.x_1_edge, self.x_2_edge, self.y_1_edge, self.y_2_edge in self.values:
+    #         yield None
 
     def copy(self):
         ret = Grid()
         ret.grid = self.grid.copy()
         ret.frames = self.frames
+        ret.extra = self.extra
+        ret.extra2 = self.extra2
         return ret
+
+    def rotate(self):
+        temp = {}
+        for x in self.x_range():
+            for y in self.y_range():
+                temp[(x, y)] = self[x, y]
+
+        width = self.width() - 1
+        for x in self.x_range():
+            for y in self.y_range():
+                self[(y, width - x)] = temp[(x, y)]
+
+    def flip_x(self):
+        temp = {}
+        for x in self.x_range():
+            for y in self.y_range():
+                temp[(x, y)] = self[x, y]
+        width = self.width() - 1
+        for x in self.x_range():
+            for y in self.y_range():
+                self[(width - x, y)] = temp[(x, y)]
+
+    def flip_y(self):
+        temp = {}
+        for x in self.x_range():
+            for y in self.y_range():
+                temp[(x, y)] = self[x, y]
+        height = self.height() - 1
+        for x in self.x_range():
+            for y in self.y_range():
+                self[(x, height - y)] = temp[(x, y)]
 
     @staticmethod
     def get_dirs(axis_count):
