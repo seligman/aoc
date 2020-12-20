@@ -209,7 +209,7 @@ def other_draw(describe, values):
         return "Animate this"
 
     from dummylog import DummyLog
-    calc(DummyLog(), values, 2, draw=2)
+    calc(DummyLog(), values, 2, draw=True)
 
 def test(log):
     values = log.decode_values("""
