@@ -13,7 +13,7 @@ def int_to_bits(mask, val):
     val = bin(val)[2:]
     val = "0" * mask.width() + val
     val = val[-mask.width():]
-    return Grid.from_row(val)
+    return Grid.from_text(val, axis=1)
 
 def bits_to_int(val):
     return int("".join([val[x] for x in val.x_range()]), 2)
@@ -30,7 +30,7 @@ def calc(log, values, mode, save_state=False):
         if save_state:
             log(cur)
         if cur.startswith("mask = "):
-            mask = Grid.from_row(cur[7:])
+            mask = Grid.from_text(cur[7:], axis=1)
             floating_bits = tuple([1 << ((mask.width() - i) - 1) for i in mask.x_range() if mask[i] == "X"])
             floating_max = 1 << len(floating_bits)
         else:

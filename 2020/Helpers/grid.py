@@ -54,117 +54,54 @@ class Grid:
         self.frame = 0
         self.frames = []
         self.fonts = None
-        self._ranges = {}
-        # self.x_1_edge = None
-        # self.x_2_edge = None
-        # self.y_1_edge = None
-        # self.y_2_edge = None
         self.values = None
-        self.any = None
+        self.extra = {}
+        self._ranges = {}
+        self._all_sides = None
+        self._all_rotations = None
 
-    def get_column(self, x):
-        if x == -1:
-            x = self.width() - 1
+    def column(self, x):
+        if x < 0:
+            x = self.width() + x
         return "".join([self[x, y] for y in self.y_range()])
 
-    def get_row(self, y):
-        if y == -1:
-            y = self.height() - 1
+    def row(self, y):
+        if y < 0:
+            y = self.height() + y
         return "".join([self[x, y] for x in self.x_range()])
 
-    def any_side(self):
-        yield self.get_column(0)
-        yield self.get_column(-1)
-        yield self.get_row(0)
-        yield self.get_row(-1)
-        yield self.get_column(0)[::-1]
-        yield self.get_column(-1)[::-1]
-        yield self.get_row(0)[::-1]
-        yield self.get_row(-1)[::-1]
+    def all_sides(self):
+        if self._all_sides is None:
+            self._all_sides = set([
+                self.column(0),
+                self.column(-1),
+                self.row(0),
+                self.row(-1),
+                self.column(0)[::-1],
+                self.column(-1)[::-1],
+                self.row(0)[::-1],
+                self.row(-1)[::-1],
+            ])
+        return self._all_sides
 
-    def rotate_all(self):
-        for _ in range(2):
-            self.flip_x()
-            for _ in range(4):
-                self.rotate()
-                yield self
-
-    # def any_side(self):
-    #     if self.any is None:
-    #         self.any = set()
-    #         for _ in self.rotate_edges():
-    #             self.any.add(self.x_1_edge)
-    #     return self.any
-
-    # def rotate_edges(self):
-    #     def rotate():
-    #         (self.x_1_edge, self.y_1_edge, self.x_2_edge, self.y_2_edge) = (
-    #             self.y_1_edge[::-1], self.x_2_edge, self.y_2_edge[::-1], self.x_1_edge
-    #         )
-
-    #     def flip_x():
-    #         self.x_1_edge, self.x_2_edge = self.x_2_edge, self.x_1_edge
-    #         self.y_1_edge = self.y_1_edge[::-1]
-    #         self.y_2_edge = self.y_2_edge[::-1]
-
-    #     def flip_y():
-    #         self.y_1_edge, self.y_2_edge = self.y_2_edge, self.y_1_edge
-    #         self.x_1_edge = self.x_1_edge[::-1]
-    #         self.x_2_edge = self.x_2_edge[::-1]
-
-    #     if self.values is None:
-    #         self.values = []
-    #         # self.values.append((self.x_1_edge, self.x_2_edge, self.y_1_edge, self.y_2_edge))
-    #         rotate()
-    #         self.values.append((self.x_1_edge, self.x_2_edge, self.y_1_edge, self.y_2_edge))
-    #         rotate()
-    #         self.values.append((self.x_1_edge, self.x_2_edge, self.y_1_edge, self.y_2_edge))
-    #         rotate()
-    #         self.values.append((self.x_1_edge, self.x_2_edge, self.y_1_edge, self.y_2_edge))
-    #         rotate()
-
-    #         flip_x()
-    #         self.values.append((self.x_1_edge, self.x_2_edge, self.y_1_edge, self.y_2_edge))
-    #         rotate()
-    #         self.values.append((self.x_1_edge, self.x_2_edge, self.y_1_edge, self.y_2_edge))
-    #         rotate()
-    #         self.values.append((self.x_1_edge, self.x_2_edge, self.y_1_edge, self.y_2_edge))
-    #         rotate()
-    #         self.values.append((self.x_1_edge, self.x_2_edge, self.y_1_edge, self.y_2_edge))
-    #         rotate()
-
-    #         flip_y()
-    #         self.values.append((self.x_1_edge, self.x_2_edge, self.y_1_edge, self.y_2_edge))
-    #         rotate()
-    #         self.values.append((self.x_1_edge, self.x_2_edge, self.y_1_edge, self.y_2_edge))
-    #         rotate()
-    #         self.values.append((self.x_1_edge, self.x_2_edge, self.y_1_edge, self.y_2_edge))
-    #         rotate()
-    #         self.values.append((self.x_1_edge, self.x_2_edge, self.y_1_edge, self.y_2_edge))
-    #         rotate()
-
-    #         flip_x()
-    #         self.values.append((self.x_1_edge, self.x_2_edge, self.y_1_edge, self.y_2_edge))
-    #         rotate()
-    #         self.values.append((self.x_1_edge, self.x_2_edge, self.y_1_edge, self.y_2_edge))
-    #         rotate()
-    #         self.values.append((self.x_1_edge, self.x_2_edge, self.y_1_edge, self.y_2_edge))
-    #         rotate()
-    #         self.values.append((self.x_1_edge, self.x_2_edge, self.y_1_edge, self.y_2_edge))
-    #         rotate()
-
-    #         flip_y()
-    #         self.values.append((self.x_1_edge, self.x_2_edge, self.y_1_edge, self.y_2_edge))
-
-    #     for self.x_1_edge, self.x_2_edge, self.y_1_edge, self.y_2_edge in self.values:
-    #         yield None
+    def enum_rotates(self):
+        if self._all_rotations is None:
+            temp = []
+            for _ in range(2):
+                self.flip_x()
+                for _ in range(4):
+                    self.rotate()
+                    temp.append(self.grid.copy())
+            self._all_rotations = temp
+        for cur in self._all_rotations:
+            self.grid = cur
+            yield self
 
     def copy(self):
         ret = Grid()
         ret.grid = self.grid.copy()
         ret.frames = self.frames
-        ret.extra = self.extra
-        ret.extra2 = self.extra2
+        ret.extra = self.extra.copy()
         return ret
 
     def rotate(self):
@@ -226,24 +163,25 @@ class Grid:
                 self[x + xo, y + yo] = source[xo, yo]
 
     @staticmethod
-    def from_text(values, changes=True):
+    def from_text(values, axis=2):
         grid = Grid()
+        if isinstance(values, str):
+            if "\n" in values:
+                values = values.split("\n")
+            else:
+                values = [values]
         y = 0
         for row in values:
             x = 0
             for cur in row:
-                grid.set(cur, x, y)
+                if axis == 1:
+                    grid.set(cur, x)
+                elif axis == 2:
+                    grid.set(cur, x, y)
+                else:
+                    raise Exception()
                 x += 1
             y += 1
-        return grid
-
-    @staticmethod
-    def from_row(value, changes=True):
-        grid = Grid()
-        x = 0
-        for cur in value:
-            grid.set(cur, x)
-            x += 1
         return grid
 
     @staticmethod
@@ -327,6 +265,7 @@ class Grid:
 
     def __setitem__(self, key, value):
         self._ranges = {}
+        self._all_rotations = None
         if isinstance(key, tuple):
             self.grid[key] = value
         else:
@@ -334,6 +273,7 @@ class Grid:
 
     def set(self, value, *coords):
         self._ranges = {}
+        self._all_rotations = None
         self.grid[coords] = value
 
     def value_isset(self, *coords):
@@ -420,6 +360,7 @@ class Grid:
         print("Creating animation...")
         temp = self.grid
         self._ranges = {}
+        self._all_rotations = None
         self.width()
         self.height()
 
