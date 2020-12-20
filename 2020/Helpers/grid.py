@@ -220,6 +220,11 @@ class Grid:
                     break
         return ret
 
+    def blit(self, source, x, y):
+        for xo in source.x_range():
+            for yo in source.y_range():
+                self[x + xo, y + yo] = source[xo, yo]
+
     @staticmethod
     def from_text(values, changes=True):
         grid = Grid()
@@ -242,7 +247,7 @@ class Grid:
         return grid
 
     @staticmethod
-    def make_animation(frame_rate=30, file_format="gif", output_name="animation"):
+    def make_animation(frame_rate=30, file_format="mp4", output_name="animation"):
         import os
         import subprocess
         output_name = os.path.join("animations", output_name + "." + file_format)
@@ -414,6 +419,9 @@ class Grid:
         msg = datetime.utcnow()
         print("Creating animation...")
         temp = self.grid
+        self._ranges = {}
+        self.width()
+        self.height()
 
         max_rows = 0
         for _grid, extra_text, _extra in self.frames:
