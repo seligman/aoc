@@ -60,6 +60,14 @@ class Grid:
         self._all_sides = None
         self._all_rotations = None
 
+    def side(self, side_type, i):
+        if side_type == 'column':
+            return self.column(i)
+        elif side_type == 'row':
+            return self.row(i)
+        else:
+            raise Exception()
+
     def column(self, x):
         if x < 0:
             x = self.width() + x

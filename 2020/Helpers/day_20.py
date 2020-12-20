@@ -1,34 +1,19 @@
 #!/usr/bin/env python3
 
 from collections import defaultdict
+import math
 
 def get_desc():
     return 20, 'Day 20: Jurassic Jigsaw'
 
 def get_spiral(size):
-    x, y = -1, 0
-    side = 1
-    amount = size
-    dir = 0
-
-    while True:
-        for _ in range(amount):
-            if dir == 0:
-                x += 1
-            elif dir == 1:
-                y += 1
-            elif dir == 2:
-                x -= 1
-            elif dir == 3:
-                y -= 1
-            yield x, y
-        dir = (dir + 1) % 4
-        side += 1
-        if side == 2:
-            side = 0
-            amount -= 1
-            if amount == 0:
-                break
+    pt, dir, amount = complex(-1, 0), 0, size * 2
+    dirs = [complex(1, 0), complex(0, 1), complex(-1, 0), complex(0, -1)]
+    while amount > 0:
+        for _ in range(amount // 2):
+            pt += dirs[dir % 4]
+            yield int(pt.real), int(pt.imag)
+        dir, amount = dir + 1, amount - 1
 
 def calc(log, values, mode, draw=False):
     from grid import Grid
@@ -70,39 +55,23 @@ def calc(log, values, mode, draw=False):
     if mode == 1:
         return ret
 
-    def get_corners(temp):
-        all_temp = set(temp.all_sides())
-        for grid_a in [x for x in grids if x.extra['shared'] == 6]:
-            if len(set(grid_a.all_sides()) & all_temp):
-                for grid_b in [x for x in grids if x.extra['shared'] == 6]:
-                    if grid_a.extra['name'] != grid_b.extra['name'] and len(set(grid_b.all_sides()) & all_temp):
-                        for _ in temp.enum_rotates():
-                            for _ in grid_a.enum_rotates():
-                                for _ in grid_b.enum_rotates():
-                                    if temp.column(-1) == grid_a.column(0) and temp.row(-1) == grid_b.row(0):
-                                        return temp, grid_a, grid_b
+    size = int(math.sqrt(len(grids)))
 
-    size = 1
-    while size * size != len(grids):
-        size += 1
-
-    temp, grid_a, grid_b = get_corners(temp)
+    bail = 2 if draw else 1
+    for _ in temp.enum_rotates():
+        if len(edges[temp.column(-1)]) == 2 and len(edges[temp.row(-1)]) == 2:
+            bail -= 1
+            if bail == 0:
+                break
 
     if draw:
         drawing = Grid(".")
-        drawing[size * side_len, size * side_len] = "."
         drawing.save_frame()
         drawing.blit(temp, 0, 0)
-        drawing.save_frame()
-        drawing.blit(grid_a, side_len, 0)
-        drawing.save_frame()
-        drawing.blit(grid_b, 0, side_len)
         drawing.save_frame()
 
     layout = {
         (0, 0): temp,
-        (1, 0): grid_a,
-        (0, 1): grid_b,
     }
     used = set([x.extra['name'] for x in layout.values()])
 
@@ -112,52 +81,38 @@ def calc(log, values, mode, draw=False):
                 valid = True
                 if grid.extra['name'] in used:
                     valid = False
-                if valid:
-                    if (x, y) in {(0, 0), (size - 1, 0), (0, size - 1), (size - 1, size - 1)}:
-                        if grid.extra['shared'] != 4:
-                            valid = False
-                    elif x == 0 or y == 0 or x == size - 1 or y == size - 1:
-                        if grid.extra['shared'] != 6:
-                            valid = False
-                    else:
-                        if grid.extra['shared'] != 8:
-                            valid = False
+
+                if valid and grid.extra['shared'] != (8 - (2 if x in {0, size -1} else 0) - (2 if y in {0, size -1} else 0)):
+                    valid = False
 
                 if valid:
-                    good = True
                     for xo, yo in [(-1, 0), (1, 0), (0, -1), (0, 1)]:
                         if (x + xo, y + yo) in layout:
                             if len(grid.all_sides() & layout[(x + xo, y + yo)].all_sides()) == 0:
-                                good = False
+                                valid = False
                                 break
-                    if good:
-                        for _ in grid.enum_rotates():
-                            good = True
-                            for xo, yo in [(-1, 0), (1, 0), (0, -1), (0, 1)]:
-                                if (x + xo, y + yo) in layout:
-                                    if xo == -1:
-                                        match = layout[(x - 1, y)].column(-1) == grid.column(0)
-                                    if yo == -1:
-                                        match = layout[(x, y - 1)].row(-1) == grid.row(0)
-                                    if xo == 1:
-                                        match = layout[(x + 1, y)].column(0) == grid.column(-1)
-                                    if yo == 1:
-                                        match = layout[(x, y + 1)].row(0) == grid.row(-1)
-                                    if not match:
-                                        good = False
-                                        break
-                            if good:
-                                layout[(x, y)] = grid
-                                if draw:
-                                    drawing.blit(grid, x * side_len, y * side_len)
-                                    drawing.save_frame()
-                                used.add(grid.extra['name'])
-                                break
+                
+                if valid:
+                    for _ in grid.enum_rotates():
+                        valid = True
+                        for xo, yo, side_type in [(-1, 0, 'column'), (1, 0, 'column'), (0, -1, 'row'), (0, 1, 'row')]:
+                            if (x + xo, y + yo) in layout:
+                                if grid.side(side_type, 0 if xo+yo < 0 else -1) != layout[(x + xo, y + yo)].side(side_type, -1 if xo+yo < 0 else 0):
+                                    valid = False
+                                    break
+
+                        if valid:
+                            layout[(x, y)] = grid
+                            if draw:
+                                drawing.blit(grid, x * side_len, y * side_len)
+                                drawing.save_frame()
+                            used.add(grid.extra['name'])
+                            break
+
                 if (x, y) in layout:
                     break
 
     draw_map = set()
-
     big = Grid(".")
     for x in range(size):
         for y in range(size):
