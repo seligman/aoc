@@ -57,8 +57,6 @@ class Grid:
         self.values = None
         self.extra = {}
         self._ranges = {}
-        self._all_sides = None
-        self._all_rotations = None
 
     def side(self, side_type, i):
         if side_type == 'column':
@@ -78,32 +76,12 @@ class Grid:
             y = self.height() + y
         return "".join([self[x, y] for x in self.x_range()])
 
-    def all_sides(self):
-        if self._all_sides is None:
-            self._all_sides = set([
-                self.column(0),
-                self.column(-1),
-                self.row(0),
-                self.row(-1),
-                self.column(0)[::-1],
-                self.column(-1)[::-1],
-                self.row(0)[::-1],
-                self.row(-1)[::-1],
-            ])
-        return self._all_sides
-
     def enum_rotates(self):
-        if self._all_rotations is None:
-            temp = []
-            for _ in range(2):
-                self.flip_x()
-                for _ in range(4):
-                    self.rotate()
-                    temp.append(self.grid.copy())
-            self._all_rotations = temp
-        for cur in self._all_rotations:
-            self.grid = cur
-            yield self
+        for _ in range(2):
+            self.flip_x()
+            for _ in range(4):
+                self.rotate()
+                yield self
 
     def copy(self):
         ret = Grid()
@@ -283,7 +261,6 @@ class Grid:
 
     def __setitem__(self, key, value):
         self._ranges = {}
-        self._all_rotations = None
         if isinstance(key, tuple):
             self.grid[key] = value
         else:
@@ -291,7 +268,6 @@ class Grid:
 
     def set(self, value, *coords):
         self._ranges = {}
-        self._all_rotations = None
         self.grid[coords] = value
 
     def value_isset(self, *coords):
@@ -383,7 +359,6 @@ class Grid:
         print("Creating animation...")
         temp = self.grid
         self._ranges = {}
-        self._all_rotations = None
         self.width()
         self.height()
 

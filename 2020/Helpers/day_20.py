@@ -15,51 +15,57 @@ def get_spiral(size):
             yield int(pt.real), int(pt.imag)
         dir, amount = dir + 1, amount - 1
 
+def normalize(value):
+    return min(value, value[::-1])
+
+def enum_edges(grid):
+    yield normalize(grid.row(0))
+    yield normalize(grid.row(-1))
+    yield normalize(grid.column(0))
+    yield normalize(grid.column(-1))
+
 def calc(log, values, mode, draw=False):
     from grid import Grid
-    grids = []
-    temp = []
-    name = ""
+    grids, temp, name = [], [], ""
     for cur in values:
         if cur.startswith("Tile "):
             if len(temp) > 0:
                 grids.append(Grid.from_text(temp))
-                grids[-1].extra['name'] = name
+                grids[-1].extra = {"name": name, "shared": 0, "edges": set()}
             temp = []
             name = cur[5:-1]
         elif len(cur) > 0:
             temp.append(cur)
     if len(temp) > 0:
         grids.append(Grid.from_text(temp))
-        grids[-1].extra['name'] = name
+        grids[-1].extra = {"name": name, "shared": 0, "edges": set()}
     side_len = grids[0].width()
+    size = int(math.sqrt(len(grids)))
 
     edges = defaultdict(set)
     for grid in grids:
-        for edge in grid.all_sides():
+        for edge in enum_edges(grid):
             edges[edge].add(grid)
+            grid.extra['edges'].add(edge)
 
-    temp = None
+    for cur in edges.values():
+        if len(cur) > 1:
+            for grid in cur:
+                grid.extra['shared'] += 1
+
     ret = 1
+    temp = None
     for grid in grids:
-        shared = 0
-        for edge in grid.all_sides():
-            if len(edges[edge]) > 1:
-                shared += 1
-        grid.extra['shared'] = shared
-        if shared == 4:
+        if grid.extra['shared'] == 2:
             ret *= int(grid.extra['name'])
             if temp is None:
                 temp = grid
-    
     if mode == 1:
         return ret
 
-    size = int(math.sqrt(len(grids)))
-
     bail = 2 if draw else 1
     for _ in temp.enum_rotates():
-        if len(edges[temp.column(-1)]) == 2 and len(edges[temp.row(-1)]) == 2:
+        if len(edges[normalize(temp.column(-1))]) == 2 and len(edges[normalize(temp.row(-1))]) == 2:
             bail -= 1
             if bail == 0:
                 break
@@ -78,20 +84,37 @@ def calc(log, values, mode, draw=False):
     }
     used = set([x.extra['name'] for x in layout.values()])
 
+    def get_shared(grid):
+        ret = set()
+        for cur in grid.extra['edges']:
+            for sub in edges[cur]:
+                ret.add(sub)
+        ret.remove(grid)
+        return ret
+
     for x, y in get_spiral(size):
         if (x, y) not in layout:
-            for grid in grids:
+            test = None
+            for xo, yo in [(-1, 0), (1, 0), (0, -1), (0, 1)]:
+                if (x + xo, y + yo) in layout:
+                    temp = get_shared(layout[(x + xo, y + yo)])
+                    if test is None:
+                        test = temp
+                    else:
+                        test &= temp
+
+            for grid in test:
                 valid = True
                 if grid.extra['name'] in used:
                     valid = False
 
-                if valid and grid.extra['shared'] != (8 - (2 if x in {0, size -1} else 0) - (2 if y in {0, size -1} else 0)):
+                if valid and grid.extra['shared'] != (4 - (1 if x in {0, size -1} else 0) - (1 if y in {0, size -1} else 0)):
                     valid = False
 
                 if valid:
                     for xo, yo in [(-1, 0), (1, 0), (0, -1), (0, 1)]:
                         if (x + xo, y + yo) in layout:
-                            if len(grid.all_sides() & layout[(x + xo, y + yo)].all_sides()) == 0:
+                            if len(grid.extra['edges'] & layout[(x + xo, y + yo)].extra['edges']) == 0:
                                 valid = False
                                 break
                 
