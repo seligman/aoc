@@ -7,44 +7,31 @@ def get_desc():
     return 21, 'Day 21: Allergen Assessment'
 
 def calc(log, values, mode):
-    r = re.compile(r"^(?P<ingred>.*) \(contains (?P<aller>.*)\)$")
+    r = re.compile(r"^(?P<ingred>[^(]+)(| \(contains (?P<aller>.*)\))$")
 
     allers = {}
     ingreds = defaultdict(int)
 
     for row in values:
         m = r.search(row)
-        if m is not None:
-            aller = set(m.group("aller").split(", "))
-            ingred = m.group("ingred").split(" ")
-            for x in ingred:
-                ingreds[x] += 1
-            for cur in aller:
-                if cur in allers:
-                    allers[cur] &= set(ingred)
-                else:
-                    allers[cur] = set(ingred)
-        else:
-            for x in row.split(" "):
-                ingreds[x] += 1
-    
+        ingred = m.group("ingred").split(" ")
+        aller = set(m.group("aller").split(", "))
+        for x in ingred:
+            ingreds[x] += 1
+        for cur in aller:
+            allers[cur] = allers.get(cur, set(ingred)) & set(ingred)
 
     all_allers = set().union(*allers.values())
     if mode == 1:
         return sum([ingreds[x] for x in set(ingreds).difference(all_allers)])
 
     while max([len(x) for x in allers.values()]) > 1:
-        for key, value in allers.items():
-            if len(value) == 1:
-                for other, _value2 in allers.items():
-                    if key != other:
-                        allers[other] -= value
+        for key in [x for x in allers if len(allers[x]) == 1]:
+            for other in [x for x in allers if x != key]:
+                allers[other] -= allers[key]
 
-    allers = [(x, list(y)[0]) for x, y in allers.items()]
-    allers.sort()
-    allers = [x[1] for x in allers]
-
-    return ",".join(allers)
+    allers = sorted([(x, list(y)[0]) for x, y in allers.items()])
+    return ",".join([x[1] for x in allers])
 
 def test(log):
     values = log.decode_values("""
