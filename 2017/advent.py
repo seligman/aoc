@@ -21,7 +21,7 @@ advent.py make_day    # This makes a day, only run it when the site is ready
 advent.py test cur    # This tests the current day, keep going till it works!
 advent.py run cur     # This runs on the same data
 ### And finally, when everything's done, some clean up, and make a comment to post
-advent.py run_save cur dl_day cur get_index gen_comment
+advent.py finish_day
 """
 
 class Logger:
@@ -160,6 +160,16 @@ def update_selfs():
                     with open(dest, "wb") as f:
                         f.write(source_data)
 
+@opt("Finish off all items for a day")
+def finish_day():
+    print("$ advent.py run_save cur")
+    run_save("cur")
+    print("$ advent.py dl_day cur")
+    dl_day("cur")
+    print("$ advent.py get_index")
+    get_index()
+    print("$ advent.py gen_comment")
+    gen_comment()
 
 @opt("Use alt data file")
 def alt(file_number):
