@@ -5,14 +5,26 @@ from collections import deque
 def get_desc():
     return 22, 'Day 22: Crab Combat'
 
-def deck_to_val(cards):
-    ret = 0
-    for x in cards[0]:
-        ret = (ret * 100) + x
-    ret = (ret * 100) + 99
-    for x in cards[1]:
-        ret = (ret * 100) + x
-    return ret
+def deck_to_val(deck_a, deck_b):
+    a, b = 0, 0
+    for x in reversed(deck_a):
+        a = (a * 100) + x
+    for x in reversed(deck_b):
+        b = (b * 100) + x
+    return (a, b)
+
+def remove_card(val):
+    a, b = val
+    return (a // 100, b // 100)
+
+def add_to_deck(val, deck_id, deck, card):
+    a, b = val
+    if deck_id == 0:
+        a += (10 ** (len(deck) * 2)) * card
+    else:
+        b += (10 ** (len(deck) * 2)) * card
+    deck.append(card)
+    return (a, b)
 
 def limit(deck, val):
     deck = deck.copy()
@@ -20,31 +32,30 @@ def limit(deck, val):
         deck.pop()
     return deck
 
-def play_game(wins, cards, mode, level=1):
+def play_game(wins, deck_a, deck_b, mode, level=1):
     seen = set()
-    deck_a, deck_b = cards
-    deck = deck_to_val(cards)
+    as_val = deck_to_val(deck_a, deck_b)
     while len(deck_a) > 0 and len(deck_b) > 0:
-        if deck in seen:
+        if as_val in seen:
             return True
-        seen.add(deck)
-        a, b = deck_a.popleft(), deck_b.popleft()
-        deck = deck_to_val(cards)
+        seen.add(as_val)
+        a, b, as_val = deck_a.popleft(), deck_b.popleft(), remove_card(as_val)
         a_won = True
 
         if a <= len(deck_a) and b <= len(deck_b) and mode == 2:
-            if deck not in wins:
-                wins[deck] = play_game(wins, [limit(deck_a, a), limit(deck_b, b)], mode, level=level+1)
-            a_won = wins[deck]
+            a_won = wins.get(as_val, None)
+            if a_won is None:
+                a_won = play_game(wins, limit(deck_a, a), limit(deck_b, b), mode, level=level+1)
+                wins[as_val] = a_won
         else:
             a_won = a > b
         
         if a_won:
-            deck_a.append(a)
-            deck_a.append(b)
+            as_val = add_to_deck(as_val, 0, deck_a, a)
+            as_val = add_to_deck(as_val, 0, deck_a, b)
         else:
-            deck_b.append(b)
-            deck_b.append(a)
+            as_val = add_to_deck(as_val, 1, deck_b, b)
+            as_val = add_to_deck(as_val, 1, deck_b, a)
 
     return len(deck_a) > 0
 
@@ -56,11 +67,11 @@ def calc(log, values, mode):
         elif len(cur) > 0:
             cards[-1].append(int(cur))
 
-    play_game({}, cards, mode)
-    cards = list(cards[0]) + list(cards[1])
+    play_game({}, cards[0], cards[1], mode)
+    cards = cards[0] if len(cards[0]) > 0 else cards[1]
     ret, i = 0, 1
     while len(cards) > 0:
-        ret += cards.pop(-1) * i
+        ret += cards.pop() * i
         i += 1
 
     return ret
