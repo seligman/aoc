@@ -5,8 +5,14 @@ from collections import deque
 def get_desc():
     return 22, 'Day 22: Crab Combat'
 
-def to_str(cards):
-    return ",".join([str(x) for x in cards[0]]) + "|" + ",".join([str(x) for x in cards[1]])
+def deck_to_val(cards):
+    ret = 0
+    for x in cards[0]:
+        ret = (ret * 100) + x
+    ret = (ret * 100) + 99
+    for x in cards[1]:
+        ret = (ret * 100) + x
+    return ret
 
 def limit(deck, val):
     deck = deck.copy()
@@ -17,13 +23,13 @@ def limit(deck, val):
 def play_game(wins, cards, mode, level=1):
     seen = set()
     deck_a, deck_b = cards
-    deck = to_str(cards)
+    deck = deck_to_val(cards)
     while len(deck_a) > 0 and len(deck_b) > 0:
         if deck in seen:
             return True
         seen.add(deck)
         a, b = deck_a.popleft(), deck_b.popleft()
-        deck = to_str(cards)
+        deck = deck_to_val(cards)
         a_won = True
 
         if a <= len(deck_a) and b <= len(deck_b) and mode == 2:
