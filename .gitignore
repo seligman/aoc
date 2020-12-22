@@ -8,7 +8,6 @@
 
 # Ignore VS Code stuff
 **/.vscode/
-*.resx
 
 # Python pre-compiled things
 **/__pycache__/
