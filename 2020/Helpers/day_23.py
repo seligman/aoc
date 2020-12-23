@@ -11,10 +11,12 @@ class Cup():
         self.right = None
 
 def calc(log, values, mode):
-    cups = list(values[0])
     last = None
     first = None
-    cups = {}
+    if mode == 1:
+        cups = [None] * (len(values[0]) + 1)
+    else:
+        cups = [None] * 1000001
 
     max_value = 0
 
@@ -31,7 +33,7 @@ def calc(log, values, mode):
         last = cup
 
     if mode == 2:
-        while len(cups) < 1000000:
+        while max_value < 1000000:
             max_value += 1
             cup = Cup(max_value)
             cups[max_value] = cup
@@ -60,7 +62,7 @@ def calc(log, values, mode):
             target -= 1
             if target < 1:
                 target = max_value
-            if target not in in_hand_vals and target in cups:
+            if target not in in_hand_vals:
                 target = cups[target]
                 break
         c3.right = target.right
@@ -76,8 +78,7 @@ def calc(log, values, mode):
         while cur != cups[1]:
             temp += str(cur.val)
             cur = cur.right
-
-        return temp
+        return int(temp)
     else:
         return cups[1].right.val * cups[1].right.right.val
 
@@ -86,7 +87,7 @@ def test(log):
         389125467
     """)
 
-    log.test(calc(log, values, 1), '67384529')
+    log.test(calc(log, values, 1), 67384529)
     log.test(calc(log, values, 2), 149245887792)
 
 def run(log, values):
