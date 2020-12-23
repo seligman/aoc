@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-from command_opts import opt, main_entry
+from command_opts import opt, main_entry, enable_ansi
 import utils
 import os
 import subprocess
@@ -104,7 +104,11 @@ class Logger:
         return ret
 
     def test(self, actual, expected):
-        self.show("Test returned %s, expected %s" % (str(actual), str(expected)))
+        if actual != expected:
+            enable_ansi()
+            self.show("Test returned %s, \x1b[97;101mexpected %s\x1b[m" % (str(actual), str(expected)))
+        else:
+            self.show("Test returned %s, expected %s" % (str(actual), str(expected)))
         if actual != expected:
             raise ValueError("Test failure")
 
@@ -398,7 +402,8 @@ def test(helper_day):
             print("That worked!")
             good += 1
         except ValueError:
-            print("FAILURE!")
+            enable_ansi()
+            print("\x1b[97;101m" + "  FAILURE!  " + "\x1b[m")
             bad += 1
 
     if good + bad > 1:
@@ -406,7 +411,8 @@ def test(helper_day):
 
     print("Done, %d worked, %d failed" % (good, bad))
     if bad != 0:
-        print("THERE WERE PROBLEMS")
+        enable_ansi()
+        print("\x1b[97;101m" + "  THERE WERE PROBLEMS  " + "\x1b[m")
 
 
 _print_catcher = None
@@ -493,7 +499,8 @@ def run_helper(helper_day, save):
                     safe_print("# Got expected output!")
                     passed += 1
                 else:
-                    safe_print("# ERROR: Expected output doesn't match!")
+                    enable_ansi()
+                    safe_print("# " + "\x1b[97;101m" + "  ERROR: Expected output doesn't match!  " + "\x1b[m")
                     failed.append("## %s FAILED!" % (helper.get_desc()[1]))
             else:
                 safe_print("# No expected output to check")
@@ -502,7 +509,8 @@ def run_helper(helper_day, save):
         safe_print("# " + "-" * 60)
         safe_print("Passed: %d" % (passed,))
         if len(failed) > 0:
-            safe_print("ERROR: Failed: %d" % (len(failed),))
+            enable_ansi()
+            safe_print("# " + "\x1b[97;101m" + "  ERROR: Failed: %d  " % (len(failed),) + "\x1b[m")
             for cur in failed:
                 safe_print(cur)
 
