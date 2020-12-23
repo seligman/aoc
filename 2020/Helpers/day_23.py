@@ -3,84 +3,62 @@
 def get_desc():
     return 23, 'Day 23: Crab Cups'
 
-class Cup():
-    __slots__ = ('val', 'left', 'right')
-    def __init__(self, val):
-        self.val = val
-        self.left = None
-        self.right = None
-
 def calc(log, values, mode):
-    last = None
-    first = None
     if mode == 1:
-        cups = [None] * (len(values[0]) + 1)
+        cups = [-1] * (len(values[0]))
     else:
-        cups = [None] * 1000001
+        cups = [-1] * 1000000
 
     max_value = 0
+    last = None
 
     for x in values[0]:
-        x = int(x)
+        x = int(x) - 1
         max_value = max(x, max_value)
-        cup = Cup(x)
-        cups[x] = cup
-        if first is None:
-            first = cup
         if last is not None:
-            last.right = cup
-            cup.left = last
-        last = cup
+            cups[last] = x
+        last = x
 
     if mode == 2:
-        while max_value < 1000000:
+        while max_value < 1000000 - 1:
             max_value += 1
-            cup = Cup(max_value)
-            cups[max_value] = cup
-            last.right = cup
-            cup.left = last
-            last = cup
+            cups[last] = max_value
+            last = max_value
 
-    last.right = first
-    first.left = last
+    cups[last] = int(values[0][0]) - 1
+    cur = cups[last]
+    cups_count = max_value + 1
 
-    cur = first
     for round in range(100 if mode == 1 else 10000000):
         if round % 2500000 == 0:
             log(f"Working on round {round}")
 
-        c1 = cur.right
-        c2 = c1.right
-        c3 = c2.right
+        c1 = cups[cur]
+        c2 = cups[c1]
+        c3 = cups[c2]
 
-        cur.right = c3.right
-        cur.right.left = cur
+        cups[cur] = cups[c3]
 
-        target = cur.val
-        in_hand_vals = {c1.val, c2.val, c3.val}
-        while True:
-            target -= 1
-            if target < 1:
-                target = max_value
-            if target not in in_hand_vals:
-                target = cups[target]
-                break
-        c3.right = target.right
-        c3.right.left = c3
-        target.right = c1
-        c1.left = target
+        target = (cur - 1) % cups_count
+        if target == c1 or target == c2 or target == c3:
+            target = (target - 1) % cups_count
+            if target == c1 or target == c2 or target == c3:
+                target = (target - 1) % cups_count
+                if target == c1 or target == c2 or target == c3:
+                    target = (target - 1) % cups_count
 
-        cur = cur.right
+        cups[target], cups[c3] = c1, cups[target]
+        cur = cups[cur]
 
     if mode == 1:
         temp = ""
-        cur = cups[1].right
-        while cur != cups[1]:
-            temp += str(cur.val)
-            cur = cur.right
+        cur = cups[0]
+        while cur != 0:
+            temp += str(cur + 1)
+            cur = cups[cur]
         return int(temp)
     else:
-        return cups[1].right.val * cups[1].right.right.val
+        return (cups[0] + 1) * (cups[cups[0]] + 1)
 
 def test(log):
     values = log.decode_values("""
