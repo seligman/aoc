@@ -112,11 +112,11 @@ def calc(log, values, mode, draw={"mode": 0}):
                 grid[x, y] = grid[x, y]
                 trail.add((x, y))
         grid[x, y] = "X" if grid[x, y] == "." else "."
-        if draw["mode"] == "draw" and draw["type"] != "ca":
+        if draw["mode"] == "draw" and draw["type"] not in {"ca", "ca2", "ca3"}:
             image = Image.new('RGB', (img_width, img_height), (128, 128, 128))
             dr = ImageDraw.Draw(image)
             for cur in hex:
-                if (cur["x"], cur["y"]) in grid.grid or draw["type"] in {"coin", "ca"}:
+                if (cur["x"], cur["y"]) in grid.grid or draw["type"] in {"coin", "ca", "ca2", "ca3"}:
                     if grid[cur["x"], cur["y"]] == "X":
                         if (cur["x"], cur["y"]) in trail:
                             color = (0, 0, 192)
@@ -162,14 +162,22 @@ def calc(log, values, mode, draw={"mode": 0}):
             grid[x, y] = val
 
         if draw["mode"] == "draw":
-            image = Image.new('RGB', (img_width, img_height), (128, 128, 128))
-            dr = ImageDraw.Draw(image)
-            for cur in hex:
-                if (cur["x"], cur["y"]) in grid.grid or draw["type"] in {"coin", "ca"}:
-                    dr.polygon(cur["hex"], outline=(64,64,64), fill=(0,0,0) if grid[cur["x"], cur["y"]] == "X" else (192, 192, 192))
-            log("Saving life frame " + str(frame))
-            image.save("frame_%05d.png" % (frame,))
-            frame += 1
+            use = True
+            if draw["type"] == "ca2":
+                draw["skip"] += 1
+                use = draw["skip"] % 2 == 1
+            elif draw["type"] == "ca3":
+                draw["skip"] += 1
+                use = draw["skip"] % 3 == 1
+            if use:
+                image = Image.new('RGB', (img_width, img_height), (128, 128, 128))
+                dr = ImageDraw.Draw(image)
+                for cur in hex:
+                    if (cur["x"], cur["y"]) in grid.grid or draw["type"] in {"coin", "ca", "ca2", "ca3"}:
+                        dr.polygon(cur["hex"], outline=(64,64,64), fill=(0,0,0) if grid[cur["x"], cur["y"]] == "X" else (192, 192, 192))
+                log(f"Saving life frame {frame} for {draw['type']}")
+                image.save("frame_%05d.png" % (frame,))
+                frame += 1
 
     if draw["mode"] == "size":
         return grid.width(), grid.height()
@@ -196,15 +204,29 @@ def other_draw_3(describe, values):
         return "Animate this (for cellular_automata)"
     draw_internal(values, "ca", "_03")
 
+def other_draw_4(describe, values):
+    if describe:
+        return "Animate this (for cellular_automata, skip every other)"
+    draw_internal(values, "ca2", "_04")
+
+def other_draw_5(describe, values):
+    if describe:
+        return "Animate this (for cellular_automata, skip every third)"
+    draw_internal(values, "ca3", "_05")
+
 def draw_internal(values, draw_type, file_extra):
     from dummylog import DummyLog
     print("First pass")
-    width, height = calc(DummyLog(), values, 2, draw={"mode": "size"})
+    width, height = calc(DummyLog(), values, 2, draw={
+        "mode": "size",
+        "skip": 0,
+    })
     print("Draw pass")
     calc(DummyLog(), values, 2, draw={
         "mode": "draw", 
         "width": width, "height": height,
         "type": draw_type,
+        "skip": 0,
     })
 
     import subprocess
