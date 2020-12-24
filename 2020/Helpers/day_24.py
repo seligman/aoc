@@ -1,17 +1,89 @@
 #!/usr/bin/env python3
 
 import re
+import math
 
 def get_desc():
     return 24, 'Day 24: Lobby Layout'
 
-def calc(log, values, mode):
+def get_hex(image_width, image_height, side_length=1):
+    h = math.sin(math.pi / 3)
+    ret = []
+    for x in range(-1, image_width, 3):
+        if x * side_length < image_height + 50:
+            for y in range(-1, int(image_height / h) + 1):
+                if y * side_length < image_width + 50:
+                    xo = x if (y % 2 == 0) else x + 1.5
+
+                    ret.append([
+                        (xo,        y * h),
+                        (xo + 1,    y * h),
+                        (xo + 1.5, (y + 1) * h),
+                        (xo + 1,   (y + 2) * h),
+                        (xo,       (y + 2) * h),
+                        (xo - 0.5, (y + 1) * h),
+                    ])
+
+    for i in range(len(ret)):
+        ret[i] = [(y * side_length, x * side_length) for (x, y) in ret[i]]
+
+    ret = [x for x in ret if min([y[0] for y in x]) > 0]
+    ret = [x for x in ret if min([y[1] for y in x]) > 0]
+    ret = [x for x in ret if max([y[0] for y in x]) < image_width]
+    ret = [x for x in ret if max([y[1] for y in x]) < image_height]
+
+    return ret
+
+
+def calc(log, values, mode, draw={"mode": 0}):
     from grid import Grid
     grid = Grid(".")
+
+    if draw["mode"] == "draw":
+        frame = 0
+        from PIL import Image, ImageDraw
+        img_width = 13 * draw["height"]
+        img_height = img_width
+
+        temp = {}
+        x_levels = set()
+        y_levels = set()
+        hex = []
+        for cur in get_hex(img_width, img_height, 8):
+            min_x = min([x[0] for x in cur])
+            min_y = min([x[1] for x in cur])
+            x_levels.add(min_x)
+            y_levels.add(min_y)
+            hex.append({
+                "hex": cur,
+                "min_x": min_x,
+                "min_y": min_y,
+            })
+
+        x_levels = list(sorted(x_levels))
+        y_levels = list(sorted(y_levels))
+
+        x_off = None
+        for y in range(len(y_levels)):
+            temp = sorted([x for x in hex if x["min_y"] == y_levels[y]], key=lambda x:x["min_x"])
+            if x_off is None:
+                x_off = -(len(temp) // 2)
+            x = x_off
+            for cur in temp:
+                cur["y"] = y - (len(y_levels) // 2)
+                cur["x"] = x * 2
+                if cur["y"] % 2 == 1:
+                    cur["x"] += 1
+                x += 1
+        # print(max([x["x"] for x in hex]) - min([x["x"] for x in hex]))
+        # print(max([x["y"] for x in hex]) - min([x["y"] for x in hex]))
+        # print(draw["width"], draw["height"])
 
     r = re.compile("(e|se|sw|w|nw|ne)")
     for row in values:
         x, y = 0, 0
+        grid[x, y] = grid[x, y]
+        trail = set([(x, y)])
         for m in r.finditer(row):
             hit = m.group(1)
             if hit == "e":
@@ -30,7 +102,29 @@ def calc(log, values, mode):
             elif hit == "nw":
                 y -= 1
                 x -= 1
+            if draw["mode"] == "draw":
+                grid[x, y] = grid[x, y]
+                trail.add((x, y))
         grid[x, y] = "X" if grid[x, y] == "." else "."
+        if draw["mode"] == "draw":
+            image = Image.new('RGB', (img_width, img_height), (128, 128, 128))
+            dr = ImageDraw.Draw(image)
+            for cur in hex:
+                if (cur["x"], cur["y"]) in grid.grid:
+                    if grid[cur["x"], cur["y"]] == "X":
+                        if (cur["x"], cur["y"]) in trail:
+                            color = (0, 0, 192)
+                        else:
+                            color = (0, 0, 0)
+                    else:
+                        if (cur["x"], cur["y"]) in trail:
+                            color = (192, 192, 255)
+                        else:
+                            color = (192, 192, 192)
+                    dr.polygon(cur["hex"], outline=(64,64,64), fill=color)
+            log("Saving frame " + str(frame))
+            image.save("frame_%05d.png" % (frame,))
+            frame += 1
 
     if mode == 1:
         return len([x for x in grid.grid.values() if x == "X"])
@@ -61,7 +155,55 @@ def calc(log, values, mode):
         for x, y, val in todo:
             grid[x, y] = val
 
+        if draw["mode"] == "draw":
+            image = Image.new('RGB', (img_width, img_height), (128, 128, 128))
+            dr = ImageDraw.Draw(image)
+            for cur in hex:
+                if (cur["x"], cur["y"]) in grid.grid:
+                    dr.polygon(cur["hex"], outline=(64,64,64), fill=(0,0,0) if grid[cur["x"], cur["y"]] == "X" else (192, 192, 192))
+            log("Saving life frame " + str(frame))
+            image.save("frame_%05d.png" % (frame,))
+            frame += 1
+
+    if draw["mode"] == "size":
+        return grid.width(), grid.height()
+
+    if draw["mode"] == "draw":
+        for _ in range(30):
+            image.save("frame_%05d.png" % (frame,))
+            frame += 1
+
     return len([x for x in grid.grid.values() if x == "X"])
+
+def other_draw(describe, values):
+    if describe:
+        return "Animate this"
+
+    from dummylog import DummyLog
+    print("First pass")
+    width, height = calc(DummyLog(), values, 2, draw={"mode": "size"})
+    print("Draw pass")
+    calc(DummyLog(), values, 2, draw={"mode": "draw", "width": width, "height": height})
+
+    import subprocess
+    import os
+    cmd = [
+        "ffmpeg", "-y",
+        "-hide_banner",
+        "-f", "image2",
+        "-framerate", "10", 
+        "-i", "frame_%05d.png", 
+        "-c:v", "libx264", 
+        "-profile:v", "main", 
+        "-pix_fmt", "yuv420p", 
+        "-vf", "pad=ceil(iw/2)*2:ceil(ih/2)*2",
+        "-an", 
+        "-movflags", "+faststart",
+        os.path.join("animations", "animation_%02d.mp4" % (get_desc()[0],)),
+    ]
+    print("$ " + " ".join(cmd))
+    subprocess.check_call(cmd)
+
 
 def test(log):
     values = log.decode_values("""
