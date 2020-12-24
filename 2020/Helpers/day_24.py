@@ -6,13 +6,13 @@ import math
 def get_desc():
     return 24, 'Day 24: Lobby Layout'
 
-def get_hex(image_width, image_height, side_length=1):
+def get_hex(image_width, image_height, draw_type, side_length=1):
     h = math.sin(math.pi / 3)
     ret = []
     for x in range(-1, image_width, 3):
         if x * side_length < image_height + 50:
             for y in range(-1, int(image_height / h) + 1):
-                if y * side_length < image_width + 50:
+                if ((y + 1) * h) * side_length < image_width + 50:
                     xo = x if (y % 2 == 0) else x + 1.5
 
                     ret.append([
@@ -27,10 +27,16 @@ def get_hex(image_width, image_height, side_length=1):
     for i in range(len(ret)):
         ret[i] = [(y * side_length, x * side_length) for (x, y) in ret[i]]
 
-    ret = [x for x in ret if min([y[0] for y in x]) > 0]
-    ret = [x for x in ret if min([y[1] for y in x]) > 0]
-    ret = [x for x in ret if max([y[0] for y in x]) < image_width]
-    ret = [x for x in ret if max([y[1] for y in x]) < image_height]
+    if draw_type == "normal":
+        ret = [x for x in ret if min([y[0] for y in x]) > 0]
+        ret = [x for x in ret if min([y[1] for y in x]) > 0]
+        ret = [x for x in ret if max([y[0] for y in x]) < image_width]
+        ret = [x for x in ret if max([y[1] for y in x]) < image_height]
+    else:
+        ret = [x for x in ret if max([y[0] for y in x]) > 0]
+        ret = [x for x in ret if max([y[1] for y in x]) > 0]
+        ret = [x for x in ret if min([y[0] for y in x]) < image_width]
+        ret = [x for x in ret if min([y[1] for y in x]) < image_height]
 
     return ret
 
@@ -49,7 +55,7 @@ def calc(log, values, mode, draw={"mode": 0}):
         x_levels = set()
         y_levels = set()
         hex = []
-        for cur in get_hex(img_width, img_height, 8):
+        for cur in get_hex(img_width, img_height, draw["type"], 8):
             min_x = min([x[0] for x in cur])
             min_y = min([x[1] for x in cur])
             x_levels.add(min_x)
@@ -110,7 +116,7 @@ def calc(log, values, mode, draw={"mode": 0}):
             image = Image.new('RGB', (img_width, img_height), (128, 128, 128))
             dr = ImageDraw.Draw(image)
             for cur in hex:
-                if (cur["x"], cur["y"]) in grid.grid:
+                if (cur["x"], cur["y"]) in grid.grid or draw["type"] == "coin":
                     if grid[cur["x"], cur["y"]] == "X":
                         if (cur["x"], cur["y"]) in trail:
                             color = (0, 0, 192)
@@ -131,7 +137,7 @@ def calc(log, values, mode, draw={"mode": 0}):
 
     dirs = [(-1, -1), (1, -1), (-2, 0), (2, 0), (-1, 1), (1, 1)]
 
-    for _ in range(100):
+    for _ in range(100 if draw.get("type", "normal") == "normal" else 500):
         todo = []
         for y in grid.axis_range(1, 1):
             for x in grid.axis_range(0, 2):
@@ -159,7 +165,7 @@ def calc(log, values, mode, draw={"mode": 0}):
             image = Image.new('RGB', (img_width, img_height), (128, 128, 128))
             dr = ImageDraw.Draw(image)
             for cur in hex:
-                if (cur["x"], cur["y"]) in grid.grid:
+                if (cur["x"], cur["y"]) in grid.grid or draw["type"] == "coin":
                     dr.polygon(cur["hex"], outline=(64,64,64), fill=(0,0,0) if grid[cur["x"], cur["y"]] == "X" else (192, 192, 192))
             log("Saving life frame " + str(frame))
             image.save("frame_%05d.png" % (frame,))
@@ -178,12 +184,23 @@ def calc(log, values, mode, draw={"mode": 0}):
 def other_draw(describe, values):
     if describe:
         return "Animate this"
+    draw_internal(values, "normal", "")
 
+def other_draw_2(describe, values):
+    if describe:
+        return "Animate this (for CoinForWares)"
+    draw_internal(values, "coin", "_02")
+
+def draw_internal(values, draw_type, file_extra):
     from dummylog import DummyLog
     print("First pass")
     width, height = calc(DummyLog(), values, 2, draw={"mode": "size"})
     print("Draw pass")
-    calc(DummyLog(), values, 2, draw={"mode": "draw", "width": width, "height": height})
+    calc(DummyLog(), values, 2, draw={
+        "mode": "draw", 
+        "width": width, "height": height,
+        "type": draw_type,
+    })
 
     import subprocess
     import os
@@ -199,7 +216,7 @@ def other_draw(describe, values):
         "-vf", "pad=ceil(iw/2)*2:ceil(ih/2)*2",
         "-an", 
         "-movflags", "+faststart",
-        os.path.join("animations", "animation_%02d.mp4" % (get_desc()[0],)),
+        os.path.join("animations", "animation_%02d%s.mp4" % (get_desc()[0], file_extra)),
     ]
     print("$ " + " ".join(cmd))
     subprocess.check_call(cmd)
