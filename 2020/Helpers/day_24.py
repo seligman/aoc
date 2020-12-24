@@ -112,11 +112,11 @@ def calc(log, values, mode, draw={"mode": 0}):
                 grid[x, y] = grid[x, y]
                 trail.add((x, y))
         grid[x, y] = "X" if grid[x, y] == "." else "."
-        if draw["mode"] == "draw":
+        if draw["mode"] == "draw" and draw["type"] != "ca":
             image = Image.new('RGB', (img_width, img_height), (128, 128, 128))
             dr = ImageDraw.Draw(image)
             for cur in hex:
-                if (cur["x"], cur["y"]) in grid.grid or draw["type"] == "coin":
+                if (cur["x"], cur["y"]) in grid.grid or draw["type"] in {"coin", "ca"}:
                     if grid[cur["x"], cur["y"]] == "X":
                         if (cur["x"], cur["y"]) in trail:
                             color = (0, 0, 192)
@@ -165,7 +165,7 @@ def calc(log, values, mode, draw={"mode": 0}):
             image = Image.new('RGB', (img_width, img_height), (128, 128, 128))
             dr = ImageDraw.Draw(image)
             for cur in hex:
-                if (cur["x"], cur["y"]) in grid.grid or draw["type"] == "coin":
+                if (cur["x"], cur["y"]) in grid.grid or draw["type"] in {"coin", "ca"}:
                     dr.polygon(cur["hex"], outline=(64,64,64), fill=(0,0,0) if grid[cur["x"], cur["y"]] == "X" else (192, 192, 192))
             log("Saving life frame " + str(frame))
             image.save("frame_%05d.png" % (frame,))
@@ -190,6 +190,11 @@ def other_draw_2(describe, values):
     if describe:
         return "Animate this (for CoinForWares)"
     draw_internal(values, "coin", "_02")
+
+def other_draw_3(describe, values):
+    if describe:
+        return "Animate this (for cellular_automata)"
+    draw_internal(values, "ca", "_03")
 
 def draw_internal(values, draw_type, file_extra):
     from dummylog import DummyLog
