@@ -122,6 +122,42 @@ class Grid:
                 self[(x, height - y)] = temp[(x, y)]
 
     @staticmethod
+    def cardinal(compass, x=0, y=0):
+        if compass == "e":
+            x += 1
+        elif compass == "w":
+            x -= 1
+        elif compass == "s":
+            y += 1
+        elif compass == "n":
+            y -= 1
+        else:
+            raise Exception()
+        return x, y
+
+    @staticmethod
+    def cardinal_hex(compass, x=0, y=0):
+        if compass == "e":
+            x += 2
+        elif compass == "w":
+            x -= 2
+        elif compass == "se":
+            y += 1
+            x += 1
+        elif compass == "sw":
+            y += 1
+            x -= 1
+        elif compass == "ne":
+            y -= 1
+            x += 1
+        elif compass == "nw":
+            y -= 1
+            x -= 1
+        else:
+            raise Exception()
+        return x, y
+
+    @staticmethod
     def get_dirs_hex():
         return [(-1, -1), (1, -1), (-2, 0), (2, 0), (-1, 1), (1, 1)]
 
@@ -224,6 +260,12 @@ class Grid:
 
     def __iter__(self):
         return self.grid.values().__iter__()
+
+    def __contains__(self, key):
+        if isinstance(key, tuple):
+            return key in self.grid
+        else:
+            return (key,) in self.grid
 
     def set_text(self, x, y, text, color=None):
         for xo in range(len(text)):

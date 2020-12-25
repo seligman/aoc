@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 
 import re
-import math
 
 def get_desc():
     return 24, 'Day 24: Lobby Layout'
@@ -29,39 +28,23 @@ def calc(log, values, mode, draw={"mode": 0}):
             scale=0.5,
         )
 
-    r = re.compile("(e|se|sw|w|nw|ne)")
+    r = re.compile("(?P<dir>e|se|sw|w|nw|ne)")
     for row in values:
         x, y = 0, 0
         grid[x, y] = grid[x, y]
         trail = set([(x, y)])
         for m in r.finditer(row):
-            hit = m.group(1)
-            if hit == "e":
-                x += 2
-            elif hit == "w":
-                x -= 2
-            elif hit == "se":
-                y += 1
-                x += 1
-            elif hit == "sw":
-                y += 1
-                x -= 1
-            elif hit == "ne":
-                y -= 1
-                x += 1
-            elif hit == "nw":
-                y -= 1
-                x -= 1
+            x, y = Grid.cardinal_hex(m.group('dir'), x, y)
             if draw["mode"] == "draw":
                 grid[x, y] = grid[x, y]
                 trail.add((x, y))
         grid[x, y] = "#" if grid[x, y] == "." else "."
         if draw["mode"] == "draw" and draw["type"] not in {"ca", "ca2", "ca3"}:
             for x, y in trail:
-                grid[x, y] = ".t" if grid[x, y] == "." else "#t"
+                grid[x, y] += "t"
             draw_grid("flipping")
             for x, y in trail:
-                grid[x, y] = "." if grid[x, y] == ".t" else "#"
+                grid[x, y] = grid[x, y][0]
 
     if mode == 1:
         return len([x for x in grid.grid.values() if x == "#"])
