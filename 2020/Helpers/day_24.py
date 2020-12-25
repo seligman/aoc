@@ -6,84 +6,28 @@ import math
 def get_desc():
     return 24, 'Day 24: Lobby Layout'
 
-def get_hex(image_width, image_height, draw_type, side_length=1):
-    h = math.sin(math.pi / 3)
-    ret = []
-    for x in range(-1, image_width, 3):
-        if x * side_length < image_height + 50:
-            for y in range(-1, int(image_height / h) + 1):
-                if ((y + 1) * h) * side_length < image_width + 50:
-                    xo = x if (y % 2 == 0) else x + 1.5
-
-                    ret.append([
-                        (xo,        y * h),
-                        (xo + 1,    y * h),
-                        (xo + 1.5, (y + 1) * h),
-                        (xo + 1,   (y + 2) * h),
-                        (xo,       (y + 2) * h),
-                        (xo - 0.5, (y + 1) * h),
-                    ])
-
-    for i in range(len(ret)):
-        ret[i] = [(y * side_length, x * side_length) for (x, y) in ret[i]]
-
-    if draw_type == "normal":
-        ret = [x for x in ret if min([y[0] for y in x]) > 0]
-        ret = [x for x in ret if min([y[1] for y in x]) > 0]
-        ret = [x for x in ret if max([y[0] for y in x]) < image_width]
-        ret = [x for x in ret if max([y[1] for y in x]) < image_height]
-    else:
-        ret = [x for x in ret if max([y[0] for y in x]) > 0]
-        ret = [x for x in ret if max([y[1] for y in x]) > 0]
-        ret = [x for x in ret if min([y[0] for y in x]) < image_width]
-        ret = [x for x in ret if min([y[1] for y in x]) < image_height]
-
-    return ret
-
-
 def calc(log, values, mode, draw={"mode": 0}):
     from grid import Grid
     grid = Grid(".")
 
-    if draw["mode"] == "draw":
-        frame = 0
-        from PIL import Image, ImageDraw
-        img_width = 13 * draw["height"]
-        img_height = img_width
-
-        temp = {}
-        x_levels = set()
-        y_levels = set()
-        hex = []
-        for cur in get_hex(img_width, img_height, draw["type"], 8):
-            min_x = min([x[0] for x in cur])
-            min_y = min([x[1] for x in cur])
-            x_levels.add(min_x)
-            y_levels.add(min_y)
-            hex.append({
-                "hex": cur,
-                "min_x": min_x,
-                "min_y": min_y,
-            })
-
-        x_levels = list(sorted(x_levels))
-        y_levels = list(sorted(y_levels))
-
-        x_off = None
-        for y in range(len(y_levels)):
-            temp = sorted([x for x in hex if x["min_y"] == y_levels[y]], key=lambda x:x["min_x"])
-            if x_off is None:
-                x_off = -(len(temp) // 2)
-            x = x_off
-            for cur in temp:
-                cur["y"] = y - (len(y_levels) // 2)
-                cur["x"] = x * 2
-                if cur["y"] % 2 == 1:
-                    cur["x"] += 1
-                x += 1
-        # print(max([x["x"] for x in hex]) - min([x["x"] for x in hex]))
-        # print(max([x["y"] for x in hex]) - min([x["y"] for x in hex]))
-        # print(draw["width"], draw["height"])
+    def draw_grid(value, image_copies=1):
+        log(f"Saving frame {grid.frame} for {value}")
+        color_map = {
+            "#": (0, 0, 0),
+            "#t": (32, 32, 192),
+            ".": (192, 192, 192),
+            ".t": (160, 160, 255),
+        }
+        grid.draw_grid_hex(
+            size=draw['size'], 
+            color_map=color_map, 
+            background_color=(128, 128, 128), 
+            image_copies=image_copies,
+            outline=(64,64,64),
+            hex_size=15,
+            show_all=draw["type"] in {"coin", "ca", "ca2", "ca3"},
+            scale=0.5,
+        )
 
     r = re.compile("(e|se|sw|w|nw|ne)")
     for row in values:
@@ -111,52 +55,29 @@ def calc(log, values, mode, draw={"mode": 0}):
             if draw["mode"] == "draw":
                 grid[x, y] = grid[x, y]
                 trail.add((x, y))
-        grid[x, y] = "X" if grid[x, y] == "." else "."
+        grid[x, y] = "#" if grid[x, y] == "." else "."
         if draw["mode"] == "draw" and draw["type"] not in {"ca", "ca2", "ca3"}:
-            image = Image.new('RGB', (img_width, img_height), (128, 128, 128))
-            dr = ImageDraw.Draw(image)
-            for cur in hex:
-                if (cur["x"], cur["y"]) in grid.grid or draw["type"] in {"coin", "ca", "ca2", "ca3"}:
-                    if grid[cur["x"], cur["y"]] == "X":
-                        if (cur["x"], cur["y"]) in trail:
-                            color = (0, 0, 192)
-                        else:
-                            color = (0, 0, 0)
-                    else:
-                        if (cur["x"], cur["y"]) in trail:
-                            color = (192, 192, 255)
-                        else:
-                            color = (192, 192, 192)
-                    dr.polygon(cur["hex"], outline=(64,64,64), fill=color)
-            log("Saving frame " + str(frame))
-            image.save("frame_%05d.png" % (frame,))
-            frame += 1
+            for x, y in trail:
+                grid[x, y] = ".t" if grid[x, y] == "." else "#t"
+            draw_grid("flipping")
+            for x, y in trail:
+                grid[x, y] = "." if grid[x, y] == ".t" else "#"
 
     if mode == 1:
-        return len([x for x in grid.grid.values() if x == "X"])
-
-    dirs = [(-1, -1), (1, -1), (-2, 0), (2, 0), (-1, 1), (1, 1)]
+        return len([x for x in grid.grid.values() if x == "#"])
 
     for _ in range(100 if draw.get("type", "normal") == "normal" else 500):
         todo = []
-        for y in grid.axis_range(1, 1):
-            for x in grid.axis_range(0, 2):
-                use = False
-                if y % 2 == 0:
-                    if x % 2 == 0:
-                        use = True
-                else:
-                    if x % 2 == 1:
-                        use = True
-                if use:
-                    black = 0
-                    for xo, yo in dirs:
-                        if grid[x + xo, y + yo] == "X":
-                            black += 1
-                    if grid[x, y] == "X" and (black == 0 or black > 2):
-                        todo.append((x, y, "."))
-                    if grid[x, y] == "." and black == 2:
-                        todo.append((x, y, "X"))
+        for y in grid.y_range(pad=1):
+            for x in grid.x_range_hex(y, pad=2):
+                black = 0
+                for xo, yo in grid.get_dirs_hex():
+                    if grid[x + xo, y + yo] == "#":
+                        black += 1
+                if grid[x, y] == "#" and (black == 0 or black > 2):
+                    todo.append((x, y, "."))
+                if grid[x, y] == "." and black == 2:
+                    todo.append((x, y, "#"))
 
         for x, y, val in todo:
             grid[x, y] = val
@@ -170,24 +91,15 @@ def calc(log, values, mode, draw={"mode": 0}):
                 draw["skip"] += 1
                 use = draw["skip"] % 3 == 1
             if use:
-                image = Image.new('RGB', (img_width, img_height), (128, 128, 128))
-                dr = ImageDraw.Draw(image)
-                for cur in hex:
-                    if (cur["x"], cur["y"]) in grid.grid or draw["type"] in {"coin", "ca", "ca2", "ca3"}:
-                        dr.polygon(cur["hex"], outline=(64,64,64), fill=(0,0,0) if grid[cur["x"], cur["y"]] == "X" else (192, 192, 192))
-                log(f"Saving life frame {frame} for {draw['type']}")
-                image.save("frame_%05d.png" % (frame,))
-                frame += 1
+                draw_grid("life")
 
     if draw["mode"] == "size":
-        return grid.width(), grid.height()
+        return grid.get_grid_hex_size()
 
     if draw["mode"] == "draw":
-        for _ in range(30):
-            image.save("frame_%05d.png" % (frame,))
-            frame += 1
+        draw_grid("final", image_copies=29)
 
-    return len([x for x in grid.grid.values() if x == "X"])
+    return len([x for x in grid.grid.values() if x == "#"])
 
 def other_draw(describe, values):
     if describe:
@@ -215,16 +127,22 @@ def other_draw_5(describe, values):
     draw_internal(values, "ca3", "_05")
 
 def draw_internal(values, draw_type, file_extra):
+    import os
     from dummylog import DummyLog
+
+    for cur in os.listdir('.'):
+        if cur.startswith("frame_") and cur.endswith(".png"):
+            os.unlink(cur)
+
     print("First pass")
-    width, height = calc(DummyLog(), values, 2, draw={
+    size = calc(DummyLog(), values, 2, draw={
         "mode": "size",
         "skip": 0,
     })
     print("Draw pass")
     calc(DummyLog(), values, 2, draw={
         "mode": "draw", 
-        "width": width, "height": height,
+        "size": size,
         "type": draw_type,
         "skip": 0,
     })

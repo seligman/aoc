@@ -122,6 +122,10 @@ class Grid:
                 self[(x, height - y)] = temp[(x, y)]
 
     @staticmethod
+    def get_dirs_hex():
+        return [(-1, -1), (1, -1), (-2, 0), (2, 0), (-1, 1), (1, 1)]
+
+    @staticmethod
     def get_dirs(axis_count):
         ret = []
         temp = [-1] * axis_count
@@ -253,11 +257,17 @@ class Grid:
     def axis_range(self, axis, pad=0):
         return range(self.axis_min(axis) - pad, self.axis_max(axis) + 1 + pad)
 
-    def x_range(self):
-        return self.axis_range(0)
+    def x_range_hex(self, y, pad=0):
+        if y % 2 == 0:
+            return [x for x in self.x_range(pad=pad) if x % 2 == 0]
+        else:
+            return [x for x in self.x_range(pad=pad) if x % 2 == 1]
 
-    def y_range(self):
-        return self.axis_range(1)
+    def x_range(self, pad=0):
+        return self.axis_range(0, pad=pad)
+
+    def y_range(self, pad=0):
+        return self.axis_range(1, pad=pad)
 
     def __setitem__(self, key, value):
         self._ranges = {}
@@ -335,6 +345,94 @@ class Grid:
                 else:
                     line += disp_map[self.grid.get((x, y), self.default)]
             log(line)
+
+    def show_grid_hex(self, log, disp_map=DEFAULT_DISP_MAP, dump_all=False):
+        for y in self.y_range():
+            line = ""
+            for x in self.x_range():
+                if (y % 2 == 0 and x % 2 == 1) or (y % 2 == 1 and x % 2 == 0):
+                    line += ' '
+                else:
+                    if dump_all:
+                        line += self.grid.get((x, y), self.default)
+                    else:
+                        line += disp_map[self.grid.get((x, y), self.default)]
+            log(line)
+
+    def get_grid_hex_size(self):
+        return {
+                'width': max(len(self.x_range_hex(0)), len(self.x_range_hex(1))),
+                'height': self.height(),
+                'x_min': self.axis_min(0),
+                'y_min': self.axis_min(1),
+            }
+
+    def draw_grid_hex(self, image_copies=1, hex_size=10, color_map=DEFAULT_COLOR_MAP, size=None, background_color=BACKGROUND_COLOR, outline=BACKGROUND_COLOR, show_all=False, scale=1.0):
+        from PIL import Image, ImageDraw
+
+        # hex_size = 1 / 0.75
+        # center_x = (math.sqrt(3) * hex_size) / 4
+        # center_y = hex_size / 2
+        # hex = (
+        #     (center_x, center_y + (hex_size / 2)),
+        #     (center_x + (math.sqrt(3) * hex_size) / 4, center_y + hex_size / 4),
+        #     (center_x + (math.sqrt(3) * hex_size) / 4, center_y - hex_size / 4),
+        #     (center_x, center_y - (hex_size / 2)),
+        #     (center_x - (math.sqrt(3) * hex_size) / 4, center_y - hex_size / 4),
+        #     (center_x - (math.sqrt(3) * hex_size) / 4, center_y + hex_size / 4),
+        # )
+        # print("hex = (")
+        # for x, y in hex:
+        #     print(f"    ({x:-19.16f}, {y:-19.16f}),")
+        # print(")")
+        # print(f"hex_width = {hex[1][0] - hex[4][0]:.16f}")
+
+        hex = (
+            ( 0.5773502691896257,  1.3333333333333333),
+            ( 1.1547005383792515,  1.0000000000000000),
+            ( 1.1547005383792515,  0.3333333333333333),
+            ( 0.5773502691896257,  0.0000000000000000),
+            ( 0.0000000000000000,  0.3333333333333333),
+            ( 0.0000000000000000,  1.0000000000000000),
+        )
+        hex_width = 1.1547005383792515
+
+        if size is None:
+            size = self.get_grid_hex_size()
+        image_width = int(size['width'] * (hex_size * hex_width) + 0.5)
+        image_height = int(size['height'] * hex_size + hex_size / 3 + 0.5)
+        
+        im = Image.new('RGB', (image_width, image_height), background_color)
+        dr = ImageDraw.Draw(im)
+
+        for y in range(size['y_min'] - 2, size['y_min'] + size['height'] + 4) if show_all else self.y_range():
+            if show_all:
+                temp_x_range = list(range(size['x_min'] - 4, size['x_min'] + size['width'] * 2 + 8))
+                if y % 2 == 0:
+                    temp_x_range = [x for x in temp_x_range if x % 2 == 0]
+                else:
+                    temp_x_range = [x for x in temp_x_range if x % 2 == 1]
+            else:
+                temp_x_range = list(self.x_range_hex(y))
+            for x in temp_x_range:
+                if show_all or (x, y) in self.grid:
+                    cell_y = y - size['y_min']
+                    cell_x = (x - size['x_min']) / 2
+                    temp = [(cell_x * (hex_width * hex_size) + x * hex_size, cell_y * (hex_size) + y * hex_size) for x, y in hex]
+                    min_x = min([x[0] for x in temp])
+                    max_x = min([x[0] for x in temp])
+                    min_y = min([x[1] for x in temp])
+                    max_y = min([x[1] for x in temp])
+                    if max_x >= -50 and max_y >= -50 and min_x <= image_width + 50 and min_y <= image_height + 50:
+                        color = color_map[self[x, y]]
+                        dr.polygon(temp, fill=color, outline=outline)
+
+        if scale != 0.0:
+            im = im.resize((int(image_width * scale), int(image_height * scale)), resample=Image.ANTIALIAS)
+
+        for _ in range(image_copies):
+            im.save("frame_%05d.png" % (self.frame,))
+            self.frame += 1
 
     def save_frame(self, extra_text=None, extra=None):
         temp = {}
