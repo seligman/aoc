@@ -38,7 +38,7 @@ def paren(value):
 
 def eval_expr(value):
     off = 0
-    if isinstance(value, re.Match):
+    if isinstance(value, type(re.match("",""))):
         off = value.span()[0] + 1
         value = value.group("expr")
 
