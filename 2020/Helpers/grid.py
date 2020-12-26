@@ -401,6 +401,18 @@ class Grid:
                         line += disp_map[self.grid.get((x, y), self.default)]
             log(line)
 
+    def dump_grid_hex(self):
+        ret = []
+        for y in self.y_range():
+            line = ""
+            for x in self.x_range():
+                if (y % 2 == 0 and x % 2 == 1) or (y % 2 == 1 and x % 2 == 0):
+                    line += ' '
+                else:
+                    line += self.grid.get((x, y), self.default)
+            ret.append(line)
+        return "|".join(ret)
+
     def get_grid_hex_size(self):
         return {
                 'width': max(len(self.x_range_hex(0)), len(self.x_range_hex(1))),

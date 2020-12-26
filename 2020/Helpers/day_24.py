@@ -84,6 +84,202 @@ def calc(log, values, mode, draw={"mode": 0}):
 
     return len([x for x in grid.grid.values() if x == "#"])
 
+def powerset(iterable):
+    from itertools import chain, combinations
+    s = list(iterable)
+    return chain.from_iterable(combinations(s, r) for r in range(len(s)+1))
+
+
+def other_layout(describe, values):
+    if describe:
+        return "Layout a floor"
+
+    states = [
+        [
+            "   #   ",
+            "#     #",
+            "       ",
+            "#     #",
+            "   #   ",
+        ],
+        [
+            "  #   #  ",
+            "   # #   ",
+            "# #   # #",
+            "   # #   ",
+            "  #   #  ",
+        ],
+        [
+            "  #   #  ",
+            "         ",
+            "#       #",
+            "         ",
+            "  #   #  ",
+        ],
+        [
+            "     ",
+            "   # ",
+            "# #  ",
+            " # # ",
+            "#    ",
+        ],
+        [
+            "     ",
+            "   # ",
+            "#    ",
+            "   # ",
+            "#    ",
+        ],
+        [
+            "      ",
+            "  #   ",
+            "     #",
+            "#     ",
+            "   #  ",
+        ],
+    ]
+
+    from grid import Grid
+    import random
+    output = []
+    blot = Grid()
+
+    for _ in range(5000):
+        dest_x = random.randint(-50, 50)
+        dest_y = random.randint(-25, 25)
+        use = True
+        if dest_y % 2 == 1:
+            if dest_x % 2 != 1:
+                use = False
+        else:
+            if dest_x % 2 != 0:
+                use = False
+        
+        if use:
+            for x in range(-7, 7):
+                for y in range(-4, 4):
+                    if blot[x + dest_x, y + dest_y] == "X":
+                        use = False
+        
+        if use:
+            for x in range(-5, 6):
+                for y in range(-3, 4):
+                    blot[x + dest_x, y + dest_y] = "X"
+
+            choice = random.randint(0, len(states)-1)
+            grid = Grid(".")
+            off_x = len(states[choice][0]) // 2
+            off_y = len(states[choice]) // 2
+            for y in range(len(states[choice])):
+                for x in range(len(states[choice][y])):
+                    if states[choice][y][x] == "#":
+                        grid[x - off_x, y - off_y] = "#"
+
+            for y in grid.y_range():
+                for x in grid.x_range_hex(y):
+                    if grid[x, y] == "#":
+                        xo = x + dest_x
+                        yo = y + dest_y
+
+                        steps = []
+                        steps.append([0, 0, ""])
+                        seen = set()
+                        while True:
+                            temp_x, temp_y, temp_step = steps.pop(0)
+                            if (temp_x, temp_y) == (xo, yo):
+                                output.append(temp_step)
+                                break
+                            dirs = ["e", "w", "ne", "nw", "se", "sw"]
+                            random.shuffle(dirs)
+                            for test in dirs:
+                                test_x, test_y = Grid.cardinal_hex(test, temp_x, temp_y)
+                                if (test_x, test_y) not in seen:
+                                    seen.add((test_x, test_y))
+                                    steps.append((test_x, test_y, temp_step + test))
+
+    random.shuffle(output)
+    for cur in output:
+        print(cur)
+
+
+def other_find(describe, values):
+    if describe:
+        return "Find a runner"
+
+    from grid import Grid
+    from dummylog import DummyLog
+
+    seen = set()
+    bits = [(0, 0)]
+    seen.add((0, 0))
+    for _ in range(3):
+        for x, y in list(bits):
+            for xo, yo in Grid.get_dirs_hex():
+                if (x + xo, y + yo) not in seen:
+                    seen.add((x + xo, y + yo))
+                    bits.append((x + xo, y + yo))
+
+    seen = set()
+
+    class Keeper:
+        def __init__(self):
+            self.values = []
+        def __call__(self, value):
+            self.values.append(value)
+
+    for start in powerset(bits):
+        if len(start) > 0:
+            keep = Keeper()
+            keep("=" * 100)
+            grid = Grid(".")
+            for x, y in start:
+                grid[x, y] = "#"
+
+            counts = {}
+            offs = {}
+            for i in range(30):
+                todo = []
+                for y in grid.y_range(pad=1):
+                    for x in grid.x_range_hex(y, pad=2):
+                        black = 0
+                        for xo, yo in grid.get_dirs_hex():
+                            if grid[x + xo, y + yo] == "#":
+                                black += 1
+                        if grid[x, y] == "#" and (black == 0 or black > 2):
+                            todo.append((x, y, "."))
+                        if grid[x, y] == "." and black == 2:
+                            todo.append((x, y, "#"))
+
+                for x, y, val in todo:
+                    grid[x, y] = val
+                
+                for x, y in list(grid.grid):
+                    if grid[x, y] == ".":
+                        del grid[x, y]
+                
+                if len(grid.grid) == 0:
+                    break
+
+                key = grid.dump_grid_hex()
+                if key in seen:
+                    break
+                if key not in counts:
+                    counts[key] = []
+                if key not in offs:
+                    offs[key] = (grid.axis_min(0), grid.axis_min(1))
+                keep(f"{grid.axis_min(0)}, {grid.axis_min(1)} -- {offs[key][0] - grid.axis_min(0)}, {offs[key][1] - grid.axis_min(1)}")
+                grid.show_grid_hex(keep)
+                keep("-" * 50)
+
+                counts[key].append(i)
+                if len(counts[key]) >= 3:
+                    if counts[key][-1] - counts[key][-2] == counts[key][-2] - counts[key][-3] and counts[key][-1] - counts[key][-2] != 1:
+                        for key in counts:
+                            seen.add(key)
+                        for val in keep.values:
+                            print(val)
+                        break
+
 def other_draw(describe, values):
     if describe:
         return "Animate this"
