@@ -5,7 +5,7 @@ import sys
 import inspect
 import textwrap
 
-VERSION = 5
+VERSION = 6
 _g_options = []
 
 
@@ -20,6 +20,7 @@ class OptMethod:
         self.aka = None
         self.special = None
         self.module_name = ""
+        self.group_name = ""
 
     def create_clones(self):
         if len(self.func_names) >= 1:
@@ -31,6 +32,7 @@ class OptMethod:
             ret.aka = self.func_names[1:]
             ret.special = self.special
             ret.module_name = self.module_name
+            ret.group_name = self.group_name
             yield ret
 
 
@@ -50,6 +52,9 @@ def opt(*args, **kargs):
 
     if 'sort' in kargs:
         method.special = kargs['sort']
+
+    if 'group' in kargs:
+        method.group_name = kargs['group']
 
     def real_opts(func):
         if len(method.func_names) == 0:
@@ -184,25 +189,36 @@ def main_entry(order_by='none', include_other=False, program_desc=None, default_
         else:
             raise Exception("Sort expected to be one of 'func', 'desc', 'special', 'none'")
 
-        for arg in options:
-            if not arg.hidden:
-                optional = " ".join(arg.args)
-                if len(arg.other) + len(optional) <= max_len:
-                    print("%s %s%s = %s" % (
-                        arg.other,
-                        optional,
-                        " " * (max_len - (len(arg.other) + len(optional))),
-                        arg.help))
-                else:
-                    print("%s %s%s" % (
-                        arg.other,
-                        optional,
-                        " " * (max_len - (len(arg.other) + len(optional)))))
-                    print("%s  = %s" % (
-                        " " * max_len,
-                        arg.help))
-                if len(arg.aka) > 0:
-                    print("%s Or: %s" % (" " * (max_len + 3), ", ".join(arg.aka)))
+        groups = set([x.group_name for x in options])
+        groups = sorted(groups)
+
+        for group in groups:
+            if len(groups) > 1:
+                group_pretty = "(Misc)" if len(group) == 0 else group
+                print("  %s %s %s" % (
+                    "-" * 10,
+                    group_pretty,
+                    "-" * (50 - len(group_pretty)),
+                ))
+            for arg in options:
+                if not arg.hidden and arg.group_name == group:
+                    optional = " ".join(arg.args)
+                    if len(arg.other) + len(optional) <= max_len:
+                        print("%s %s%s = %s" % (
+                            arg.other,
+                            optional,
+                            " " * (max_len - (len(arg.other) + len(optional))),
+                            arg.help))
+                    else:
+                        print("%s %s%s" % (
+                            arg.other,
+                            optional,
+                            " " * (max_len - (len(arg.other) + len(optional)))))
+                        print("%s  = %s" % (
+                            " " * max_len,
+                            arg.help))
+                    if len(arg.aka) > 0:
+                        print("%s Or: %s" % (" " * (max_len + 3), ", ".join(arg.aka)))
 
         print("-" * dec_len)
         sys.exit(1)
@@ -247,6 +263,7 @@ def _getch_unix():
 
 
 def _getch_windows():
+    #pylint: disable=import-error
     import msvcrt
     return msvcrt.getch()
 
