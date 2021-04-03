@@ -5,7 +5,7 @@ import sys
 import inspect
 import textwrap
 
-VERSION = 6
+VERSION = 7
 _g_options = []
 
 
@@ -131,7 +131,7 @@ def main_entry(order_by='none', include_other=False, program_desc=None, default_
                     help_found = True
                     break
             if not help_found:
-                default_action()
+                default_action(*sys.argv[1:])
                 return
 
         options = []
