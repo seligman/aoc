@@ -5,7 +5,7 @@ import sys
 import inspect
 import textwrap
 
-VERSION = 7
+VERSION = 8
 _g_options = []
 
 
@@ -239,42 +239,47 @@ def enable_ansi():
 
 
 _getch = None
-def getch():
+def getch(init_only=False):
     global _getch
     if _getch is None:
         if os.name == "nt":
             _getch = _getch_windows
         else:
             _getch = _getch_unix
-    return _getch()
+    return _getch(init_only=init_only)
 
 
-def _getch_unix():
+def _getch_unix(init_only=False):
     #pylint: disable=import-error
     import sys, tty, termios
     fd = sys.stdin.fileno()
     old_settings = termios.tcgetattr(fd)
     try:
         tty.setraw(sys.stdin.fileno())
+        if init_only:
+            return
         ch = sys.stdin.read(1)
     finally:
         termios.tcsetattr(fd, termios.TCSADRAIN, old_settings)
     return ch
 
 
-def _getch_windows():
+def _getch_windows(init_only=False):
     #pylint: disable=import-error
     import msvcrt
+    if init_only:
+        return
     return msvcrt.getch()
 
 
+def _safe_getch():
+    temp = getch()
+    if not isinstance(temp, str):
+        temp = "".join(map(chr, temp))
+    return temp
+
 def getkey():
-    def safe_getch():
-        temp = getch()
-        if not isinstance(temp, str):
-            temp = "".join(map(chr, temp))
-        return temp
-    ret = safe_getch()
+    ret = _safe_getch()
     if ret == "\x03":
         raise KeyboardInterrupt()
     elif ret == "\x08" or ret == "\x7f":
@@ -282,7 +287,7 @@ def getkey():
     elif ret == "\x0d":
         ret = "enter"
     elif ret == "\xe0":
-        ret = safe_getch()
+        ret = _safe_getch()
         ret = {
             "\x48": "up",
             "\x50": "down",
@@ -290,9 +295,9 @@ def getkey():
             "\x4d": "right",
         }.get(ret, ret)
     elif ret == "\x1b":
-        ret = safe_getch()
+        ret = _safe_getch()
         if ret == "\x5b" or ret == "\x4f":
-            ret = safe_getch()
+            ret = _safe_getch()
             ret = {
                 "\x41": "up",
                 "\x42": "down",
@@ -352,7 +357,24 @@ def _update_picker(options, hide_colors=False):
     sys.stdout.flush()
 
 
+def get_term_width():
+    enable_ansi()
+    getch(init_only=True)
+    sys.stdout.write("\033[s" + "\033[999C" + "\033[6n" + "\033[u")
+    sys.stdout.flush()
+    temp = ""
+    while True:
+        x = _safe_getch()
+        temp += x
+        if x == 'R':
+            break
+    temp = temp[2:-1].split(';')
+    return int(temp[1])
+
+
 def _make_options(options, cols, rotate):
+    max_width = get_term_width() - 10
+
     row, col = 0, 0
     ret = {
         "items": [],
@@ -374,7 +396,7 @@ def _make_options(options, cols, rotate):
                 "index": None,
                 "row": row,
                 "col": col,
-                "desc": cur[0],
+                "desc": cur[0][:max_width],
                 "command": None,
             }
         ret["max_len"] = max(ret["max_len"], len(item["desc"]))
