@@ -5,7 +5,7 @@ import sys
 import inspect
 import textwrap
 
-VERSION = 8
+VERSION = 9
 _g_options = []
 
 
@@ -237,6 +237,31 @@ def enable_ansi():
             if kernel32.SetConsoleMode(kernel32.GetStdHandle(-11), 7) == 0:
                 _simple_mode = True
 
+def hide_cursor():
+    enable_ansi()
+    sys.stdout.write("\033[?25l")
+    sys.stdout.flush()
+
+
+def show_cursor():
+    enable_ansi()
+    sys.stdout.write("\033[?25h")
+    sys.stdout.flush()
+
+
+class HiddenCursor:
+    def __init__(self):
+        hide_cursor()
+
+    def show(self):
+        show_cursor()
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, cur_type, value, traceback):
+        self.show()
+
 
 _getch = None
 def getch(init_only=False):
@@ -429,6 +454,7 @@ def _make_options(options, cols, rotate):
 
 
 def show_menu(options, force_valid=False, cols=1, rotate=False):
+    hide_cursor()
     options = _make_options(options, cols, rotate)
     options["header"] = "Select option: "
     options["entry"] = ""
@@ -454,7 +480,9 @@ def show_menu(options, force_valid=False, cols=1, rotate=False):
     sys.stdout.flush()
 
     while True:
+        show_cursor()
         key = getkey()
+        hide_cursor()
         if len(key) > 1 or key in {"w", "s", "a", "d"}:
             if key in {"up", "down", "left", "right", "w", "s", "a", "d"}:
                 if key in {"up", "w"}:
@@ -522,6 +550,7 @@ def show_menu(options, force_valid=False, cols=1, rotate=False):
             sys.stdout.write(key)
             _update_picker(options)
 
+    show_cursor()
     if options["entry"] in by_index:
         return by_index[options["entry"]]["command"]
     else:
