@@ -5,7 +5,7 @@ import sys
 import inspect
 import textwrap
 
-VERSION = 9
+VERSION = 10
 _g_options = []
 
 
@@ -397,8 +397,11 @@ def get_term_width():
     return int(temp[1])
 
 
-def _make_options(options, cols, rotate):
-    max_width = get_term_width() - 10
+def _make_options(options, cols, rotate, check_width):
+    if check_width:
+        max_width = get_term_width() - 10
+    else:
+        max_width = 999
 
     row, col = 0, 0
     ret = {
@@ -453,9 +456,9 @@ def _make_options(options, cols, rotate):
     return ret
 
 
-def show_menu(options, force_valid=False, cols=1, rotate=False):
+def show_menu(options, force_valid=False, cols=1, rotate=False, check_width=False):
     hide_cursor()
-    options = _make_options(options, cols, rotate)
+    options = _make_options(options, cols, rotate, check_width)
     options["header"] = "Select option: "
     options["entry"] = ""
 
