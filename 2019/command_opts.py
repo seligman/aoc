@@ -5,7 +5,7 @@ import sys
 import inspect
 import textwrap
 
-VERSION = 10
+VERSION = 11
 _g_options = []
 
 
@@ -560,7 +560,7 @@ def show_menu(options, force_valid=False, cols=1, rotate=False, check_width=Fals
         return None
 
 
-if __name__ == "__main__":
+def main():
     print(textwrap.dedent("""
         # --------------------------------------------------------------------------
         # This module is not meant to be run directly.  To use it, add code like
@@ -582,3 +582,7 @@ if __name__ == "__main__":
         # --------------------------------------------------------------------------
     """))
     sys.exit(1)
+
+
+if __name__ == "__main__":
+    main()
