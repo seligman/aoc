@@ -5,7 +5,7 @@ import sys
 import inspect
 import textwrap
 
-VERSION = 11
+VERSION = 14
 _g_options = []
 
 
@@ -131,6 +131,11 @@ def main_entry(order_by='none', include_other=False, program_desc=None, default_
                     help_found = True
                     break
             if not help_found:
+                if isinstance(default_action, str):
+                    for arg in _g_options:
+                        for func_name in arg.func_names:
+                            if default_action.replace("-", "_") == func_name:
+                                default_action = arg.func
                 default_action(*sys.argv[1:])
                 return
 
@@ -561,6 +566,17 @@ def show_menu(options, force_valid=False, cols=1, rotate=False, check_width=Fals
 
 
 def main():
+    import_name = "command_opts"
+    if __name__ != "__main__":
+        import_name = __name__
+    else:
+        # Only check for the package version on Python 3
+        if sys.version_info.major >= 3:
+            from pathlib import Path
+            temp = Path(__file__).parent.joinpath(Path("__init__.py"))
+            if os.path.isfile(temp):
+                import_name = str(temp.parent.name) + "." + import_name
+
     print(textwrap.dedent("""
         # --------------------------------------------------------------------------
         # This module is not meant to be run directly.  To use it, add code like
@@ -568,9 +584,9 @@ def main():
         # and call the function the user wants to invoke:
         # --------------------------------------------------------------------------
         
-        #!/usr/bin/env python3
+        #!/usr/bin/env python""" + str(sys.version_info.major) + """
 
-        from command_opts import opt, main_entry
+        from """ + import_name + """ import opt, main_entry
 
         @opt("Example function!")
         def example():
