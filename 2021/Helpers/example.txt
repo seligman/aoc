@@ -1,0 +1,26 @@
+#!/usr/bin/env python3
+
+def get_desc():
+    return DAY_NUM, 'DAY_TODO'
+
+def calc(log, values, mode):
+    # TODO: Delete or use these
+    # from grid import Grid
+    # grid = Grid.from_text(values)
+    # from program import Program
+    # prog = Program(values)
+
+    # TODO
+    return 0
+
+def test(log):
+    values = log.decode_values("""
+        TODO
+    """)
+
+    log.test(calc(log, values, 1), 'TODO')
+    log.test(calc(log, values, 2), 'TODO')
+
+def run(log, values):
+    log(calc(log, values, 1))
+    log(calc(log, values, 2))
