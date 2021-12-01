@@ -16,16 +16,13 @@ ALT_DATA_FILE = None
 SOURCE_CONTROL = "p4"
 DESC = """
 ### The suggested dail routine looks like this:
-advent.py launch      # This launches some useful links
-advent.py make_day    # This makes a day, only run it when the site is ready
-advent.py test cur    # This tests the current day, keep going till it works!
-advent.py run cur     # This runs on the same data
+advent.py launch        # This launches some useful links
+advent.py make_day_wait # This makes a day, sleeping till just after midnight first
+advent.py test cur      # This tests the current day, keep going till it works!
+advent.py run cur       # This runs on the same data
 ### And finally, when everything's done, some clean up, and make a comment to post
-advent.py finish_day  # This runs the following commands:
-                      # advent.py run_save cur
-                      # advent.py dl_day cur
-                      # advent.py get_index
-                      # advent.py gen_comment
+advent.py finish_day    # This runs the following commands:
+                        # run_save cur, dl_day cur, get_index, gen_comment
 """
 
 class Logger:
@@ -266,6 +263,13 @@ def make_day_offline(target_day="cur"):
 
 @opt("Make new day")
 def make_day(target_day="cur"):
+    make_day_helper(False, force_day=target_day)
+
+
+@opt("Make new day, after sleeping till midnight")
+def make_day_wait(target_day="cur"):
+    import sleeper
+    sleeper.sleep("5:00:10u")
     make_day_helper(False, force_day=target_day)
 
 
