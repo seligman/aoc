@@ -10,12 +10,10 @@ def calc(log, values, mode):
     mode = {1: 1, 2: 3}[mode]
     for cur in values:
         stack.append(int(cur))
-        stack = stack[-mode:]
-        if len(stack) == mode:
-            cur = sum(stack)
-            if last and cur > last:
+        if len(stack) > mode:
+            if sum(stack[-mode:]) > last:
                 ret += 1
-            last = cur
+        last = sum(stack[-mode:])
     return ret
 
 def test(log):
