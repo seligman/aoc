@@ -4,16 +4,14 @@ def get_desc():
     return 1, 'Day 1: Sonar Sweep'
 
 def calc(log, values, mode):
-    last = None
+    values = [int(x) for x in values]
+    window_size = {1: 1, 2: 3}[mode]
+    last = sum(values[0:window_size])
     ret = 0
-    stack = []
-    mode = {1: 1, 2: 3}[mode]
-    for cur in values:
-        stack.append(int(cur))
-        if len(stack) > mode:
-            if sum(stack[-mode:]) > last:
-                ret += 1
-        last = sum(stack[-mode:])
+    for i in range(len(values) - window_size + 1):
+        cur = sum(values[i:i+window_size])
+        if cur > last: ret += 1
+        last = cur
     return ret
 
 def test(log):
