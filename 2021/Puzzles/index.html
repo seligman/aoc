@@ -11,15 +11,18 @@
 </head><body>
 <main>
 <style>
+.calendar .calendar-color-w2 { color:#00b5ed; }
+.calendar .calendar-color-g { color:#a47a4d; }
 .calendar .calendar-color-w1 { color:#00c8ff; }
 </style>
-<pre class="calendar"><a aria-label="Day 1, two stars" href="day_01.html" class="calendar-day1 calendar-verycomplete">                      ~   ~  <span class="calendar-color-w1">~</span> ~<span class="calendar-color-w1">~</span> <span class="calendar-color-w1">~~</span>~<span class="calendar-color-w1">~~~</span>~<span class="calendar-color-w1">~~</span>~<span class="calendar-color-w1">~</span>~~<span class="calendar-color-w1">~</span>~  <span class="calendar-day"> 1</span> <span class="calendar-mark-complete">*</span><span class="calendar-mark-verycomplete">*</span></a>
-<span aria-hidden="true" class="calendar-day2">                                      .    ..''''  <span class="calendar-day"> 2</span><span id="calendar-countdown"></span><script>
+<pre class="calendar"><a aria-label="Day 1, two stars" href="day_01.html" class="calendar-day1 calendar-verycomplete">                   ~  <span class="calendar-color-w1">~</span> ~ <span class="calendar-color-w1">~</span>~ <span class="calendar-color-w1">~</span>~<span class="calendar-color-w1">~~</span>~<span class="calendar-color-w1">~~~~~~~~~~~~~~~</span>  <span class="calendar-day"> 1</span> <span class="calendar-mark-complete">*</span><span class="calendar-mark-verycomplete">*</span></a>
+<a aria-label="Day 2, two stars" href="day_02.html" class="calendar-day2 calendar-verycomplete">                                   . <span class="calendar-color-w2">     </span> <span class="calendar-color-g">..''''</span>  <span class="calendar-day"> 2</span> <span class="calendar-mark-complete">*</span><span class="calendar-mark-verycomplete">*</span></a>
+<span aria-hidden="true" class="calendar-day3">                                    .     :        <span class="calendar-day"> 3</span><span id="calendar-countdown"></span><script>
 (function(){
 var countdown = document.getElementById("calendar-countdown");
 if (!countdown) return;
-var server_eta = 85983;
-var key = "2021-2-"+server_eta;
+var server_eta = 86172;
+var key = "2021-3-"+server_eta;
 var now = Math.floor(new Date().getTime()/1000);
 var target = server_eta + now;
 if (sessionStorage) {
@@ -42,8 +45,8 @@ function update_countdown() {
     countdown.textContent = "";
 
     var a = document.createElement("a");
-    a[String.fromCharCode(104,114,101,102)] = "/2021" + String.fromCharCode(47,100,97,121,47) + "2";
-    a.className = "calendar-day2 calendar-day-new";
+    a[String.fromCharCode(104,114,101,102)] = "/2021" + String.fromCharCode(47,100,97,121,47) + "3";
+    a.className = "calendar-day3 calendar-day-new";
     var span = countdown.parentNode;
     while (span.firstChild) {
       a.appendChild(span.firstChild);
@@ -65,7 +68,6 @@ interval = setInterval(update_countdown,1000);
 update_countdown();
 })();
 </script></span>
-<span aria-hidden="true" class="calendar-day3">                                                   <span class="calendar-day"> 3</span></span>
 <span aria-hidden="true" class="calendar-day4">                                                   <span class="calendar-day"> 4</span></span>
 <span aria-hidden="true" class="calendar-day5">                                                   <span class="calendar-day"> 5</span></span>
 <span aria-hidden="true" class="calendar-day6">                                                   <span class="calendar-day"> 6</span></span>
