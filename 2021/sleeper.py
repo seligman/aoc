@@ -417,10 +417,14 @@ def sleep(to_sleep, exit_at_end=True):
         temp_nl()
         if exit_at_end:
             exit(1)
+        else:
+            return False
     else:
         _temp_msg(None, last_len)
         if exit_at_end:
             exit(0)
+        else:
+            return True
 
 
 if __name__ == "__main__":

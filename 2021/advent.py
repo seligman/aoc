@@ -269,8 +269,8 @@ def make_day(target_day="cur"):
 @opt("Make new day, after sleeping till midnight")
 def make_day_wait(target_day="cur"):
     import sleeper
-    sleeper.sleep("5:00:10u")
-    make_day_helper(False, force_day=target_day)
+    if sleeper.sleep("5:00:10u", exit_at_end=False):
+        make_day_helper(False, force_day=target_day)
 
 
 def get_cookie():
