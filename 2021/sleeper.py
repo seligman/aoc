@@ -7,13 +7,14 @@ import re
 import threading
 import math
 
+ENABLE_SERVER = False
 
 def _make_server_call(**kargs):
     from urllib.request import urlopen
     from urllib.parse import urlencode
     import json
-    kargs["cookie"] = "nbfxxfrdbnujyhcbtcotifyqy"
-    url = "https://gex5mj1v01.execute-api.us-west-2.amazonaws.com/default/sleeper?" + urlencode(kargs)
+    kargs["cookie"] = ""
+    url = "?" + urlencode(kargs)
     return json.loads(urlopen(url).read())
 
 
@@ -225,11 +226,11 @@ def main():
     keep_going = False
     val = " ".join(sys.argv[1:])
 
-    if val.startswith("server run ") or val.startswith("run server "):
+    if ENABLE_SERVER and val.startswith("server run ") or val.startswith("run server "):
         _launch_server()
         time_command(val[11:])
         val = str(_get_time(_server_id)[1])
-    elif val == "server timer" or val == "timer server":
+    elif ENABLE_SERVER and val == "server timer" or val == "timer server":
         _launch_server()
         run_timer()
         val = str(_get_time(_server_id)[1])
@@ -237,10 +238,10 @@ def main():
         exit(time_command(val[4:]))
     elif val == "timer":
         exit(run_timer())
-    elif val.startswith("server "):
+    elif ENABLE_SERVER and val.startswith("server "):
         _launch_server()
         val = val[7:]
-    elif val.startswith("client "):
+    elif ENABLE_SERVER and val.startswith("client "):
         keep_going, sleep_amount = _get_time(val[7:])
         val = ""
 
@@ -250,7 +251,7 @@ def main():
 
     if sleep_amount is None:
         import textwrap
-        print(textwrap.dedent("""
+        msg = textwrap.dedent("""
             Specify a sleep amount, can be one of the following options:
                 #        - A specific number of seconds.
                 #:##     - Till the next 24 hour clock value is hit, using local time
@@ -267,7 +268,10 @@ def main():
                 timer            - Start a timer till enter is pressed
                 server <amount>  - Run a timer, and accept clients that also stop at the same time
                 client <name>    - Connect to a running server for the timer
-        """).strip())
+        """).strip()
+        if not ENABLE_SERVER:
+            msg = "\n".join(msg.split("\n")[:-2])
+        print(msg)
         exit(1)
     else:
         if sleep_amount > 0:
