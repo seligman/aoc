@@ -26,56 +26,32 @@ def calc(log, values, mode):
 
         return int(a,2) * int(b,2)
     else:
-        a = ''
-        old_values = values[:]
-        while True:
-            bin0, bin1 = [], []
-            count = 0
-            for cur in values:
-                if cur[0] == '1':
-                    count += 1
-                    bin1.append(cur[1:])
+        digits = []
+        for i in range(2):
+            digits.append('')
+            temp = values[:]
+            while len(temp) and len(temp[0]):
+                bin0, bin1 = [], []
+                count = 0
+                for cur in temp:
+                    if cur[0] == '1':
+                        count += 1
+                        bin1.append(cur[1:])
+                    else:
+                        bin0.append(cur[1:])
+
+                if (i == 0 and count >= len(temp) / 2) or (i == 1 and count < len(temp) / 2):
+                    digits[-1] += '1'
+                    temp = bin1
                 else:
-                    bin0.append(cur[1:])
-            if count >= len(values) / 2:
-                a += '1'
-                values = bin1
-            else:
-                a += '0'
-                values = bin0
-            if len(values) == 1 and len(values[0]) > 0:
-                a += values[0]
-                break
-            if len(values[0]) == 0:
-                break
+                    digits[-1] += '0'
+                    temp = bin0
 
-        values = old_values
-        b = ''
-        while True:
-            bin0, bin1 = [], []
-            count = 0
-            for cur in values:
-                if cur[0] == '1':
-                    bin1.append(cur[1:])
-                else:
-                    count += 1
-                    bin0.append(cur[1:])
+                if len(temp) == 1 and len(temp[0]) > 0:
+                    digits[-1] += temp[0]
+                    break
 
-            if count <= len(values) / 2:
-                b += '0'
-                values = bin0
-            else:
-                b += '1'
-                values = bin1
-
-            if len(values) == 1 and len(values[0]) > 0:
-                b += values[0]
-                break
-            if len(values[0]) == 0:
-                break
-        return int(a, 2) * int(b, 2)
-
-    return 0
+        return int(digits[0], 2) * int(digits[1], 2)
 
 def test(log):
     values = log.decode_values("""
@@ -94,7 +70,7 @@ def test(log):
     """)
 
     log.test(calc(log, values, 1), 198)
-    log.test(calc(log, values, 2), 'TODO')
+    log.test(calc(log, values, 2), 230)
 
 def run(log, values):
     log(calc(log, values, 1))
