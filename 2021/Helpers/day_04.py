@@ -9,7 +9,6 @@ def get_desc():
 def lines():
     for x in range(5):
         yield range(x, 25, 5)
-    for x in range(5):
         yield range(x * 5, x * 5 + 5)
 
 def calc(log, values, mode):
