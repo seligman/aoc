@@ -1,9 +1,16 @@
 #!/usr/bin/env python3
 
 import re
+from collections import defaultdict
 
 def get_desc():
     return 4, 'Day 4: Giant Squid'
+
+def lines():
+    for x in range(5):
+        yield range(x, 25, 5)
+    for x in range(5):
+        yield range(x * 5, x * 5 + 5)
 
 def calc(log, values, mode):
     values = values[:]
@@ -11,36 +18,29 @@ def calc(log, values, mode):
     values.pop(0)
 
     grids = []
-    numbers = {}
+    numbers = defaultdict(list)
     for i in range(0, len(values), 6):
         temp = values[i:i+5]
         if len(temp) == 5:
             grids.append([])
             for row in temp:
-                grids[-1] += [[int(y), False] for y in re.split(" +", row.strip())]
+                grids[-1] += [{'val': int(y), 'picked': False} for y in re.split(" +", row.strip())]
             for xy in range(25):
-                numbers[grids[-1][xy][0]] = numbers.get(grids[-1][xy][0], []) + [[grids[-1], xy]]
+                numbers[grids[-1][xy]['val']].append((grids[-1], xy))
 
     ret = 0
     for pick in drawn:
-        for cur in numbers[pick]:
-            cur[0][cur[1]][1] = True
+        for grid, xy in numbers[pick]:
+            grid[xy]['picked'] = True
 
         while True:
             won_i, won = None, None
             for i, grid in enumerate(grids):
-                if won is None:
-                    for x in range(5):
-                        if sum(grid[xy][1] for xy in range(x, 25, 5)) == 5:
-                            won_i, won = i, grid
-                            break
+                for line in lines():
+                    if sum(grid[xy]['picked'] for xy in line) == 5:
+                        won_i, won = i, grid
+                        break
                 
-                if won is None:
-                    for y in range(5):
-                        if sum(grid[xy][1] for xy in range(y * 5, y * 5 + 5)) == 5:
-                            won_i, won = i, grid
-                            break
-
             if won is None:
                 break
 
@@ -48,7 +48,7 @@ def calc(log, values, mode):
                 if mode == 2:
                     grids.pop(won_i)
 
-                ret = sum(z[0] for z in won if not z[1]) * pick
+                ret = sum(z['val'] for z in won if not z['picked']) * pick
                 if mode == 1:
                     return ret
 
@@ -63,9 +63,9 @@ def test(log):
          8  2 23  4 24
         21  9 14 16  7
          6 10  3 18  5
-        1 12 20 15 19
+         1 12 20 15 19
 
-        3 15  0  2 22
+         3 15  0  2 22
          9 18 13 17  5
         19  8  7 25 23
         20 11 10 24  4
