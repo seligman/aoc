@@ -33,24 +33,16 @@ def calc(log, values, mode):
         for grid, xy in numbers[pick]:
             grid[xy]['picked'] = True
 
-        while True:
-            won_i, won = None, None
-            for i, grid in enumerate(grids):
-                for line in lines():
-                    if sum(grid[xy]['picked'] for xy in line) == 5:
-                        won_i, won = i, grid
-                        break
-                
-            if won is None:
-                break
+        won = set()
+        for i, grid in enumerate(grids):
+            for line in lines():
+                if sum(grid[xy]['picked'] for xy in line) == 5:
+                    won.add(i)
+                    ret = sum(x['val'] for x in grid if not x['picked']) * pick
+                    if mode == 1:
+                        return ret
 
-            if won is not None:
-                if mode == 2:
-                    grids.pop(won_i)
-
-                ret = sum(z['val'] for z in won if not z['picked']) * pick
-                if mode == 1:
-                    return ret
+        grids = [x for i, x in enumerate(grids) if i not in won]
 
     return ret
 
