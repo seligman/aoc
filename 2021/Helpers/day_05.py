@@ -10,7 +10,7 @@ def calc(log, values, mode, draw=False):
     grid = Grid()
     r = re.compile("(\d+),(\d+) -> (\d+),(\d+)")
     frame = 0
-    for cur in values:
+    for cur in values[:25]:
         m = r.search(cur)
         if m:
             x1, y1, x2, y2 = int(m.group(1)), int(m.group(2)), int(m.group(3)), int(m.group(4))
@@ -62,32 +62,12 @@ def test(log):
 def other_draw(describe, values):
     if describe:
         return "Animate this"
-    import os
     from dummylog import DummyLog
-    for cur in os.listdir('.'):
-        if cur.startswith("frame_") and cur.endswith(".png"):
-            os.unlink(cur)
+    import animate
 
+    animate.prep()
     calc(DummyLog(), values, 2, draw=True)
-
-    import subprocess
-    import os
-    cmd = [
-        "ffmpeg", "-y",
-        "-hide_banner",
-        "-f", "image2",
-        "-framerate", "10", 
-        "-i", "frame_%05d.png", 
-        "-c:v", "libx264", 
-        "-profile:v", "main", 
-        "-pix_fmt", "yuv420p", 
-        "-vf", "pad=ceil(iw/2)*2:ceil(ih/2)*2",
-        "-an", 
-        "-movflags", "+faststart",
-        os.path.join("animations", "animation_%02d.mp4" % (get_desc()[0]),),
-    ]
-    print("$ " + " ".join(cmd))
-    subprocess.check_call(cmd)
+    animate.create_mp4(get_desc())
 
 
 def run(log, values):
