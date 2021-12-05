@@ -376,14 +376,14 @@ class Grid:
         log("That decodes to: " + ret)
             
     def dump_grid(self):
-        return "".join([self.grid[x] for x in sorted(self.grid)])
+        return "".join([str(self.grid[x]) for x in sorted(self.grid)])
 
     def show_grid(self, log, disp_map=DEFAULT_DISP_MAP, dump_all=False):
         for y in self.y_range():
             line = ""
             for x in self.x_range():
                 if dump_all:
-                    line += self.grid.get((x, y), self.default)
+                    line += str(self.grid.get((x, y), self.default))
                 else:
                     line += disp_map[self.grid.get((x, y), self.default)]
             log(line)
