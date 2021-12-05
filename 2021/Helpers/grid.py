@@ -504,8 +504,9 @@ class Grid:
             if re.search("frame_[0-9]{5}\\.png", cur):
                 os.unlink(cur)
 
-    def draw_frames(self, color_map=DEFAULT_COLOR_MAP, cell_size=(10, 10), repeat_final=0, font_size=10, extra_callback=None, show_lines=True):
+    def draw_frames(self, color_map=DEFAULT_COLOR_MAP, cell_size=(10, 10), repeat_final=0, font_size=10, extra_callback=None, show_lines=True, use_multiproc=True):
         from datetime import datetime, timedelta
+        import multiprocessing
 
         msg = datetime.utcnow()
         print("Creating animation...")
@@ -519,24 +520,46 @@ class Grid:
             if extra_text is not None:
                 max_rows = max(max_rows, len(extra_text))
 
-        i = 0
-        for grid, extra_text, extra in self.frames:
+        todo = []
+
+        for i, (grid, extra_text, extra) in enumerate(self.frames):
             i += 1
-            if datetime.utcnow() >= msg:
-                msg += timedelta(seconds=1)
-                print("Working, on frame %5d of %5d" % (i, len(self.frames)))
-            self.grid = grid
-            self.draw_grid(
-                color_map=color_map, 
-                cell_size=cell_size, 
-                extra_text=extra_text, 
-                extra_text_rows=max_rows, 
-                image_copies=1 + repeat_final if i == len(self.frames) else 1,
-                extra=extra,
-                extra_callback=extra_callback,
-                show_lines=show_lines,
-                font_size=font_size
-            )
+            todo.append({
+                "grid": grid,
+                "ranges": self._ranges,
+                "msg": "Working, on frame %5d of %5d" % (i, len(self.frames)),
+                "frame": i - 1,
+                "args": {
+                    "color_map": color_map, 
+                    "cell_size": cell_size, 
+                    "extra_text": extra_text, 
+                    "extra_text_rows": max_rows, 
+                    "image_copies": 1 + repeat_final if i == len(self.frames) else 1,
+                    "extra": extra,
+                    "extra_callback": extra_callback,
+                    "show_lines": show_lines,
+                    "font_size": font_size
+                }
+            })
+
+        if use_multiproc:
+            with multiprocessing.Pool() as pool:
+                left = len(todo)
+                for result in pool.imap_unordered(draw_frames_helper, todo):
+                    if datetime.utcnow() >= msg:
+                        while datetime.utcnow() >= msg:
+                            msg += timedelta(seconds=5)
+                        print(f"{result}, {left:5d} left")
+                    left -= 1
+        else:
+            for cur in todo:
+                if datetime.utcnow() >= msg:
+                    while datetime.utcnow() >= msg:
+                        msg += timedelta(seconds=5)
+                    print(cur["msg"])
+                self.grid = cur["grid"]
+                self._ranges = cur["ranges"]
+                self.draw_grid(**(cur["args"]))
 
         print("Done with drawing")
         self.grid = temp
@@ -658,3 +681,10 @@ class Grid:
             im.save("frame_%05d.png" % (self.frame,))
             self.frame += 1
 
+def draw_frames_helper(cur):
+    grid = Grid()
+    grid.grid = cur["grid"]
+    grid._ranges = cur["ranges"]
+    grid.frame = cur["frame"]
+    grid.draw_grid(**cur["args"])
+    return cur["msg"]

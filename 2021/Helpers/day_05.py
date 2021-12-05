@@ -10,7 +10,7 @@ def calc(log, values, mode, draw=False):
     grid = Grid()
     r = re.compile("(\d+),(\d+) -> (\d+),(\d+)")
     frame = 0
-    for cur in values[:25]:
+    for cur in values:
         m = r.search(cur)
         if m:
             x1, y1, x2, y2 = int(m.group(1)), int(m.group(2)), int(m.group(3)), int(m.group(4))
@@ -38,7 +38,7 @@ def calc(log, values, mode, draw=False):
         if cur not in colors:
             colors[cur] = (255, 128, 128)
 
-    grid.draw_frames(colors, show_lines=False, cell_size=(2, 2), font_size=50)
+    grid.draw_frames(color_map=colors, show_lines=False, cell_size=(2, 2), font_size=50)
 
     return len([x for x in grid.grid.values() if x > 1])
 
