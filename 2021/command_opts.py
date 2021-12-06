@@ -5,7 +5,27 @@ import sys
 import inspect
 import textwrap
 
-VERSION = 14
+VERSION = 16
+SAMPLE_CODE = """
+# --------------------------------------------------------------------------
+# This module is not meant to be run directly.  To use it, add code like
+# this to a script to have this module parse the command line directly
+# and call the function the user wants to invoke:
+# --------------------------------------------------------------------------
+
+#!/usr/bin/env python""" + str(sys.version_info.major) + """
+
+from command_opts import opt, main_entry
+
+@opt("Example function!")
+def example():
+    print("You passed 'example' on the command line!")
+
+if __name__ == "__main__":
+    main_entry('func')
+
+# --------------------------------------------------------------------------
+"""
 _g_options = []
 
 
@@ -347,7 +367,7 @@ def _show_item(options, menu_item, hide_colors=False):
         index = ""
     else:
         index = str(menu_item["index"]) + "]"
-        if menu_item["index"] == options["entry"]:
+        if _get_options(options, options["entry"]) == menu_item:
             chevron = True
             if not hide_colors:
                 sel_color = "\033[7m"
@@ -363,17 +383,24 @@ def _show_item(options, menu_item, hide_colors=False):
     ))
     
 
+def _get_options(options, value):
+    for menu_item in options["options"]:
+        if menu_item["index"] == value:
+            return menu_item
+    if len(value) > 0:
+        for menu_item in options["options"]:
+            if value.lower() in menu_item["desc"].lower():
+                return menu_item
+    return None
+
+
 def _update_picker(options, hide_colors=False):
     global _simple_mode
     if _simple_mode:
         return
 
-    last_entry_item, entry_item = None, None
-    for menu_item in options["options"]:
-        if menu_item["index"] == options["last_entry"]:
-            last_entry_item = menu_item
-        if menu_item["index"] == options["entry"]:
-            entry_item = menu_item
+    last_entry_item = _get_options(options, options["last_entry"])
+    entry_item = _get_options(options, options["entry"])
 
     if last_entry_item != entry_item or hide_colors:
         for menu_item in [last_entry_item, entry_item]:
@@ -491,20 +518,21 @@ def show_menu(options, force_valid=False, cols=1, rotate=False, check_width=Fals
         show_cursor()
         key = getkey()
         hide_cursor()
-        if len(key) > 1 or key in {"w", "s", "a", "d"}:
-            if key in {"up", "down", "left", "right", "w", "s", "a", "d"}:
-                if key in {"up", "w"}:
+        # print(options)
+        if len(key) > 1:
+            if key in {"up", "down", "left", "right"}:
+                if key in {"up"}:
                     dir_row, dir_col = -1, 0
-                elif key in {"down", "s"}:
+                elif key in {"down"}:
                     dir_row, dir_col = 1, 0
-                elif key in {"left", "a"}:
+                elif key in {"left"}:
                     dir_row, dir_col = 0, -1
-                elif key in {"right", "d"}:
+                elif key in {"right"}:
                     dir_row, dir_col = 0, 1
 
                 options["last_entry"] = options["entry"]
                 try:
-                    if options["entry"] not in by_index:
+                    if _get_index(by_index, options) is None:
                         row = max((-dir_row) * (options["rows"] - 1), 0)
                         col = max((-dir_col) * (options["cols"] - 1), 0)
 
@@ -518,7 +546,8 @@ def show_menu(options, force_valid=False, cols=1, rotate=False, check_width=Fals
                                 options["entry"] = "1"
                                 break
                     else:
-                        row, col = by_index[options["entry"]]["row"], by_index[options["entry"]]["col"]
+                        temp = _get_index(by_index, options)
+                        row, col = by_index[temp]["row"], by_index[temp]["col"]
                         while True:
                             row += dir_row
                             col += dir_col
@@ -544,7 +573,7 @@ def show_menu(options, force_valid=False, cols=1, rotate=False, check_width=Fals
                 finish = True
                 if force_valid:
                     finish = False
-                    if options["entry"] in by_index:
+                    if _get_index(by_index, options) is not None:
                         finish = True
 
                 if finish:
@@ -559,10 +588,20 @@ def show_menu(options, force_valid=False, cols=1, rotate=False, check_width=Fals
             _update_picker(options)
 
     show_cursor()
-    if options["entry"] in by_index:
-        return by_index[options["entry"]]["command"]
+    if _get_index(by_index, options) is not None:
+        return by_index[_get_index(by_index, options)]["command"]
     else:
         return None
+
+
+def _get_index(by_index, options):
+    if options["entry"] in by_index:
+        return options["entry"]
+    temp = _get_options(options, options["entry"])
+    if temp is not None:
+        if temp["index"] in by_index:
+            return temp["index"]
+    return None
 
 
 def main():
@@ -577,26 +616,7 @@ def main():
             if os.path.isfile(temp):
                 import_name = str(temp.parent.name) + "." + import_name
 
-    print(textwrap.dedent("""
-        # --------------------------------------------------------------------------
-        # This module is not meant to be run directly.  To use it, add code like
-        # this to a script to have this module parse the command line directly
-        # and call the function the user wants to invoke:
-        # --------------------------------------------------------------------------
-        
-        #!/usr/bin/env python""" + str(sys.version_info.major) + """
-
-        from """ + import_name + """ import opt, main_entry
-
-        @opt("Example function!")
-        def example():
-            print("You passed 'example' on the command line!")
-
-        if __name__ == "__main__":
-            main_entry('func')
-        
-        # --------------------------------------------------------------------------
-    """))
+    print(SAMPLE_CODE.replace("command_opts", import_name))
     sys.exit(1)
 
 
