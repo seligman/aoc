@@ -11,7 +11,20 @@ def calc(log, values, mode):
     for x in values:
         counts[x] += 1
 
-    for _ in range(80 if mode == 1 else 256):
+    toshow = [
+        65249347,       # AWS IPv4 addresses (as of 2021-12-05)
+        3702258432,     # All public non-reserved IPv4 addresses
+        340282366920938463463374607431768211456,    # All possible IPv6 addresses
+        2.4 * 10**67,   # Atoms in the galaxy
+        10 ** 78,       # Atoms in the universe
+    ]
+
+    days = {
+        1: 80,
+        2: 256,
+        3: 10000,
+    }
+    for day in range(days[mode]):
         temp = defaultdict(int)
         for key, value in counts.items():
             if key == 0:
@@ -20,8 +33,19 @@ def calc(log, values, mode):
             else:
                 temp[key - 1] += value
         counts = temp
+        if mode == 3:
+            if len(toshow) > 0:
+                if sum(counts.values()) > toshow[0]:
+                    log(f"Day #{day + 1}, {toshow[0]}")
+                    toshow.pop(0)
 
     return sum(counts.values())
+
+def other_howmuch(describe, values):
+    if describe:
+        return "Show how quickly things escape"
+    from dummylog import DummyLog
+    calc(DummyLog(), values, 3)
 
 def test(log):
     values = log.decode_values("""
