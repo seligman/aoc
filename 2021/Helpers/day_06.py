@@ -1,15 +1,12 @@
 #!/usr/bin/env python3
 
-from collections import defaultdict
+from collections import Counter, defaultdict
 
 def get_desc():
     return 6, 'Day 6: Lanternfish'
 
 def calc(log, values, mode):
-    values = [int(x) for x in values[0].split(",")]
-    counts = defaultdict(int)
-    for x in values:
-        counts[x] += 1
+    counts = Counter(int(x) for x in values[0].split(","))
 
     toshow = [
         65249347,       # AWS IPv4 addresses (as of 2021-12-05)
@@ -38,6 +35,8 @@ def calc(log, values, mode):
                 if sum(counts.values()) > toshow[0]:
                     log(f"Day #{day + 1}, {toshow[0]}")
                     toshow.pop(0)
+                    if len(toshow) == 0:
+                        break
 
     return sum(counts.values())
 
