@@ -17,7 +17,7 @@ a {
   text-decoration: none;
   color: #009900;
 }
-a:hover {
+a:hover, a:focus {
   color: #99ff99;
 }
 h1, h2 {
@@ -54,6 +54,10 @@ p.wrap {
   width: 45em;
 }
 
+.hidden-layout {
+  padding: 0 .5em;
+  border: 1px solid transparent;
+}
 .hidden {
   border: 1px dotted gray;
   overflow: hidden;
@@ -90,10 +94,13 @@ p.wrap {
   opacity: 1;
 }
 
+.star-count {
+  color: #ffff66;
+}
 .supporter-badge {
   color: #ffff66;
 }
-a.supporter-badge:hover {
+a.supporter-badge:hover, a.supporter-badge:focus {
   text-decoration: none;
   color: #ffffcc;
   text-shadow: 0 0 5px #ffff66;
@@ -101,7 +108,7 @@ a.supporter-badge:hover {
 .sponsor-badge {
   color: #79a2d8;
 }
-a.sponsor-badge:hover {
+a.sponsor-badge:hover, a.sponsor-badge:focus {
   text-decoration: none;
   color: #ccdbed;
   text-shadow: 0 0 5px #79a2d8;
@@ -111,6 +118,8 @@ a.sponsor-badge:hover {
   width: 200px;
   float: right;
   margin: 0 15px 2em 2em;
+  position: relative;
+  z-index: 10;
 }
 #sponsor {
   margin-bottom: 2.5em;
@@ -133,7 +142,7 @@ header h1 a, header h1 span {
   color: #00cc00;
   text-shadow: 0 0 2px #00cc00, 0 0 5px #00cc00;
 }
-header h1 a:hover {
+header h1 a:hover, header h1 a:focus {
   color: #99ff99;
   text-shadow: 0 0 2px #99ff99, 0 0 5px #99ff99;
 }
@@ -144,9 +153,6 @@ header h1.title-event .title-event-wrap {
 header .user {
   display: inline-block;
   padding-left: 1em;
-}
-header .user .star-count {
-  color: #ffff66;
 }
 header nav {
   display: inline-block;
@@ -195,7 +201,7 @@ input[type="radio"] ~ span {
 input[type="radio"] ~ span:before {
   content: "( ) ";
 }
-input[type="radio"] ~ span:hover {
+input[type="radio"] ~ span:hover, input[type="radio"] ~ span:focus {
   background-color: #19193b;
 }
 input[type="radio"]:checked ~ span {
@@ -212,7 +218,7 @@ input[type="checkbox"] ~ span {
 input[type="checkbox"] ~ span:before {
   content: "[ ] ";
 }
-input[type="checkbox"] ~ span:hover {
+input[type="checkbox"] ~ span:hover, input[type="checkbox"] ~ span:focus {
   background-color: #19193b;
 }
 input[type="checkbox"]:checked ~ span {
@@ -243,7 +249,7 @@ input[type="submit"] {
   color: #009900;
   cursor: pointer;
 }
-input[type="submit"]:hover {
+input[type="submit"]:hover, input[type="submit"]:focus {
   color: #99ff99;
 }
 *::-moz-focus-inner {
@@ -316,7 +322,7 @@ form#settings input[type="checkbox"] ~ span {
   transition: color .2s 1s;
   /*position: relative;*/
 }
-.share:hover {
+.share:hover, .share:focus-within {
   color: #aaffaa;
   transition: color .2s 0s;
 }
@@ -335,7 +341,7 @@ form#settings input[type="checkbox"] ~ span {
 .share .share-content:after {
   /*content: "]";*/
 }
-.share:hover .share-content {
+.share:hover .share-content, .share:focus-within .share-content {
   max-width: 45em;
   transition: max-width .2s 0s;
 }
@@ -364,13 +370,14 @@ form#settings input[type="checkbox"] ~ span {
   outline: none;
   cursor: default;
 }
-.calendar a:hover {
+.calendar a:hover, .calendar a:focus {
   background-color: #1e1e46;
   background-color: rgba(119,119,165,.2);
   cursor: pointer;
 }
 #calendar-countdown {
   padding-left: .5em;
+  color: #cccccc;
 }
 .calendar .calendar-day { color: #666666; }
 .calendar a .calendar-day { color: #cccccc; }
@@ -393,6 +400,10 @@ form#settings input[type="checkbox"] ~ span {
   100% { color: #cccccc; text-shadow: 0 0 5px transparent; }
 }
 
+.eventlist-event {
+  white-space: pre;
+}
+
 .stats > span, .stats > span .stats-firstonly, .stats > span .stats-both {
   color: #666666;
 }
@@ -401,11 +412,11 @@ form#settings input[type="checkbox"] ~ span {
   min-width: 35em;
   display: inline-block;
 }
-.stats > a:hover {
+.stats > a:hover, .stats > a:focus {
   background-color: #1e1e46;
 }
 .stats-firstonly {
-  color: #666699;
+  color: #9999cc;
 }
 .stats-both {
   color: #ffff66;
@@ -419,7 +430,7 @@ form#settings input[type="checkbox"] ~ span {
   text-shadow: 0 0 5px #ffffff;
 }
 .leaderboard-daydesc-first {
-  color: #666699;
+  color: #9999cc;
 }
 .leaderboard-daydesc-both {
   color: #ffff66;
@@ -454,9 +465,6 @@ form#settings input[type="checkbox"] ~ span {
 .privboard-row {
   white-space: pre;
 }
-.privboard-row .star-count {
-  color: #ffff66;
-}
 .privboard-name {
   vertical-align: text-bottom;
 }
@@ -464,7 +472,7 @@ form#settings input[type="checkbox"] ~ span {
 .privboard-days > a       { display: inline-block; }
 .privboard-star-locked    { visibility: hidden; }
 .privboard-star-unlocked  { color: #333333; }
-.privboard-star-firstonly { color: #666699; }
+.privboard-star-firstonly { color: #9999cc; }
 .privboard-star-both      { color: #ffff66; }
 .privboard-delbtn { opacity:.33; }
 .privboard-row:hover .privboard-delbtn { opacity:1; }
