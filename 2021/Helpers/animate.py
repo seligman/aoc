@@ -8,12 +8,12 @@ def prep():
         if cur.startswith("frame_") and cur.endswith(".png"):
             os.unlink(cur)
 
-def create_mp4(desc, extra="", keep_files=False):
+def create_mp4(desc, extra="", keep_files=False, rate=10):
     cmd = [
         "ffmpeg", "-y",
         "-hide_banner",
         "-f", "image2",
-        "-framerate", "10", 
+        "-framerate", str(rate), 
         "-i", "frame_%05d.png", 
         "-c:v", "libx264", 
         "-profile:v", "main", 
