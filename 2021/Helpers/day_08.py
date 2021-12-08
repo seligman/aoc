@@ -4,54 +4,41 @@ def get_desc():
     return 8, 'Day 8: Seven Segment Search'
 
 def calc(log, values, mode):
-    if mode == 1:
-        hits = 0
-        for cur in values:
-            unique, output = [x.strip().split() for x in cur.split("|")]
-            for test in output:
-                if len(test) in {2, 3, 4, 7}:
-                    hits += 1
-                # test = "".join(sorted(x for x in test))
-                # print(test)
-                # hits[digits.get(test, -1)] += 1
-        
-        return hits
-    else:
-        ret = 0
-        for cur in values:
-            unique, output = [x.strip().split() for x in cur.split("|")]
-            unique = [set(x) for x in unique]
-            # print(unique)
-            zunique, output = [[set(x) for x in part.split()] for part in cur.split(' | ')]
-            # print(unique)
-
+    ret = 0
+    for cur in values:
+        unique, output = [x.strip().split() for x in cur.split("|")]
+        unique = [set(x) for x in unique]
+        if mode == 1:
+            ret += len([x for x in output if len(x) in {2, 3, 4, 7}])
+        else:
             digits = {}
-            digits[1] = [x for x in unique if len(x) == 2][0]
-            unique.remove(digits[1])
-            digits[7] = [x for x in unique if len(x) == 3][0]
-            unique.remove(digits[7])
-            digits[4] = [x for x in unique if len(x) == 4][0]
-            unique.remove(digits[4])
-            digits[8] = [x for x in unique if len(x) == 7][0]
-            unique.remove(digits[8])
-            digits[9] = [x for x in unique if len(x ^ (digits[7] | digits[4])) == 1][0]
-            unique.remove(digits[9])
-            digits[0] = [x for x in unique if digits[1] < x and len(x) == 6][0]
-            unique.remove(digits[0])
-            digits[6] = [x for x in unique if len(x) == 6][0]
-            unique.remove(digits[6])
-            digits[3] = [x for x in unique if digits[1] < x and len(x) == 5][0]
-            unique.remove(digits[3])
-            digits[5] = [x for x in unique if len(digits[9] - x) == 1][0]
-            unique.remove(digits[5])
-            digits[2] = unique[0]
+            def find_digit(number, test):
+                temp = [x for x in unique if test(x)]
+                if len(temp) != 1:
+                    raise Exception(f"Too many digits for {number}")
+                unique.remove(temp[0])
+                digits[number] = temp[0]
+
+            find_digit(1, lambda x: len(x) == 2)
+            find_digit(7, lambda x: len(x) == 3)
+            find_digit(4, lambda x: len(x) == 4)
+            find_digit(8, lambda x: len(x) == 7)
+            find_digit(9, lambda x: len(x ^ (digits[7] | digits[4])) == 1)
+            find_digit(0, lambda x: digits[1] < x and len(x) == 6)
+            find_digit(6, lambda x: len(x) == 6)
+            find_digit(3, lambda x: digits[1] < x and len(x) == 5)
+            find_digit(5, lambda x: len(digits[9] - x) == 1)
+            find_digit(2, lambda x: x)
 
             digits = {"".join(sorted(y)): str(x) for x, y in digits.items()}
             ret += int("".join(digits["".join(sorted(x))] for x in output))
+    return ret
 
-        return ret
 
 def test(log):
+    values_simple = log.decode_values("""
+        acedgfb cdfbe gcdfa fbcad dab cefabd cdfgeb eafb cagedb ab | cdfeb fcadb cdfeb cdbaf
+    """)
     values = log.decode_values("""
         be cfbegad cbdgef fgaecd cgeb fdcge agebfd fecdb fabcd edb | fdgacbe cefdb cefbgd gcbe
         edbfga begcd cbg gc gcadebf fbgde acbgfd abcde gfcbed gfec | fcgedb cgb dgebacf gc
@@ -65,7 +52,9 @@ def test(log):
         gcafb gcf dcaebfg ecagb gf abcdeg gaef cafbge fdbac fegbdc | fgae cfgab fg bagce
     """)
 
+    log.test(calc(log, values_simple, 1), 0)
     log.test(calc(log, values, 1), 26)
+    log.test(calc(log, values_simple, 2), 5353)
     log.test(calc(log, values, 2), 61229)
 
 def run(log, values):
