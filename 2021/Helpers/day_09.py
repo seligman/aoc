@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 
+from collections import deque
+
 def get_desc():
     return 9, 'Day 9: Smoke Basin'
 
@@ -21,8 +23,8 @@ def calc(log, values, mode, draw=False):
         '7': (250, 157, 58),
         '8': (252, 199, 38),
         '9': (239, 248, 33),
-        'w': (255, 192, 192),
-        'd': (64, 64, 64),
+        'working': (255, 192, 192),
+        'done': (64, 64, 64),
     }
     for x in grid.x_range():
         for y in grid.y_range():
@@ -47,17 +49,17 @@ def calc(log, values, mode, draw=False):
             random.seed(42)
             random.shuffle(points)
         for sx, sy in points:
-            to_check = [(sx, sy)]
+            to_check = deque([(sx, sy)])
             seen = set([(sx, sy)])
             in_basin = set([(sx, sy)])
             to_undo = []
             sizes_full.append([(sx, sy)])
             if draw:
-                grid_draw[sx, sy] = 'w'
+                grid_draw[sx, sy] = 'working'
                 to_undo.append((sx, sy))
                 grid_draw.save_frame()
             while len(to_check) > 0:
-                x, y = to_check.pop(0)
+                x, y = to_check.pop()
                 for ox, oy in grid.neighbors(x, y, valid_only=True):
                     if (ox, oy) not in seen:
                         seen.add((ox, oy))
@@ -65,7 +67,7 @@ def calc(log, values, mode, draw=False):
                             in_basin.add((ox, oy))
                             to_check.append((ox, oy))
                             if draw:
-                                grid_draw[ox, oy] = 'w'
+                                grid_draw[ox, oy] = 'working'
                                 to_undo.append((ox, oy))
                                 sizes_full[-1].append((ox, oy))
                                 if len(to_undo) % 20 == 0:
@@ -73,7 +75,7 @@ def calc(log, values, mode, draw=False):
             if draw:
                 grid_draw.save_frame()
                 for cur in to_undo:
-                    grid_draw[cur] = 'd'
+                    grid_draw[cur] = 'done'
                 grid_draw.save_frame()
             sizes.append(len(in_basin))
         sizes.sort()
@@ -84,7 +86,7 @@ def calc(log, values, mode, draw=False):
         sizes_full = sizes_full[:3]
         for basin in sizes_full:
             for i, temp in enumerate(basin):
-                grid_draw[temp] = 'w'
+                grid_draw[temp] = 'working'
                 if i % 5 == 0:
                     grid_draw.save_frame()
             grid_draw.save_frame()
