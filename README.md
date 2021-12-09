@@ -35,4 +35,6 @@ Two extra classes are common to the helpers, though they get expanded and modifi
 
 * `Program`: implemented in `program.py` is a compiler/runner for the "int code" type puzzles.  It supports some basic debugging, and the ability to save state for cases where it's helpful to roll back the state machine. 
 
+* Animation: implemented in `animation.py` is some helper methods useful when drawing animation in code, and some methods to setup the state and turn a bunch of .png files into a .mp4 using ffmpeg.  It can be used with the `Grid` class to draw several states of a grid, and animate the final result.  It can also be used on its own to animate bespoke drawings.
+
 Also, I have a [simple ticker here](https://seligman.github.io/aoc_ticker.html) that counts down to a few minutes before another puzzle is unlocked.
