@@ -4,6 +4,16 @@ import os
 import subprocess
 import math
 
+def show_colors(count):
+    count = int(count)
+    import matplotlib.pyplot as plt
+    x = plt.get_cmap("plasma").colors
+    print("colors = {")
+    for i in range(count):
+        cur = x[int(i / (count - 1) * (len(x) - 1))]
+        print(f"    '{i}': ({int(cur[0] * 255)}, {int(cur[1] * 255)}, {int(cur[2] * 255)}),")
+    print("}")
+
 def prep():
     for cur in os.listdir('.'):
         if cur.startswith("frame_") and cur.endswith(".png"):
@@ -44,3 +54,23 @@ def create_mp4(desc, extra="", keep_files=False, rate=10):
 
     if not keep_files:
         prep()
+
+def main():
+    import sys
+    cmds = [
+        ("colors", " <num>", "Dump out colors from heat map", 1, show_colors),
+    ]
+    show_help = True
+    for cmd, _args_desc, _desc, args, func in cmds:
+        if len(sys.argv) == 2 + args and sys.argv[1].lower().replace("-", "_") == cmd:
+            show_help = False
+            func(*sys.argv[2:2+args])
+
+    if show_help:
+        print("Usage:")
+        max_len = max(len(x[0] + x[1]) for x in cmds)
+        for cmd, args_desc, desc, _args, _func in cmds:
+            print(f"  {cmd}{args_desc}{' '*(max_len - len(cmd + args_desc))} - {desc}")
+
+if __name__ == "__main__":
+    main()

@@ -496,6 +496,17 @@ class Grid:
             temp[key] = value
         self.frames.append((temp, extra_text, extra))
 
+    def neighbors(self, x, y, diagonals=False, valid_only=False):
+        if diagonals:
+            offsets = ((-1, -1), (-1, 0), (-1, 1), (0, -1), (0, 1), (1, -1), (1, 0), (1, 1))
+        else:
+            offsets = ((0, -1), (1, 0), (0, 1), (-1, 0))
+        for ox, oy in offsets:
+            ox = ox + x
+            oy = oy + y
+            if not valid_only or (ox, oy) in self.grid:
+                yield ox, oy
+
     @staticmethod
     def clear_frames():
         import os

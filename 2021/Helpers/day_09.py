@@ -3,15 +3,7 @@
 def get_desc():
     return 9, 'Day 9: Smoke Basin'
 
-def get_color_map():
-    import matplotlib.pyplot as plt
-    x = plt.get_cmap("plasma").colors
-    for i in range(10):
-        cur = x[int(i / 9 * (len(x) - 1))]
-        print(f"'{i}': ({int(cur[0] * 255)}, {int(cur[1] * 255)}, {int(cur[2] * 255)}),")
-
-
-def calc(log, values, mode, draw=True):
+def calc(log, values, mode, draw=False):
     from grid import Grid
     grid = Grid.from_text(values)
     grid_draw = Grid.from_text(values)
@@ -35,14 +27,11 @@ def calc(log, values, mode, draw=True):
     for x in grid.x_range():
         for y in grid.y_range():
             cur = grid[x, y]
-            for ox, oy in ((-1, 0), (1, 0), (0, -1), (0, 1)):
-                ox = x + ox
-                oy = y + oy
-                if ox >= 0 and ox <= grid.axis_max(0) and oy >= 0 and oy <= grid.axis_max(1):
-                    temp = grid[ox, oy]
-                    if temp <= cur:
-                        cur = None
-                        break
+            for ox, oy in grid.neighbors(x, y, valid_only=True):
+                temp = grid[ox, oy]
+                if temp <= cur:
+                    cur = None
+                    break
             if cur is not None:
                 points.append((x, y))
                 ret += 1 + int(cur)
@@ -69,21 +58,18 @@ def calc(log, values, mode, draw=True):
                 grid_draw.save_frame()
             while len(to_check) > 0:
                 x, y = to_check.pop(0)
-                for ox, oy in ((-1, 0), (1, 0), (0, -1), (0, 1)):
-                    ox = x + ox
-                    oy = y + oy
-                    if ox >= 0 and ox <= grid.axis_max(0) and oy >= 0 and oy <= grid.axis_max(1):
-                        if (ox, oy) not in seen:
-                            seen.add((ox, oy))
-                            if grid[ox, oy] != '9':
-                                in_basin.add((ox, oy))
-                                to_check.append((ox, oy))
-                                if draw:
-                                    grid_draw[ox, oy] = 'w'
-                                    to_undo.append((ox, oy))
-                                    sizes_full[-1].append((ox, oy))
-                                    if len(to_undo) % 20 == 0:
-                                        grid_draw.save_frame()
+                for ox, oy in grid.neighbors(x, y, valid_only=True):
+                    if (ox, oy) not in seen:
+                        seen.add((ox, oy))
+                        if grid[ox, oy] != '9':
+                            in_basin.add((ox, oy))
+                            to_check.append((ox, oy))
+                            if draw:
+                                grid_draw[ox, oy] = 'w'
+                                to_undo.append((ox, oy))
+                                sizes_full[-1].append((ox, oy))
+                                if len(to_undo) % 20 == 0:
+                                    grid_draw.save_frame()
             if draw:
                 grid_draw.save_frame()
                 for cur in to_undo:
