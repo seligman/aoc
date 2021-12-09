@@ -34,16 +34,8 @@ def calc(log, values, mode):
             ret += int("".join(digits["".join(sorted(x))] for x in output))
     return ret
 
-def rotate(origin, point, angle):
-    import math
-    angle = math.radians(angle)
-    ox, oy = origin
-    px, py = point
-    qx = ox + math.cos(angle) * (px - ox) - math.sin(angle) * (py - oy)
-    qy = oy + math.sin(angle) * (px - ox) + math.cos(angle) * (py - oy)
-    return qx, qy
-
 def get_segment(origin, angle, size):
+    from animate import rotate
     return [
         rotate(origin, (origin[0] + -(size*2.5), origin[1] + 0), angle),
         rotate(origin, (origin[0] + -(size*1.5), origin[1] + -size), angle),
@@ -52,14 +44,6 @@ def get_segment(origin, angle, size):
         rotate(origin, (origin[0] + (size*1.5), origin[1] + size), angle),
         rotate(origin, (origin[0] + -(size*1.5), origin[1] + size), angle),
     ]
-
-def ease(value):
-    import math
-    value = max(0, min(1, value))
-    if value < 0.5:
-        return 4 * (value ** 3)
-    else:
-        return 1 - math.pow(-2 * value + 2, 3) / 2
 
 def other_draw(describe, values):
     if describe:
@@ -71,6 +55,7 @@ def other_draw(describe, values):
 
 
 def draw_segment(data, dr, pt, on, step):
+    from animate import ease
     pos_valid = [
         (pt[0], pt[1] - 100, 0),
         (pt[0] - 50, pt[1] - 50, 90),

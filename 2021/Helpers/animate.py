@@ -2,11 +2,27 @@
 
 import os
 import subprocess
+import math
 
 def prep():
     for cur in os.listdir('.'):
         if cur.startswith("frame_") and cur.endswith(".png"):
             os.unlink(cur)
+
+def ease(value):
+    value = max(0, min(1, value))
+    if value < 0.5:
+        return 4 * (value ** 3)
+    else:
+        return 1 - math.pow(-2 * value + 2, 3) / 2
+
+def rotate(origin, point, angle):
+    angle = math.radians(angle)
+    ox, oy = origin
+    px, py = point
+    qx = ox + math.cos(angle) * (px - ox) - math.sin(angle) * (py - oy)
+    qy = oy + math.sin(angle) * (px - ox) + math.cos(angle) * (py - oy)
+    return qx, qy
 
 def create_mp4(desc, extra="", keep_files=False, rate=10):
     cmd = [
