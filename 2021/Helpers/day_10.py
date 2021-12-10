@@ -4,8 +4,9 @@ def get_desc():
     return 10, 'Day 10: Syntax Scoring'
 
 def calc(log, values, mode):
-    closes = {']': '[', '>': '<', '}': '{', ')': '('}
-    opens = {y:x for x,y in closes.items()}
+    brackets = "()[]{}<>"
+    opens = {brackets[x]:brackets[x+1] for x in range(0, len(brackets), 2)}
+    closes = {y:x for x,y in opens.items()}
 
     score_bad = {
         ')': 3,
@@ -39,17 +40,15 @@ def calc(log, values, mode):
                         ret += score_bad[x]
                     is_bad = True
                     break
-        if not is_bad:
-            if mode == 2:
-                cur = 0
-                while len(stack) > 0:
-                    cur = cur * 5 + score_good[opens[stack[-1]]]
-                    stack.pop(-1)
-                good_scores.append(cur)
+        if not is_bad and mode == 2:
+            cur = 0
+            for x in stack[::-1]:
+                cur = cur * 5 + score_good[opens[x]]
+            good_scores.append(cur)
 
     if mode == 2:
         good_scores.sort()
-        ret = good_scores[(len(good_scores) - 1) // 2]
+        return good_scores[(len(good_scores) - 1) // 2]
 
     return ret
 
