@@ -30,15 +30,17 @@ def calc(log, values, mode, draw=False):
                     print(f"Saving frame {frame}")
                 frame += 1
                 grid.save_frame(extra_text=[f"{x} overlap points"])
-    colors = {
-        0: (0, 0, 0),
-        1: (128, 128, 128),
-    }
-    for cur in set(grid.grid.values()):
-        if cur not in colors:
-            colors[cur] = (255, 128, 128)
 
-    grid.draw_frames(color_map=colors, show_lines=False, cell_size=(2, 2), font_size=50)
+    if draw:
+        colors = {
+            0: (0, 0, 0),
+            1: (128, 128, 128),
+        }
+        for cur in set(grid.grid.values()):
+            if cur not in colors:
+                colors[cur] = (255, 128, 128)
+
+        grid.draw_frames(color_map=colors, show_lines=False, cell_size=(2, 2), font_size=50)
 
     return len([x for x in grid.grid.values() if x > 1])
 
