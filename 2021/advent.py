@@ -269,7 +269,11 @@ def make_day(target_day="cur"):
 @opt("Make new day, after sleeping till midnight")
 def make_day_wait(target_day="cur"):
     import sleeper
-    if sleeper.sleep("5:00:10u", exit_at_end=False):
+    import random
+    resp = get_page("https://adventofcode.com/%s" % (YEAR_NUMBER,))
+    m = re.search("var server_eta *= *(?P<eta>\d+);", resp)
+    eta = int(m.group("eta")) + random.randint(5, 10)
+    if sleeper.sleep(str(eta), exit_at_end=False):
         make_day_helper(False, force_day=target_day)
 
 
