@@ -5,12 +5,26 @@ from collections import deque
 def get_desc():
     return 11, 'Day 11: Dumbo Octopus'
 
-def calc(log, values, mode):
+def calc(log, values, mode, draw=False):
     from grid import Grid
     grid = Grid.from_text(values)
     total = len(grid.grid.keys())
     for key in grid.grid.keys():
         grid[key] = int(grid[key])
+
+    colors = {
+        '0': (12, 7, 134),
+        '1': (69, 3, 158),
+        '2': (114, 0, 168),
+        '3': (155, 23, 158),
+        '4': (188, 54, 133),
+        '5': (215, 86, 108),
+        '6': (236, 120, 83),
+        '7': (250, 157, 58),
+        '8': (252, 199, 38),
+        '9': (239, 248, 33),
+        '10': (255, 255, 255),
+    }
 
     ret = 0
     step = 0
@@ -38,15 +52,43 @@ def calc(log, values, mode):
             if len(flashed) == total:
                 return step
 
+        ret += len(flashed)
+
+        if draw:
+            for key, value in grid.grid.items():
+                grid[key] = str(min(10, value))
+            grid.save_frame(extra_text=[f"Step {step}", f"Flashed: {ret}"])
+            for key, value in grid.grid.items():
+                grid[key] = int(value)
+
         for x, y in flashed:
             grid[x, y] = 0
 
-        ret += len(flashed)
+        if draw:
+            for key, value in grid.grid.items():
+                grid[key] = str(min(10, value))
+            grid.save_frame(extra_text=[f"Step {step}", f"Flashed: {ret}"])
+            for key, value in grid.grid.items():
+                grid[key] = int(value)
+
         if mode == 1:
             if step == 100:
                 break
 
+    if draw:
+        grid.draw_frames(color_map=colors, cell_size=(15, 15))
+
     return ret
+
+def other_draw(describe, values):
+    if describe:
+        return "Animate this"
+    from dummylog import DummyLog
+    import animate
+
+    animate.prep()
+    calc(DummyLog(), values, 1, draw=True)
+    animate.create_mp4(get_desc(), rate=10)
 
 def test(log):
     values = log.decode_values("""
