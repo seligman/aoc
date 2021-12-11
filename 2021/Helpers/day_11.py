@@ -6,7 +6,6 @@ def get_desc():
     return 11, 'Day 11: Dumbo Octopus'
 
 def calc(log, values, mode):
-    # TODO: Delete or use these
     from grid import Grid
     grid = Grid.from_text(values)
     total = len(grid.grid.keys())
