@@ -496,7 +496,11 @@ class Grid:
             temp[key] = value
         self.frames.append((temp, extra_text, extra))
 
-    def neighbors(self, x, y, diagonals=False, valid_only=False):
+    def neighbors(self, *args, diagonals=False, valid_only=False):
+        if isinstance(args[0], tuple):
+            x, y = args[0]
+        else:
+            x, y = args
         if diagonals:
             offsets = ((-1, -1), (-1, 0), (-1, 1), (0, -1), (0, 1), (1, -1), (1, 0), (1, 1))
         else:

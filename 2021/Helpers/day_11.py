@@ -30,23 +30,14 @@ def calc(log, values, mode, draw=False):
     step = 0
     while True:
         step += 1
-        to_flash = deque()
+        to_flash = deque(grid.grid)
         flashed = set()
-        for xy, value in grid.grid.items():
-            value += 1
-            grid[xy] = value
-            if value > 9:
-                to_flash.append(xy)
+        while len(to_flash):
+            xy = to_flash.pop()
+            grid[xy] += 1
+            if grid[xy] > 9 and xy not in flashed:
                 flashed.add(xy)
-
-        while len(to_flash) > 0:
-            x, y = to_flash.pop()
-            for ox, oy in grid.neighbors(x, y, diagonals=True, valid_only=True):
-                grid[ox, oy] += 1
-                if grid[ox, oy] > 9:
-                    if (ox, oy) not in flashed:
-                        to_flash.append((ox, oy))
-                        flashed.add((ox, oy))
+                to_flash.extend(x for x in grid.neighbors(xy, diagonals=True, valid_only=True))
         
         if mode == 2:
             if len(flashed) == total:
@@ -55,21 +46,21 @@ def calc(log, values, mode, draw=False):
         ret += len(flashed)
 
         if draw:
-            for key, value in grid.grid.items():
-                grid[key] = str(min(10, value))
+            for xy, value in grid.grid.items():
+                grid[xy] = str(min(10, value))
             grid.save_frame(extra_text=[f"Step {step}", f"Flashed: {ret}"])
-            for key, value in grid.grid.items():
-                grid[key] = int(value)
+            for xy, value in grid.grid.items():
+                grid[xy] = int(value)
 
-        for x, y in flashed:
-            grid[x, y] = 0
+        for xy in flashed:
+            grid[xy] = 0
 
         if draw:
-            for key, value in grid.grid.items():
-                grid[key] = str(min(10, value))
+            for xy, value in grid.grid.items():
+                grid[xy] = str(min(10, value))
             grid.save_frame(extra_text=[f"Step {step}", f"Flashed: {ret}"])
-            for key, value in grid.grid.items():
-                grid[key] = int(value)
+            for xy, value in grid.grid.items():
+                grid[xy] = int(value)
 
         if mode == 1:
             if step == 100:
