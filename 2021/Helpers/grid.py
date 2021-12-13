@@ -26,6 +26,8 @@ DEFAULT_DISP_MAP = {
     '#': BLOCK,
     1: BLOCK,
 }
+
+
 DECODE_GLYPHS = {
     422148690: "A",
     959335004: "B",
@@ -46,6 +48,94 @@ DECODE_GLYPHS = {
     1008869918: "Z",
     0: " "
 }
+
+def encode_grid(value, log=print):
+    if log is None:
+        log = lambda x: None
+    reversed = {y: x for x, y in DECODE_GLYPHS.items()}
+    code = 1
+    ret = []
+    for y in range(1,7):
+        line = ""
+        for cur in value:
+            for x in range(5):
+                code = 2 ** (((4-x) + (6-y) * 5) + 1)
+                if (reversed.get(cur, 0) & code) > 0:
+                    line += "#"
+                else:
+                    line += " "
+        line = line[1:] + " "
+        log('"' + line + '",')
+        ret.append(line)
+    return ret
+
+def decode_grid(x_min, x_max, y_min, y_max, get_cell, log=print):
+    if log is None:
+        log = lambda x: None
+    spaces = {" ", ".", 0}
+    start_x = x_min
+    while start_x <= x_max:
+        end = False
+        for y in range(y_min, y_max + 1):
+            if get_cell(start_x, y) not in spaces:
+                end = True
+                break
+        if end:
+            break
+        else:
+            start_x += 1
+
+    start_y = y_min
+    while start_y <= y_max:
+        end = False
+        for x in range(x_min, x_max + 1):
+            if get_cell(x, start_y) not in spaces:
+                end = True
+                break
+        if end:
+            break
+        else:
+            start_y += 1
+
+    ret = ""
+
+    for off_y in range(y_min, y_max + 1, 7):
+        if len(ret) > 0:
+            ret += "/"
+        for off_x in range(start_x, x_max + 1, 5):
+            disp = []
+            code = 0
+            for y in range(6):
+                disp.append("")
+                for x in range(5):
+                    disp[-1] += " " if get_cell(x + off_x, y + off_y) in spaces else "#"
+                    code *= 2
+                    code += 0 if get_cell(x + off_x, y + off_y) in spaces else 1
+            if code in DECODE_GLYPHS:
+                ret += DECODE_GLYPHS[code]
+            else:
+                ret += "?"
+                for cur in disp:
+                    log("Unknown Glyph: " + cur)
+                log("Code: " + str(code))
+
+    log("That decodes to: " + ret)
+    return ret
+
+def decode_example_function():
+    # This turns some letters into a grid of strings:
+    encode_grid("HELLO")
+
+    # And this does the reverse:
+    grid = [
+        "#  # #### #    #     ##  ",
+        "#  # #    #    #    #  # ",
+        "#### ###  #    #    #  # ",
+        "#  # #    #    #    #  # ",
+        "#  # #    #    #    #  # ",
+        "#  # #### #### ####  ##  ",
+    ]
+    decode_grid(0, len(grid[0]) - 1, 0, len(grid) - 1, lambda x, y: grid[y][x])
 
 class Grid:
     def __init__(self, default=0):
@@ -326,55 +416,14 @@ class Grid:
         return coords in self.grid
 
     def decode_grid(self, log):
-        spaces = {" ", ".", 0}
-        start_x = self.axis_min(0)
-        while start_x <= self.axis_max(0):
-            end = False
-            for y in self.y_range():
-                if self.get(start_x, y) not in spaces:
-                    end = True
-                    break
-            if end:
-                break
-            else:
-                start_x += 1
-
-        start_y = self.axis_min(1)
-        while start_y <= self.axis_max(1):
-            end = False
-            for x in self.x_range():
-                if self.get(x, start_y) not in spaces:
-                    end = True
-                    break
-            if end:
-                break
-            else:
-                start_y += 1
-
-        ret = ""
-
-        for off_y in range(start_y, self.axis_max(1) + 1, 7):
-            if len(ret) > 0:
-                ret += "/"
-            for off_x in range(start_x, self.axis_max(0) + 1, 5):
-                disp = []
-                code = 0
-                for y in range(6):
-                    disp.append("")
-                    for x in range(5):
-                        disp[-1] += " " if self.get(x + off_x, y + off_y) in spaces else "#"
-                        code *= 2
-                        code += 0 if self.get(x + off_x, y + off_y) in spaces else 1
-                if code in DECODE_GLYPHS:
-                    ret += DECODE_GLYPHS[code]
-                else:
-                    ret += "?"
-                    for cur in disp:
-                        log("Unknown Glyph: " + cur)
-                    log("Code: " + str(code))
-
-        log("That decodes to: " + ret)
-        return ret
+        return decode_grid(
+            self.axis_min(0),
+            self.axis_max(0),
+            self.axis_min(1),
+            self.axis_max(1),
+            lambda x, y: self[x, y],
+            log=log
+        )
             
     def dump_grid(self):
         return "".join([str(self.grid[x]) for x in sorted(self.grid)])
@@ -424,23 +473,6 @@ class Grid:
 
     def draw_grid_hex(self, image_copies=1, hex_size=10, color_map=DEFAULT_COLOR_MAP, size=None, background_color=BACKGROUND_COLOR, outline=BACKGROUND_COLOR, show_all=False, scale=1.0):
         from PIL import Image, ImageDraw
-
-        # hex_size = 1 / 0.75
-        # center_x = (math.sqrt(3) * hex_size) / 4
-        # center_y = hex_size / 2
-        # hex = (
-        #     (center_x, center_y + (hex_size / 2)),
-        #     (center_x + (math.sqrt(3) * hex_size) / 4, center_y + hex_size / 4),
-        #     (center_x + (math.sqrt(3) * hex_size) / 4, center_y - hex_size / 4),
-        #     (center_x, center_y - (hex_size / 2)),
-        #     (center_x - (math.sqrt(3) * hex_size) / 4, center_y - hex_size / 4),
-        #     (center_x - (math.sqrt(3) * hex_size) / 4, center_y + hex_size / 4),
-        # )
-        # print("hex = (")
-        # for x, y in hex:
-        #     print(f"    ({x:-19.16f}, {y:-19.16f}),")
-        # print(")")
-        # print(f"hex_width = {hex[1][0] - hex[4][0]:.16f}")
 
         hex = (
             ( 0.5773502691896257,  1.3333333333333333),
