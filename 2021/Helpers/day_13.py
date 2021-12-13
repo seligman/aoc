@@ -10,28 +10,25 @@ def calc(log, values, mode):
         if "," in cur:
             cur = tuple(int(x) for x in cur.split(","))
             grid[cur] = "#"
-        elif cur.startswith("fold along x="):
+        elif cur.startswith("fold along"):
+            axis = {"x": 0, "y": 1}[cur[11]]
             cur = int(cur[13:])
-            for x,y in list(grid.grid):
-                if x >= cur:
-                    grid[(cur - 1) - (x - cur)+1, y] = "#"
-                    del grid.grid[(x, y)]
-            if mode == 1:
-                break
-        elif cur.startswith("fold along y="):
-            cur = int(cur[13:])
-            for x,y in list(grid.grid):
-                if y >= cur:
-                    grid[x, (cur - 1) - (y - cur)+1] = "#"
-                    del grid.grid[(x, y)]
+            for xy in list(grid.grid):
+                if xy[axis] >= cur:
+                    if axis == 0:
+                        dest = (cur - (xy[0] - cur), xy[1])
+                    else:
+                        dest = (xy[0], cur - (xy[1] - cur))
+                    grid[dest] = "#"
+                    del grid.grid[xy]
             if mode == 1:
                 break
 
     if mode == 2:
         grid.show_grid(log)
-        grid.decode_grid(log)
+        return grid.decode_grid(log)
 
-    return len([x for x in grid.grid.values() if x == "#"])
+    return len(grid.grid)
 
 def test(log):
     values = log.decode_values("""

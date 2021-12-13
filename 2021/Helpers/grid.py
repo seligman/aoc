@@ -374,6 +374,7 @@ class Grid:
                     log("Code: " + str(code))
 
         log("That decodes to: " + ret)
+        return ret
             
     def dump_grid(self):
         return "".join([str(self.grid[x]) for x in sorted(self.grid)])
