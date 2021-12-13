@@ -59,12 +59,11 @@ def encode_grid(value, log=print):
         line = ""
         for cur in value:
             for x in range(5):
-                code = 2 ** (((4-x) + (6-y) * 5) + 1)
+                code = 2 ** (((4-x) + (6-y) * 5))
                 if (reversed.get(cur, 0) & code) > 0:
                     line += "#"
                 else:
                     line += " "
-        line = line[1:] + " "
         log('"' + line + '",')
         ret.append(line)
     return ret
@@ -136,6 +135,7 @@ def decode_example_function():
         "#  # #### #### ####  ##  ",
     ]
     decode_grid(0, len(grid[0]) - 1, 0, len(grid) - 1, lambda x, y: grid[y][x])
+
 
 class Grid:
     def __init__(self, default=0):
