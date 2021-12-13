@@ -29,6 +29,7 @@ def calc(log, values, mode):
 
     if mode == 2:
         grid.show_grid(log)
+        grid.decode_grid(log)
 
     return len([x for x in grid.grid.values() if x == "#"])
 
