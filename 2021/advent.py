@@ -16,8 +16,7 @@ ALT_DATA_FILE = None
 SOURCE_CONTROL = "p4"
 DESC = """
 ### The suggested dail routine looks like this:
-advent.py launch        # This launches some useful links
-advent.py make_day_wait # This makes a day, sleeping till just after midnight first
+advent.py launch        # This launches some useful links, and waits to make the next day
 advent.py test cur      # This tests the current day, keep going till it works!
 advent.py run cur       # This runs on the same data
 ### And finally, when everything's done, some clean up, and make a comment to post
@@ -222,6 +221,8 @@ def launch():
         else:
             cmd = "open %s" % (url,)
         subprocess.check_call(cmd.split(' '))
+    subprocess.check_call("code .", shell=True)
+    make_day_wait()
 
 
 @opt("Show other commands for a day")
