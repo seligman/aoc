@@ -5,7 +5,7 @@ from animate import ease
 def get_desc():
     return 15, 'Day 15: Chiton'
 
-def calc(log, values, mode, draw=False):
+def calc(log, values, mode, draw=False, frames=300):
     colors = {
         1: (12, 7, 134),
         2: (74, 2, 160),
@@ -35,7 +35,6 @@ def calc(log, values, mode, draw=False):
     todo = [((0, 0), 0, [(0, 0)])]
     seen = set([(0, 0)])
     cur_point = 0
-    frames = 300
     # 249998 is how many cur_points a full run finds
     next_show = [int(ease(x / frames) * 249998) for x in range(frames+1)]
     while len(todo):
@@ -71,14 +70,20 @@ def calc(log, values, mode, draw=False):
                 todo.append((oxy, cost + extra, trail + [oxy]))
 
 def other_draw(describe, values):
+    return draw_internal(describe, values, 300, "")
+
+def other_draw_long(describe, values):
+    return draw_internal(describe, values, 9000, "_long")
+
+def draw_internal(describe, values, frames, extra):
     if describe:
-        return "Animate this"
+        return f"Animate this with {frames} frames"
     from dummylog import DummyLog
     import animate
 
     animate.prep()
-    calc(DummyLog(), values, 2, draw=True)
-    animate.create_mp4(get_desc(), rate=30)
+    calc(DummyLog(), values, 2, draw=True, frames=frames)
+    animate.create_mp4(get_desc(), rate=30, extra=extra)
 
 def test(log):
     values = log.decode_values("""
