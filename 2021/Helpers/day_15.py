@@ -1,12 +1,13 @@
 #!/usr/bin/env python3
 
+from typing import final
 from animate import ease
-from collections import deque
+from collections import defaultdict, deque
 
 def get_desc():
     return 15, 'Day 15: Chiton'
 
-def calc(log, values, mode, draw=False, frames=300):
+def calc(log, values, mode, draw=False, frames=300, show_all_trails=False, return_trail=False):
     colors = {
         1: (12, 7, 134),
         2: (74, 2, 160),
@@ -23,6 +24,11 @@ def calc(log, values, mode, draw=False, frames=300):
     from grid import Grid
     grid = Grid.from_text(values)
 
+    final_trail, total_steps = None, 0
+    if draw:
+        final_trail, total_steps = calc(log, values, mode, return_trail=True)
+        final_trail = set(final_trail)
+
     for xy in grid.grid:
         grid.grid[xy] = int(grid.grid[xy])
 
@@ -36,8 +42,13 @@ def calc(log, values, mode, draw=False, frames=300):
     todo = deque([((0, 0), 0, [(0, 0)])])
     seen = set([(0, 0)])
     cur_point = 0
-    # 249998 is how many cur_points a full run finds
-    next_show = [int(ease(x / frames) * 249998) for x in range(frames+1)]
+    next_show = [int(ease(x / frames) * total_steps) for x in range(frames+1)]
+    all_trails = defaultdict(int)
+    if show_all_trails:
+        for x in range(256):
+            colors[f"gray_{x}"] = (x, x, x)
+            colors[f"red_{x}"] = (x, 100, 100)
+
     while len(todo):
         xy, cost, trail = todo.popleft()
         for oxy in grid.neighbors(xy, valid_only=True):
@@ -56,18 +67,39 @@ def calc(log, values, mode, draw=False, frames=300):
                         log(f"Cur Point: {cur_point}, {len(next_show)} left.")
                         grid.save_frame()
                         temp = grid.frames[-1][0]
-                        for xy in trail:
-                            temp[xy] = 'path'
-                    cur_point += 1
+                        if show_all_trails:
+                            if len(all_trails) > 0:
+                                bright = max(all_trails.values())
+                                for xy, val in all_trails.items():
+                                    if xy in final_trail:
+                                        temp[xy] = f"red_{int((val / bright) * 127 + 128)}"
+                                    else:
+                                        temp[xy] = f"gray_{int((val / bright) * 127 + 128)}"
+                                all_trails = defaultdict(int)
+                        else:
+                            for xy in trail:
+                                temp[xy] = 'path'
+                    else:
+                        if show_all_trails:
+                            for xy in trail:
+                                all_trails[xy] += 1
+                cur_point += 1
                 if oxy == (grid.width() - 1, grid.height() - 1):
                     if draw:
+                        if show_all_trails:
+                            grid.save_frame()
+                            temp = grid.frames[-1][0]
+                            for xy in trail:
+                                temp[xy] = 'red_255'
                         grid.draw_frames(color_map=colors, show_lines=False, cell_size=(1, 1))
                     cost += extra
+                    if return_trail:
+                        return trail, cur_point
                     return cost
                 found = False
                 cur_cost = cost + extra
                 next_trail = None
-                if draw:
+                if draw or return_trail:
                     next_trail = trail + [oxy]
                 for i, (_, other_cost, _) in enumerate(todo):
                     if other_cost >= cur_cost:
@@ -78,19 +110,21 @@ def calc(log, values, mode, draw=False, frames=300):
                     todo.append((oxy, cost + extra, next_trail))
 
 def other_draw(describe, values):
-    return draw_internal(describe, values, 300, "")
+    return draw_internal(describe, values, "Animated this")
 
 def other_draw_long(describe, values):
-    return draw_internal(describe, values, 9000, "_long")
+    return draw_internal(describe, values, "Animate this with around 9000 frames", frames=9000, extra="_long")
 
-def draw_internal(describe, values, frames, extra):
+def other_draw_trails(describe, values):
+    return draw_internal(describe, values, "Animate this showing all of the trails", trails=True, extra="_trails")
+
+def draw_internal(describe, values, desc, trails=False, frames=900, extra=""):
     if describe:
-        return f"Animate this with {frames} frames"
+        return desc
     from dummylog import DummyLog
     import animate
-
     animate.prep()
-    calc(DummyLog(), values, 2, draw=True, frames=frames)
+    calc(DummyLog(), values, 2, draw=True, frames=frames, show_all_trails=trails)
     animate.create_mp4(get_desc(), rate=30, extra=extra)
 
 def test(log):
