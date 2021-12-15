@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 from animate import ease
+from collections import deque
 
 def get_desc():
     return 15, 'Day 15: Chiton'
@@ -32,14 +33,13 @@ def calc(log, values, mode, draw=False, frames=300):
             for x, y, val in pts:
                 grid[x + ox * w, y + oy * h] = ((val - 1 + ox + oy) % 9) + 1
 
-    todo = [((0, 0), 0, [(0, 0)])]
+    todo = deque([((0, 0), 0, [(0, 0)])])
     seen = set([(0, 0)])
     cur_point = 0
     # 249998 is how many cur_points a full run finds
     next_show = [int(ease(x / frames) * 249998) for x in range(frames+1)]
     while len(todo):
-        todo.sort(key=lambda x: x[1])
-        xy, cost, trail = todo.pop(0)
+        xy, cost, trail = todo.popleft()
         for oxy in grid.neighbors(xy, valid_only=True):
             if oxy not in seen:
                 seen.add(oxy)
@@ -54,20 +54,28 @@ def calc(log, values, mode, draw=False, frames=300):
                         show = True
                     if show:
                         log(f"Cur Point: {cur_point}, {len(next_show)} left.")
-                        temp = {}
-                        for xy in trail:
-                            temp[xy] = grid[xy]
-                            grid[xy] = 'path'
                         grid.save_frame()
-                        for xy, val in temp.items():
-                            grid[xy] = val
+                        temp = grid.frames[-1][0]
+                        for xy in trail:
+                            temp[xy] = 'path'
                     cur_point += 1
                 if oxy == (grid.width() - 1, grid.height() - 1):
                     if draw:
                         grid.draw_frames(color_map=colors, show_lines=False, cell_size=(1, 1))
                     cost += extra
                     return cost
-                todo.append((oxy, cost + extra, trail + [oxy]))
+                found = False
+                cur_cost = cost + extra
+                next_trail = None
+                if draw:
+                    next_trail = trail + [oxy]
+                for i, (_, other_cost, _) in enumerate(todo):
+                    if other_cost >= cur_cost:
+                        found = True
+                        todo.insert(i, (oxy, cur_cost, next_trail))
+                        break
+                if not found:
+                    todo.append((oxy, cost + extra, next_trail))
 
 def other_draw(describe, values):
     return draw_internal(describe, values, 300, "")
