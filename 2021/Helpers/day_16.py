@@ -17,14 +17,14 @@ def decode(temp, results):
     results["version_sum"] += ver
     pid = int(get_bits(temp, 3), 2)
 
-    pretty = {
-        0: ("(", "+", ")"),
-        1: ("(", "*", ")"),
-        2: ("min([", ",", "])"),
-        3: ("max([", ",", "])"),
-        5: ("(1 if", ">", "else 0)"),
-        6: ("(1 if", "<", "else 0)"),
-        7: ("(1 if", "==", "else 0)"),
+    operators = {
+        0: ("(", "+", ")", lambda x: sum(x)),
+        1: ("(", "*", ")", lambda x: math.prod(x)),
+        2: ("min([", ",", "])", lambda x: min(x)),
+        3: ("max([", ",", "])", lambda x: max(x)),
+        5: ("(1 if", ">", "else 0)", lambda x: 1 if x[0] > x[1] else 0),
+        6: ("(1 if", "<", "else 0)", lambda x: 1 if x[0] < x[1] else 0),
+        7: ("(1 if", "==", "else 0)", lambda x: 1 if x[0] == x[1] else 0),
     }
 
     if pid == 4:
@@ -34,51 +34,35 @@ def decode(temp, results):
             val += x[1:]
             if x[0] == '0':
                 break
+        val = int(val, 2)
         if results["print_formula"]:
-            results["formula"].append(str(int(val, 2)))
-        return int(val, 2)
+            results["formula"].append(str(val))
+        return val
     else:
         length = get_bits(temp, 1)
         stack = []
 
         if results["print_formula"]:
-            results["formula"].append(pretty[pid][0])
+            results["formula"].append(operators[pid][0])
 
         if length == '0':
             sub_len = int(get_bits(temp, 15), 2)
             sub_temp = list(get_bits(temp, sub_len))
             while len(sub_temp) > 0:
+                if results["print_formula"] and len(stack) > 0:
+                    results["formula"].append(operators[pid][1])
                 stack.append(decode(sub_temp, results))
-                if results["print_formula"]:
-                    results["formula"].append(pretty[pid][1])
-            if results["print_formula"]:
-                results["formula"].pop(-1)
         else:
             sub_count = int(get_bits(temp, 11), 2)
             for _ in range(sub_count):
+                if results["print_formula"] and len(stack) > 0:
+                    results["formula"].append(operators[pid][1])
                 stack.append(decode(temp, results))
-                if results["print_formula"]:
-                    results["formula"].append(pretty[pid][1])
-            if results["print_formula"]:
-                results["formula"].pop(-1)
 
         if results["print_formula"]:
-            results["formula"].append(pretty[pid][2])
+            results["formula"].append(operators[pid][2])
 
-        if pid == 0:
-            return sum(stack)
-        elif pid == 1:
-            return math.prod(stack)
-        elif pid == 2:
-            return min(stack)
-        elif pid == 3:
-            return max(stack)
-        elif pid == 5:
-            return 1 if stack[0] > stack[1] else 0
-        elif pid == 6: 
-            return 1 if stack[0] < stack[1] else 0
-        elif pid == 7:
-            return 1 if stack[0] == stack[1] else 0
+        return operators[pid][3](stack)
 
 def calc(log, values, mode, print_formula=False):
     temp = bin(int(values[0], 16))[2:]
