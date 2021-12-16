@@ -1,0 +1,5 @@
+selenium
+chromedriver-binary-auto
+slackclient
+undetected-chromedriver
+pillow
