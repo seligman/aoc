@@ -5,83 +5,18 @@ import math
 def get_desc():
     return 16, 'Day 16: Packet Decoder'
 
-def get_bits(temp, len):
-    ret = ''
-    while len > 0:
-        len -= 1
-        ret += temp.pop(0)
-    return ret
-
-def decode(temp, results):
-    ver = int(get_bits(temp, 3), 2)
-    results["version_sum"] += ver
-    pid = int(get_bits(temp, 3), 2)
-
-    operators = {
-        0: ("(", "+", ")", lambda x: sum(x)),
-        1: ("(", "*", ")", lambda x: math.prod(x)),
-        2: ("min([", ",", "])", lambda x: min(x)),
-        3: ("max([", ",", "])", lambda x: max(x)),
-        5: ("(1 if", ">", "else 0)", lambda x: 1 if x[0] > x[1] else 0),
-        6: ("(1 if", "<", "else 0)", lambda x: 1 if x[0] < x[1] else 0),
-        7: ("(1 if", "==", "else 0)", lambda x: 1 if x[0] == x[1] else 0),
-    }
-
-    if pid == 4:
-        val = ""
-        while True:
-            x = get_bits(temp, 5)
-            val += x[1:]
-            if x[0] == '0':
-                break
-        val = int(val, 2)
-        if results["print_formula"]:
-            results["formula"].append(str(val))
-        return val
-    else:
-        length = get_bits(temp, 1)
-        stack = []
-
-        if results["print_formula"]:
-            results["formula"].append(operators[pid][0])
-
-        if length == '0':
-            sub_len = int(get_bits(temp, 15), 2)
-            sub_temp = list(get_bits(temp, sub_len))
-            while len(sub_temp) > 0:
-                if results["print_formula"] and len(stack) > 0:
-                    results["formula"].append(operators[pid][1])
-                stack.append(decode(sub_temp, results))
-        else:
-            sub_count = int(get_bits(temp, 11), 2)
-            for _ in range(sub_count):
-                if results["print_formula"] and len(stack) > 0:
-                    results["formula"].append(operators[pid][1])
-                stack.append(decode(temp, results))
-
-        if results["print_formula"]:
-            results["formula"].append(operators[pid][2])
-
-        return operators[pid][3](stack)
-
 def calc(log, values, mode, print_formula=False):
-    temp = bin(int(values[0], 16))[2:]
-    temp = list(("0" * (len(values[0]) * 4) + temp)[-len(values[0]) * 4:])
-    results = {
-        "mode": mode,
-        "version_sum": 0,
-        "print_formula": print_formula,
-        "formula": [],
-    }
-    temp = decode(temp, results)
+    from program import Program
+    program = Program(values, print_formula=print_formula)
+    program.run()
 
     if print_formula:
-        log(" ".join(results["formula"]))
+        log("".join(program.formula))
 
     if mode == 1:
-        return results["version_sum"]
+        return program.version_sum
     else:
-        return temp
+        return program.result
 
 def other_show_formula(describe, values):
     if describe:

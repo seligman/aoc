@@ -7,6 +7,8 @@ def calc(log, values, mode):
     # TODO: Delete or use these
     # from grid import Grid
     # grid = Grid.from_text(values)
+    # from program import Program
+    # program = Program(values)
 
     # TODO
     return 0
