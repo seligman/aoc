@@ -17,6 +17,16 @@ def decode(temp, results):
     results["version_sum"] += ver
     pid = int(get_bits(temp, 3), 2)
 
+    pretty = {
+        0: ("(", "+", ")"),
+        1: ("(", "*", ")"),
+        2: ("min([", ",", "])"),
+        3: ("max([", ",", "])"),
+        5: ("(1 if", ">", "else 0)"),
+        6: ("(1 if", "<", "else 0)"),
+        7: ("(1 if", "==", "else 0)"),
+    }
+
     if pid == 4:
         val = ""
         while True:
@@ -32,16 +42,7 @@ def decode(temp, results):
         stack = []
 
         if results["print_formula"]:
-            if pid == 0:
-                results["formula"].append("(")
-            elif pid == 1:
-                results["formula"].append("(")
-            elif pid == 2:
-                results["formula"].append("min([")
-            elif pid == 3:
-                results["formula"].append("max([")
-            elif pid in {5, 6, 7}:
-                results["formula"].append("(1 if (")
+            results["formula"].append(pretty[pid][0])
 
         if length == '0':
             sub_len = int(get_bits(temp, 15), 2)
@@ -49,18 +50,7 @@ def decode(temp, results):
             while len(sub_temp) > 0:
                 stack.append(decode(sub_temp, results))
                 if results["print_formula"]:
-                    if pid == 5:
-                        results["formula"].append(">")
-                    elif pid == 6:
-                        results["formula"].append("<")
-                    elif pid == 7:
-                        results["formula"].append("==")
-                    elif pid == 0:
-                        results["formula"].append("+")
-                    elif pid == 1:
-                        results["formula"].append("*")
-                    else:
-                        results["formula"].append(",")
+                    results["formula"].append(pretty[pid][1])
             if results["print_formula"]:
                 results["formula"].pop(-1)
         else:
@@ -68,27 +58,13 @@ def decode(temp, results):
             for _ in range(sub_count):
                 stack.append(decode(temp, results))
                 if results["print_formula"]:
-                    if pid == 5:
-                        results["formula"].append(">")
-                    elif pid == 6:
-                        results["formula"].append("<")
-                    elif pid == 7:
-                        results["formula"].append("==")
-                    elif pid == 0:
-                        results["formula"].append("+")
-                    elif pid == 1:
-                        results["formula"].append("*")
-                    else:
-                        results["formula"].append(",")
+                    results["formula"].append(pretty[pid][1])
             if results["print_formula"]:
                 results["formula"].pop(-1)
 
-        if pid in {5, 6, 7}:
-            results["formula"].append(") else 0)")
-        elif pid in {2, 3}:
-            results["formula"].append("])")
-        else:
-            results["formula"].append(")")
+        if results["print_formula"]:
+            results["formula"].append(pretty[pid][2])
+
         if pid == 0:
             return sum(stack)
         elif pid == 1:
