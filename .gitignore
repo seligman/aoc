@@ -5,6 +5,7 @@
 
 # Ignore my little stats side-project
 /stats/*
+**/.p4ignore
 
 # Ignore VS Code stuff
 **/.vscode/
