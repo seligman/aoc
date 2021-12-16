@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 
 from typing import final
-from animate import ease
 from collections import defaultdict, deque
 
 def get_desc():
@@ -42,7 +41,9 @@ def calc(log, values, mode, draw=False, frames=300, show_all_trails=False, retur
     todo = deque([((0, 0), 0, [(0, 0)])])
     seen = set([(0, 0)])
     cur_point = 0
-    next_show = [int(ease(x / frames) * total_steps) for x in range(frames+1)]
+    if draw:
+        from animate import ease
+        next_show = [int(ease(x / frames) * total_steps) for x in range(frames+1)]
     all_trails = defaultdict(int)
     if show_all_trails:
         for x in range(256):
