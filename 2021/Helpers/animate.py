@@ -3,6 +3,7 @@
 import os
 import subprocess
 import math
+import shutil
 
 def show_colors(count):
     count = int(count)
@@ -34,7 +35,19 @@ def rotate(origin, point, angle):
     qy = oy + math.sin(angle) * (px - ox) + math.cos(angle) * (py - oy)
     return qx, qy
 
-def create_mp4(desc, extra="", keep_files=False, rate=10):
+def create_mp4(desc, extra="", keep_files=False, rate=10, final_secs=None):
+    if final_secs is not None:
+        last_frame = 0
+        while True:
+            if os.path.isfile(f"frame_{last_frame+1:05d}.png"):
+                last_frame += 1
+            else:
+                break
+        dest = last_frame
+        for _ in range(final_secs * rate):
+            dest += 1
+            shutil.copy(f"frame_{last_frame:05d}.png", f"frame_{dest:05d}.png")
+
     cmd = [
         "ffmpeg", "-y",
         "-hide_banner",

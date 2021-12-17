@@ -75,7 +75,7 @@ def other_draw(describe, values):
     if len(temp) > 0:
         grid.save_frame(extra=[grid.axis_min(0), grid.axis_min(1), temp])
     grid.draw_frames(cell_size=(4, 4), show_lines=False, extra_callback=draw_trail, use_multiproc=False)
-    animate.create_mp4(get_desc(), rate=15)
+    animate.create_mp4(get_desc(), rate=15, final_secs=5)
 
 def draw_trail(d, extra):
     xmin, ymin, trails = extra
