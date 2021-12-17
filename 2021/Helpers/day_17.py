@@ -33,20 +33,23 @@ def calc(log, values, mode):
                     if mode == 1:
                         overall_best = max(best, overall_best)
                     break
+                if oy < -500 and y <= 0:
+                    break
+                if x == 0 and (ox < x1 or ox > x2):
+                    break
 
-    if mode == 1:
-        return overall_best
-    else:
-        return possible
+    return overall_best, possible
 
 def test(log):
     values = log.decode_values("""
         target area: x=20..30, y=-10..-5
     """)
 
-    log.test(calc(log, values, 1), 45)
-    log.test(calc(log, values, 2), 112)
+    overall_best, possible = calc(log, values, 1)
+    log.test(overall_best, 45)
+    log.test(possible, 112)
 
 def run(log, values):
-    log(calc(log, values, 1))
-    log(calc(log, values, 2))
+    overall_best, possible = calc(log, values, 1)
+    log(overall_best)
+    log(possible)
