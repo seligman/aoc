@@ -16,14 +16,24 @@ def calc(log, values, mode, results=None):
     possible = 0
     overall_best = 0
 
-    for zy in range(-max(abs(y1), abs(y2))*2, max(abs(y1), abs(y2))*2+1):
-        for x in range(0, abs(x2)+1):
-            y = zy
+    # Can't go further than the target
+    for start_x in range(min(0, x1, x2), max(0, x1, x2)+1):
+        # Can't go higher or lower than the target
+        for start_y in range(min(0, y1, y2), max(abs(y1), abs(y2))+1):
+            x, y = start_x, start_y
             ox, oy = 0, 0
             best = 0
             trail = [(ox, oy)]
 
-            for _ in range(max(abs(x1), abs(x2), abs(y1), abs(y2))*2):
+            # Find the bounds, to speed up checking later
+            min_y12 = min(y1, y2)
+            max_y12 = max(y1, y2)
+            min_x12 = min(x1, x2)
+            max_x12 = max(x1, x2)
+
+            # Can't take longer than how far over the target is
+            # plus some extra to "land" in the target's height
+            for _ in range(max(abs(x1), abs(x2)) + (max_y12 - min_y12)):
                 ox += x
                 oy += y
                 y -= 1
@@ -39,9 +49,14 @@ def calc(log, values, mode, results=None):
                     possible += 1
                     overall_best = max(best, overall_best)
                     break
-                if oy < -500 and y <= 0:
+                if oy < min_y12 and y <= 0:
+                    # We're below the target and going down
                     break
                 if x == 0 and (ox < x1 or ox > x2):
+                    # Outside of the target and stopped moving left or right
+                    break
+                if (ox > max_x12 and x >= 0) or (ox < min_x12 and x <= 0):
+                    # Beyond the target and still moving past, or stopped
                     break
 
     return overall_best, possible
