@@ -16,35 +16,33 @@ def calc(log, values, mode, results=None):
     possible = 0
     overall_best = 0
 
-    # Can't go further than the target
+    # Can't go further than the target in one step
     for start_x in range(min(0, x1, x2), max(0, x1, x2)+1):
-        # Can't go higher or lower than the target
+        # Can't go higher or lower than the target in one step
         for start_y in range(min(0, y1, y2), max(abs(y1), abs(y2))+1):
             x, y = start_x, start_y
             ox, oy = 0, 0
             best = 0
-            trail = [(ox, oy)]
+            if results is not None:
+                trail = [(ox, oy)]
 
             # Find the bounds, to speed up checking later
             min_y12 = min(y1, y2)
-            max_y12 = max(y1, y2)
             min_x12 = min(x1, x2)
             max_x12 = max(x1, x2)
 
-            # Can't take longer than how far over the target is
-            # plus some extra to "land" in the target's height
-            for _ in range(max(abs(x1), abs(x2)) + (max_y12 - min_y12) ** 2):
+            # Just keep trying till we escape the possibility of 
+            # capture in the target range
+            while True:
                 ox += x
                 oy += y
                 y -= 1
-                if x > 0:
-                    x -= 1
-                elif x < 0:
-                    x += 1
+                x -= x and (1, -1)[x < 0]
                 best = max(best, oy)
-                trail.append((ox, oy))
-                if ox >= x1 and ox <= x2 and oy >= y1 and oy <= y2:
-                    if results:
+                if results is not None:
+                    trail.append((ox, oy))
+                if x1 <= ox <= x2 and y1 <= oy <= y2:
+                    if results is not None:
                         results["trails"].append(trail)
                     possible += 1
                     overall_best = max(best, overall_best)
