@@ -12,13 +12,13 @@ def calc(log, values, mode):
     possible = 0
     overall_best = 0
 
-    for zy in range(-300, 300):
-        for x in range(-300, 300):
+    for zy in range(-max(abs(y1), abs(y2))*2, max(abs(y1), abs(y2))*2+1):
+        for x in range(0, abs(x2)+1):
             y = zy
             ox, oy = 0, 0
             best = 0
 
-            for _ in range(300):
+            for _ in range(max(abs(x1), abs(x2), abs(y1), abs(y2))*2):
                 ox += x
                 oy += y
                 y -= 1
