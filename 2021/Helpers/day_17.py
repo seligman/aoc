@@ -33,7 +33,7 @@ def calc(log, values, mode, results=None):
 
             # Can't take longer than how far over the target is
             # plus some extra to "land" in the target's height
-            for _ in range(max(abs(x1), abs(x2)) + (max_y12 - min_y12)):
+            for _ in range(max(abs(x1), abs(x2)) + (max_y12 - min_y12) ** 2):
                 ox += x
                 oy += y
                 y -= 1

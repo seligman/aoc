@@ -278,25 +278,59 @@ def make_day_wait(target_day="cur"):
         make_day_helper(False, force_day=target_day)
 
 
+@opt("Load cookie from browser to cache")
+def save_cookie(browser="Chrome", alt_id=""):
+    try:
+        import browser_cookie3
+    except:
+        raise Exception("Unable to load 'browser_cookie3', please try running in a venv with requirements.txt")
+
+    browser = browser.lower().strip().replace(" ", "")
+    alt_id = -1 if alt_id == "" else int(alt_id)
+    browsers = {
+        "chrome": browser_cookie3.chrome,
+        "chromium": browser_cookie3.chromium,
+        "opera": browser_cookie3.opera,
+        "edge": browser_cookie3.edge,
+        "firefox": browser_cookie3.firefox,
+    }
+    if browser not in browsers:
+        print(f"Unknown choice of browser: {browser}, please use one of:")
+        for x in browsers:
+            print(f"  {x}")
+        exit(1)
+    fn = os.path.expanduser(os.path.join("~", ".aoc_cookies.json"))
+    import json
+    if os.path.isfile(fn):
+        with open(fn) as f:
+            data = json.load(f)
+    else:
+        data = {}
+
+    cookie = browsers[browser](domain_name='adventofcode.com')
+    cookie = ';'.join(f'{x.name}={x.value}' for x in cookie)
+    data[str(alt_id)] = cookie
+
+    with open(fn, "w") as f:
+        data = json.dump(data, f, indent=2, sort_keys=True)
+        f.write("\n")
+
+    print("Done")
+
+
 def get_cookie():
-    fn = os.path.join(os.environ['USERPROFILE'], ".aoc_cookie.txt")
+    fn = os.path.expanduser(os.path.join("~", ".aoc_cookies.json"))
     if os.path.isfile(fn):
         if (datetime.utcnow() - datetime.fromtimestamp(os.path.getmtime(fn))) > timedelta(days=60):
             print("Warning, cookie is very old, removing it")
             os.unlink(fn)
     if not os.path.isfile(fn):
-        print("Trying to get the cookie from adventofcode.com from Chrome")
-        try:
-            import browser_cookie3
-        except:
-            raise Exception("Unable to load 'browser_cookie3', please try running in a venv with requirements.txt")
-        cookie = browser_cookie3.chrome(domain_name='adventofcode.com')
-        cookie = ';'.join(f'{x.name}={x.value}' for x in cookie)
-        with open(fn, "wt") as f:
-            f.write(cookie)
+        save_cookie(alt_id="-1" if (ALT_DATA_FILE is None or ALT_DATA_FILE == 0) else ALT_DATA_FILE)
 
     with open(fn) as f:
-        return f.read().strip()
+        import json
+        data = json.load(f)
+        return data[str(-1 if (ALT_DATA_FILE is None or ALT_DATA_FILE == 0) else ALT_DATA_FILE)]
 
 
 def make_day_helper(offline, force_day=None):
@@ -630,7 +664,8 @@ def get_index():
 
 
 @opt("Download Day")
-def dl_day(helper_day):
+def dl_day(helper_day, input_only="no"):
+    input_only = input_only.lower() in {"yes", "true", "y"}
     ret = ""
     already_downloaded = False
 
@@ -640,12 +675,17 @@ def dl_day(helper_day):
         already_downloaded = True
         helper_day = helper.get_desc()[0]
 
-        bad_file = os.path.join("Puzzles", "day_%02d.html.DO_NOT_CHECK_THIS_FILE_IN" % (helper_day,))
-        if os.path.isfile(bad_file):
-            os.unlink(bad_file)
-            revert_file(bad_file)
+        if not input_only:
+            bad_file = os.path.join("Puzzles", "day_%02d.html.DO_NOT_CHECK_THIS_FILE_IN" % (helper_day,))
+            if os.path.isfile(bad_file):
+                os.unlink(bad_file)
+                revert_file(bad_file)
 
-        filename = os.path.join("Puzzles", "day_%02d_input.txt" % (helper_day,))
+        if ALT_DATA_FILE is None or ALT_DATA_FILE == 0:
+            filename = os.path.join("Puzzles", "day_%02d_input.txt" % (helper_day,))
+        else:
+            filename = os.path.join("Puzzles", "day_%02d_input_alt_%02d.txt" % (helper_day, ALT_DATA_FILE))
+
         if not os.path.isfile(filename):
             resp = get_page("https://adventofcode.com/%s/day/%d/input" % (YEAR_NUMBER, helper_day))
 
@@ -654,25 +694,26 @@ def dl_day(helper_day):
 
             print("Wrote out puzzle input for day #%d" % (helper_day,))
 
-        resp = get_page("https://adventofcode.com/%s/day/%d" % (YEAR_NUMBER, helper_day))
+        if not input_only:
+            resp = get_page("https://adventofcode.com/%s/day/%d" % (YEAR_NUMBER, helper_day))
 
-        resp = re.sub("^.*<main>", "", resp, flags=re.DOTALL)
-        resp = re.sub("</main>.*$", "", resp, flags=re.DOTALL)
-        resp = re.sub('<p>At this point, you should <a href="/[0-9]+">return to your advent calendar</a> and try another puzzle.</p>.+', "", resp, flags=(re.MULTILINE | re.DOTALL))
+            resp = re.sub("^.*<main>", "", resp, flags=re.DOTALL)
+            resp = re.sub("</main>.*$", "", resp, flags=re.DOTALL)
+            resp = re.sub('<p>At this point, you should <a href="/[0-9]+">return to your advent calendar</a> and try another puzzle.</p>.+', "", resp, flags=(re.MULTILINE | re.DOTALL))
 
-        header, footer = get_header_footer()
+            header, footer = get_header_footer()
 
-        with open(os.path.join("Puzzles", "day_%02d.html" % (helper_day,)), "wt", encoding="utf-8") as f:
-            f.write(header + resp + footer)
+            with open(os.path.join("Puzzles", "day_%02d.html" % (helper_day,)), "wt", encoding="utf-8") as f:
+                f.write(header + resp + footer)
 
-        print("Wrote out puzzle for day #%d" % (helper_day,))
+            print("Wrote out puzzle for day #%d" % (helper_day,))
 
-        m = re.search("<h2>--- (.*?) ---</h2>", resp)
-        if m:
-            ret = m.group(1)
-            ret = ret.replace("&gt;", ">")
-            ret = ret.replace("&lt;", "<")
-            ret = ret.replace("&amp;", "&")
+            m = re.search("<h2>--- (.*?) ---</h2>", resp)
+            if m:
+                ret = m.group(1)
+                ret = ret.replace("&gt;", ">")
+                ret = ret.replace("&lt;", "<")
+                ret = ret.replace("&amp;", "&")
 
     return ret
 
