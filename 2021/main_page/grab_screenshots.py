@@ -22,6 +22,7 @@ def save_screenshot(driver, path, images, files):
     required_width = max(driver.execute_script('return document.body.parentNode.scrollWidth'), 900)
     required_height = max(driver.execute_script('return document.body.parentNode.scrollHeight'), 900)
     driver.set_window_size(required_width, required_height)
+    body = driver.find_element(By.TAG_NAME, "body")
     next = None
     start = datetime.utcnow()
     for i in range(images):
@@ -32,12 +33,29 @@ def save_screenshot(driver, path, images, files):
         files.append(path % (i,))
         now = datetime.utcnow()
         print(f"{(now - start).total_seconds():8.4f}: Saving {files[-1]}...")
-        next = datetime.utcnow() + timedelta(seconds=0.1)
-        driver.find_element(By.TAG_NAME, "body").screenshot(path % (i,))
+        if next is None:
+            next = start + timedelta(seconds=0.1)
+        else:
+            next += timedelta(seconds=0.1)
+        body.screenshot(path % (i,))
     driver.set_window_size(original_size['width'], original_size['height'])
 
 
 def main():
+    files = [
+        "favicon.png",
+        "highcontrast.css",
+        "html5.js",
+        "SourceCodePro.css",
+        "SourceCodePro.ttf",
+        "style.css",
+    ]
+    for cur in files:
+        if not os.path.isfile(os.path.join("aoc", cur)):
+            with open(os.path.join("..", "Puzzles", cur), "rb") as f_src:
+                with open(os.path.join("aoc", cur), "wb") as f_dest:
+                    f_dest.write(f_src.read())
+
     print("Loading main page...")
     options = webdriver.ChromeOptions()
     options.headless = True
@@ -54,6 +72,9 @@ def main():
 
     if not os.path.isdir("screenshots"):
         os.mkdir("screenshots")
+    for cur in list(os.listdir("screenshots")):
+        os.unlink(os.path.join("screenshots", cur))
+
     for curi, cur in enumerate(todo):
         print(f"Working on {cur}")
         
