@@ -3,25 +3,19 @@
 def get_desc():
     return 18, 'Day 18: Snailfish'
 
+OPEN = -1
+CLOSE = -2
+
 def tokens(value):
     ret = []
     for cur in value:
-        if cur in "[]":
-            ret.append(cur)
+        if cur == "[":
+            ret.append(OPEN)
+        elif cur == "]":
+            ret.append(CLOSE)
         elif cur in "0123456789":
             ret.append(int(cur))
     return ret
-
-def are_tokens(ret, i, *args):
-    for cur in args:
-        if isinstance(cur, str):
-            if cur != ret[i]:
-                return False
-        else:
-            if not isinstance(ret[i], cur):
-                return False
-        i += 1
-    return True
 
 def calc(log, values, mode, parse_values=True):
     if parse_values:
@@ -35,30 +29,26 @@ def calc(log, values, mode, parse_values=True):
                     best = max(best, calc(log, [a, b], 1, parse_values=False))
         return best
 
-    ret = None
-
+    ret = values.pop(0)
     while len(values) > 0:
-        if ret is None:
-            ret = values.pop(0)
-        else:
-            ret = ["["] + ret + values.pop(0) + ["]"]
+        ret = [OPEN] + ret + values.pop(0) + [CLOSE]
 
         while True:
             depth = 0
             found = False
             for i in range(len(ret)):
-                if ret[i] == "[":
+                if ret[i] == OPEN:
                     depth += 1
-                elif ret[i] == "]":
+                elif ret[i] == CLOSE:
                     depth -= 1
-                elif depth >= 5 and are_tokens(ret, i, int, int):
+                elif depth >= 5 and ret[i] >= 0 and ret[i+1] >= 0:
                     found = True
-                    for j in range(i-1, 0, -1):
-                        if isinstance(ret[j], int):
+                    for j in range(i-2, 0, -1):
+                        if ret[j] >= 0:
                             ret[j] += ret[i]
                             break
-                    for j in range(i+2, len(ret)):
-                        if isinstance(ret[j], int):
+                    for j in range(i+3, len(ret)):
+                        if ret[j] >= 0:
                             ret[j] += ret[i+1]
                             break
                     ret = ret[:i-1] + [0] + ret[i+3:]
@@ -66,22 +56,24 @@ def calc(log, values, mode, parse_values=True):
 
             if not found:
                 for i in range(len(ret)):
-                    if isinstance(ret[i], int) and ret[i] >= 10:
+                    if ret[i] >= 10:
                         a = ret[i] // 2
                         b = ret[i] - a
-                        ret = ret[:i] + ["[", a, b, "]"] + ret[i+1:]
+                        ret = ret[:i] + [OPEN, a, b, CLOSE] + ret[i+1:]
                         found = True
                         break
+
             if not found:
                 break
 
     while True:
         found = False
-        for i in range(len(ret)):
-            if are_tokens(ret, i, "[", int, int, "]"):
+        i = 0
+        while i < len(ret):
+            if ret[i] == OPEN and ret[i+1] >= 0 and ret[i+2] >= 0 and ret[i+3] == CLOSE:
                 ret = ret[:i] + [ret[i + 1] * 3 + ret[i + 2] * 2] + ret[i+4:]
                 found = True
-                break
+            i += 1
         if not found:
             break
 
