@@ -17,6 +17,28 @@ def tokens(value):
             ret.append(int(cur))
     return ret
 
+def show_tokens(log, tokens):
+    temp = []
+    for cur in tokens:
+        if cur == OPEN:
+            cur = "["
+        elif cur == CLOSE:
+            cur = "]"
+        if len(temp) == 0:
+            temp.append(cur)
+        else:
+            if isinstance(cur, int):
+                if temp[-1] != "[":
+                    temp.append(",")
+                temp.append(cur)
+            else:
+                if (temp[-1] == "[" and cur != "[") or (temp[-1] != "[" and cur == "["):
+                    temp.append(",")
+                temp.append(cur)
+    temp = [str(x) for x in temp]
+    temp = "".join(temp)
+    log(temp)
+
 def calc(log, values, mode, parse_values=True):
     if parse_values:
         values = [tokens(x) for x in values]
@@ -32,7 +54,6 @@ def calc(log, values, mode, parse_values=True):
     ret = values.pop(0)
     while len(values) > 0:
         ret = [OPEN] + ret + values.pop(0) + [CLOSE]
-
         while True:
             depth = 0
             found = False
