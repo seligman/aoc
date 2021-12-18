@@ -42,9 +42,7 @@ def calc(log, values, mode, parse_values=True):
         for i, a in enumerate(values):
             for j, b in enumerate(values):
                 if i != j:
-                    temp = calc(log, [a, b], 1, parse_values=False)
-                    if temp > best:
-                        best = temp
+                    best = max(best, calc(log, [a, b], 1, parse_values=False))
         return best
 
     ret = None
