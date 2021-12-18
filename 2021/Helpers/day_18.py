@@ -7,19 +7,9 @@ def tokens(value):
     ret = []
     for cur in value:
         if cur in "[]":
-            if len(ret) > 0 and ret[-1] is None:
-                ret[-1] = cur
-            else:
-                ret.append(cur)
+            ret.append(cur)
         elif cur in "0123456789":
-            if len(ret) > 0 and ret[-1] is None:
-                ret[-1] = int(cur)
-            else:
-                if not isinstance(ret[-1], int):
-                    ret.append(0)
-                ret[-1] = ret[-1] * 10 + int(cur)
-        elif cur == ",":
-            ret.append(None)
+            ret.append(int(cur))
     return ret
 
 def are_tokens(ret, i, *args):
