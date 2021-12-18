@@ -33,25 +33,27 @@ def are_tokens(ret, i, *args):
         i += 1
     return True
 
-def calc(log, values, mode):
+def calc(log, values, mode, parse_values=True):
+    if parse_values:
+        values = [tokens(x) for x in values]
+
     if mode == 2:
         best = 0
         for i, a in enumerate(values):
             for j, b in enumerate(values):
                 if i != j:
-                    temp = calc(log, [a, b], 1)
+                    temp = calc(log, [a, b], 1, parse_values=False)
                     if temp > best:
                         best = temp
         return best
 
-    values = [tokens(x) for x in values]
     ret = None
 
     while len(values) > 0:
         if ret is None:
             ret = values.pop(0)
         else:
-            ret = tokens("[") + ret + values.pop(0) + tokens("]")
+            ret = ["["] + ret + values.pop(0) + ["]"]
 
         while True:
             depth = 0
@@ -71,25 +73,15 @@ def calc(log, values, mode):
                         if isinstance(ret[j], int):
                             ret[j] += ret[i+1]
                             break
-                    ret.pop(i-1)
-                    ret.pop(i-1)
-                    ret.pop(i-1)
-                    ret[i-1] = 0
+                    ret = ret[:i-1] + [0] + ret[i+3:]
                     break
 
             if not found:
                 for i in range(len(ret)):
                     if isinstance(ret[i], int) and ret[i] >= 10:
-                        z = ret[i]
-                        ret.insert(i, 0)
-                        if z % 2 == 1:
-                            ret[i+1] = z // 2 + 1
-                        else:
-                            ret[i+1] = z // 2
-                        ret[i] = z // 2
-                        ret.insert(i, "[")
-                        ret.insert(i+3, "]")
-
+                        a = ret[i] // 2
+                        b = ret[i] - a
+                        ret = ret[:i] + ["[", a, b, "]"] + ret[i+1:]
                         found = True
                         break
             if not found:
@@ -99,10 +91,7 @@ def calc(log, values, mode):
         found = False
         for i in range(len(ret)):
             if are_tokens(ret, i, "[", int, int, "]"):
-                ret[i] = ret[i + 1] * 3 + ret[i + 2] * 2
-                ret.pop(i+1)
-                ret.pop(i+1)
-                ret.pop(i+1)
+                ret = ret[:i] + [ret[i + 1] * 3 + ret[i + 2] * 2] + ret[i+4:]
                 found = True
                 break
         if not found:
