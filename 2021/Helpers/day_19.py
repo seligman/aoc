@@ -42,18 +42,15 @@ def rotate(xyz, val):
 
 
 def find_overlap(job):
-    i, a, b = job
-    for b_rotated in b:
-        done = set()
-        for x, y, z in a:
-            for tx, ty, tz in b_rotated:
-                tx, ty, tz = x - tx, y - ty, z - tz
-                if (tx, ty, tz) not in done:
-                    done.add((tx, ty, tz))
-                    offset = set((bx + tx, by + ty, bz + tz) for bx, by, bz in b_rotated)
-                    found = len(offset & a)
-                    if found >= 12:
-                        return i, offset, (tx, ty, tz)
+    i, grid_a, grid_b_list = job
+    for grid_b in grid_b_list:
+        todo = set()
+        for x, y, z in grid_a:
+            todo |= set([(x - tx, y - ty, z - tz) for tx, ty, tz in grid_b])
+        for tx, ty, tz in todo:
+            offset = set((bx + tx, by + ty, bz + tz) for bx, by, bz in grid_b)
+            if len(offset & grid_a) >= 12:
+                return i, offset, (tx, ty, tz)
     return None, None, None
 
 def calc(log, values, mode):
@@ -74,15 +71,13 @@ def calc(log, values, mode):
     with Pool() as pool:
         while len(grids) > 0:
             to_remove = []
-            temp = set(dest)
             for i, fixed, offset in pool.imap(find_overlap, [[i, dest, x] for i, x in enumerate(grids)]):
                 if i is not None:
-                    temp |= fixed
+                    dest |= fixed
                     to_remove.append(i)
-                    log(f"Found: {len(temp)}, {len(grids) - len(to_remove)} left")
+                    log(f"Found: {len(dest)}, {len(grids) - len(to_remove)} left")
                     offsets.append(offset)
             grids = [x for i, x in enumerate(grids) if i not in to_remove]
-            dest = temp
 
     max_dist = 0
     for a in offsets:
