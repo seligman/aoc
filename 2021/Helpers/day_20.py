@@ -14,7 +14,7 @@ def calc(log, values, mode):
 
     for _ in range(2 if mode == 1 else 50):
         next_grid = Grid()
-        # Tricky tricky tricky .. deal with position from the algo being "1"
+        # Tricky tricky tricky .. deal with zero position from the algo being "1"
         next_grid.default = codes[int(grid.default * 9, 2)]
         for x in grid.x_range(pad = 2):
             for y in grid.y_range(pad = 2):
