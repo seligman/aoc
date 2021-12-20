@@ -5,7 +5,7 @@ import sys
 import inspect
 import textwrap
 
-VERSION = 16
+VERSION = 17
 SAMPLE_CODE = """
 # --------------------------------------------------------------------------
 # This module is not meant to be run directly.  To use it, add code like
@@ -41,6 +41,7 @@ class OptMethod:
         self.special = None
         self.module_name = ""
         self.group_name = ""
+        self.default = False
 
     def create_clones(self):
         if len(self.func_names) >= 1:
@@ -53,6 +54,7 @@ class OptMethod:
             ret.special = self.special
             ret.module_name = self.module_name
             ret.group_name = self.group_name
+            ret.default = self.default
             yield ret
 
 
@@ -75,6 +77,9 @@ def opt(*args, **kargs):
 
     if 'group' in kargs:
         method.group_name = kargs['group']
+
+    if 'default' in kargs:
+        method.default = kargs['default']
 
     def real_opts(func):
         if len(method.func_names) == 0:
@@ -103,6 +108,12 @@ def main_entry(order_by='none', include_other=False, program_desc=None, default_
 
     if not include_other:
         _g_options = [x for x in _g_options if x.module_name == "__main__"]
+
+    if default_action is None:
+        for cur in _g_options:
+            if cur.default:
+                default_action = cur.func
+                break
 
     all_names = set()
     for arg in _g_options:
