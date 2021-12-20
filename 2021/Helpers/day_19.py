@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-from multiprocessing import Pool
+from collections import deque
 
 def get_desc():
     return 19, 'Day 19: Beacon Scanner'
@@ -40,7 +40,6 @@ def rotate(xyz, val):
         xyz[val[5]] * val[4],
     )
 
-
 def find_overlap(job):
     i, grid_a, grid_b_list = job
     for grid_b in grid_b_list:
@@ -68,16 +67,16 @@ def calc(log, values, mode):
     for i in range(len(grids)):
         grids[i] = [[rotate(y, x) for y in grids[i]] for x in rotations()]
 
-    with Pool() as pool:
-        while len(grids) > 0:
-            to_remove = []
-            for i, fixed, offset in pool.imap(find_overlap, [[i, dest, x] for i, x in enumerate(grids)]):
-                if i is not None:
-                    dest |= fixed
-                    to_remove.append(i)
-                    log(f"Found: {len(dest)}, {len(grids) - len(to_remove)} left")
-                    offsets.append(offset)
-            grids = [x for i, x in enumerate(grids) if i not in to_remove]
+    todo = deque(grids)
+    while len(todo) > 0:
+        cur = todo.popleft()
+        i, fixed, offset = find_overlap((len(todo), dest, cur))
+        if i is None:
+            todo.append(cur)
+        else:
+            dest |= fixed
+            offsets.append(offset)
+            log(f"Found: {len(dest)}, {len(todo)} left")
 
     max_dist = 0
     for a in offsets:
