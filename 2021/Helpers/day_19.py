@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-from collections import deque
+from collections import deque, defaultdict
 
 def get_desc():
     return 19, 'Day 19: Beacon Scanner'
@@ -41,15 +41,19 @@ def rotate(xyz, val):
     )
 
 def find_overlap(job):
-    i, grid_a, grid_b_list = job
-    for grid_b in grid_b_list:
-        todo = set()
-        for x, y, z in grid_a:
-            todo |= set([(x - tx, y - ty, z - tz) for tx, ty, tz in grid_b])
-        for tx, ty, tz in todo:
+    i, grid_a, grid_b = job
+
+    diffs = defaultdict(int)
+    for ax, ay, az in grid_a:
+        for bx, by, bz in grid_b:
+            diffs[(ax-bx, ay-by, az-bz)] += 1
+    
+    for (tx, ty, tz), value in diffs.items():
+        if value >= 12:
             offset = set((bx + tx, by + ty, bz + tz) for bx, by, bz in grid_b)
             if len(offset & grid_a) >= 12:
                 return i, offset, (tx, ty, tz)
+
     return None, None, None
 
 def calc(log, values, mode):
@@ -63,20 +67,26 @@ def calc(log, values, mode):
 
     dest = grids.pop(0)
     offsets = []
+    todo = deque()
+    left = len(grids)
+    done = set()
 
-    for i in range(len(grids)):
-        grids[i] = [[rotate(y, x) for y in grids[i]] for x in rotations()]
+    for cur_rotate in rotations():
+        for i, grid in enumerate(grids):
+            todo.append((i, [rotate(x, cur_rotate) for x in grid]))
 
-    todo = deque(grids)
-    while len(todo) > 0:
-        cur = todo.popleft()
-        i, fixed, offset = find_overlap((len(todo), dest, cur))
-        if i is None:
-            todo.append(cur)
-        else:
-            dest |= fixed
-            offsets.append(offset)
-            log(f"Found: {len(dest)}, {len(todo)} left")
+    while left > 0:
+        i, cur = todo.popleft()
+        if i not in done:
+            found, fixed, offset = find_overlap((i, dest, cur))
+            if found is None:
+                todo.append((i, cur))
+            else:
+                dest |= fixed
+                offsets.append(offset)
+                left -= 1
+                done.add(i)
+                log(f"Found: {len(dest)}, {left} left")
 
     max_dist = 0
     for a in offsets:
