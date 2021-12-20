@@ -28,8 +28,9 @@ def calc(log, values, mode, draw=False):
                     z += grid[i % 3 - 1 + x, i // 3 - 1 + y]
                 next_grid[x, y] = codes[int(z, 2)]
         grid = next_grid
-        save.grid = grid.grid.copy()
-        save.save_frame()
+        if draw:
+            save.grid = grid.grid.copy()
+            save.save_frame()
 
     if draw:
         save.draw_frames(color_map={"0": (0, 0, 0), "1": (255, 255, 255)}, cell_size=(2, 2), show_lines=False)
