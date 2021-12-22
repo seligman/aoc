@@ -5,61 +5,51 @@ import re
 def get_desc():
     return 22, 'Day 22: Reactor Reboot'
 
+def union(vals, x, y):
+    if len(vals) == 0 or vals[-1] < x or vals[0] > y:
+        return range(-1)
+    return range(min(max(vals[0], x), y), min(max(vals[-1], x), y) + 1)
 
-def subrange(outer_range, start, end):
-    range_start = outer_range[0]
-    range_end = outer_range[-1]
-    if range_end < start:
-        return []
-    elif range_start > end:
-        return []
-    return range(min(max(range_start, start), end), min(max(range_end, start), end)+1)
-
-
-def untouched_count(x_range, y_range, z_range, rest):
-    total = len(x_range) * len(y_range) * len(z_range)
+def count_in_range(x, y, z, remaining):
+    if len(x) == 0 or len(y) == 0 or len(z) == 0:
+        return 0
+    ret = len(x) * len(y) * len(z)
     todo = []
 
-    for onoff, sub_range_x, sub_range_y, sub_range_z in rest:
-        sub_range_x = subrange(sub_range_x, x_range[0], x_range[-1])
-        sub_range_y = subrange(sub_range_y, y_range[0], y_range[-1])
-        sub_range_z = subrange(sub_range_z, z_range[0], z_range[-1])
+    for onoff, other_x, other_y, other_z in remaining:
+        union_x = union(other_x, x[0], x[-1])
+        if len(union_x) > 0:
+            union_y = union(other_y, y[0], y[-1])
+            if len(union_y) > 0:
+                union_z = union(other_z, z[0], z[-1])
+                if len(union_z) > 0:
+                    todo.append((onoff, union_x, union_y, union_z))
 
-        if len(sub_range_x) != 0 and len(sub_range_y) != 0 and len(sub_range_z) != 0:
-            todo.append((onoff, sub_range_x, sub_range_y, sub_range_z))
+    for i, (onoff, x, y, z) in enumerate(todo):
+        ret -= count_in_range(x, y, z, todo[i+1:])
 
-    for i, (onoff, x_range, y_range, z_range) in enumerate(todo):
-        total -= untouched_count(x_range, y_range, z_range, todo[i+1:])
-
-    return total
-
+    return ret
 
 def calc(log, values, mode):
-    r = re.compile("^(on|off) x=([0-9-]+)\\.\\.([0-9-]+),y=([0-9-]+)\\.\\.([0-9-]+),z=([0-9-]+)\\.\\.([0-9-]+)$")
-    cubes = {}
-
-    temp = []
+    r = re.compile(r"^(on|off) x=(-?[0-9]+)\.\.(-?[0-9]+),y=(-?[0-9]+)\.\.(-?[0-9]+),z=(-?[0-9]+)\.\.(-?[0-9]+)$")
+    cubes = []
     for cur in values:
         m = r.search(cur)
-        onoff = m.group(1)
-        x_range = range(int(m.group(2)), int(m.group(3)) + 1)
-        y_range = range(int(m.group(4)), int(m.group(5)) + 1)
-        z_range = range(int(m.group(6)), int(m.group(7)) + 1)
-        temp.append((onoff, x_range, y_range, z_range))
+        cubes.append((
+            m.group(1),
+            range(int(m.group(2)), int(m.group(3)) + 1),
+            range(int(m.group(4)), int(m.group(5)) + 1),
+            range(int(m.group(6)), int(m.group(7)) + 1),
+        ))
 
     if mode == 1:
-        for onoff, x_range, y_range, z_range in temp:
-            for x in subrange(x_range, -50, 50):
-                for y in subrange(y_range, -50, 50):
-                    for z in subrange(z_range, -50, 50):
-                        cubes[x,y,z] = onoff
-        return sum(1 for s in cubes.values() if s == 'on')
-    else:
-        ret = 0
-        for i, (onoff, x_range, y_range, z_range) in enumerate(temp):
-            if onoff == 'on':
-                ret += untouched_count(x_range, y_range, z_range, temp[i+1:])
-        return ret
+        cubes = [(o, union(x, -50, 50), union(y, -50, 50), union(z, -50, 50)) for o, x, y, z in cubes]
+
+    ret = 0
+    for i, (onoff, x, y, z) in enumerate(cubes):
+        if onoff == 'on':
+            ret += count_in_range(x, y, z, cubes[i+1:])
+    return ret
 
 def test(log):
     values = log.decode_values("""
