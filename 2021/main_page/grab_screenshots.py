@@ -2,7 +2,6 @@
 
 import code
 import undetected_chromedriver as uc
-uc.install()
 import chromedriver_binary
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
@@ -59,8 +58,7 @@ def main():
     print("Loading main page...")
     options = webdriver.ChromeOptions()
     options.headless = True
-    options.add_experimental_option("excludeSwitches", ["enable-logging"])
-    driver = webdriver.Chrome(options=options)
+    driver = uc.Chrome(options=options)
     driver.set_window_size(1000, 1000)
     now = datetime.utcnow()
 
