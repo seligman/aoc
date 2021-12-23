@@ -1,10 +1,20 @@
 #!/usr/bin/env python3
 
-from typing import final
-from collections import defaultdict, deque
+from collections import defaultdict
+import heapq
 
 def get_desc():
     return 15, 'Day 15: Chiton'
+
+class Step:
+    def __init__(self, xy, cost, trail):
+        self.xy = xy
+        self.cost = cost
+        self.trail = trail
+    def __eq__(self, other):
+        return self.cost.__eq__(other.cost)
+    def __lt__(self, other):
+        return self.cost.__lt__(other.cost)
 
 def calc(log, values, mode, draw=False, frames=300, show_all_trails=False, return_trail=False):
     colors = {
@@ -38,7 +48,9 @@ def calc(log, values, mode, draw=False, frames=300, show_all_trails=False, retur
             for x, y, val in pts:
                 grid[x + ox * w, y + oy * h] = ((val - 1 + ox + oy) % 9) + 1
 
-    todo = deque([((0, 0), 0, [(0, 0)])])
+    todo = [Step((0, 0), 0, [(0, 0)])]
+    heapq.heapify(todo)
+
     seen = set([(0, 0)])
     cur_point = 0
     if draw:
@@ -51,8 +63,9 @@ def calc(log, values, mode, draw=False, frames=300, show_all_trails=False, retur
             colors[f"red_{x}"] = (x, 100, 100)
 
     while len(todo):
-        xy, cost, trail = todo.popleft()
-        for oxy in grid.neighbors(xy, valid_only=True):
+        state = heapq.heappop(todo)
+        xy, cost, trail = state.xy, state.cost, state.trail
+        for oxy in grid.neighbors(state.xy, valid_only=True):
             if oxy not in seen:
                 seen.add(oxy)
                 extra = grid[oxy]
@@ -78,11 +91,11 @@ def calc(log, values, mode, draw=False, frames=300, show_all_trails=False, retur
                                         temp[xy] = f"gray_{int((val / bright) * 127 + 128)}"
                                 all_trails = defaultdict(int)
                         else:
-                            for xy in trail:
+                            for xy in state.trail:
                                 temp[xy] = 'path'
                     else:
                         if show_all_trails:
-                            for xy in trail:
+                            for xy in state.trail:
                                 all_trails[xy] += 1
                 cur_point += 1
                 if oxy == (grid.width() - 1, grid.height() - 1):
@@ -90,28 +103,21 @@ def calc(log, values, mode, draw=False, frames=300, show_all_trails=False, retur
                         if show_all_trails:
                             grid.save_frame()
                             temp = grid.frames[-1][0]
-                            for xy in trail:
+                            for xy in state.trail:
                                 temp[xy] = 'red_255'
                         grid.draw_frames(color_map=colors, show_lines=False, cell_size=(1, 1))
-                    cost += extra
+                    state.cost += extra
                     if return_trail:
-                        return trail, cur_point
-                    return cost
-                found = False
-                cur_cost = cost + extra
+                        return state.trail, cur_point
+                    return state.cost
+                cur_cost = state.cost + extra
                 next_trail = None
                 if draw or return_trail:
-                    next_trail = trail + [oxy]
-                for i, (_, other_cost, _) in enumerate(todo):
-                    if other_cost >= cur_cost:
-                        found = True
-                        todo.insert(i, (oxy, cur_cost, next_trail))
-                        break
-                if not found:
-                    todo.append((oxy, cost + extra, next_trail))
+                    next_trail = state.trail + [oxy]
+                heapq.heappush(todo, Step(oxy, cur_cost, next_trail))
 
 def other_draw(describe, values):
-    return draw_internal(describe, values, "Animated this")
+    return draw_internal(describe, values, "Animate this")
 
 def other_draw_long(describe, values):
     return draw_internal(describe, values, "Animate this with around 9000 frames", frames=9000, extra="_long")
