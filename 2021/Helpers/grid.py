@@ -612,6 +612,13 @@ class Grid:
         print("Done with drawing")
         self.grid = temp
 
+    def get_font(self, font_size):
+        from PIL import Image, ImageDraw, ImageFont
+        import os
+        source_code = os.path.join('Helpers', 'Font-SourceCodePro-Bold.ttf')
+        source_code = ImageFont.truetype(source_code, int(float(font_size) * 1.5))
+        return source_code
+
     def get_font_size(self, font_size):
         from PIL import Image, ImageDraw, ImageFont
         import os
