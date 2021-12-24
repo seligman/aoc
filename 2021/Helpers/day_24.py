@@ -247,7 +247,7 @@ def other_animate(describe, values):
         im.save(f"frame_{frame_no[0]:05d}.png")
         frame_no[0] += 1
 
-    skip_amt[0] = 3
+    skip_amt[0] = 4
     for a, b, use1, use2 in attempts:
         if (use1 not in testing) or (use2 not in testing):
             for x in [x for x in testing]:
