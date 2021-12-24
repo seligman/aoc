@@ -94,6 +94,40 @@ def other_compile(describe, values, log=print):
 
     return 0
 
+"""
+This next function is a placeholder to make autocomplete happy.  It's really compilied 
+at runtime using the helper above to something like this:
+
+def compiled(use, val):
+    x = 0
+    w = 0
+    y = 0
+    z = 0
+
+    if use is None or 0 in use:
+        w = val[0]
+        x = (z % 26) + 10
+        x = 0 if x == w else 1
+        y = (25 * x) + 1
+        z = z * y
+        y = (w + 12) * x
+        z = z + y
+
+    # ... removed most digits ...
+
+    if use is None or 13 in use:
+        w = val[13]
+        x = z % 26
+        z = z // 26
+        x = x - 14
+        x = 0 if x == w else 1
+        y = (25 * x) + 1
+        z = z * y
+        y = (w + 13) * x
+        z = z + y
+
+    return z
+"""
 def compiled(*args):
     raise Exception("Place holder function, replaced at runtime")
 
@@ -145,12 +179,6 @@ def calc(log, values, mode):
     skip = set()
     val = level(0, None, states[:], val[:], set(skip))
     return "".join(str(x) for x in val)
-
-def section(w, div, n1, n2, z):
-    x = 1 if ((z % 26) + n1) != w else 0
-    y1 = 25 * x + 1
-    y2 = (w + n2) * x
-    return (z // div) * y1 + y2
 
 def test(log):
     log("No test")
