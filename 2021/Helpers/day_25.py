@@ -3,9 +3,12 @@
 def get_desc():
     return 25, 'Day 25: Sea Cucumber'
 
-def calc(log, values, mode):
+def calc(log, values, mode, draw=False):
     from grid import Grid
     grid = Grid.from_text(values)
+
+    if draw:
+        animated = Grid()
 
     w, h = grid.width(), grid.height()
     steps = 1
@@ -34,9 +37,24 @@ def calc(log, values, mode):
             elif val == ">":
                 moved[xy] = val
         grid = moved
+        if draw:
+            animated.grid = grid.grid.copy()
+            animated.save_frame()
+    
         if count == 0:
+            if draw:
+                animated.draw_frames(show_lines=False)
             return steps
         steps += 1
+
+def other_draw(describe, values):
+    if describe:
+        return "Draw this"
+    from dummylog import DummyLog
+    import animate
+    animate.prep()
+    calc(DummyLog(), values, 1, draw=True)
+    animate.create_mp4(get_desc(), rate=10, final_secs=5)
 
 def test(log):
     values = log.decode_values("""
