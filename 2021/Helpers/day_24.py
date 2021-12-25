@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 import re
-from collections import defaultdict
+from collections import defaultdict, deque
 
 def get_desc():
     return 24, 'Day 24: Arithmetic Logic Unit'
@@ -287,88 +287,66 @@ def calc(log, values, mode, ret_attempts=False):
         ret[digit] = x
         return ret
 
+    # Find possible pairs
+    pairs = defaultdict(list)
+    for use1 in range(14):
+        for use2 in range(use1+1, 14):
+            for a in range(1, 10):
+                z_in = compiled(make_val(use1, a), z=1234)
+                for b in range(1, 10):
+                    z_out = compiled(make_val(use2, b), z=z_in)
+                    if z_out == 1234:
+                        pairs[(use1, use2)].append((a, b))
+
+    # Find all possible combinations
+    combinations = []
+    todo = deque()
+    todo.append((set(), [], list(pairs)))
+    while len(todo):
+        used, temp, to_check = todo.pop()
+        if len(used) == 14:
+            combinations.append(temp)
+        else:
+            for i, (use1, use2) in enumerate(to_check):
+                if use1 not in used and use2 not in used:
+                    todo.append((used | {use1, use2}, temp + [(use1, use2)], to_check[i+1:]))
+
+    # Of those combos, bulid up the list of valid (uses all digits) combos
     val = [None] * 14
-    used = set()
-    def try_couple():
-        ret = {}
-        for use1 in range(14):
-            for use2 in range(use1+1, 14):
-                temp = []
-                for a in range(1, 10):
-                    val[use1] = a
-                    for b in range(1, 10):
-                        val[use2] = b
-                        z = compiled(val)
-                        if z == 0:
-                            temp.append((a, b))
-                    val[use2] = None
-                val[use1] = None
-                if len(temp) > 0:
-                    ret[(use1, use2)] = temp
-        return ret
-    pairs = try_couple()
-
-    done = set()
-    def try_pairs(used):
-        for (use1, use2), possibles in pairs.items():
-            if use1 not in used and use2 not in used:
-                temp = frozenset(used | {use1, use2})
-                for a, b in possibles:
-                    val[use1] = a
-                    val[use2] = b
-                    if tuple(val) not in done:
-                        done.add(tuple(val))
-                        if len(used) == 12:
-                            if compiled(val) == 0:
-                                return True
-                                x = "".join(str(x) for x in val)
-                                print(x, x in done)
-                                done.add(x)
-                        else:
-                            if try_pairs(temp):
-                                return True
-        return False
-
-    try_pairs(frozenset())
-    z = 0
-    z_before = []
-    z_after = []
-    pairs = []
-    for i, x in enumerate(val):
-        z_before.append(z)
-        z = compiled(make_val(i, x), z=z)
-        z_after.append(z)
-
-    for i, z in enumerate(z_before):
-        if z in z_after[i+1:]:
-            pairs.append((i, z_after[i+1:].index(z) + i + 1))
-
-    minmax = [None, None]
-    val = [None] * 14
-    def try_known(pairs):
-        use1, use2 = pairs[0]
-        for a in range(1, 10):
-            val[use1] = a
-            for b in range(1, 10):
+    known = set()
+    good = set()
+    def apply(combo):
+        if len(combo) == 0:
+            key = "".join(str(x) for x in val)
+            if key not in known:
+                known.add(key)
+                if compiled(val) == 0:
+                    good.add(key)
+        else:
+            (use1, use2), combo = combo[0], combo[1:]
+            for a, b in pairs[(use1, use2)]:
+                val[use1] = a
                 val[use2] = b
-                z = compiled(val)
-                if z == 0:
-                    if len(pairs) > 1:
-                        try_known(pairs[1:])
-                    else:
-                        x = "".join(str(x) for x in val)
-                        if minmax[0] is None:
-                            minmax[0] = x
-                            minmax[1] = x
-                        else:
-                            minmax[0] = min(x, minmax[0])
-                            minmax[1] = max(x, minmax[1])
-                        # print(val)
+                apply(combo)
+            val[use1] = None
             val[use2] = None
-        val[use1] = None
 
-    try_known(pairs)
-    return minmax
+    # And then try each combo in turn, looking for good serial numbers
+    zero_change = 0
+    for combo in combinations:
+        last_len = len(good)
+        if combo[0] == (0, 13):
+            apply(combo)
+            if len(good) > 0 and len(good) == last_len:
+                zero_change += 1
+                if zero_change >= 15:
+                    # We can't find them anymore, no point trying all the possibilities
+                    break
+            else:
+                zero_change = 0
+            last_len = len(good)
+
+    return min(good), max(good)
 
 def test(log):
     log("No test")
