@@ -64,11 +64,10 @@ def compile_internal(values, collapse, log):
         else:
             ret.append([f"{g[0]}", f"1 if {g[0]} == {g[1]} else 0"])
 
-    log("def compiled(val, var_output=None):")
+    log("def compiled(val, var_output=None, z=0):")
     log("    x = 0")
     log("    w = 0")
     log("    y = 0")
-    log("    z = 0")
 
     for cur in values:
         m = re.search("^([a-z]+) ([a-z]+)$", cur)
@@ -112,11 +111,10 @@ def compile_internal(values, collapse, log):
 This next function is a placeholder to make autocomplete happy.  It's really compilied 
 at runtime using the helper above to something like this:
 
-def compiled(val, var_output=None):
+def compiled(val, var_output=None, z=0):
     x = 0
     w = 0
     y = 0
-    z = 0
 
     if val[0] is not None:
         w = val[0]
@@ -142,7 +140,7 @@ def compiled(val, var_output=None):
 
     return z
 """
-def compiled(val, var_output=None):
+def compiled(val, var_output=None, z=0):
     print("Place holder function, replaced at runtime")
     return True
 
@@ -284,53 +282,98 @@ def calc(log, values, mode, ret_attempts=False):
     compile_internal(values, True, log=helper_log)
     exec("\n".join(data), globals())
 
-    def tryout(use1, use2, val, possible):
-        for a in range(1, 10):
-            for b in range(1, 10):
-                val[use1] = a
-                val[use2] = b
-                if compiled(val) == 0:
-                    possible.append((a, b, use1, use2, True))
-                else:
-                    possible.append((a, b, use1, use2, False))
-        val[use1] = None
-        val[use2] = None
+    def make_val(digit, x):
+        ret = [None] * 14
+        ret[digit] = x
+        return ret
 
-    def level(depth, apply, val, attempts):
-        if apply is not None:
-            a, b, use1, use2, valid = apply
-            attempts.append((a, b, use1, use2))
-            if valid:
-                val[use1] = a
+    val = [None] * 14
+    used = set()
+    def try_couple():
+        ret = {}
+        for use1 in range(14):
+            for use2 in range(use1+1, 14):
+                temp = []
+                for a in range(1, 10):
+                    val[use1] = a
+                    for b in range(1, 10):
+                        val[use2] = b
+                        z = compiled(val)
+                        if z == 0:
+                            temp.append((a, b))
+                    val[use2] = None
+                val[use1] = None
+                if len(temp) > 0:
+                    ret[(use1, use2)] = temp
+        return ret
+    pairs = try_couple()
+
+    done = set()
+    def try_pairs(used):
+        for (use1, use2), possibles in pairs.items():
+            if use1 not in used and use2 not in used:
+                temp = frozenset(used | {use1, use2})
+                for a, b in possibles:
+                    val[use1] = a
+                    val[use2] = b
+                    if tuple(val) not in done:
+                        done.add(tuple(val))
+                        if len(used) == 12:
+                            if compiled(val) == 0:
+                                return True
+                                x = "".join(str(x) for x in val)
+                                print(x, x in done)
+                                done.add(x)
+                        else:
+                            if try_pairs(temp):
+                                return True
+        return False
+
+    try_pairs(frozenset())
+    z = 0
+    z_before = []
+    z_after = []
+    pairs = []
+    for i, x in enumerate(val):
+        z_before.append(z)
+        z = compiled(make_val(i, x), z=z)
+        z_after.append(z)
+
+    for i, z in enumerate(z_before):
+        if z in z_after[i+1:]:
+            pairs.append((i, z_after[i+1:].index(z) + i + 1))
+
+    minmax = [None, None]
+    val = [None] * 14
+    def try_known(pairs):
+        use1, use2 = pairs[0]
+        for a in range(1, 10):
+            val[use1] = a
+            for b in range(1, 10):
                 val[use2] = b
-                if sum(1 for x in val if x is None) == 0:
-                    return val, attempts
-            else:
-                return None
-        attempts = attempts[:]
-        use1 = val.index(None)
-        use2 = 13 - val[::-1].index(None)
-        possible = []
-        tryout(use1, use2, val, possible)
-        if sum(x[4] for x in possible) == 0:
-            use1 = val.index(None)
-            use2 = val[use1+1:].index(None) + use1 + 1
-            tryout(use1, use2, val, possible)
-        possible.sort(reverse=mode==1)
-        for x in possible:
-            ret = level(depth + 1, x, val[:], attempts)
-            if ret is not None:
-                return ret
-        return None
-    
-    val, attempts = level(0, None, [None for _ in range(14)], [])
-    if ret_attempts:
-        return attempts
-    return "".join(str(x) for x in val)
+                z = compiled(val)
+                if z == 0:
+                    if len(pairs) > 1:
+                        try_known(pairs[1:])
+                    else:
+                        x = "".join(str(x) for x in val)
+                        if minmax[0] is None:
+                            minmax[0] = x
+                            minmax[1] = x
+                        else:
+                            minmax[0] = min(x, minmax[0])
+                            minmax[1] = max(x, minmax[1])
+                        # print(val)
+            val[use2] = None
+        val[use1] = None
+
+    try_known(pairs)
+    return minmax
 
 def test(log):
     log("No test")
 
 def run(log, values):
-    log(calc(log, values, 1))
-    log(calc(log, values, 2))
+    a, b = calc(log, values, 1)
+    log(b)
+    log(a)
