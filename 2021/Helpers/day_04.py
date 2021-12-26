@@ -3,8 +3,8 @@
 import re
 from collections import defaultdict
 
-def get_desc():
-    return 4, 'Day 4: Giant Squid'
+DAY_NUM = 4
+DAY_DESC = 'Day 4: Giant Squid'
 
 def lines():
     for x in range(5):
@@ -75,3 +75,14 @@ def test(log):
 def run(log, values):
     log(calc(log, values, 1))
     log(calc(log, values, 2))
+
+if __name__ == "__main__":
+    import sys, os
+    cur = None
+    for cur in sys.argv[1:] + ["input.txt", "day_##_input.txt", "Puzzles/day_##_input.txt", "../Puzzles/day_##_input.txt"]:
+        cur = os.path.join(*cur.split("/")).replace("##", f"{DAY_NUM:02d}")
+        if os.path.isfile(cur): fn = cur; break
+    if cur is None: print("Unable to find input file!"); exit(1)
+    with open(fn) as f: values = f.readlines()
+    print(f"Running day {DAY_DESC}:")
+    run(print, values)

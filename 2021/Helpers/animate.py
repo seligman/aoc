@@ -35,7 +35,7 @@ def rotate(origin, point, angle):
     qy = oy + math.sin(angle) * (px - ox) + math.cos(angle) * (py - oy)
     return qx, qy
 
-def create_mp4(desc, extra="", keep_files=False, rate=10, final_secs=None):
+def create_mp4(day_num, extra="", keep_files=False, rate=10, final_secs=None):
     if final_secs is not None:
         last_frame = 0
         while True:
@@ -60,7 +60,7 @@ def create_mp4(desc, extra="", keep_files=False, rate=10, final_secs=None):
         "-vf", "pad=ceil(iw/2)*2:ceil(ih/2)*2",
         "-an", 
         "-movflags", "+faststart",
-        os.path.join("animations", f"animation_{desc[0]:02d}{extra}.mp4"),
+        os.path.join("animations", f"animation_{day_num:02d}{extra}.mp4"),
     ]
     print("$ " + " ".join(cmd))
     subprocess.check_call(cmd)

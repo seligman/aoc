@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+from PIL.ImageFont import truetype
 from command_opts import opt, main_entry, enable_ansi
 import utils
 import os
@@ -8,7 +9,8 @@ import re
 import textwrap
 import time
 import sys
-import codecs
+import json
+import tempfile
 from datetime import datetime, timedelta
 from advent_year import YEAR_NUMBER
 
@@ -87,9 +89,9 @@ class Logger:
     def test(self, actual, expected):
         if actual != expected:
             enable_ansi()
-            self.show("Test returned %s, \x1b[97;101mexpected %s\x1b[m" % (str(actual), str(expected)))
+            self.show(f"Test returned {actual}, \x1b[97;101mexpected {expected}\x1b[m")
         else:
-            self.show("Test returned %s, expected %s" % (str(actual), str(expected)))
+            self.show(f"Test returned {actual}, expected {expected}")
         if actual != expected:
             raise ValueError("Test failure")
 
@@ -142,9 +144,9 @@ def update_selfs():
                 with open(dest, "rb") as f:
                     dest_data = f.read()
                 if dest_data == source_data:
-                    print("%s is already up to date" % (dest,))
+                    print(f"{dest} is already up to date")
                 else:
-                    print("Updating %s..." % (dest,))
+                    print(f"Updating {dest}...")
                     edit_file(dest)
                     with open(dest, "wb") as f:
                         f.write(source_data)
@@ -169,9 +171,9 @@ def alt(file_number):
 def get_input_file(helper, file_type="input"):
     global ALT_DATA_FILE
     if ALT_DATA_FILE is None or ALT_DATA_FILE == 0:
-        fn = "day_%02d_%s.txt" % (helper.get_desc()[0], file_type)
+        fn = f"day_{helper.DAY_NUM:02d}_{file_type}.txt"
     else:
-        fn = "day_%02d_%s_alt_%02d.txt" % (helper.get_desc()[0], file_type, ALT_DATA_FILE)
+        fn = f"day_{helper.DAY_NUM:02d}_{file_type}_alt_{ALT_DATA_FILE:02d}.txt"
     return os.path.join("Puzzles", fn)
 
 
@@ -179,7 +181,7 @@ def get_input_file(helper, file_type="input"):
 def gen_comment():
     max_day = 0
     for helper in utils.get_helpers():
-        max_day = max(helper.get_desc()[0], max_day)
+        max_day = max(helper.DAY_NUM, max_day)
     
     scores_url = "https://adventofcode.com/" + YEAR_NUMBER + "/leaderboard/self"
     score_re = re.compile(r"^ *(?P<day>\d+) +\d+:\d+:\d+ +(?P<score1>\d+) +\d+ +\d+:\d+:\d+ +(?P<score2>\d+) +\d+ *$")
@@ -202,9 +204,9 @@ def gen_comment():
         print("Warning: Couldn't find day!")
         print("")
     
-    print("Python, %d / %d" % (score1, score2))
+    print(f"Python, {score1} / {score2}")
     print("")
-    print("[github](https://github.com/seligman/aoc/blob/master/" + YEAR_NUMBER + "/Helpers/day_%02d.py)" % (max_day,))
+    print(f"[github](https://github.com/seligman/aoc/blob/master/{YEAR_NUMBER}/Helpers/day_{max_day}.py)")
 
 
 @opt("Launch website")
@@ -217,10 +219,10 @@ def launch():
 
     for url in urls:
         if os.name == 'nt':
-            cmd = "cmd /c start %s" % (url,)
+            cmd = ["cmd", "/c", "start", url]
         else:
-            cmd = "open %s" % (url,)
-        subprocess.check_call(cmd.split(' '))
+            cmd = ["open", url]
+        subprocess.check_call(cmd)
     subprocess.check_call("code .", shell=True)
     make_day_wait()
 
@@ -229,11 +231,11 @@ def launch():
 def show_others(helper_day):
     sys.path.insert(0, 'Helpers')
     for helper in get_helpers_id(helper_day):
-        print("## %s" % (helper.get_desc()[1]))
+        print(f"## {helper.DAY_DESC}")
         found = False
         for cur in dir(helper):
             if cur.startswith("other_"):
-                print("%s - %s" % (cur[6:], getattr(helper, cur)(True, None)))
+                print(f"{cur[6:]} - {getattr(helper, cur)(True, None)}")
                 found = True
         if not found:
             print("(No other commands found)")
@@ -253,8 +255,8 @@ def run_other(helper_day, command):
                 getattr(helper, cur)(False, values)
                 found = True
         if not found:
-            print("## %s" % (helper.get_desc()[1]))
-            print("ERROR: Unable to find '%s'" % (command,))
+            print(f"## {helper.DAY_DESC}")
+            print(f"ERROR: Unable to find '{command}'")
 
 
 @opt("Make new day (Offline)")
@@ -271,7 +273,7 @@ def make_day(target_day="cur"):
 def make_day_wait(target_day="cur"):
     import sleeper
     import random
-    resp = get_page("https://adventofcode.com/%s" % (YEAR_NUMBER,))
+    resp = get_page(f"https://adventofcode.com/{YEAR_NUMBER}")
     m = re.search("var server_eta *= *(?P<eta>\d+);", resp)
     eta = int(m.group("eta")) + random.randint(5, 10)
     if sleeper.sleep(str(eta), exit_at_end=False):
@@ -300,7 +302,6 @@ def save_cookie(browser="Chrome", alt_id=""):
             print(f"  {x}")
         exit(1)
     fn = os.path.expanduser(os.path.join("~", ".aoc_cookies.json"))
-    import json
     if os.path.isfile(fn):
         with open(fn) as f:
             data = json.load(f)
@@ -328,7 +329,6 @@ def get_cookie():
         save_cookie(alt_id="-1" if (ALT_DATA_FILE is None or ALT_DATA_FILE == 0) else ALT_DATA_FILE)
 
     with open(fn) as f:
-        import json
         data = json.load(f)
         return data[str(-1 if (ALT_DATA_FILE is None or ALT_DATA_FILE == 0) else ALT_DATA_FILE)]
 
@@ -343,21 +343,21 @@ def make_day_helper(offline, force_day=None):
 
     if force_day is None or force_day.lower() == "cur":
         helper_day = 1
-        while os.path.isfile(os.path.join("Helpers", "day_%02d.py" % (helper_day,))):
+        while os.path.isfile(os.path.join("Helpers", f"day_{helper_day:02d}.py")):
             helper_day += 1
     else:
         helper_day = int(force_day)
 
     files = [
-        os.path.join("Puzzles", "day_%02d_input.txt" % (helper_day,)),
-        os.path.join("Helpers", "day_%02d.py" % (helper_day,)),
-        os.path.join("Puzzles", "day_%02d.html" % (helper_day,)),
-        os.path.join("Puzzles", "day_%02d.html.DO_NOT_CHECK_THIS_FILE_IN" % (helper_day,)),
+        os.path.join("Puzzles", f"day_{helper_day:02d}_input.txt"),
+        os.path.join("Helpers", f"day_{helper_day:02d}.py"),
+        os.path.join("Puzzles", f"day_{helper_day:02d}.html"),
+        os.path.join("Puzzles", f"day_{helper_day:02d}.html.DO_NOT_CHECK_THIS_FILE_IN"),
     ]
 
     for filename in files:
         if os.path.isfile(filename):
-            print("ERROR: '%s' already exists!" % (filename,))
+            print(f"ERROR: '{filename}' already exists!")
             return
 
     todo = "TODO"
@@ -366,14 +366,14 @@ def make_day_helper(offline, force_day=None):
             todo = dl_day(str(helper_day))
 
         with open(os.path.join("Helpers", "example.txt")) as f_src:
-            with open(os.path.join("Helpers", "day_%02d.py" % (helper_day,)), "w") as f_dest:
+            with open(os.path.join("Helpers", f"day_{helper_day:02d}.py"), "w") as f_dest:
                 data = f_src.read()
-                data = data.replace("DAY0_NUM", "%02d" % (helper_day,))
-                data = data.replace("DAY_NUM", "%d" % (helper_day,))
-                data = data.replace("DAY_TODO", todo)
+                data = data.replace("NEED_DAY0_NUM", f"{helper_day:02d}")
+                data = data.replace("NEED_DAY_NUM", str(helper_day))
+                data = data.replace("NEED_DAY_DESC", todo)
                 f_dest.write(data)
 
-    with open(os.path.join("Puzzles", "day_%02d.html.DO_NOT_CHECK_THIS_FILE_IN" % (helper_day,)), "w") as f:
+    with open(os.path.join("Puzzles", f"day_{helper_day:02d}.html.DO_NOT_CHECK_THIS_FILE_IN"), "w") as f:
         f.write("You need to rerun dl_day!")
 
     if not offline:
@@ -387,13 +387,13 @@ def make_day_helper(offline, force_day=None):
                     cmd = ["cmd", "/c"] + cmd
                 subprocess.check_call(cmd)
 
-    print("Created day #%d" % (helper_day,))
+    print(f"Created day #{helper_day}")
 
 
 @opt("Show days")
 def show_days():
     for helper in utils.get_helpers():
-        print(helper.get_desc()[1])
+        print(helper.DAY_DESC)
 
 
 def get_helpers_id(helper_day):
@@ -407,7 +407,7 @@ def get_helpers_id(helper_day):
             if value.lower() in {"last", "latest", "cur", "now"}:
                 last = None
                 for helper in utils.get_helpers():
-                    last = helper.get_desc()[0]
+                    last = helper.DAY_NUM
                 return last
             else:
                 return int(value)
@@ -421,7 +421,7 @@ def get_helpers_id(helper_day):
                 valid.add(parse_value(part))
 
         for helper in utils.get_helpers():
-            if helper.get_desc()[0] in valid:
+            if helper.DAY_NUM in valid:
                 yield helper
 
 
@@ -433,7 +433,7 @@ def test(helper_day):
     sys.path.insert(0, 'Helpers')
 
     for helper in get_helpers_id(helper_day):
-        print("## %s" % (helper.get_desc()[1]))
+        print(f"## {helper.DAY_DESC}")
         try:
             resp = helper.test(Logger())
             if resp is not None and resp == False:
@@ -448,7 +448,7 @@ def test(helper_day):
     if good + bad > 1:
         print("# " + "-" * 60)
 
-    print("Done, %d worked, %d failed" % (good, bad))
+    print(f"Done, {good} worked, {bad} failed")
     if bad != 0:
         enable_ansi()
         print("\x1b[97;101m" + "  THERE WERE PROBLEMS  " + "\x1b[m")
@@ -480,7 +480,7 @@ def run_time(helper_day):
     start = datetime.utcnow()
     run(helper_day)
     end = datetime.utcnow()
-    safe_print("Done, that took %0.2f seconds" % ((end - start).total_seconds()))
+    safe_print(f"Done, that took {(end - start).total_seconds():0.2f} seconds")
 
 
 @opt("Run helper")
@@ -512,18 +512,38 @@ def run_helper(helper_day, save):
 
     passed = 0
     failed = []
+    cached_runs = {"year": YEAR_NUMBER}
+    if os.path.isfile(os.path.join(tempfile.gettempdir(), "aoc_run_cache.json")):
+        try:
+            with open(os.path.join(tempfile.gettempdir(), "aoc_run_cache.json")) as f:
+                cached_runs = json.load(f)
+            if cached_runs["year"] != YEAR_NUMBER:
+                cached_runs = {"year": YEAR_NUMBER}
+        except:
+            cached_runs = {"year": YEAR_NUMBER}
+    cached_runs['changed'] = False
 
     for helper in get_helpers_id(helper_day):
-        safe_print("## %s" % (helper.get_desc()[1]))
+        safe_print(f"## {helper.DAY_DESC}")
         with open(get_input_file(helper)) as f:
             values = []
             for cur in f:
                 values.append(cur.strip("\r\n"))
         log = Logger()
         start = datetime.utcnow()
-        helper.run(log, values)
+        real_run = True
+        if save and cached_runs.get(str(helper.DAY_NUM), {}).get("hash", "--") == helper.hash:
+            log.rows = cached_runs[str(helper.DAY_NUM)]["rows"]
+            for row in log.rows:
+                print(row.rstrip("\r\n"))
+            real_run = False
+        else:
+            helper.run(log, values)
+            cached_runs[str(helper.DAY_NUM)] = {"hash": helper.hash, "rows": log.rows}
+            cached_runs["changed"] = True
         finish = datetime.utcnow()
-        safe_print("# That took %.4f seconds to complete" % ((finish - start).total_seconds(),))
+        if real_run:
+            safe_print(f"# That took {(finish - start).total_seconds():.4f} seconds to complete")
         filename = get_input_file(helper, file_type="expect")
         if save:
             if os.path.isfile(filename):
@@ -540,16 +560,21 @@ def run_helper(helper_day, save):
                 else:
                     enable_ansi()
                     safe_print("# " + "\x1b[97;101m" + "  ERROR: Expected output doesn't match!  " + "\x1b[m")
-                    failed.append("## %s FAILED!" % (helper.get_desc()[1]))
+                    failed.append(f"## {helper.DAY_DESC} FAILED!")
             else:
                 safe_print("# No expected output to check")
 
+    if cached_runs["changed"]:
+        with open(os.path.join(tempfile.gettempdir(), "aoc_run_cache.json"), "wt") as f:
+            json.dump(cached_runs, f, indent=2, sort_keys=True)
+            f.write("\n")
+
     if passed + len(failed) > 1:
         safe_print("# " + "-" * 60)
-        safe_print("Passed: %d" % (passed,))
+        safe_print(f"Passed: {passed}")
         if len(failed) > 0:
             enable_ansi()
-            safe_print("# " + "\x1b[97;101m" + "  ERROR: Failed: %d  " % (len(failed),) + "\x1b[m")
+            safe_print(f"# \x1b[97;101m  ERROR: Failed: {len(failed)}  \x1b[m")
             for cur in failed:
                 safe_print(cur)
 
@@ -560,7 +585,7 @@ def make_demo(helper_day):
 
     blanks = 0
     for helper in get_helpers_id(helper_day):
-        filename = os.path.join("Helpers", "day_%02d.py" % (helper.get_desc()[0],))
+        filename = os.path.join("Helpers", f"day_{helper.DAY_NUM:02d}.py")
         with open(filename) as f:
             for cur in f:
                 cur = cur.strip("\r\n")
@@ -589,15 +614,15 @@ def make_demo(helper_day):
         print('    import sys')
         print('    if (sys.version_info.major, sys.version_info.minor) != (2, 7):')
         print('        print("WARNING: I expect to run on Python 2.7, no clue what\'s about to happen!")')
-        print('    filename = "day_%02d_input.txt" % (get_desc()[0],)')
+        print('    filename = f"day_{DAY_NUM:02d}_input.txt"')
         print('    if not os.path.isfile(filename):')
-        print('        print("ERROR: Need \'%s\' puzzle input to continue" % (filename,))')
+        print('        print(f"ERROR: Need \'{filename}\' puzzle input to continue")')
         print('        return')
         print('    with open(filename) as f:')
         print('        values = []')
         print('        for line in f:')
         print('            values.append(line.strip("\\r\\n"))')
-        print('    print("## Running \'%s\'..." % (get_desc()[1],))')
+        print('    print(f"## Running \'{DAY_DESC}\'...")')
         print('    run(Logger(), values)')
         print('    print("All done!")')
         print('')
@@ -645,13 +670,13 @@ def get_page(url):
 
 @opt("Download Index")
 def get_index():
-    resp = get_page("https://adventofcode.com/%s" % (YEAR_NUMBER,))
+    resp = get_page(f"https://adventofcode.com/{YEAR_NUMBER}")
 
     resp = re.sub("^.*<main>", "", resp, flags=re.DOTALL)
     resp = re.sub("</main>.*$", "", resp, flags=re.DOTALL)
 
     for i in range(30, 0, -1):
-        resp = resp.replace("/%s/day/%d" % (YEAR_NUMBER, i), "day_%02d.html" % (i,))
+        resp = resp.replace(f"/{YEAR_NUMBER}/day/{i}", f"day_{i:02d}.html")
 
     header, footer = get_header_footer()
 
@@ -673,29 +698,29 @@ def dl_day(helper_day, input_only="no"):
         if already_downloaded:
             time.sleep(0.250)
         already_downloaded = True
-        helper_day = helper.get_desc()[0]
+        helper_day = helper.DAY_NUM
 
         if not input_only:
-            bad_file = os.path.join("Puzzles", "day_%02d.html.DO_NOT_CHECK_THIS_FILE_IN" % (helper_day,))
+            bad_file = os.path.join("Puzzles", f"day_{helper_day:02d}.html.DO_NOT_CHECK_THIS_FILE_IN")
             if os.path.isfile(bad_file):
                 os.unlink(bad_file)
                 revert_file(bad_file)
 
         if ALT_DATA_FILE is None or ALT_DATA_FILE == 0:
-            filename = os.path.join("Puzzles", "day_%02d_input.txt" % (helper_day,))
+            filename = os.path.join("Puzzles", f"day_{helper_day:02d}_input.txt")
         else:
-            filename = os.path.join("Puzzles", "day_%02d_input_alt_%02d.txt" % (helper_day, ALT_DATA_FILE))
+            filename = os.path.join("Puzzles", f"day_{helper_day:02d}_input_alt_{ALT_DATA_FILE:02d}.txt")
 
         if not os.path.isfile(filename):
-            resp = get_page("https://adventofcode.com/%s/day/%d/input" % (YEAR_NUMBER, helper_day))
+            resp = get_page(f"https://adventofcode.com/{YEAR_NUMBER}/day/{helper_day}/input")
 
             with open(filename, "wt", encoding="utf-8") as f:
                 f.write(resp)
 
-            print("Wrote out puzzle input for day #%d" % (helper_day,))
+            print(f"Wrote out puzzle input for day #{helper_day}")
 
         if not input_only:
-            resp = get_page("https://adventofcode.com/%s/day/%d" % (YEAR_NUMBER, helper_day))
+            resp = get_page(f"https://adventofcode.com/{YEAR_NUMBER}/day/{helper_day}")
 
             resp = re.sub("^.*<main>", "", resp, flags=re.DOTALL)
             resp = re.sub("</main>.*$", "", resp, flags=re.DOTALL)
@@ -703,10 +728,10 @@ def dl_day(helper_day, input_only="no"):
 
             header, footer = get_header_footer()
 
-            with open(os.path.join("Puzzles", "day_%02d.html" % (helper_day,)), "wt", encoding="utf-8") as f:
+            with open(os.path.join("Puzzles", f"day_{helper_day:02d}.html"), "wt", encoding="utf-8") as f:
                 f.write(header + resp + footer)
 
-            print("Wrote out puzzle for day #%d" % (helper_day,))
+            print(f"Wrote out puzzle for day #{helper_day}")
 
             m = re.search("<h2>--- (.*?) ---</h2>", resp)
             if m:

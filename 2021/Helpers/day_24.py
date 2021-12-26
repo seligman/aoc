@@ -3,8 +3,8 @@
 import re
 from collections import defaultdict, deque
 
-def get_desc():
-    return 24, 'Day 24: Arithmetic Logic Unit'
+DAY_NUM = 24
+DAY_DESC = 'Day 24: Arithmetic Logic Unit'
 
 def other_compile(describe, values):
     if describe:
@@ -272,7 +272,7 @@ def other_animate(describe, values):
     [to_show.add(x) for x in range(14)]
     compiled(val, var_output=draw_step)
 
-    animate.create_mp4(get_desc(), rate=30)
+    animate.create_mp4(DAY_NUM, rate=30)
         
 
 def calc(log, values, mode, ret_attempts=False):
@@ -355,3 +355,14 @@ def run(log, values):
     a, b = calc(log, values, 1)
     log(b)
     log(a)
+
+if __name__ == "__main__":
+    import sys, os
+    cur = None
+    for cur in sys.argv[1:] + ["input.txt", "day_##_input.txt", "Puzzles/day_##_input.txt", "../Puzzles/day_##_input.txt"]:
+        cur = os.path.join(*cur.split("/")).replace("##", f"{DAY_NUM:02d}")
+        if os.path.isfile(cur): fn = cur; break
+    if cur is None: print("Unable to find input file!"); exit(1)
+    with open(fn) as f: values = f.readlines()
+    print(f"Running day {DAY_DESC}:")
+    run(print, values)

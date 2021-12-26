@@ -2,8 +2,8 @@
 
 import re
 
-def get_desc():
-    return 17, 'Day 17: Trick Shot'
+DAY_NUM = 17
+DAY_DESC = 'Day 17: Trick Shot'
 
 def calc(log, values, mode, results=None):
     m = re.search(r"target area: x=(-?\d+)\.\.(-?\d+), y=(-?\d+)\.\.(-?\d+)", values[0])
@@ -88,7 +88,7 @@ def other_draw(describe, values):
     if len(temp) > 0:
         grid.save_frame(extra=[grid.axis_min(0), grid.axis_min(1), temp])
     grid.draw_frames(cell_size=(4, 4), show_lines=False, extra_callback=draw_trail, use_multiproc=False)
-    animate.create_mp4(get_desc(), rate=15, final_secs=5)
+    animate.create_mp4(DAY_NUM, rate=15, final_secs=5)
 
 def draw_trail(d, extra):
     xmin, ymin, trails = extra
@@ -111,3 +111,14 @@ def run(log, values):
     overall_best, possible = calc(log, values, 1)
     log(overall_best)
     log(possible)
+
+if __name__ == "__main__":
+    import sys, os
+    cur = None
+    for cur in sys.argv[1:] + ["input.txt", "day_##_input.txt", "Puzzles/day_##_input.txt", "../Puzzles/day_##_input.txt"]:
+        cur = os.path.join(*cur.split("/")).replace("##", f"{DAY_NUM:02d}")
+        if os.path.isfile(cur): fn = cur; break
+    if cur is None: print("Unable to find input file!"); exit(1)
+    with open(fn) as f: values = f.readlines()
+    print(f"Running day {DAY_DESC}:")
+    run(print, values)

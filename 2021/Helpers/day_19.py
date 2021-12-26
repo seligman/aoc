@@ -2,8 +2,8 @@
 
 from collections import deque, defaultdict
 
-def get_desc():
-    return 19, 'Day 19: Beacon Scanner'
+DAY_NUM = 19
+DAY_DESC = 'Day 19: Beacon Scanner'
 
 def rotations():
     return [
@@ -245,3 +245,14 @@ def run(log, values):
     points, dist = calc(log, values, 1)
     log(points)
     log(dist)
+
+if __name__ == "__main__":
+    import sys, os
+    cur = None
+    for cur in sys.argv[1:] + ["input.txt", "day_##_input.txt", "Puzzles/day_##_input.txt", "../Puzzles/day_##_input.txt"]:
+        cur = os.path.join(*cur.split("/")).replace("##", f"{DAY_NUM:02d}")
+        if os.path.isfile(cur): fn = cur; break
+    if cur is None: print("Unable to find input file!"); exit(1)
+    with open(fn) as f: values = f.readlines()
+    print(f"Running day {DAY_DESC}:")
+    run(print, values)

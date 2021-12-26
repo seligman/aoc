@@ -2,8 +2,8 @@
 
 import re
 
-def get_desc():
-    return 22, 'Day 22: Reactor Reboot'
+DAY_NUM = 22
+DAY_DESC = 'Day 22: Reactor Reboot'
 
 def union(vals, x, y):
     if len(vals) == 0 or vals[-1] < x or vals[0] > y:
@@ -121,3 +121,14 @@ def test(log):
 def run(log, values):
     log(calc(log, values, 1))
     log(calc(log, values, 2))
+
+if __name__ == "__main__":
+    import sys, os
+    cur = None
+    for cur in sys.argv[1:] + ["input.txt", "day_##_input.txt", "Puzzles/day_##_input.txt", "../Puzzles/day_##_input.txt"]:
+        cur = os.path.join(*cur.split("/")).replace("##", f"{DAY_NUM:02d}")
+        if os.path.isfile(cur): fn = cur; break
+    if cur is None: print("Unable to find input file!"); exit(1)
+    with open(fn) as f: values = f.readlines()
+    print(f"Running day {DAY_DESC}:")
+    run(print, values)
