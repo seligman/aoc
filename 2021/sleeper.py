@@ -7,14 +7,14 @@ import re
 import threading
 import math
 
-ENABLE_SERVER = False
+ENABLE_SERVER = True
 
 def _make_server_call(**kargs):
     from urllib.request import urlopen
     from urllib.parse import urlencode
     import json
-    kargs["cookie"] = ""
-    url = "?" + urlencode(kargs)
+    kargs["cookie"] = "vginkuxtyorqaelwjmzdphfbs"
+    url = "https://gex5mj1v01.execute-api.us-west-2.amazonaws.com/default/sleeper?" + urlencode(kargs)
     return json.loads(urlopen(url).read())
 
 
