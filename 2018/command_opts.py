@@ -5,7 +5,7 @@ import sys
 import inspect
 import textwrap
 
-VERSION = 18
+VERSION = 19
 SAMPLE_CODE = """
 # --------------------------------------------------------------------------
 # This module is not meant to be run directly.  To use it, add code like
@@ -167,28 +167,29 @@ def main_entry(order_by='none', include_other=False, program_desc=None, default_
 
     # Something wasn't right, so dump the help
     if not good:
-        if default_action is not None:
-            # Look for an explicit help request
-            help_found = False
-            for cur in sys.argv[1:]:
-                if cur.lower() in {"-h", "/h", "--help", "-?", "/?"}:
-                    help_found = True
-                    break
-            # If we didn't explictly ask for help, see if 
-            # there's a default action we can call
-            if not help_found:
-                # Allow either passing in a string, or function to call
-                if isinstance(default_action, str):
-                    for arg in _g_options:
-                        for func_name in arg.func_names:
-                            if default_action.replace("-", "_") == func_name:
-                                default_action = arg.func
-                default_action(*sys.argv[1:])
-                return
+        # Look for an explicit help request
+        help_found = False
+        for cur in sys.argv[1:]:
+            if cur.lower() in {"-h", "/h", "--help", "-?", "/?"}:
+                help_found = True
+                break
+
+        # If there wasn't an explicit ask for help, and there's a 
+        # default action to call, go ahead and use it
+        if default_action is not None and not help_found:
+            # Allow either passing in a string, or function to call
+            if isinstance(default_action, str):
+                for arg in _g_options:
+                    for func_name in arg.func_names:
+                        if default_action.replace("-", "_") == func_name:
+                            default_action = arg.func
+            default_action(*sys.argv[1:])
+            return
 
         # Ok, if we get here, we're going to show help, but first
-        # see if there's a picker to call instead
-        if picker is not None:
+        # see if there's a picker to call instead, only if there
+        # isn't an explicit ask for help
+        if picker is not None and not help_found:
             # We've been told to use a picker as a backup method of 
             # selecting an action, so call it and see if it runs
             options = []
