@@ -5,7 +5,7 @@ import sys
 import inspect
 import textwrap
 
-VERSION = 19
+VERSION = 20
 SAMPLE_CODE = """
 # --------------------------------------------------------------------------
 # This module is not meant to be run directly.  To use it, add code like
@@ -29,21 +29,56 @@ if __name__ == "__main__":
 _g_options = []
 
 
+def opt_to_bool(value):
+    # Helper to turn an opt into a bool, can return None if the value is empty
+    if isinstance(value, bool):
+        return value
+
+    if not isinstance(value, str):
+        value = str(value)
+
+    if len(value) == 0:
+        return None
+    
+    return value.lower() in {"true", "yes", "y"}
+
+
+def opt_to_int(value):
+    # Helper to turn an opt into an int, can return None if the value is empty
+    # Also returns None if the value isn't parsable as a number
+    if isinstance(value, int):
+        return value
+    
+    if not isinstance(value, str):
+        value = str(value)
+    
+    if len(value) == 0:
+        return None
+    
+    try:
+        return int(value)
+    except:
+        return None
+
+
 class OptMethod:
+    # Internal data structure to keep track a single option
+
     def __init__(self, help):
-        self.func = None
-        self.func_names = []
-        self.help = help
-        self.args = []
-        self.hidden = False
-        self.other = None
-        self.aka = None
-        self.special = None
-        self.module_name = ""
-        self.group_name = ""
-        self.default = False
+        self.func = None            # The function to call when the option is picked
+        self.func_names = []        # List of all strings that this option can can be called by
+        self.help = help            # The help description for this option
+        self.args = []              # List of arguments for this option
+        self.hidden = False         # Is this option hidden on the help screen?
+        self.other = None           # The default name for this option (synthesized from .func_names)
+        self.aka = None             # List of all other names for this option (synthesized from .func_names)
+        self.special = None         # Optional key to control the sort order for 'sort' sort order
+        self.module_name = ""       # The module name the option came from
+        self.group_name = ""        # Optional group name for this option
+        self.default = False        # Is option selected automatically when no option picked?
 
     def create_clones(self):
+        # Helper to create a clone of a valid option
         if len(self.func_names) >= 1:
             ret = OptMethod(self.help)
             ret.func = self.func
@@ -59,10 +94,16 @@ class OptMethod:
 
 
 def opt(*args, **kargs):
+    # This method acts as the decorator for the function
+    # It's primary job is to crack out the various options passed in, create
+    # a OptMethod object and add it to the global list of options.  It returns
+    # a function that can be called, making the decorator work
+
     global _g_options
     method = OptMethod(args[0])
     _g_options.append(method)
 
+    # Crack out the various options
     if 'hidden' in kargs and kargs['hidden']:
         method.hidden = True
 
@@ -81,6 +122,8 @@ def opt(*args, **kargs):
     if 'default' in kargs:
         method.default = kargs['default']
 
+    # Create a bounce function that's actually called by scripts
+    # This exists to let us get a pointer to the real function
     def real_opts(func):
         if len(method.func_names) == 0:
             method.func_names.append(func.__name__)
@@ -292,6 +335,14 @@ def main_entry(order_by='none', include_other=False, program_desc=None, default_
 
 
 def main():
+    # If called as a script, just dump a little help screen
+    # showing how to embed this script in another script
+
+    # See what this script should be called, basically
+    # if this is in a package, add the package name, 
+    # otherwise the name is just "command_opts", but only
+    # support for Python3, since the python2 "version" of
+    # this script rarely gets new features
     import_name = "command_opts"
     if __name__ != "__main__":
         import_name = __name__
