@@ -7,15 +7,9 @@ import re
 import threading
 import math
 
-ENABLE_SERVER = True
-
+ENABLE_SERVER = False
 def _make_server_call(**kargs):
-    from urllib.request import urlopen
-    from urllib.parse import urlencode
-    import json
-    kargs["cookie"] = "vginkuxtyorqaelwjmzdphfbs"
-    url = "https://gex5mj1v01.execute-api.us-west-2.amazonaws.com/default/sleeper?" + urlencode(kargs)
-    return json.loads(urlopen(url).read())
+    raise Exception()
 
 
 def _input_thread(sentinel):
@@ -224,30 +218,39 @@ def run_timer():
 def main():
     sleep_amount = None
     keep_going = False
-    val = " ".join(sys.argv[1:])
+    val = sys.argv[1:]
 
-    if ENABLE_SERVER and val.startswith("server run ") or val.startswith("run server "):
+    if ENABLE_SERVER and len(val) > 2 and (val[0], val[1]) in {("server", "run"), ("run", "server")}:
         _launch_server()
-        time_command(val[11:])
-        val = str(_get_time(_server_id)[1])
-    elif ENABLE_SERVER and val == "server timer" or val == "timer server":
+        time_command(" ".join(val[2:]))
+        val = [str(_get_time(_server_id)[1])]
+    elif ENABLE_SERVER and len(val) >= 2 and (val[0], val[1]) in {("server", "timer"), ("timer", "server")}:
         _launch_server()
         run_timer()
-        val = str(_get_time(_server_id)[1])
-    elif val.startswith("run "):
-        exit(time_command(val[4:]))
-    elif val == "timer":
+        val = [str(_get_time(_server_id)[1])]
+    elif len(val) > 1 and val[0] == "run":
+        exit(time_command(" ".join(val[1:])))
+    elif len(val) > 2 and val[0] in {"run_loop", "run-loop"}:
+        cmd = " ".join(val[2:])
+        sleep_amount = parse_duration(val[1])
+        while True:
+            ret = time_command(cmd)
+            if ret != 0:
+                exit(ret)
+            if not sleep(sleep_amount, exit_at_end=False):
+                exit(1)
+    elif len(val) >= 1 and val[0] == "timer":
         exit(run_timer())
-    elif ENABLE_SERVER and val.startswith("server "):
+    elif ENABLE_SERVER and len(val) > 1 and val[0] == "server":
         _launch_server()
-        val = val[7:]
-    elif ENABLE_SERVER and val.startswith("client "):
-        keep_going, sleep_amount = _get_time(val[7:])
-        val = ""
+        val = val[1:]
+    elif ENABLE_SERVER and len(val) > 1 and val[0] == "client":
+        keep_going, sleep_amount = _get_time(" ".join(val[1:]))
+        val = []
 
     if sleep_amount is None:
         if len(val) > 0:
-            sleep_amount = parse_duration(val)
+            sleep_amount = parse_duration(" ".join(val))
 
     if sleep_amount is None:
         import textwrap
@@ -265,12 +268,17 @@ def main():
             
             Other options:
                 run <command>    - Run a command and time how long it takes to run
+                run_loop <amount> <command>
+                                 - Run a command over and over again, sleeping between runs
                 timer            - Start a timer till enter is pressed
-                server <amount>  - Run a timer, and accept clients that also stop at the same time
-                client <name>    - Connect to a running server for the timer
         """).strip()
-        if not ENABLE_SERVER:
-            msg = "\n".join(msg.split("\n")[:-2])
+        if ENABLE_SERVER:
+            msg += "\n" + textwrap.dedent("""
+                Server options:
+                    server <amount>  - Run a timer, and accept clients that also stop at the same time
+                                       Server also supports "run" and "timer"
+                    client <name>    - Connect to a running server for the timer
+            """)
         print(msg)
         exit(1)
     else:
