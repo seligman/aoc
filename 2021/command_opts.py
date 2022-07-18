@@ -149,7 +149,7 @@ def main_entry(order_by='none', include_other=False, program_desc=None, default_
     #              'none' = No order to the options
     #              'func' = Order by the function name
     #              'desc' = Order by the help text
-    #              'special' = Order by the 'special' flag to @opt
+    #              'special' = Order by the 'sort' flag to @opt
     # include_other = Include @opt methods in modules outside of the main module
     # program_desc = Text to show before the main options help display
     # default_action = Default action to run if no options are present.  Can be a 
