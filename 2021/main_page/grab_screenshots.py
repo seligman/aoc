@@ -12,7 +12,6 @@ from urllib.request import urlopen, urlretrieve
 from urllib.parse import urljoin
 from datetime import datetime, timedelta
 import subprocess
-from slack import WebClient
 from PIL import Image, ImageDraw
 import time
 
