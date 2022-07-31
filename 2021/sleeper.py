@@ -185,7 +185,7 @@ def run_timer():
         elif dur.total_seconds() > 3900:
             last_len = _temp_msg("Timer at %.1f hours..." % (float(dur.total_seconds()) / 3600.0,), last_len)
             to_sleep = 360
-        elif dur.total_seconds() > 180:
+        elif dur.total_seconds() > 90:
             last_len = _temp_msg("Timer at %.1f minutes..." % (float(dur.total_seconds()) / 60.0,), last_len)
             to_sleep = 6
         else:
