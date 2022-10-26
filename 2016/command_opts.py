@@ -5,7 +5,7 @@ import sys
 import inspect
 import textwrap
 
-VERSION = 20
+VERSION = 21
 SAMPLE_CODE = """
 # --------------------------------------------------------------------------
 # This module is not meant to be run directly.  To use it, add code like
@@ -130,10 +130,10 @@ def opt(*args, **kargs):
 
         method.module_name = func.__module__
         method.func = func
-        method.args += inspect.getargspec(func)[0]
+        method.args += inspect.getfullargspec(func)[0]
 
-        if inspect.getargspec(func)[3] is not None:
-            for i in range(len(inspect.getargspec(func)[3])):
+        if inspect.getfullargspec(func)[3] is not None:
+            for i in range(len(inspect.getfullargspec(func)[3])):
                 i = -(i + 1)
                 method.args[i] = "(" + method.args[i] + ")"
 
