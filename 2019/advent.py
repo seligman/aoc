@@ -654,7 +654,10 @@ def get_page(url):
 
     req = urllib.request.Request(
         url, 
-        headers={'Cookie': cookie},
+        headers={
+            'Cookie': cookie,
+            'User-Agent': 'github.com/seligman/aoc by scott.seligman@gmail.com',
+        },
     )
     resp = urllib.request.urlopen(req)
     resp = resp.read().decode("utf-8")
