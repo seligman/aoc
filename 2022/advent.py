@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 from PIL.ImageFont import truetype
-from command_opts import opt, main_entry, enable_ansi
+from command_opts import opt, main_entry
 import utils
 import os
 import subprocess
@@ -88,7 +88,6 @@ class Logger:
 
     def test(self, actual, expected):
         if actual != expected:
-            enable_ansi()
             self.show(f"Test returned {actual}, \x1b[97;101mexpected {expected}\x1b[m")
         else:
             self.show(f"Test returned {actual}, expected {expected}")
@@ -441,7 +440,6 @@ def test(helper_day):
             print("That worked!")
             good += 1
         except ValueError:
-            enable_ansi()
             print("\x1b[97;101m" + "  FAILURE!  " + "\x1b[m")
             bad += 1
 
@@ -450,7 +448,6 @@ def test(helper_day):
 
     print(f"Done, {good} worked, {bad} failed")
     if bad != 0:
-        enable_ansi()
         print("\x1b[97;101m" + "  THERE WERE PROBLEMS  " + "\x1b[m")
 
 
@@ -558,7 +555,6 @@ def run_helper(helper_day, save):
                     safe_print("# Got expected output!")
                     passed += 1
                 else:
-                    enable_ansi()
                     safe_print("# " + "\x1b[97;101m" + "  ERROR: Expected output doesn't match!  " + "\x1b[m")
                     failed.append(f"## {helper.DAY_DESC} FAILED!")
             else:
@@ -573,7 +569,6 @@ def run_helper(helper_day, save):
         safe_print("# " + "-" * 60)
         safe_print(f"Passed: {passed}")
         if len(failed) > 0:
-            enable_ansi()
             safe_print(f"# \x1b[97;101m  ERROR: Failed: {len(failed)}  \x1b[m")
             for cur in failed:
                 safe_print(cur)

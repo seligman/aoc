@@ -1,1 +1,2 @@
 browser_cookie3
+pillow
