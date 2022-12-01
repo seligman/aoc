@@ -205,7 +205,7 @@ def gen_comment():
     
     print(f"Python, {score1} / {score2}")
     print("")
-    print(f"[github](https://github.com/seligman/aoc/blob/master/{YEAR_NUMBER}/Helpers/day_{max_day}.py)")
+    print(f"[github](https://github.com/seligman/aoc/blob/master/{YEAR_NUMBER}/Helpers/day_{max_day:02}.py)")
 
 
 @opt("Launch website")
