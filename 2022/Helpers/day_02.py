@@ -14,16 +14,18 @@ def calc(log, values, mode):
             if b == "Y":
                 b = a
             elif b == "X":
+                # Force a win
                 b = {"R": "S", "S": "P", "P": "R"}[a]
             else:
+                # Force a loss
                 b = {"R": "P", "P": "S", "S": "R"}[a]
 
         if a == b:
-            score += 3 + {"R": 1, "P": 2, "S": 3}[b]
+            score += 3
         elif (b == "R" and a == "S") or (b == "S" and a == "P") or (b == "P" and a == "R"):
-            score += 6 + {"R": 1, "P": 2, "S": 3}[b]
-        else:
-            score += {"R": 1, "P": 2, "S": 3}[b]
+            score += 6
+
+        score += {"R": 1, "P": 2, "S": 3}[b]
 
     return score
 
