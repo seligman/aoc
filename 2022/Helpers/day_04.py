@@ -19,8 +19,6 @@ def calc(log, values, mode):
                 ret += 1
     return ret
 
-    return 0
-
 def test(log):
     values = log.decode_values("""
         2-4,6-8
