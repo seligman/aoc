@@ -3,7 +3,11 @@
 DAY_NUM = 5
 DAY_DESC = 'Day 5: Supply Stacks'
 
-def calc(log, values, mode):
+def calc(log, values, mode, draw=False, max_height=0, get_max_height=False):
+    if draw:
+        from grid import Grid
+        animated = Grid()
+
     stacks = []
     values = [x.lstrip(".") for x in values]
     while True:
@@ -19,7 +23,13 @@ def calc(log, values, mode):
 
     for i in range(len(stacks)):
         stacks[i] = stacks[i][::-1]
-        
+
+    if draw:
+        for x in range(len(stacks)):
+            for y in range(max_height):
+                animated[(x, max_height-y)] = " " if y >= len(stacks[x]) else stacks[x][y]
+        animated.save_frame()
+
     import re
     for row in values:
         m = re.search("move ([0-9]+) from ([0-9]+) to ([0-9]+)", row)
@@ -28,6 +38,13 @@ def calc(log, values, mode):
             if mode == 1:
                 for _ in range(steps[0]):
                     stacks[steps[2]-1].append(stacks[steps[1]-1].pop())
+                    if get_max_height:
+                        max_height = max(max_height, max(len(x) for x in stacks))
+                    if draw:
+                        for x in range(len(stacks)):
+                            for y in range(max_height):
+                                animated[(x, max_height-y)] = " " if y >= len(stacks[x]) else stacks[x][y]
+                        animated.save_frame()
             else:
                 temp = []
                 for _ in range(steps[0]):
@@ -37,7 +54,24 @@ def calc(log, values, mode):
     ret = ""
     for cur in stacks:
         ret += cur[-1]
+
+    if draw:
+        animated.draw_frames(cell_size=(15, 15))
+
+    if get_max_height:
+        return max_height
+
     return ret
+
+def other_draw(describe, values):
+    if describe:
+        return "Draw this"
+    from dummylog import DummyLog
+    import animate
+    animate.prep()
+    max_height = calc(DummyLog(), values, 1, dget_max_height=True)
+    calc(DummyLog(), values, 1, draw=True, max_height=max_height)
+    animate.create_mp4(DAY_NUM, rate=10, final_secs=5)
 
 def test(log):
     values = log.decode_values("""
