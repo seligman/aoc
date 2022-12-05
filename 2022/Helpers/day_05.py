@@ -3,11 +3,20 @@
 DAY_NUM = 5
 DAY_DESC = 'Day 5: Supply Stacks'
 
-def calc(log, values, mode, draw=False, info={}, get_info=False):
+class TrackableLetter:
+    def __init__(self, value, letter_id):
+        self.value = value
+        self.letter_id = letter_id
+
+    def __str__(self):
+        return self.value
+
+def calc(log, values, mode, draw=False, info={}, get_info=False, replace_pattern=None):
     if draw:
         from grid import Grid
         animated = Grid()
 
+    letters = []
     stacks = []
     values = [x.lstrip(".") for x in values]
     while True:
@@ -19,17 +28,25 @@ def calc(log, values, mode, draw=False, info={}, get_info=False):
                 i = int((i - 1) / 4)
                 while len(stacks) <= i:
                     stacks.append([])
+                val = TrackableLetter(val, len(letters))
+                letters.append(val)
                 stacks[i].append(val)
+                if replace_pattern is not None:
+                    val.value = replace_pattern[val.letter_id]
 
     for i in range(len(stacks)):
         stacks[i] = stacks[i][::-1]
 
-    def save_grid():
-        if draw:
+    def save_grid(target=None):
+        if draw or target is not None:
             for x in range(len(stacks)):
-                for y in range(info['max_height']):
-                    animated[(x, info['max_height']-y)] = " " if y >= len(stacks[x]) else stacks[x][y]
-            animated.save_frame()
+                for y in range(info['max_height'] - 1, -1, -1):
+                    if draw:
+                        animated[(x, info['max_height']-y)] = " " if y >= len(stacks[x]) else str(stacks[x][y])
+                    if target is not None:
+                        target.append(None if y >= len(stacks[x]) else stacks[x][y])
+            if draw:
+                animated.save_frame()
 
     import re
     if draw:
@@ -60,7 +77,11 @@ def calc(log, values, mode, draw=False, info={}, get_info=False):
 
     ret = ""
     for cur in stacks:
-        ret += cur[-1]
+        ret += str(cur[-1])
+
+    if get_info:
+        info['tracked'] = []
+        save_grid(target=info['tracked'])
 
     if draw:
         animated.draw_frames(cell_size=(15, 15))
@@ -69,6 +90,24 @@ def calc(log, values, mode, draw=False, info={}, get_info=False):
         return info
 
     return ret
+
+def other_draw_nggyu(describe, values):
+    if describe:
+        return "Draw this, in the style of Rick Astley"
+    from dummylog import DummyLog
+    import animate
+    animate.prep()
+    info = calc(DummyLog(), values, 1, get_info=True)
+
+    words = "NEVERGONNAGIVEYOUUPNEVERGONNALETYOUDOWNNEVERGONNARUNAROUNDANDDESERTYOUNEVERGONNAMAKEYOUCRYNEVERGONNASAYGOODBYENEVERGONNATELLALIEANDHURTYOU"
+    pattern = {}
+    for cur in info['tracked']:
+        if cur is not None:
+            pattern[cur.letter_id] = words[0]
+            words = words[1:]
+
+    calc(DummyLog(), values, 1, draw=True, info=info, replace_pattern=pattern)
+    animate.create_mp4(DAY_NUM, rate=10, final_secs=5)
 
 def other_draw(describe, values):
     if describe:
