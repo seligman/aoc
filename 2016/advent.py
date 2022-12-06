@@ -203,9 +203,13 @@ def gen_comment():
         print("Warning: Couldn't find day!")
         print("")
     
-    print(f"Python, {score1} / {score2}")
-    print("")
-    print(f"[github](https://github.com/seligman/aoc/blob/master/{YEAR_NUMBER}/Helpers/day_{max_day:02}.py)")
+    msg = f"Python, {score1} / {score2}\n"
+    msg += "\n"
+    msg += f"[github](https://github.com/seligman/aoc/blob/master/{YEAR_NUMBER}/Helpers/day_{max_day:02}.py)\n"
+
+    print(msg)
+    import clipboard
+    clipboard.copy(msg)
 
 
 @opt("Launch website")

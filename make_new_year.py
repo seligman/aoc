@@ -36,9 +36,6 @@ def main():
     if yn.lower() != "y":
         exit(0)
 
-    year = "2021"
-    next_year = "2022"
-
     for cur in list_files(year):
         fix_year = False
         if "/".join(cur) in {"advent_year.py", "README.md", "URL.txt"}:
