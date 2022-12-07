@@ -49,6 +49,21 @@ class Logger:
         if _print_catcher is not None:
             _print_catcher.safe = False
 
+    def copy_result_to_clipboard(self):
+        if len(self.rows) > 0:
+            import clipboard
+            if _print_catcher is not None:
+                _print_catcher.safe = True
+            try:
+                pass
+                clipboard.copy(self.rows[-1].strip())
+                sys.stdout.write("# '" + self.rows[-1].strip() + "' copied to clipboard\n")
+            except:
+                sys.stdout.write("# Unable to copy text to clipboard!\n")
+            sys.stdout.flush()
+            if _print_catcher is not None:
+                _print_catcher.safe = False
+
     def save_to_file(self, filename):
         with open(filename, "w") as f:
             for cur in self.rows:
@@ -511,6 +526,11 @@ def safe_print(value):
 def run_helper(helper_day, save):
     sys.path.insert(0, 'Helpers')
 
+    if helper_day == "cur" and not save:
+        copy_result = True
+    else:
+        copy_result = False
+
     passed = 0
     failed = []
     cached_runs = {"year": YEAR_NUMBER}
@@ -545,6 +565,10 @@ def run_helper(helper_day, save):
         finish = datetime.utcnow()
         if real_run:
             safe_print(f"# That took {(finish - start).total_seconds():.4f} seconds to complete")
+
+        if copy_result:
+            log.copy_result_to_clipboard()
+
         filename = get_input_file(helper, file_type="expect")
         if save:
             if os.path.isfile(filename):
