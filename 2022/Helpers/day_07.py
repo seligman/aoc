@@ -6,7 +6,7 @@ from collections import defaultdict
 DAY_NUM = 7
 DAY_DESC = 'Day 7: No Space Left On Device'
 
-def calc(log, values, mode):
+def calc(log, values, mode, dump_output=False):
     dirs = defaultdict(list)
     dir_name = ""
 
@@ -17,6 +17,8 @@ def calc(log, values, mode):
                 dirs[dir_name].append([None, dir_name + "/" + m.group('fn')])
             else:
                 dirs[dir_name].append([int(m.group("size")), m.group('fn')])
+                if dump_output:
+                    print('("' + dir_name[3:] + "/" + m.group('fn') + '",' + m.group('size') + '),')
         
         m = re.search("^\\$ cd (?P<dn>.*)$", row)
         if m is not None:
@@ -81,6 +83,12 @@ def test(log):
 
     log.test(calc(log, values, 1), 95437)
     log.test(calc(log, values, 2), 24933642)
+
+def other_dump(describe, values):
+    if describe:
+        return "Dump out the values"
+    from dummylog import DummyLog
+    calc(DummyLog(), values, 1, dump_output=True)
 
 def run(log, values):
     log(calc(log, values, 1))
