@@ -1,39 +1,34 @@
 #!/usr/bin/env python3
 
 import re
+from collections import defaultdict
 
 DAY_NUM = 7
 DAY_DESC = 'Day 7: No Space Left On Device'
 
 def calc(log, values, mode):
-    dirs = {}
-    dir_name = [""]
+    dirs = defaultdict(list)
+    dir_name = ""
 
     for row in values:
-        m = re.search("^(?P<size>[0-9]+) (?P<fn>.*)$", row)
+        m = re.search("^(?P<size>[0-9]+|dir) (?P<fn>.*)$", row)
         if m is not None:
-            size = int(m.group('size'))
-            fn = m.group('fn')
-            dirs["/".join(dir_name)].append([size, fn])
+            if m.group('size') == "dir":
+                dirs[dir_name].append([None, dir_name + "/" + m.group('fn')])
+            else:
+                dirs[dir_name].append([int(m.group("size")), m.group('fn')])
         
         m = re.search("^\\$ cd (?P<dn>.*)$", row)
         if m is not None:
             if m.group("dn") == "..":
-                dir_name.pop(-1)
+                dir_name = "/".join(dir_name.split("/")[:-1])
             else:
-                dir_name.append(m.group("dn"))
-                if "/".join(dir_name) not in dirs:
-                    dirs["/".join(dir_name)] = []
-
-        m = re.search("^dir (?P<dn>.*)$", row)
-        if m is not None:
-            dirs["/".join(dir_name)].append([-1, "/".join(dir_name + [m.group("dn")])])
-
+                dir_name += "/" + m.group("dn")
 
     def get_size(dn):
         ret = 0
         for size, fn in dirs[dn]:
-            if size == -1:
+            if size is None:
                 ret += get_size(fn)
             else:
                 ret += size
@@ -42,13 +37,11 @@ def calc(log, values, mode):
     if mode == 2:
         free_space = 70000000 - get_size("//")
         best = None
-        best_dir = ""
         for dn in dirs:
             test = get_size(dn)
             if test + free_space >= 30000000:
                 if best is None or test <= best:
                     best = test
-                    best_dir = dn
         return best
 
     if mode == 1:
@@ -58,8 +51,6 @@ def calc(log, values, mode):
             if size <= 100000:
                 ret += size
         return ret
-
-    return 0
 
 def test(log):
     values = log.decode_values("""
