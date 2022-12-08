@@ -10,27 +10,28 @@ def calc(log, values, mode):
 
     count = 0
     best = 0
-    for x in range(0, grid.axis_max(0)+1):
-        for y in range(0, grid.axis_max(1)+1):
-            bads = []
-            dist = []
+
+    for x in grid.x_range():
+        for y in grid.y_range():
+            good = True
+            dist_value = 1
             for dx, dy in [(-1, 0), (1, 0), (0, -1), (0, 1)]:
-                dist.append(0)
-                bad = False
+                dist = 0
+                good = True
                 start = grid[(x,y)]
-                ox, oy = x, y
-                while True:
-                    ox += dx
-                    oy += dy
-                    if grid[(ox, oy)] is None:
-                        break
-                    dist[-1] += 1
+                ox, oy = x + dx, y + dy
+                while grid[(ox, oy)] is not None:
+                    dist += 1
                     if grid[(ox, oy)] >= start:
-                        bad = True
+                        good = False
                         break
-                bads.append(bad)
-            best = max(best, dist[0] * dist[1] * dist[2] * dist[3])
-            if False in bads:
+                    ox, oy = ox + dx, oy + dy
+                dist_value *= dist
+                if good and mode == 1:
+                    break
+            if mode == 2:
+                best = max(best, dist_value)
+            if good:
                 count += 1
 
     if mode == 1:
