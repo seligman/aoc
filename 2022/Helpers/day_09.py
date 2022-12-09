@@ -3,7 +3,7 @@
 DAY_NUM = 9
 DAY_DESC = 'Day 9: Rope Bridge'
 
-def calc(log, values, mode):
+def calc(log, values, mode, draw=False):
     rope = []
     for _ in range(2 if mode == 1 else 10):
         rope.append([0, 0])
@@ -42,9 +42,15 @@ def calc(log, values, mode):
                 tail[1] -= 1
             elif tail[1] < head[1]:
                 tail[1] += 1
-            
+
+    if draw:            
+        from grid import Grid
+        grid = Grid()
+
     seen = set()
+    frame_no = 0
     seen.add((rope[-1][0], rope[-1][1]))
+    last_rope = []
     for row in values:
         dir, val = row.split(" ")
         for _ in range(int(val)):
@@ -52,14 +58,40 @@ def calc(log, values, mode):
             for i in range(len(rope)-1):
                 fix(rope[i], rope[i+1])
             seen.add((rope[-1][0], rope[-1][1]))
-
-    # from grid import Grid
-    # grid = Grid()
-    # for x, y in seen:
-    #     grid[(x, y)] = "#"
-    # grid.show_grid(log)
+            if draw:
+                frame_no += 1
+                if (frame_no % 5) == 1:
+                    for x, y in last_rope:
+                        grid[(x, y)] = "."
+                    last_rope = []
+                    for x, y in seen:
+                        grid[(x, y)] = "star"
+                    for x, y in rope:
+                        last_rope.append((x, y))
+                        grid[(x, y)] = "#"
+                    grid.save_frame()
+    if draw:
+        for x, y in last_rope:
+            grid[(x, y)] = "."
+        last_rope = []
+        for x, y in seen:
+            grid[(x, y)] = "star"
+        for x, y in rope:
+            last_rope.append((x, y))
+            grid[(x, y)] = "#"
+        grid.save_frame()
+        grid.draw_frames()
 
     return len(seen)
+
+def other_draw(describe, values):
+    if describe:
+        return "Draw this"
+    from dummylog import DummyLog
+    import animate
+    animate.prep()
+    calc(DummyLog(), values, 2, draw=True)
+    animate.create_mp4(DAY_NUM, rate=30, final_secs=5)
 
 def test(log):
     values = log.decode_values("""
