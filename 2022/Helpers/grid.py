@@ -137,6 +137,47 @@ def decode_example_function():
     decode_grid(0, len(grid[0]) - 1, 0, len(grid) - 1, lambda x, y: grid[y][x])
 
 
+class Point:
+    __slots__ = ['x', 'y']
+    def __init__(self, x=0, y=0):
+        self.x = x
+        self.y = y
+    
+    @property
+    def tuple(self):
+        return (self.x, self.y)
+
+    def copy(self):
+        return Point(self.x, self.y)
+
+    def __sub__(self, other):
+        if isinstance(other, Point):
+            return Point(self.x - other.x, self.y - other.y)
+        else:
+            return Point(self.x - other[0], self.y - other[1])
+
+    def __add__(self, other):
+        if isinstance(other, Point):
+            self.x += other.x
+            self.y += other.y
+        else:
+            self.x += other[0]
+            self.y += other[1]
+        return self
+
+    def __repr__(self):
+        return f"{self.x},{self.y}"
+    
+    def __eq__(self, other):
+        return self.x == other.x and self.y == other.y
+
+    def __ne__(self, other):
+        return self.x != other.x or self.y != other.y
+    
+    def __hash__(self):
+        return hash(self.x) ^ hash(self.y)
+
+
 class Grid:
     def __init__(self, default=0):
         self.grid = {}
@@ -337,13 +378,17 @@ class Grid:
         subprocess.check_call(cmd)
 
     def __getitem__(self, key):
-        if isinstance(key, tuple):
+        if isinstance(self, Point):
+            return self.grid.get(key.tuple, self.default)
+        elif isinstance(key, tuple):
             return self.grid.get(key, self.default)
         else:
             return self.grid.get((key,), self.default)
 
     def __delitem__(self, key):
-        if isinstance(key, tuple):
+        if isinstance(key, Point):
+            del self.grid[key.tuple]
+        elif isinstance(key, tuple):
             del self.grid[key]
         else:
             del self.grid[(key,)]
@@ -352,7 +397,9 @@ class Grid:
         return self.grid.values().__iter__()
 
     def __contains__(self, key):
-        if isinstance(key, tuple):
+        if isinstance(key, Point):
+            return key.tuple in self.grid
+        elif isinstance(key, tuple):
             return key in self.grid
         else:
             return (key,) in self.grid
@@ -403,7 +450,9 @@ class Grid:
 
     def __setitem__(self, key, value):
         self._ranges = {}
-        if isinstance(key, tuple):
+        if isinstance(key, Point):
+            self.grid[key.tuple] = value
+        elif isinstance(key, tuple):
             self.grid[key] = value
         else:
             self.grid[(key,)] = value

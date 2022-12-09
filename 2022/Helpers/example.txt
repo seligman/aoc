@@ -5,7 +5,7 @@ DAY_DESC = 'NEED_DAY_DESC'
 
 def calc(log, values, mode):
     # TODO: Delete or use these
-    # from grid import Grid
+    # from grid import Grid, Point
     # grid = Grid.from_text(values)
     # from program import Program
     # program = Program(values)

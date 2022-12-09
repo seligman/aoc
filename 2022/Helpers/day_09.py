@@ -4,81 +4,54 @@ DAY_NUM = 9
 DAY_DESC = 'Day 9: Rope Bridge'
 
 def calc(log, values, mode, draw=False):
+    from grid import Grid, Point
     rope = []
     for _ in range(2 if mode == 1 else 10):
-        rope.append([0, 0])
+        rope.append(Point())
 
     def move(head, dir):
-        if dir == "U":
-            head[1] -= 1
-        if dir == "D":
-            head[1] += 1
-        if dir == "R":
-            head[0] += 1
-        if dir == "L":
-            head[0] -= 1
+        if dir == "U": head += (0, -1)
+        if dir == "D": head += (0, 1)
+        if dir == "L": head += (-1, 0)
+        if dir == "R": head += (1, 0)
+
+    def sign(val):
+        if val < 0: return -1
+        elif val > 0: return 1
+        else: return 0
+
     def fix(head, tail):
-        if tail[1] > head[1] + 1:
-            tail[1] -= 1
-            if tail[0] > head[0]:
-                tail[0] -= 1
-            elif tail[0] < head[0]:
-                tail[0] += 1
-        elif tail[1] < head[1] - 1:
-            tail[1] += 1
-            if tail[0] > head[0]:
-                tail[0] -= 1
-            elif tail[0] < head[0]:
-                tail[0] += 1
-        elif tail[0] > head[0] + 1:
-            tail[0] -= 1
-            if tail[1] > head[1]:
-                tail[1] -= 1
-            elif tail[1] < head[1]:
-                tail[1] += 1
-        elif tail[0] < head[0] - 1:
-            tail[0] += 1
-            if tail[1] > head[1]:
-                tail[1] -= 1
-            elif tail[1] < head[1]:
-                tail[1] += 1
+        diff = tail - head
+        if abs(diff.y) > 1 or abs(diff.x) > 1:
+            tail += (-sign(diff.x), -sign(diff.y))
 
     if draw:            
-        from grid import Grid
         grid = Grid()
 
     seen = set()
     frame_no = 0
-    seen.add((rope[-1][0], rope[-1][1]))
+    seen.add(rope[-1].copy())
     last_rope = []
+
     for row in values:
         dir, val = row.split(" ")
         for _ in range(int(val)):
             move(rope[0], dir)
             for i in range(len(rope)-1):
                 fix(rope[i], rope[i+1])
-            seen.add((rope[-1][0], rope[-1][1]))
+            seen.add(rope[-1].copy())
             if draw:
                 frame_no += 1
                 if (frame_no % 5) == 1:
-                    for x, y in last_rope:
-                        grid[(x, y)] = "."
-                    last_rope = []
-                    for x, y in seen:
-                        grid[(x, y)] = "star"
-                    for x, y in rope:
-                        last_rope.append((x, y))
-                        grid[(x, y)] = "#"
+                    for pt in last_rope: grid[pt] = "."
+                    last_rope = [x.copy() for x in rope]
+                    for pt in seen: grid[pt] = "star"
+                    for pt in rope: grid[pt] = "#"
                     grid.save_frame()
     if draw:
-        for x, y in last_rope:
-            grid[(x, y)] = "."
-        last_rope = []
-        for x, y in seen:
-            grid[(x, y)] = "star"
-        for x, y in rope:
-            last_rope.append((x, y))
-            grid[(x, y)] = "#"
+        for pt in last_rope: grid[pt] = "."
+        for pt in seen: grid[pt] = "star"
+        for pt in rope: grid[pt] = "#"
         grid.save_frame()
         grid.draw_frames()
 
