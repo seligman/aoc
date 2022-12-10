@@ -3,7 +3,7 @@
 DAY_NUM = 10
 DAY_DESC = 'Day 10: Cathode-Ray Tube'
 
-def calc(log, values, mode):
+def calc(log, values, mode, draw=False):
     from grid import Grid
     grid = Grid()
 
@@ -19,6 +19,9 @@ def calc(log, values, mode):
             inc = [1]
 
         for _ in inc:
+            if draw:
+                grid[(cycles % 40, cycles // 40)] = "star"
+                grid.save_frame((row, f"Cycle: {cycles}", f"register X: {val}"))
             if abs((cycles % 40) - val) <= 1:
                 grid[(cycles % 40, cycles // 40)] = "#"
             else:
@@ -27,8 +30,12 @@ def calc(log, values, mode):
             if (cycles + 20) % 40 == 0:
                 ret += cycles * val
 
+
         if row.startswith("addx"):
             val += int(row.split(" ")[1])
+
+    if draw:
+        grid.draw_frames()
 
     if mode == 2:
         log("The grid looks like:")
@@ -188,6 +195,15 @@ def test(log):
     """)
 
     log.test(calc(log, values, 1), 13140)
+
+def other_draw(describe, values):
+    if describe:
+        return "Draw this"
+    from dummylog import DummyLog
+    import animate
+    animate.prep()
+    calc(DummyLog(), values, 2, draw=True)
+    animate.create_mp4(DAY_NUM, rate=10, final_secs=5)
 
 def run(log, values):
     log(calc(log, values, 1))
