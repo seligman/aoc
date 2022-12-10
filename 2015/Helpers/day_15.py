@@ -2,8 +2,8 @@
 
 import re
 
-def get_desc():
-    return 15, 'Day 15: Science for Hungry People'
+DAY_NUM = 15
+DAY_DESC = 'Day 15: Science for Hungry People'
 
 
 class Ingredient:

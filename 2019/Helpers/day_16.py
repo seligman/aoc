@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
-def get_desc():
-    return 16, 'Day 16: Flawed Frequency Transmission'
+DAY_NUM = 16
+DAY_DESC = 'Day 16: Flawed Frequency Transmission'
 
 
 def get_lcm(vals):

@@ -2,8 +2,8 @@
 
 from collections import deque
 
-def get_desc():
-    return 10, 'Day 10: Elves Look, Elves Say'
+DAY_NUM = 10
+DAY_DESC = 'Day 10: Elves Look, Elves Say'
 
 
 def calc(values, loops):

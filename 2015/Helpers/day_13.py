@@ -3,8 +3,8 @@
 import re
 import itertools
 
-def get_desc():
-    return 13, 'Day 13: Knights of the Dinner Table'
+DAY_NUM = 13
+DAY_DESC = 'Day 13: Knights of the Dinner Table'
 
 
 def calc(values, extra=[]):

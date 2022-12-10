@@ -4,8 +4,8 @@ import re
 import itertools
 import heapq
 
-def get_desc():
-    return 11, 'Day 11: Radioisotope Thermoelectric Generators'
+DAY_NUM = 11
+DAY_DESC = 'Day 11: Radioisotope Thermoelectric Generators'
 
 
 def correct(floor):

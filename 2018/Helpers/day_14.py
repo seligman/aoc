@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
-def get_desc():
-    return 14, 'Day 14: Chocolate Charts'
+DAY_NUM = 14
+DAY_DESC = 'Day 14: Chocolate Charts'
 
 
 def calc(log, values, test_mode):

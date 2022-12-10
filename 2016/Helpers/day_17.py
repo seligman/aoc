@@ -3,8 +3,8 @@
 from hashlib import md5
 from collections import deque
 
-def get_desc():
-    return 17, 'Day 17: Two Steps Forward'
+DAY_NUM = 17
+DAY_DESC = 'Day 17: Two Steps Forward'
 
 
 def calc(values):

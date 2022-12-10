@@ -3,8 +3,8 @@
 import re
 from collections import defaultdict
 
-def get_desc():
-    return 4, 'Day 4: Repose Record'
+DAY_NUM = 4
+DAY_DESC = 'Day 4: Repose Record'
 
 
 def calc(log, values):

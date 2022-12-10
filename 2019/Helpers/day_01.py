@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
-def get_desc():
-    return 1, 'Day 1: The Tyranny of the Rocket Equation'
+DAY_NUM = 1
+DAY_DESC = 'Day 1: The Tyranny of the Rocket Equation'
 
 
 def calc(log, values, mode):

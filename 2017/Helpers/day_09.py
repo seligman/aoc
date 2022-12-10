@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
-def get_desc():
-    return 9, 'Day 9: Stream Processing'
+DAY_NUM = 9
+DAY_DESC = 'Day 9: Stream Processing'
 
 
 def parse_garb(value, i, removed):

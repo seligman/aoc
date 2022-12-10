@@ -3,8 +3,8 @@
 import itertools
 from collections import defaultdict
 
-def get_desc():
-    return 17, 'Day 17: No Such Thing as Too Much'
+DAY_NUM = 17
+DAY_DESC = 'Day 17: No Such Thing as Too Much'
 
 
 def calc(log, values, target):

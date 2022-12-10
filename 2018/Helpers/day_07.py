@@ -2,8 +2,8 @@
 
 import re
 
-def get_desc():
-    return 7, 'Day 7: The Sum of Its Parts'
+DAY_NUM = 7
+DAY_DESC = 'Day 7: The Sum of Its Parts'
 
 
 def get_requires(order):

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
-def get_desc():
-    return 18, 'Day 18: Like a GIF For Your Yard'
+DAY_NUM = 18
+DAY_DESC = 'Day 18: Like a GIF For Your Yard'
 
 
 def calc(log, values, steps, mode):

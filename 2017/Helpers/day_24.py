@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
-def get_desc():
-    return 24, 'Day 24: Electromagnetic Moat'
+DAY_NUM = 24
+DAY_DESC = 'Day 24: Electromagnetic Moat'
 
 
 def longest(values, cur_path, mode):

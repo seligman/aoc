@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
-def get_desc():
-    return 15, 'Day 15: Oxygen System'
+DAY_NUM = 15
+DAY_DESC = 'Day 15: Oxygen System'
 
 
 def calc(log, values, animate=False):

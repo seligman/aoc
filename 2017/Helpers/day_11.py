@@ -2,8 +2,8 @@
 
 from collections import deque
 
-def get_desc():
-    return 11, 'Day 11: Hex Ed'
+DAY_NUM = 11
+DAY_DESC = 'Day 11: Hex Ed'
 
 def dist(tx, ty):
     tx = abs(tx)

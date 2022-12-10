@@ -3,8 +3,8 @@
 import re
 from collections import deque
 
-def get_desc():
-    return 17, 'Day 17: Reservoir Research'
+DAY_NUM = 17
+DAY_DESC = 'Day 17: Reservoir Research'
 
 
 class Spigot:

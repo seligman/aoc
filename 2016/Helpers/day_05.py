@@ -3,8 +3,8 @@
 import hashlib
 import multiprocessing
 
-def get_desc():
-    return 5, 'Day 5: How About a Nice Game of Chess?'
+DAY_NUM = 5
+DAY_DESC = 'Day 5: How About a Nice Game of Chess?'
 
 
 def internal_worker(queue, work_unit, queue_done, data):

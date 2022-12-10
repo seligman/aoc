@@ -2,8 +2,8 @@
 
 import re
 
-def get_desc():
-    return 19, 'Day 19: Go With The Flow'
+DAY_NUM = 19
+DAY_DESC = 'Day 19: Go With The Flow'
 
 
 def make_op(op):

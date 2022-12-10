@@ -3,8 +3,8 @@
 import re
 import json
 
-def get_desc():
-    return 7, 'Day 7: Some Assembly Required'
+DAY_NUM = 7
+DAY_DESC = 'Day 7: Some Assembly Required'
 
 
 def calc(target, values, initial):

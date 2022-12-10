@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
-def get_desc():
-    return 22, 'Day 22: Slam Shuffle'
+DAY_NUM = 22
+DAY_DESC = 'Day 22: Slam Shuffle'
 
 
 def calc(log, values):

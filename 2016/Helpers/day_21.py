@@ -3,8 +3,8 @@
 import re
 from collections import deque
 
-def get_desc():
-    return 21, 'Day 21: Scrambled Letters and Hash'
+DAY_NUM = 21
+DAY_DESC = 'Day 21: Scrambled Letters and Hash'
 
 
 def calc(log, values, code, reverse):

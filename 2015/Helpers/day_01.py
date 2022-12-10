@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
-def get_desc():
-    return 1, 'Day 1: Not Quite Lisp'
+DAY_NUM = 1
+DAY_DESC = 'Day 1: Not Quite Lisp'
 
 
 def calc(log, values):

@@ -2,8 +2,8 @@
 
 from collections import deque
 
-def get_desc():
-    return 22, 'Day 22: Wizard Simulator 20XX'
+DAY_NUM = 22
+DAY_DESC = 'Day 22: Wizard Simulator 20XX'
 
 
 class History:

@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 
 
-def get_desc():
-    return 8, 'Day 8: Memory Maneuver'
+DAY_NUM = 8
+DAY_DESC = 'Day 8: Memory Maneuver'
 
 
 class Index:

@@ -2,8 +2,8 @@
 
 import re
 
-def get_desc():
-    return 21, 'Day 21: Chronal Conversion'
+DAY_NUM = 21
+DAY_DESC = 'Day 21: Chronal Conversion'
 
 
 def make_op(op):

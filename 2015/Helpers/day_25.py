@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
-def get_desc():
-    return 25, 'Day 25: Let It Snow'
+DAY_NUM = 25
+DAY_DESC = 'Day 25: Let It Snow'
 
 
 def calc(target_x, target_y):

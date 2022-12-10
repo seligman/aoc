@@ -2,8 +2,8 @@
 
 from collections import deque
 
-def get_desc():
-    return 13, 'Day 13: A Maze of Twisty Little Cubicles'
+DAY_NUM = 13
+DAY_DESC = 'Day 13: A Maze of Twisty Little Cubicles'
 
 
 def calc_point(x, y, num):

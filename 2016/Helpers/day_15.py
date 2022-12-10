@@ -2,8 +2,8 @@
 
 import re
 
-def get_desc():
-    return 15, 'Day 15: Timing is Everything'
+DAY_NUM = 15
+DAY_DESC = 'Day 15: Timing is Everything'
 
 
 def calc(values, extra=None):

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
-def get_desc():
-    return 19, 'Day 19: Tractor Beam'
+DAY_NUM = 19
+DAY_DESC = 'Day 19: Tractor Beam'
 
 
 def calc(log, values):

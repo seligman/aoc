@@ -20,8 +20,8 @@ class Node:
         return ret
 
 
-def get_desc():
-    return 7, 'Day 7: Recursive Circus'
+DAY_NUM = 7
+DAY_DESC = 'Day 7: Recursive Circus'
 
 
 def calc(log, values, balance):

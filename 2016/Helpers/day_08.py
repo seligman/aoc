@@ -2,8 +2,8 @@
 
 import re
 
-def get_desc():
-    return 8, 'Day 8: Two-Factor Authentication'
+DAY_NUM = 8
+DAY_DESC = 'Day 8: Two-Factor Authentication'
 
 
 def calc(log, values, width, height, show):

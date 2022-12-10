@@ -2,8 +2,8 @@
 
 import re
 
-def get_desc():
-    return 6, 'Day 6: Probably a Fire Hazard'
+DAY_NUM = 6
+DAY_DESC = 'Day 6: Probably a Fire Hazard'
 
 
 def calc(values, rules):

@@ -2,8 +2,8 @@
 
 from collections import defaultdict, deque
 
-def get_desc():
-    return 18, 'Day 18: Duet'
+DAY_NUM = 18
+DAY_DESC = 'Day 18: Duet'
 
 
 def deref(r, value):

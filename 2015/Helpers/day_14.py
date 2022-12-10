@@ -2,8 +2,8 @@
 
 import re
 
-def get_desc():
-    return 14, 'Day 14: Reindeer Olympics'
+DAY_NUM = 14
+DAY_DESC = 'Day 14: Reindeer Olympics'
 
 
 class Deer:

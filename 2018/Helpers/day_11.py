@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
-def get_desc():
-    return 11, 'Day 11: Chronal Charge'
+DAY_NUM = 11
+DAY_DESC = 'Day 11: Chronal Charge'
 
 
 def get_fuel(x, y, grid):

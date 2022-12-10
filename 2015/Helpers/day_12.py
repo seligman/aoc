@@ -2,8 +2,8 @@
 
 import json
 
-def get_desc():
-    return 12, 'Day 12: JSAbacusFramework.io'
+DAY_NUM = 12
+DAY_DESC = 'Day 12: JSAbacusFramework.io'
 
 
 def summarize(data, red_pass):

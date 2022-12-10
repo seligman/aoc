@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
-def get_desc():
-    return 20, 'Day 20: Donut Maze'
+DAY_NUM = 20
+DAY_DESC = 'Day 20: Donut Maze'
 
 
 def calc(log, values, iterate, animate=False):

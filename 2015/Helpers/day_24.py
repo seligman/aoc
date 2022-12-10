@@ -2,8 +2,8 @@
 
 import itertools
 
-def get_desc():
-    return 24, 'Day 24: It Hangs in the Balance'
+DAY_NUM = 24
+DAY_DESC = 'Day 24: It Hangs in the Balance'
 
 
 def get_all(values, target, invalid):

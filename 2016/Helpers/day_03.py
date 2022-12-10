@@ -2,8 +2,8 @@
 
 import re
 
-def get_desc():
-    return 3, 'Day 3: Squares With Three Sides'
+DAY_NUM = 3
+DAY_DESC = 'Day 3: Squares With Three Sides'
 
 
 def calc(values, mode):

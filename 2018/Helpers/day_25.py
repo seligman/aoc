@@ -2,8 +2,8 @@
 
 from collections import deque
 
-def get_desc():
-    return 25, 'Day 25: Four-Dimensional Adventure'
+DAY_NUM = 25
+DAY_DESC = 'Day 25: Four-Dimensional Adventure'
 
 
 def get_points(values):

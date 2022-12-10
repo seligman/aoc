@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
-def get_desc():
-    return 4, 'Day 4: High-Entropy Passphrases'
+DAY_NUM = 4
+DAY_DESC = 'Day 4: High-Entropy Passphrases'
 
 
 def calc(log, values):

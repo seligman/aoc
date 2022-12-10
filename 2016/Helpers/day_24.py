@@ -3,8 +3,8 @@
 from collections import deque
 import itertools
 
-def get_desc():
-    return 24, 'Day 24: Air Duct Spelunking'
+DAY_NUM = 24
+DAY_DESC = 'Day 24: Air Duct Spelunking'
 
 
 def calc(log, values, zero_finish):

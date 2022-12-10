@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
-def get_desc():
-    return 1, 'Day 1: Inverse Captcha'
+DAY_NUM = 1
+DAY_DESC = 'Day 1: Inverse Captcha'
 
 
 def calc(log, values):

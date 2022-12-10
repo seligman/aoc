@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
-def get_desc():
-    return 15, 'Day 15: Dueling Generators'
+DAY_NUM = 15
+DAY_DESC = 'Day 15: Dueling Generators'
 
 
 def calc(log, values):

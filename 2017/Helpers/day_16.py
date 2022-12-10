@@ -2,8 +2,8 @@
 
 from collections import deque
 
-def get_desc():
-    return 16, 'Day 16: Permutation Promenade'
+DAY_NUM = 16
+DAY_DESC = 'Day 16: Permutation Promenade'
 
 
 def calc(log, values, dance):

@@ -2,8 +2,8 @@
 
 from collections import deque
 
-def get_desc():
-    return 14, 'Day 14: Disk Defragmentation'
+DAY_NUM = 14
+DAY_DESC = 'Day 14: Disk Defragmentation'
 
 
 def knot_hash(value):

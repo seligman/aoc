@@ -3,8 +3,8 @@
 from collections import defaultdict, deque
 
 
-def get_desc():
-    return 23, 'Day 23: Coprocessor Conflagration'
+DAY_NUM = 23
+DAY_DESC = 'Day 23: Coprocessor Conflagration'
 
 
 def deref(r, value):

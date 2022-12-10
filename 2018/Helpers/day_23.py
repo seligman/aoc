@@ -4,8 +4,8 @@ import re
 from collections import deque
 
 
-def get_desc():
-    return 23, 'Day 23: Experimental Emergency Teleportation'
+DAY_NUM = 23
+DAY_DESC = 'Day 23: Experimental Emergency Teleportation'
 
 
 def get_bots(log, values):

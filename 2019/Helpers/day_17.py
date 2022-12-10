@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
-def get_desc():
-    return 17, 'Day 17: Set and Forget'
+DAY_NUM = 17
+DAY_DESC = 'Day 17: Set and Forget'
 
 
 def calc(log, values, animate=False):

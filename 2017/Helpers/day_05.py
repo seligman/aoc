@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
-def get_desc():
-    return 5, 'Day 5: A Maze of Twisty Trampolines, All Alike'
+DAY_NUM = 5
+DAY_DESC = 'Day 5: A Maze of Twisty Trampolines, All Alike'
 
 
 def calc(log, values, mode):

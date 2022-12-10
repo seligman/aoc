@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
-def get_desc():
-    return 6, 'Day 6: Universal Orbit Map'
+DAY_NUM = 6
+DAY_DESC = 'Day 6: Universal Orbit Map'
 
 
 def calc(log, values, calc_all):

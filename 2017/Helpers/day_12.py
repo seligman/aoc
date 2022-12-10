@@ -2,8 +2,8 @@
 
 from collections import deque
 
-def get_desc():
-    return 12, 'Day 12: Digital Plumber'
+DAY_NUM = 12
+DAY_DESC = 'Day 12: Digital Plumber'
 
 
 def calc(log, values):

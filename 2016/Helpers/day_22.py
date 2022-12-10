@@ -3,8 +3,8 @@
 import re
 from collections import deque
 
-def get_desc():
-    return 22, 'Day 22: Grid Computing'
+DAY_NUM = 22
+DAY_DESC = 'Day 22: Grid Computing'
 
 
 def find_path(nodes, lx, ly, start, end, goal=None):

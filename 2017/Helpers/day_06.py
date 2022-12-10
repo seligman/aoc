@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
-def get_desc():
-    return 6, 'Day 6: Memory Reallocation'
+DAY_NUM = 6
+DAY_DESC = 'Day 6: Memory Reallocation'
 
 
 def calc(log, values, redo):

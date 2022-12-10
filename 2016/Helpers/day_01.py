@@ -2,8 +2,8 @@
 
 from collections import defaultdict
 
-def get_desc():
-    return 1, 'Day 1: No Time for a Taxicab'
+DAY_NUM = 1
+DAY_DESC = 'Day 1: No Time for a Taxicab'
 
 
 def calc(log, values):

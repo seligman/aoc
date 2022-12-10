@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
-def get_desc():
-    return 7, 'Day 7: Internet Protocol Version 7'
+DAY_NUM = 7
+DAY_DESC = 'Day 7: Internet Protocol Version 7'
 
 
 def calc(log, values):

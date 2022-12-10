@@ -4,8 +4,8 @@ import hashlib
 from collections import deque
 import multiprocessing
 
-def get_desc():
-    return 14, 'Day 14: One-Time Pad'
+DAY_NUM = 14
+DAY_DESC = 'Day 14: One-Time Pad'
 
 
 def get_hash(i, key, stretch):

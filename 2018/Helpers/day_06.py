@@ -2,8 +2,8 @@
 
 from collections import defaultdict
 
-def get_desc():
-    return 6, 'Day 6: Chronal Coordinates'
+DAY_NUM = 6
+DAY_DESC = 'Day 6: Chronal Coordinates'
 
 
 def calc(log, values, max_dist):

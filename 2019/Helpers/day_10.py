@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
-def get_desc():
-    return 10, 'Day 10: Monitoring Station'
+DAY_NUM = 10
+DAY_DESC = 'Day 10: Monitoring Station'
 
 
 def calc(log, values, animate=False):

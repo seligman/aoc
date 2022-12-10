@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
-def get_desc():
-    return 5, 'Day 5: Sunny with a Chance of Asteroids'
+DAY_NUM = 5
+DAY_DESC = 'Day 5: Sunny with a Chance of Asteroids'
 
 
 def calc(log, values, input_val):

@@ -2,8 +2,8 @@
 
 import re
 
-def get_desc():
-    return 3, 'Day 3: No Matter How You Slice It'
+DAY_NUM = 3
+DAY_DESC = 'Day 3: No Matter How You Slice It'
 
 
 def calc(log, values):

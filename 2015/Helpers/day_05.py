@@ -2,8 +2,8 @@
 
 import re
 
-def get_desc():
-    return 5, 'Day 5: Doesn\'t He Have Intern-Elves For This?'
+DAY_NUM = 5
+DAY_DESC = 'Day 5: Doesn\'t He Have Intern-Elves For This?'
 
 
 def calc(log, values):

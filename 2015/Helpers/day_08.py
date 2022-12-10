@@ -2,8 +2,8 @@
 
 import codecs
 
-def get_desc():
-    return 8, 'Day 8: Matchsticks'
+DAY_NUM = 8
+DAY_DESC = 'Day 8: Matchsticks'
 
 
 def calc(log, values):

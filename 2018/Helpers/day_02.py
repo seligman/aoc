@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
-def get_desc():
-    return 2, 'Day 2: Inventory Management System'
+DAY_NUM = 2
+DAY_DESC = 'Day 2: Inventory Management System'
 
 
 def calc(log, values):

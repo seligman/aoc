@@ -2,8 +2,8 @@
 
 import re
 
-def get_desc():
-    return 25, 'Day 25: The Halting Problem'
+DAY_NUM = 25
+DAY_DESC = 'Day 25: The Halting Problem'
 
 
 class Infinity:

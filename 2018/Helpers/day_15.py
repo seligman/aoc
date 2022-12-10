@@ -2,8 +2,8 @@
 
 from collections import defaultdict
 
-def get_desc():
-    return 15, 'Day 15: Beverage Bandits'
+DAY_NUM = 15
+DAY_DESC = 'Day 15: Beverage Bandits'
 
 
 class Creature:

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
-def get_desc():
-    return 12, 'Day 12: The N-Body Problem'
+DAY_NUM = 12
+DAY_DESC = 'Day 12: The N-Body Problem'
 
 
 class Moon:
@@ -14,7 +14,7 @@ class Moon:
 
 
 def get_lcm(vals):
-    from fractions import gcd
+    from math import gcd
     lcm = vals[0]
     for i in vals[1:]:
         lcm = lcm * i // gcd(lcm, i)

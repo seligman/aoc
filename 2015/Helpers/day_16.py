@@ -2,8 +2,8 @@
 
 import re
 
-def get_desc():
-    return 16, 'Day 16: Aunt Sue'
+DAY_NUM = 16
+DAY_DESC = 'Day 16: Aunt Sue'
 
 
 def calc(values, mode):

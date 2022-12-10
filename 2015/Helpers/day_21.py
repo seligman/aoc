@@ -2,8 +2,8 @@
 
 import itertools
 
-def get_desc():
-    return 21, 'Day 21: RPG Simulator 20XX'
+DAY_NUM = 21
+DAY_DESC = 'Day 21: RPG Simulator 20XX'
 
 
 def calc(values):

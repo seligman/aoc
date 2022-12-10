@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
-def get_desc():
-    return 12, 'Day 12: Leonardo\'s Monorail'
+DAY_NUM = 12
+DAY_DESC = 'Day 12: Leonardo\'s Monorail'
 
 
 def get_value(r, value):

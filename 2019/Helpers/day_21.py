@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
-def get_desc():
-    return 21, 'Day 21: Springdroid Adventure'
+DAY_NUM = 21
+DAY_DESC = 'Day 21: Springdroid Adventure'
 
 
 def calc(log, values, walk):

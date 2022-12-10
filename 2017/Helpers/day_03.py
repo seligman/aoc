@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
-def get_desc():
-    return 3, 'Day 3: Spiral Memory'
+DAY_NUM = 3
+DAY_DESC = 'Day 3: Spiral Memory'
 
 
 def calc(log, values):

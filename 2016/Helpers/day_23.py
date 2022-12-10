@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
-def get_desc():
-    return 23, 'Day 23: Safe Cracking'
+DAY_NUM = 23
+DAY_DESC = 'Day 23: Safe Cracking'
 
 
 def get_value(r, value):

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
-def get_desc():
-    return 3, 'Day 3: Crossed Wires'
+DAY_NUM = 3
+DAY_DESC = 'Day 3: Crossed Wires'
 
 
 def calc(log, values, steps):

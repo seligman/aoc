@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
-def get_desc():
-    return 11, 'Day 11: Space Police'
+DAY_NUM = 11
+DAY_DESC = 'Day 11: Space Police'
 
 
 def calc(log, values, mode, animate=False):

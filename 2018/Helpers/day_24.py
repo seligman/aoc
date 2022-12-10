@@ -2,8 +2,8 @@
 
 import re
 
-def get_desc():
-    return 24, 'Day 24: Immune System Simulator 20XX'
+DAY_NUM = 24
+DAY_DESC = 'Day 24: Immune System Simulator 20XX'
 
 
 # Just store stats for a group

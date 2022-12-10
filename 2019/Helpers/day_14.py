@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
-def get_desc():
-    return 14, 'Day 14: Space Stoichiometry'
+DAY_NUM = 14
+DAY_DESC = 'Day 14: Space Stoichiometry'
 
 
 def calc(log, values):

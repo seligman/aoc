@@ -2,8 +2,8 @@
 
 from collections import deque
 
-def get_desc():
-    return 19, 'Day 19: Medicine for Rudolph'
+DAY_NUM = 19
+DAY_DESC = 'Day 19: Medicine for Rudolph'
 
 
 class Step:

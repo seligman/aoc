@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
-def get_desc():
-    return 8, 'Day 8: Space Image Format'
+DAY_NUM = 8
+DAY_DESC = 'Day 8: Space Image Format'
 
 
 def calc(log, values, width, height):

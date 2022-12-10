@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
-def get_desc():
-    return 9, 'Day 9: Sensor Boost'
+DAY_NUM = 9
+DAY_DESC = 'Day 9: Sensor Boost'
 
 
 def calc(log, values, first_input):

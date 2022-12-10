@@ -2,8 +2,8 @@
 
 import re
 
-def get_desc():
-    return 11, 'Day 11: Corporate Policy'
+DAY_NUM = 11
+DAY_DESC = 'Day 11: Corporate Policy'
 
 
 def is_valid(r, value):

@@ -2,8 +2,8 @@
 
 from collections import defaultdict
 
-def get_desc():
-    return 6, 'Day 6: Signals and Noise'
+DAY_NUM = 6
+DAY_DESC = 'Day 6: Signals and Noise'
 
 
 def calc(values, first_pass):

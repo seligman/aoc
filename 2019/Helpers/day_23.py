@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
-def get_desc():
-    return 23, 'Day 23: Category Six'
+DAY_NUM = 23
+DAY_DESC = 'Day 23: Category Six'
 
 
 def calc(log, values, use_nat=False, log_traffic=False):

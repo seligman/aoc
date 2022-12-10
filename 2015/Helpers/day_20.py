@@ -3,8 +3,8 @@
 import math
 import multiprocessing
 
-def get_desc():
-    return 20, 'Day 20: Infinite Elves and Infinite Houses'
+DAY_NUM = 20
+DAY_DESC = 'Day 20: Infinite Elves and Infinite Houses'
 
 
 def internal_worker(queue, work_unit, queue_done, data):

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
-def get_desc():
-    return 24, 'Day 24: Planet of Discord'
+DAY_NUM = 24
+DAY_DESC = 'Day 24: Planet of Discord'
 
 
 def calc(log, values):

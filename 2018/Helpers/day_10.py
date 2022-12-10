@@ -2,8 +2,8 @@
 
 import re
 
-def get_desc():
-    return 10, 'Day 10: The Stars Align'
+DAY_NUM = 10
+DAY_DESC = 'Day 10: The Stars Align'
 
 
 class Point:

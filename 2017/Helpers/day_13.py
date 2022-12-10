@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
-def get_desc():
-    return 13, 'Day 13: Packet Scanners'
+DAY_NUM = 13
+DAY_DESC = 'Day 13: Packet Scanners'
 
 
 def calc(log, values, bail):

@@ -2,8 +2,8 @@
 
 from collections import deque
 
-def get_desc():
-    return 3, 'Day 3: Perfectly Spherical Houses in a Vacuum'
+DAY_NUM = 3
+DAY_DESC = 'Day 3: Perfectly Spherical Houses in a Vacuum'
 
 
 def calc(values, units):

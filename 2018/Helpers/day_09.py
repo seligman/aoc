@@ -2,8 +2,8 @@
 
 from collections import defaultdict, deque
 
-def get_desc():
-    return 9, 'Day 9: Marble Mania'
+DAY_NUM = 9
+DAY_DESC = 'Day 9: Marble Mania'
 
 
 def calc(players, marbles):

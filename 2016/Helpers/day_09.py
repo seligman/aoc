@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
-def get_desc():
-    return 9, 'Day 9: Explosives in Cyberspace'
+DAY_NUM = 9
+DAY_DESC = 'Day 9: Explosives in Cyberspace'
 
 
 def calc(value, ver):

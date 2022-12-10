@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
-def get_desc():
-    return 2, 'Day 2: 1202 Program Alarm'
+DAY_NUM = 2
+DAY_DESC = 'Day 2: 1202 Program Alarm'
 
 
 def calc(log, values, replace_1=None, replace_2=None):

@@ -3,8 +3,8 @@
 import re
 import itertools
 
-def get_desc():
-    return 9, 'Day 9: All in a Single Night'
+DAY_NUM = 9
+DAY_DESC = 'Day 9: All in a Single Night'
 
 
 def calc(log, values):

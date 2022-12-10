@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
-def get_desc():
-    return 23, 'Day 23: Opening the Turing Lock'
+DAY_NUM = 23
+DAY_DESC = 'Day 23: Opening the Turing Lock'
 
 
 def calc(values, reg_a):

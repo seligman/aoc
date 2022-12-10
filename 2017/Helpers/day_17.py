@@ -2,8 +2,8 @@
 
 from collections import deque
 
-def get_desc():
-    return 17, 'Day 17: Spinlock'
+DAY_NUM = 17
+DAY_DESC = 'Day 17: Spinlock'
 
 
 def calc(log, values, mode):

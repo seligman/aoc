@@ -3,8 +3,8 @@
 from collections import deque
 import os
 
-def get_desc():
-    return 20, 'Day 20: A Regular Map'
+DAY_NUM = 20
+DAY_DESC = 'Day 20: A Regular Map'
 
 
 class Infinity:

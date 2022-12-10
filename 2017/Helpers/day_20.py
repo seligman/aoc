@@ -2,8 +2,8 @@
 
 import re
 
-def get_desc():
-    return 20, 'Day 20: Particle Swarm'
+DAY_NUM = 20
+DAY_DESC = 'Day 20: Particle Swarm'
 
 
 class Particle:

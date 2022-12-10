@@ -2,8 +2,8 @@
 
 from collections import defaultdict
 
-def get_desc():
-    return 8, 'Day 8: I Heard You Like Registers'
+DAY_NUM = 8
+DAY_DESC = 'Day 8: I Heard You Like Registers'
 
 
 def comp(a, b, c):

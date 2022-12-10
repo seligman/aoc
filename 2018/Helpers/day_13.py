@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
-def get_desc():
-    return 13, 'Day 13: Mine Cart Madness'
+DAY_NUM = 13
+DAY_DESC = 'Day 13: Mine Cart Madness'
 
 
 class Car:
