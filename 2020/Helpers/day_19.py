@@ -3,8 +3,8 @@
 import re
 from collections import defaultdict
 
-def get_desc():
-    return 19, 'Day 19: Monster Messages'
+DAY_NUM = 19
+DAY_DESC = 'Day 19: Monster Messages'
 
 def calc(log, values, mode):
     rules = {}

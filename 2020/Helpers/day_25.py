@@ -1,8 +1,7 @@
 #!/usr/bin/env python3
 
-def get_desc():
-    return 25, 'Day 25: Combo Breaker'
-
+DAY_NUM = 25
+DAY_DESC = 'Day 25: Combo Breaker'
 
 def transform(loop, subject):
     value = 1

@@ -2,8 +2,8 @@
 
 import re
 
-def get_desc():
-    return 18, 'Day 18: Operation Order'
+DAY_NUM = 18
+DAY_DESC = 'Day 18: Operation Order'
 
 def eval_ops(val1, op, val2):
     bail["last_eval"] = val1 + " " + op + " " + val2

@@ -3,8 +3,8 @@
 import re
 from collections import defaultdict
 
-def get_desc():
-    return 21, 'Day 21: Allergen Assessment'
+DAY_NUM = 21
+DAY_DESC = 'Day 21: Allergen Assessment'
 
 def calc(log, values, mode):
     r = re.compile(r"^(?P<ingred>[^(]+)(| \(contains (?P<aller>.*)\))$")

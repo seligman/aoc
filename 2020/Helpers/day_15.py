@@ -2,8 +2,8 @@
 
 from collections import defaultdict, deque
 
-def get_desc():
-    return 15, 'Day 15: Rambunctious Recitation'
+DAY_NUM = 15
+DAY_DESC = 'Day 15: Rambunctious Recitation'
 
 def calc(log, values, mode):
     numbers = [int(x) for x in values[0].split(",")]

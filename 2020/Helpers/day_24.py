@@ -2,8 +2,8 @@
 
 import re
 
-def get_desc():
-    return 24, 'Day 24: Lobby Layout'
+DAY_NUM = 24
+DAY_DESC = 'Day 24: Lobby Layout'
 
 def calc(log, values, mode, draw={"mode": 0}):
     from grid import Grid

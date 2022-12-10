@@ -3,8 +3,8 @@
 import re
 from collections import defaultdict
 
-def get_desc():
-    return 2, 'Day 2: Password Philosophy'
+DAY_NUM = 2
+DAY_DESC = 'Day 2: Password Philosophy'
 
 def calc(log, values, mode):
     r = re.compile("([0-9]+)-([0-9]+) ([a-z]): ([a-z]+)")

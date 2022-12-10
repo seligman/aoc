@@ -2,8 +2,8 @@
 
 from collections import deque
 
-def get_desc():
-    return 22, 'Day 22: Crab Combat'
+DAY_NUM = 22
+DAY_DESC = 'Day 22: Crab Combat'
 
 def deck_to_val(deck_a, deck_b):
     a, b = 0, 0

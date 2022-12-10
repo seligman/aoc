@@ -2,8 +2,8 @@
 
 from collections import defaultdict
 
-def get_desc():
-    return 6, 'Day 6: Custom Customs'
+DAY_NUM = 6
+DAY_DESC = 'Day 6: Custom Customs'
 
 def calc(log, values, mode):
     total_answers = 0

@@ -3,8 +3,8 @@
 from collections import defaultdict
 import re
 
-def get_desc():
-    return 14, 'Day 14: Docking Data'
+DAY_NUM = 14
+DAY_DESC = 'Day 14: Docking Data'
 
 def int_to_bits(mask, val):
     if isinstance(val, str):

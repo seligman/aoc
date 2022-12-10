@@ -2,8 +2,8 @@
 
 import re
 
-def get_desc():
-    return 7, 'Day 7: Handy Haversacks'
+DAY_NUM = 7
+DAY_DESC = 'Day 7: Handy Haversacks'
 
 def calc(log, values, mode):
     rules = {}

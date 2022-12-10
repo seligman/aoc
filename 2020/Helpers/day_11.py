@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
-def get_desc():
-    return 11, 'Day 11: Seating System'
+DAY_NUM = 11
+DAY_DESC = 'Day 11: Seating System'
 
 def calc(log, values, mode, draw=False):
     from grid import Grid

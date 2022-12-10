@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
-def get_desc():
-    return 12, 'Day 12: Rain Risk'
+DAY_NUM = 12
+DAY_DESC = 'Day 12: Rain Risk'
 
 def calc(log, values, mode, draw=False):
     pos = complex(0, 0)

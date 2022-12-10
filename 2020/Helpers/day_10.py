@@ -2,8 +2,8 @@
 
 from collections import defaultdict
 
-def get_desc():
-    return 10, 'Day 10: Adapter Array'
+DAY_NUM = 10
+DAY_DESC = 'Day 10: Adapter Array'
 
 def calc(log, values, mode):
     values = [0] + sorted([int(x) for x in values])

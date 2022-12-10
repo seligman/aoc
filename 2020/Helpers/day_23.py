@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
-def get_desc():
-    return 23, 'Day 23: Crab Cups'
+DAY_NUM = 23
+DAY_DESC = 'Day 23: Crab Cups'
 
 def calc(log, values, mode):
     if mode == 1:

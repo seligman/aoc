@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
-def get_desc():
-    return 17, 'Day 17: Conway Cubes'
+DAY_NUM = 17
+DAY_DESC = 'Day 17: Conway Cubes'
 
 def calc(log, values, mode, draw={"mode": "none"}, sample=(0,), max_count=None):
     from grid import Grid

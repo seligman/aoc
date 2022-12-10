@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
-def get_desc():
-    return 8, 'Day 8: Handheld Halting'
+DAY_NUM = 8
+DAY_DESC = 'Day 8: Handheld Halting'
 
 def calc(log, values, mode, debug=False, draw=False):
     from program import Program

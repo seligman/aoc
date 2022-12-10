@@ -3,8 +3,8 @@
 from collections import defaultdict
 import math
 
-def get_desc():
-    return 20, 'Day 20: Jurassic Jigsaw'
+DAY_NUM = 20
+DAY_DESC = 'Day 20: Jurassic Jigsaw'
 
 def get_spiral(size):
     pt, dir, amount = complex(-1, 0), 0, size * 2

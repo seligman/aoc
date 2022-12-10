@@ -2,8 +2,8 @@
 
 from collections import defaultdict
 
-def get_desc():
-    return 5, 'Day 5: Binary Boarding'
+DAY_NUM = 5
+DAY_DESC = 'Day 5: Binary Boarding'
 
 def calc(log, values, mode, draw=False):
     neighbors = defaultdict(int)

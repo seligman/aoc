@@ -3,8 +3,8 @@
 import re
 from collections import defaultdict
 
-def get_desc():
-    return 16, 'Day 16: Ticket Translation'
+DAY_NUM = 16
+DAY_DESC = 'Day 16: Ticket Translation'
 
 def in_range(value, rule):
     for range in rule["ranges"]:

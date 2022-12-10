@@ -2,8 +2,8 @@
 
 import re
 
-def get_desc():
-    return 4, 'Day 4: Passport Processing'
+DAY_NUM = 4
+DAY_DESC = 'Day 4: Passport Processing'
 
 def calc(log, values, mode):
     seen = {}
