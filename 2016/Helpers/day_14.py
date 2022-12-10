@@ -107,7 +107,7 @@ def test(log):
     ]
 
     if calc(values, 0) == 22728:
-        log.show("First pass is good")
+        log("First pass is good")
         if calc(values, 2016) == 22551:
             return True
         else:
@@ -120,5 +120,18 @@ def run(log, values):
     a = calc(values, 0)
     b = calc(values, 2016)
 
-    log.show("With no key stretching: " + str(a))
-    log.show("With key stretching: " + str(b))
+    log("With no key stretching: " + str(a))
+    log("With key stretching: " + str(b))
+
+if __name__ == "__main__":
+    import sys, os
+    def find_input_file():
+        for fn in sys.argv[1:] + ["input.txt", f"day_{DAY_NUM:0d}_input.txt", f"day_{DAY_NUM:02d}_input.txt"]:
+            for dn in [[], ["Puzzles"], ["..", "Puzzles"]]:
+                cur = os.path.join(*(dn + [fn]))
+                if os.path.isfile(cur): return cur
+    fn = find_input_file()
+    if fn is None: print("Unable to find input file!"); exit(1)
+    with open(fn) as f: values = [x.strip("\r\n") for x in f.readlines()]
+    print(f"Running day {DAY_DESC}:")
+    run(print, values)

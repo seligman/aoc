@@ -49,7 +49,7 @@ def calc(log, values, max_dist):
     ids = list(counts)
     ids.sort(key=lambda x:counts[x], reverse=True)
 
-    log.show("Size of safe area: %d" % (size_of_safe,))
+    log("Size of safe area: %d" % (size_of_safe,))
 
     return counts[ids[0]]
 
@@ -71,4 +71,17 @@ def test(log):
 
 
 def run(log, values):
-    log.show(calc(log, values, 10000))
+    log(calc(log, values, 10000))
+
+if __name__ == "__main__":
+    import sys, os
+    def find_input_file():
+        for fn in sys.argv[1:] + ["input.txt", f"day_{DAY_NUM:0d}_input.txt", f"day_{DAY_NUM:02d}_input.txt"]:
+            for dn in [[], ["Puzzles"], ["..", "Puzzles"]]:
+                cur = os.path.join(*(dn + [fn]))
+                if os.path.isfile(cur): return cur
+    fn = find_input_file()
+    if fn is None: print("Unable to find input file!"); exit(1)
+    with open(fn) as f: values = [x.strip("\r\n") for x in f.readlines()]
+    print(f"Running day {DAY_DESC}:")
+    run(print, values)

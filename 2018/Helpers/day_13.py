@@ -48,7 +48,7 @@ def calc(log, values, test_mode):
                     car.y += 1
                 
                 if (car.x, car.y) in cars:
-                    log.show("Collision at %d x %d" % (car.x, car.y))
+                    log("Collision at %d x %d" % (car.x, car.y))
                     cars[(car.x, car.y)].remove = True
                     car.remove = True
                     del cars[(car.x, car.y)]
@@ -70,7 +70,7 @@ def calc(log, values, test_mode):
         
         if len(cars) == 1:
             temp = list(cars.values())
-            log.show("Final car at %d x %d" % (temp[0].x, temp[0].y))
+            log("Final car at %d x %d" % (temp[0].x, temp[0].y))
             return
 
 
@@ -90,3 +90,16 @@ def test(log):
 
 def run(log, values):
     calc(log, values, False)
+
+if __name__ == "__main__":
+    import sys, os
+    def find_input_file():
+        for fn in sys.argv[1:] + ["input.txt", f"day_{DAY_NUM:0d}_input.txt", f"day_{DAY_NUM:02d}_input.txt"]:
+            for dn in [[], ["Puzzles"], ["..", "Puzzles"]]:
+                cur = os.path.join(*(dn + [fn]))
+                if os.path.isfile(cur): return cur
+    fn = find_input_file()
+    if fn is None: print("Unable to find input file!"); exit(1)
+    with open(fn) as f: values = [x.strip("\r\n") for x in f.readlines()]
+    print(f"Running day {DAY_DESC}:")
+    run(print, values)

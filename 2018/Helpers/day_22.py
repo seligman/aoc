@@ -44,7 +44,7 @@ class Infinity:
 
     def show(self, log):
         for row in self.get_rows():
-            log.show(row)
+            log(row)
 
     def get_rows(self):
         ret = []
@@ -82,7 +82,7 @@ def calc(log, depth, target_x, target_y):
     grid.set(target_x, target_y, 0)
 
     total_risk = sum([grid.risk(x, y, depth) for x in range(target_x + 1) for y in range(target_y + 1)])
-    log.show("Risk: " + str(total_risk))
+    log("Risk: " + str(total_risk))
 
     todo = [(0, 0, 0, 1)]
     todo.append((0, 0, 0, 1))
@@ -98,7 +98,7 @@ def calc(log, depth, target_x, target_y):
 
         best[best_key] = time
         if best_key == target:
-            log.show("Best minutes: " + str(time))
+            log("Best minutes: " + str(time))
             break
 
         for i in range(3):
@@ -122,4 +122,17 @@ def test(log):
 
 
 def run(log, values):
-    log.show(calc(log, 6084, 14, 709))
+    log(calc(log, 6084, 14, 709))
+
+if __name__ == "__main__":
+    import sys, os
+    def find_input_file():
+        for fn in sys.argv[1:] + ["input.txt", f"day_{DAY_NUM:0d}_input.txt", f"day_{DAY_NUM:02d}_input.txt"]:
+            for dn in [[], ["Puzzles"], ["..", "Puzzles"]]:
+                cur = os.path.join(*(dn + [fn]))
+                if os.path.isfile(cur): return cur
+    fn = find_input_file()
+    if fn is None: print("Unable to find input file!"); exit(1)
+    with open(fn) as f: values = [x.strip("\r\n") for x in f.readlines()]
+    print(f"Running day {DAY_DESC}:")
+    run(print, values)

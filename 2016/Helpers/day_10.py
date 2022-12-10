@@ -30,9 +30,9 @@ def calc(log, values):
                             bots[b] = []
 
                         if bots[m.group(1)][0] == "61" and bots[m.group(1)][1] == "17":
-                            log.show("Bot with 17 and 61: " + m.group(1))
+                            log("Bot with 17 and 61: " + m.group(1))
                         if bots[m.group(1)][0] == "17" and bots[m.group(1)][1] == "61":
-                            log.show("Bot with 17 and 61: " + m.group(1))
+                            log("Bot with 17 and 61: " + m.group(1))
 
                         if int(bots[m.group(1)][0]) < int(bots[m.group(1)][1]):
                             bots[a].append(bots[m.group(1)][0])
@@ -46,7 +46,7 @@ def calc(log, values):
                         c = bots.get("output 2", None)
 
                         if a is not None and b is not None and c is not None:
-                            log.show("Final answer: " + str(int(a[0]) * int(b[0]) * int(c[0])))
+                            log("Final answer: " + str(int(a[0]) * int(b[0]) * int(c[0])))
                             return
 
                         bots[m.group(1)] = []
@@ -58,3 +58,16 @@ def test(log):
 
 def run(log, values):
     calc(log, values)
+
+if __name__ == "__main__":
+    import sys, os
+    def find_input_file():
+        for fn in sys.argv[1:] + ["input.txt", f"day_{DAY_NUM:0d}_input.txt", f"day_{DAY_NUM:02d}_input.txt"]:
+            for dn in [[], ["Puzzles"], ["..", "Puzzles"]]:
+                cur = os.path.join(*(dn + [fn]))
+                if os.path.isfile(cur): return cur
+    fn = find_input_file()
+    if fn is None: print("Unable to find input file!"); exit(1)
+    with open(fn) as f: values = [x.strip("\r\n") for x in f.readlines()]
+    print(f"Running day {DAY_DESC}:")
+    run(print, values)

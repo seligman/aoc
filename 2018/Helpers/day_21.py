@@ -88,11 +88,11 @@ def test(log):
 
 
 def run(log, values):
-    log.show("# Results from C code")
-    log.show("  Shown:           16622")
-    log.show("  Frames:     3838894867")
-    log.show("  First Value:   8797248")
-    log.show("  Last Value:    3007673")
+    log("# Results from C code")
+    log("  Shown:           16622")
+    log("  Frames:     3838894867")
+    log("  First Value:   8797248")
+    log("  Last Value:    3007673")
 
 
 def get_op_to_str():
@@ -327,3 +327,16 @@ def other_debug(describe, values):
             print("  set <r> <#>      = Set register r to value")
             print("  bp <ip>          = Break when IP is hit")
             print("  bp_d <ip>        = Dump out IP each time, for 50 times")
+
+if __name__ == "__main__":
+    import sys, os
+    def find_input_file():
+        for fn in sys.argv[1:] + ["input.txt", f"day_{DAY_NUM:0d}_input.txt", f"day_{DAY_NUM:02d}_input.txt"]:
+            for dn in [[], ["Puzzles"], ["..", "Puzzles"]]:
+                cur = os.path.join(*(dn + [fn]))
+                if os.path.isfile(cur): return cur
+    fn = find_input_file()
+    if fn is None: print("Unable to find input file!"); exit(1)
+    with open(fn) as f: values = [x.strip("\r\n") for x in f.readlines()]
+    print(f"Running day {DAY_DESC}:")
+    run(print, values)

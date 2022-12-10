@@ -104,11 +104,13 @@ def run(log, values):
 
 if __name__ == "__main__":
     import sys, os
-    cur = None
-    for cur in sys.argv[1:] + ["input.txt", "day_##_input.txt", "Puzzles/day_##_input.txt", "../Puzzles/day_##_input.txt"]:
-        cur = os.path.join(*cur.split("/")).replace("##", f"{DAY_NUM:02d}")
-        if os.path.isfile(cur): fn = cur; break
-    if cur is None: print("Unable to find input file!"); exit(1)
-    with open(fn) as f: values = f.readlines()
+    def find_input_file():
+        for fn in sys.argv[1:] + ["input.txt", f"day_{DAY_NUM:0d}_input.txt", f"day_{DAY_NUM:02d}_input.txt"]:
+            for dn in [[], ["Puzzles"], ["..", "Puzzles"]]:
+                cur = os.path.join(*(dn + [fn]))
+                if os.path.isfile(cur): return cur
+    fn = find_input_file()
+    if fn is None: print("Unable to find input file!"); exit(1)
+    with open(fn) as f: values = [x.strip("\r\n") for x in f.readlines()]
     print(f"Running day {DAY_DESC}:")
     run(print, values)

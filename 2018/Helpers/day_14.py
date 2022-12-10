@@ -23,10 +23,10 @@ def calc(log, values, test_mode):
         if test == 0:
             loc = scores.find("920831", test_start)
             if loc >= 0:
-                log.show("Found index at %d" % (scores.index("920831"),))
+                log("Found index at %d" % (scores.index("920831"),))
                 break
             else:
-                log.show(len(scores))
+                log(len(scores))
             test_start = len(scores) - 50
             test = 10000000
 
@@ -41,4 +41,17 @@ def test(log):
 
 
 def run(log, values):
-    log.show(calc(log, 920831, False))
+    log(calc(log, 920831, False))
+
+if __name__ == "__main__":
+    import sys, os
+    def find_input_file():
+        for fn in sys.argv[1:] + ["input.txt", f"day_{DAY_NUM:0d}_input.txt", f"day_{DAY_NUM:02d}_input.txt"]:
+            for dn in [[], ["Puzzles"], ["..", "Puzzles"]]:
+                cur = os.path.join(*(dn + [fn]))
+                if os.path.isfile(cur): return cur
+    fn = find_input_file()
+    if fn is None: print("Unable to find input file!"); exit(1)
+    with open(fn) as f: values = [x.strip("\r\n") for x in f.readlines()]
+    print(f"Running day {DAY_DESC}:")
+    run(print, values)

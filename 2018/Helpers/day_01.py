@@ -15,7 +15,7 @@ def calc(log, values, test_mode):
             seen[ret] = seen.get(ret, 0) + 1
             if first:
                 if seen[ret] == 2:
-                    log.show("First twice is %d" % (ret,))
+                    log("First twice is %d" % (ret,))
                     first = False
         if real_ret is None:
             real_ret = ret
@@ -33,7 +33,7 @@ def test(log):
     for value, ret in test:
         values = [int(x.strip()) for x in value.split(', ')]
         test_val = calc(log, values, True)
-        log.show("[%s] -> %d, %d" % (value, ret, test_val))
+        log("[%s] -> %d, %d" % (value, ret, test_val))
         if ret != test_val:
             return False
 
@@ -42,4 +42,17 @@ def test(log):
 
 def run(log, values):
     values = [int(x) for x in values]
-    log.show(calc(log, values, False))
+    log(calc(log, values, False))
+
+if __name__ == "__main__":
+    import sys, os
+    def find_input_file():
+        for fn in sys.argv[1:] + ["input.txt", f"day_{DAY_NUM:0d}_input.txt", f"day_{DAY_NUM:02d}_input.txt"]:
+            for dn in [[], ["Puzzles"], ["..", "Puzzles"]]:
+                cur = os.path.join(*(dn + [fn]))
+                if os.path.isfile(cur): return cur
+    fn = find_input_file()
+    if fn is None: print("Unable to find input file!"); exit(1)
+    with open(fn) as f: values = [x.strip("\r\n") for x in f.readlines()]
+    print(f"Running day {DAY_DESC}:")
+    run(print, values)

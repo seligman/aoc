@@ -189,7 +189,7 @@ def test(log):
     for values, expected in tests:
         test_number += 1
         if calc(values, 3)[0] != expected:
-            log.show("Test number %d FAILED" % (test_number,))
+            log("Test number %d FAILED" % (test_number,))
             return False
 
     return True
@@ -199,7 +199,20 @@ def run(log, values):
     elve_power = 3
     while True:
         ret = calc(values[:], elve_power)
-        log.show("%d == %d of %d" % (ret[0], ret[1], ret[2]))
+        log("%d == %d of %d" % (ret[0], ret[1], ret[2]))
         if ret[1] == ret[2]:
             break
         elve_power += 1
+
+if __name__ == "__main__":
+    import sys, os
+    def find_input_file():
+        for fn in sys.argv[1:] + ["input.txt", f"day_{DAY_NUM:0d}_input.txt", f"day_{DAY_NUM:02d}_input.txt"]:
+            for dn in [[], ["Puzzles"], ["..", "Puzzles"]]:
+                cur = os.path.join(*(dn + [fn]))
+                if os.path.isfile(cur): return cur
+    fn = find_input_file()
+    if fn is None: print("Unable to find input file!"); exit(1)
+    with open(fn) as f: values = [x.strip("\r\n") for x in f.readlines()]
+    print(f"Running day {DAY_DESC}:")
+    run(print, values)

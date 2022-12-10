@@ -13,11 +13,11 @@ def get_bots(log, values):
     bots = []
     for cur in values:
         if cur.startswith("#"):
-            log.show("# Note: " + cur)
+            log("# Note: " + cur)
         else:
             m = r.search(cur)
             if m is None:
-                log.show(cur)
+                log(cur)
             bots.append([int(x) for x in m.groups()])
     return bots
 
@@ -149,13 +149,13 @@ def calc2(log, values):
                 break
             forced_check += span
 
-    log.show("The max count I found was: " + str(best_count))
+    log("The max count I found was: " + str(best_count))
     return best_val
 
 
 def run(log, values):
-    log.show("Nearest the big bot: " + str(calc(log, values)))
-    log.show("Best location value: " + str(calc2(log, values)))
+    log("Nearest the big bot: " + str(calc(log, values)))
+    log("Best location value: " + str(calc2(log, values)))
 
 
 def test(log):
@@ -177,3 +177,16 @@ def test(log):
         return False
 
 
+
+if __name__ == "__main__":
+    import sys, os
+    def find_input_file():
+        for fn in sys.argv[1:] + ["input.txt", f"day_{DAY_NUM:0d}_input.txt", f"day_{DAY_NUM:02d}_input.txt"]:
+            for dn in [[], ["Puzzles"], ["..", "Puzzles"]]:
+                cur = os.path.join(*(dn + [fn]))
+                if os.path.isfile(cur): return cur
+    fn = find_input_file()
+    if fn is None: print("Unable to find input file!"); exit(1)
+    with open(fn) as f: values = [x.strip("\r\n") for x in f.readlines()]
+    print(f"Running day {DAY_DESC}:")
+    run(print, values)

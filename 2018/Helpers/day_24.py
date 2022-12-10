@@ -160,7 +160,7 @@ def calc(values, boost):
 def run(log, values):
     # Basic run is simple
     ret = calc(values, 0)
-    log.show("The %s system wins with %d units" % (ret[1], ret[0]))
+    log("The %s system wins with %d units" % (ret[1], ret[0]))
 
     # A simple binary search for the lowest option
     boost = 1
@@ -182,7 +182,7 @@ def run(log, values):
         else:
             boost += span
 
-    log.show("The %s system wins with %d units, with an immune boost of %d" % (found[boost][1], found[boost][0], boost))
+    log("The %s system wins with %d units, with an immune boost of %d" % (found[boost][1], found[boost][0], boost))
 
 
 def test(log):
@@ -197,13 +197,26 @@ def test(log):
     ]
 
     temp = calc(values, 0)
-    log.show(temp)
+    log(temp)
     if temp == (5216, "infection"):
         temp = calc(values, 1570)
-        log.show(temp)
+        log(temp)
         if temp == (51, "immune"):
             return True
         else:
             return False
     else:
         return False
+
+if __name__ == "__main__":
+    import sys, os
+    def find_input_file():
+        for fn in sys.argv[1:] + ["input.txt", f"day_{DAY_NUM:0d}_input.txt", f"day_{DAY_NUM:02d}_input.txt"]:
+            for dn in [[], ["Puzzles"], ["..", "Puzzles"]]:
+                cur = os.path.join(*(dn + [fn]))
+                if os.path.isfile(cur): return cur
+    fn = find_input_file()
+    if fn is None: print("Unable to find input file!"); exit(1)
+    with open(fn) as f: values = [x.strip("\r\n") for x in f.readlines()]
+    print(f"Running day {DAY_DESC}:")
+    run(print, values)

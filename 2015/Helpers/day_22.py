@@ -33,7 +33,7 @@ class History:
     def note(self):
         self.notes += 1
         if False and self.notes % 100000 == 0:
-            self.log.show("Player: %8d, Boss: %8d, Gave Up: %8d, Best Mana: %5d: States: %5d" % (
+            self.log("Player: %8d, Boss: %8d, Gave Up: %8d, Best Mana: %5d: States: %5d" % (
                 self.player_wins, 
                 self.boss_wins, 
                 self.gave_up,
@@ -179,10 +179,10 @@ def calc(log, values, game_mode):
         cur = states.pop()
         run_spell(history, cur[0], cur[1], cur[2], states, game_mode)
 
-    log.show("Boss Wins: " + str(history.boss_wins))
-    log.show("Player Wins: " + str(history.player_wins))
-    log.show("Gave Up: " + str(history.gave_up))
-    log.show(">> Best Mana Spent: " + str(history.best_mana))
+    log("Boss Wins: " + str(history.boss_wins))
+    log("Player Wins: " + str(history.player_wins))
+    log("Gave Up: " + str(history.gave_up))
+    log(">> Best Mana Spent: " + str(history.best_mana))
 
 
 def test(log):
@@ -195,5 +195,18 @@ def run(log, values):
             "Normal Game Mode",
             "Hard Game Mode",
         ][game_mode]
-        log.show("%s %s %s" % ("#" * 5, temp, "#" * (60 - len(temp)),))
+        log("%s %s %s" % ("#" * 5, temp, "#" * (60 - len(temp)),))
         calc(log, values[:], game_mode)
+
+if __name__ == "__main__":
+    import sys, os
+    def find_input_file():
+        for fn in sys.argv[1:] + ["input.txt", f"day_{DAY_NUM:0d}_input.txt", f"day_{DAY_NUM:02d}_input.txt"]:
+            for dn in [[], ["Puzzles"], ["..", "Puzzles"]]:
+                cur = os.path.join(*(dn + [fn]))
+                if os.path.isfile(cur): return cur
+    fn = find_input_file()
+    if fn is None: print("Unable to find input file!"); exit(1)
+    with open(fn) as f: values = [x.strip("\r\n") for x in f.readlines()]
+    print(f"Running day {DAY_DESC}:")
+    run(print, values)

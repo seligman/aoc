@@ -58,7 +58,7 @@ def calc(log, values, show_heat, mode):
                 easy = "if %s != 0 then skip(%s)" % (values[i][1], values[i][2])
             else:
                 raise Exception()
-            log.show("%3d: %5d: %-20s %s" % (i, heat[i], raw, easy))
+            log("%3d: %5d: %-20s %s" % (i, heat[i], raw, easy))
 
     if mode == 0:
         return ret
@@ -71,7 +71,7 @@ def test(log):
 
 
 def run(log, values):
-    log.show(calc(log, values, False, 0))
+    log(calc(log, values, False, 0))
 
     h = 0
     # The initial value of c
@@ -80,7 +80,7 @@ def run(log, values):
             if x % i == 0:
                 h += 1
                 break
-    log.show("Final value of H is %d" % (h,))
+    log("Final value of H is %d" % (h,))
 
 
 class DummyLog:
@@ -96,3 +96,16 @@ def other_heat(describe, values):
         return "Show heat map of program"
 
     calc(DummyLog(), values, True, 0)
+
+if __name__ == "__main__":
+    import sys, os
+    def find_input_file():
+        for fn in sys.argv[1:] + ["input.txt", f"day_{DAY_NUM:0d}_input.txt", f"day_{DAY_NUM:02d}_input.txt"]:
+            for dn in [[], ["Puzzles"], ["..", "Puzzles"]]:
+                cur = os.path.join(*(dn + [fn]))
+                if os.path.isfile(cur): return cur
+    fn = find_input_file()
+    if fn is None: print("Unable to find input file!"); exit(1)
+    with open(fn) as f: values = [x.strip("\r\n") for x in f.readlines()]
+    print(f"Running day {DAY_DESC}:")
+    run(print, values)

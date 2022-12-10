@@ -57,6 +57,6 @@ if __name__ == "__main__":
                 if os.path.isfile(cur): return cur
     fn = find_input_file()
     if fn is None: print("Unable to find input file!"); exit(1)
-    with open(fn) as f: values = [x.strip() for x in f.readlines()]
+    with open(fn) as f: values = [x.strip("\r\n") for x in f.readlines()]
     print(f"Running day {DAY_DESC}:")
     run(print, values)

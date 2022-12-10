@@ -44,7 +44,7 @@ def calc(log, values, secs):
             if deer.distance == lead:
                 deer.points += 1
 
-    log.show("The winning score is %d" % (max([x.points for x in deers]),))
+    log("The winning score is %d" % (max([x.points for x in deers]),))
 
     return max([x.distance for x in deers])
 
@@ -62,4 +62,17 @@ def test(log):
 
 
 def run(log, values):
-    log.show(calc(log, values, 2503))
+    log(calc(log, values, 2503))
+
+if __name__ == "__main__":
+    import sys, os
+    def find_input_file():
+        for fn in sys.argv[1:] + ["input.txt", f"day_{DAY_NUM:0d}_input.txt", f"day_{DAY_NUM:02d}_input.txt"]:
+            for dn in [[], ["Puzzles"], ["..", "Puzzles"]]:
+                cur = os.path.join(*(dn + [fn]))
+                if os.path.isfile(cur): return cur
+    fn = find_input_file()
+    if fn is None: print("Unable to find input file!"); exit(1)
+    with open(fn) as f: values = [x.strip("\r\n") for x in f.readlines()]
+    print(f"Running day {DAY_DESC}:")
+    run(print, values)

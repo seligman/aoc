@@ -45,7 +45,7 @@ class Infinity:
 
     def show(self, log):
         for row in self.get_rows():
-            log.show(row)
+            log(row)
 
     def get_rows(self):
         ret = []
@@ -103,7 +103,7 @@ def calc(log, values, show, frame_rate, track_long=None, highlight=None):
     grid.set(0, 0, "s")
 
     if show:
-        log.show("  Before:")
+        log("  Before:")
         grid.show(log)
 
     total_frames = 0
@@ -148,7 +148,7 @@ def calc(log, values, show, frame_rate, track_long=None, highlight=None):
                         floods.append([x + cur[0], y + cur[1], cur[2] + old_char, cur[3] + [(x + cur[0], y + cur[1])]])
 
     if show:
-        log.show("  After:")
+        log("  After:")
         grid.show(log)
 
     if track_long is not None:
@@ -156,9 +156,9 @@ def calc(log, values, show, frame_rate, track_long=None, highlight=None):
             if track_long[0] is None or len(value[1]) > len(track_long[0]):
                 track_long[0] = value[1]
 
-    log.show("Shortest long distance: " + str(max([x[0] for x in locs.values()])))
-    log.show("1000 distance: " + str(sum([1 if x[0] >= 1000 else 0 for x in locs.values()])))
-    log.show("Total Frames: " + str(total_frames))
+    log("Shortest long distance: " + str(max([x[0] for x in locs.values()])))
+    log("1000 distance: " + str(sum([1 if x[0] >= 1000 else 0 for x in locs.values()])))
+    log("Total Frames: " + str(total_frames))
 
     return max([x[0] for x in locs.values()])
 
@@ -304,7 +304,7 @@ def test(log):
 
 
 def run(log, values):
-    log.show(calc(log, values, False, 0))
+    log(calc(log, values, False, 0))
 
 
 class DummyLog:
@@ -336,3 +336,15 @@ def other_show(describe, values):
     grid.set(0, 0, "s")
     grid.show(DummyLog(), )
     
+if __name__ == "__main__":
+    import sys, os
+    def find_input_file():
+        for fn in sys.argv[1:] + ["input.txt", f"day_{DAY_NUM:0d}_input.txt", f"day_{DAY_NUM:02d}_input.txt"]:
+            for dn in [[], ["Puzzles"], ["..", "Puzzles"]]:
+                cur = os.path.join(*(dn + [fn]))
+                if os.path.isfile(cur): return cur
+    fn = find_input_file()
+    if fn is None: print("Unable to find input file!"); exit(1)
+    with open(fn) as f: values = [x.strip("\r\n") for x in f.readlines()]
+    print(f"Running day {DAY_DESC}:")
+    run(print, values)
