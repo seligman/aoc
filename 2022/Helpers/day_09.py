@@ -10,10 +10,10 @@ def calc(log, values, mode, draw=False):
         rope.append(Point())
 
     def move(head, dir):
-        if dir == "U": head += (0, -1)
-        if dir == "D": head += (0, 1)
-        if dir == "L": head += (-1, 0)
-        if dir == "R": head += (1, 0)
+        if dir == "U": return head + (0, -1)
+        if dir == "D": return head + (0, 1)
+        if dir == "L": return head + (-1, 0)
+        if dir == "R": return head + (1, 0)
 
     def sign(val):
         if val < 0: return -1
@@ -23,7 +23,9 @@ def calc(log, values, mode, draw=False):
     def fix(head, tail):
         diff = tail - head
         if abs(diff.y) > 1 or abs(diff.x) > 1:
-            tail += (-sign(diff.x), -sign(diff.y))
+            return tail + (-sign(diff.x), -sign(diff.y))
+        else:
+            return tail
 
     if draw:            
         grid = Grid()
@@ -36,9 +38,9 @@ def calc(log, values, mode, draw=False):
     for row in values:
         dir, val = row.split(" ")
         for _ in range(int(val)):
-            move(rope[0], dir)
+            rope[0] = move(rope[0], dir)
             for i in range(len(rope)-1):
-                fix(rope[i], rope[i+1])
+                rope[i+1] = fix(rope[i], rope[i+1])
             seen.add(rope[-1].copy())
             if draw:
                 frame_no += 1

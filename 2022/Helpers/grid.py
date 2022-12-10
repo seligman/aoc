@@ -158,12 +158,9 @@ class Point:
 
     def __add__(self, other):
         if isinstance(other, Point):
-            self.x += other.x
-            self.y += other.y
+            return Point(self.x + other.x, self.y + other.y)
         else:
-            self.x += other[0]
-            self.y += other[1]
-        return self
+            return Point(self.x + other[0], self.y + other[1])
 
     def __repr__(self):
         return f"{self.x},{self.y}"
