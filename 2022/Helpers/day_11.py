@@ -53,7 +53,7 @@ def calc(log, values, mode):
             cur['start'] = []
             for x in temp:
                 cur['inspected'] += 1
-                x = (cur['op'](x) // (3 if mode == 1 else 1)) % limit # // 3
+                x = (cur['op'](x) // (3 if mode == 1 else 1)) % limit
                 if x % cur['test'] == 0:
                     monkey[cur['true']]['start'].append(x)
                 else:
