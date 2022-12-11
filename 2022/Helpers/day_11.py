@@ -39,9 +39,7 @@ def calc(log, values, mode):
         if len(temp.pop(0).strip()) == 0:
             temp.pop(0)
         monkey[-1]['start'] = list(map(int, temp.pop(0).split(": ")[-1].split(", ")))
-        monkey[-1]['next'] = []
-        func_input = temp.pop(0).split(": ")[-1][5:]
-        monkey[-1]['op'] = build_helper(func_input)
+        monkey[-1]['op'] = build_helper(temp.pop(0).split(": ")[-1][5:])
         monkey[-1]['test'] = int(temp.pop(0).split(": ")[-1][13:])
         monkey[-1]['true'] = int(temp.pop(0).split(" ")[-1])
         monkey[-1]['false'] = int(temp.pop(0).split(" ")[-1])
@@ -61,10 +59,7 @@ def calc(log, values, mode):
                 else:
                     monkey[cur['false']]['start'].append(x)
 
-    x = [x['inspected'] for x in monkey]
-    x.sort()
-
-    return x[-1] * x[-2]
+    return math.prod(sorted([x['inspected'] for x in monkey])[-2:])
 
 def test(log):
     values = log.decode_values("""
