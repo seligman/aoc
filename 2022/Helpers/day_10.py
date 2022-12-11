@@ -3,36 +3,30 @@
 DAY_NUM = 10
 DAY_DESC = 'Day 10: Cathode-Ray Tube'
 
-def calc(log, values, mode, draw=False):
+def calc(log, values, mode, draw=False, decode=False):
     from grid import Grid
+    from program import Program
     grid = Grid()
-
-    cycles = 0
-    val = 1
+    program = Program(values)
     ret = 0
 
-    for row in values:
-        inc = []
-        if row.startswith("addx"):
-            inc = [1, 1]
-        if row.startswith("noop"):
-            inc = [1]
+    for _ in program.run():
+        temp = program.cycles - 1
+        if draw:
+            grid[(temp % 40, temp // 40)] = "star"
+            grid.save_frame((
+                program.ins, 
+                f"Cycle: {program.cycles}", 
+                f"register X: {program.regs['x']}",
+            ))
 
-        for _ in inc:
-            if draw:
-                grid[(cycles % 40, cycles // 40)] = "star"
-                grid.save_frame((row, f"Cycle: {cycles}", f"register X: {val}"))
-            if abs((cycles % 40) - val) <= 1:
-                grid[(cycles % 40, cycles // 40)] = "#"
-            else:
-                grid[(cycles % 40, cycles // 40)] = "."
-            cycles += 1
-            if (cycles + 20) % 40 == 0:
-                ret += cycles * val
+        if abs((temp % 40) - program.regs['x']) <= 1:
+            grid[(temp % 40, temp // 40)] = "#"
+        else:
+            grid[(temp % 40, temp // 40)] = "."
 
-
-        if row.startswith("addx"):
-            val += int(row.split(" ")[1])
+        if (program.cycles + 20) % 40 == 0:
+            ret += program.cycles * program.regs['x']
 
     if draw:
         grid.draw_frames()
@@ -40,7 +34,8 @@ def calc(log, values, mode, draw=False):
     if mode == 2:
         log("The grid looks like:")
         grid.show_grid(log)
-        return grid.decode_grid(log)
+        if decode:
+            return grid.decode_grid(log)
 
     return ret
 
@@ -195,6 +190,7 @@ def test(log):
     """)
 
     log.test(calc(log, values, 1), 13140)
+    calc(log, values, 2)
 
 def other_draw(describe, values):
     if describe:
@@ -207,7 +203,7 @@ def other_draw(describe, values):
 
 def run(log, values):
     log(calc(log, values, 1))
-    log(calc(log, values, 2))
+    log(calc(log, values, 2, decode=True))
 
 if __name__ == "__main__":
     import sys, os
