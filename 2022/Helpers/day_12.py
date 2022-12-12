@@ -5,7 +5,7 @@ DAY_DESC = 'Day 12: Hill Climbing Algorithm'
 
 from collections import deque
 
-def enum_start(values, mode):
+def enum_start(values, mode, use_start=None):
     from grid import Grid, Point
     grid = Grid.from_text(values)
 
@@ -15,27 +15,59 @@ def enum_start(values, mode):
                 start = Point(x, y)
                 grid[start] = 'a'
 
-    yield start, grid
+    if use_start is not None:
+        yield use_start, grid
+    else:
+        yield start, grid
 
-    if mode == 2:
-        grid = Grid.from_text(values)
-        grid[start] = 'a'
-        for x in grid.x_range():
-            for y in grid.y_range():
-                pt = Point(x, y)
-                if pt != start and grid[pt] == 'a':
-                    yield Point(x, y), grid.copy()
+        if mode == 2:
+            grid = Grid.from_text(values)
+            grid[start] = 'a'
+            for x in grid.x_range():
+                for y in grid.y_range():
+                    pt = Point(x, y)
+                    if pt != start and grid[pt] == 'a':
+                        yield Point(x, y), grid.copy()
 
-def calc(log, values, mode):
+def create_color_map():
+    colors = [
+        [0, 24, 168],
+        [99, 0, 228],
+        [220, 20, 60],
+        [255, 117, 56],
+        [238, 210, 20],
+    ]
+    map = {}
+    for i in range(26):
+        x = (i / 25) * (len(colors) - 1)
+        if x == int(x):
+            rgb = tuple(colors[int(x)])
+        else:
+            a = int(x)
+            b = int(x+1)
+            c = x - int(x)
+            rgb = (
+                int((1 - c) * colors[a][0] + c * colors[b][0]),
+                int((1 - c) * colors[a][1] + c * colors[b][1]),
+                int((1 - c) * colors[a][2] + c * colors[b][2]),
+            )
+        map[chr(ord('a') + i)] = rgb
+    map["E"] = (255, 255, 255)
+    map["*"] = (255, 255, 32)
+    map["#"] = (128, 32, 32)
+    return map
+
+def calc(log, values, mode, draw=False, start_pt=False, use_start=None):
     best = None
+    best_start = None
 
     will_use = set()
     for start, grid in enum_start(values, mode):
         will_use.add(start)
 
-    for start, grid in enum_start(values, mode):
-        visited = set()
-        todo = deque([(start, 0)])
+    for start, grid in enum_start(values, mode, use_start):
+        visited = set([start])
+        todo = deque([(start, [(list(visited), start)])])
         while len(todo) > 0:
             last_step, steps = todo.popleft()
             for d in [(-1, 0), (1, 0), (0, -1), (0, 1)]:
@@ -43,8 +75,9 @@ def calc(log, values, mode):
                 if next_step not in visited:
                     if next_step in grid:
                         if grid[next_step] == "E" and grid[last_step] == "z":
-                            if best is None or steps < best:
-                                best = steps
+                            if best is None or len(steps) < best:
+                                best = len(steps)
+                                best_start = start
                                 todo = []
                         else:
                             change = ord(grid[next_step]) - ord(grid[last_step])
@@ -52,12 +85,34 @@ def calc(log, values, mode):
                                 use = True
                                 visited.add(next_step)
                                 if best is not None:
-                                    if steps >= best:
+                                    if len(steps) >= best:
                                         use = False
                                 if use:
-                                    todo.append((next_step, steps + 1))
+                                    todo.append((next_step, steps + [(list(visited), next_step)]))
 
-    return best + 1
+    if start_pt:
+        return best_start
+
+    if draw:
+        for visited, pt in steps:
+            grid[pt] = "*"
+            for pt in visited:
+                if grid[pt] != "*":
+                    grid[pt] = "#"
+            grid.save_frame()
+        grid.draw_frames(color_map=create_color_map())
+
+    return best
+
+def other_draw(describe, values):
+    if describe:
+        return "Draw this"
+    from dummylog import DummyLog
+    import animate
+    animate.prep()
+    start = calc(DummyLog(), values, 2, start_pt=True)
+    calc(DummyLog(), values, 2, draw=True, use_start=start)
+    animate.create_mp4(DAY_NUM, rate=30, final_secs=5)
 
 def test(log):
     values = log.decode_values("""
