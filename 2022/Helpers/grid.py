@@ -375,7 +375,7 @@ class Grid:
         subprocess.check_call(cmd)
 
     def __getitem__(self, key):
-        if isinstance(self, Point):
+        if isinstance(key, Point):
             return self.grid.get(key.tuple, self.default)
         elif isinstance(key, tuple):
             return self.grid.get(key, self.default)
