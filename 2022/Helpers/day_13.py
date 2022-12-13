@@ -5,6 +5,7 @@ DAY_DESC = 'Day 13: Distress Signal'
 
 from functools import cmp_to_key
 from itertools import zip_longest
+import json
 
 def calc(log, values, mode):
     if mode == 2:
@@ -12,6 +13,8 @@ def calc(log, values, mode):
         values.append("[[6]]")
 
     def compare(a, b):
+        if isinstance(a, str): a = json.loads(a)
+        if isinstance(b, str): b = json.loads(b)
         for aa, bb in zip_longest(a, b):
             if aa is None:
                 return 1
@@ -33,27 +36,20 @@ def calc(log, values, mode):
                     return test
         return 0
 
+    values = [x for x in values if len(x)]
+
     if mode == 2:
-        values = [eval(x) for x in values if len(x)]
         values.sort(key=cmp_to_key(compare), reverse=True)
         ret = 1
         for i, x in enumerate(values):
-            if str(x) in {"[[2]]", "[[6]]"}:
+            if x in {"[[2]]", "[[6]]"}:
                 ret *= i + 1
         return ret
 
-    stack = [[]]
-    for cur in values:
-        if len(cur) > 0:
-            if len(stack[-1]) == 2:
-                stack.append([])
-            stack[-1].append(eval(cur))
-
     ret = 0
-    for i, (a, b) in enumerate(stack):
-        test = compare(a, b)
-        if test == 1:
-            ret += i+1
+    for i in range(0, len(values), 2):
+        if compare(values[i], values[i+1]) == 1:
+            ret += i // 2 + 1
 
     return ret
 
