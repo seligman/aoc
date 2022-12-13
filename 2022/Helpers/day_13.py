@@ -3,19 +3,16 @@
 DAY_NUM = 13
 DAY_DESC = 'Day 13: Distress Signal'
 
+from functools import cmp_to_key
+from itertools import zip_longest
+
 def calc(log, values, mode):
     if mode == 2:
         values.append("[[2]]")
         values.append("[[6]]")
 
     def compare(a, b):
-        a = a[:]
-        b = b[:]
-        while len(a) < len(b):
-            a.append(None)
-        while len(b) < len(a):
-            b.append(None)
-        for aa, bb in zip(a, b):
+        for aa, bb in zip_longest(a, b):
             if aa is None:
                 return 1
             elif bb is None:
@@ -37,9 +34,7 @@ def calc(log, values, mode):
         return 0
 
     if mode == 2:
-        from functools import cmp_to_key
-        values = [x for x in values if len(x)]
-        values = [eval(x) for x in values]
+        values = [eval(x) for x in values if len(x)]
         values.sort(key=cmp_to_key(compare), reverse=True)
         ret = 1
         for i, x in enumerate(values):
