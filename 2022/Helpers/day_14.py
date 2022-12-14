@@ -3,7 +3,7 @@
 DAY_NUM = 14
 DAY_DESC = 'Day 14: Regolith Reservoir'
 
-def calc(log, values, mode):
+def calc(log, values, mode, get_floor=False, floor=None, draw=False):
     from grid import Grid, Point
     grid = Grid()
 
@@ -23,15 +23,23 @@ def calc(log, values, mode):
     
     max_y = max(grid.y_range())
 
+    if floor is not None:
+        for x in floor:
+            grid[(x, max_y + 2)] = "#"
+
+    skip = 0
     ret = -1
+    paths = set()
     while True:
         ret += 1
         pt = Point(500, 0)
-        if grid[pt] == "#":
+        if grid[pt] != 0:
             break
         
         found = None
         while True:
+            if draw:
+                paths.add(pt)
             if mode == 1:
                 if pt.y > max_y:
                     return ret
@@ -40,15 +48,57 @@ def calc(log, values, mode):
                     break
             good = False
             for d in [(0, 1), (-1, 1), (1, 1)]:
-                if grid[pt + d] != "#":
+                if grid[pt + d] == 0:
                     good = True
                     pt = pt + d
                     break
             if not good:
                 break
-        grid[pt] = "#"
+        grid[pt] = "Done"
 
+        if draw:
+            skip += 1
+            if skip % 25 == 1:
+                temp = set()
+                for pt in paths:
+                    if grid[pt] == 0:
+                        grid[pt] = "Fall"
+                        temp.add(pt)
+                grid.save_frame()
+                for pt in temp:
+                    grid[pt] = 0
+                paths = set()
+
+    if draw:
+        temp = set()
+        for pt in paths:
+            if grid[pt] == 0:
+                grid[pt] = "Fall"
+                temp.add(pt)
+        grid.save_frame()
+        for pt in temp:
+            grid[pt] = 0
+        grid.save_frame()
+        grid.draw_frames({
+            0: (0, 0, 0),
+            "#": (255, 255, 255),
+            "Fall": (246, 190, 0),
+            "Done": (172, 159, 60),
+        })
+    if get_floor:
+        return list(range(min(grid.x_range()) - 1, max(grid.x_range()) + 2))
     return ret
+
+def other_draw(describe, values):
+    if describe:
+        return "Draw this"
+    from dummylog import DummyLog
+    import animate
+    animate.prep()
+    floor = calc(DummyLog(), values, 2, get_floor=True)
+    calc(DummyLog(), values, 2, floor=floor, draw=True)
+    # calc(DummyLog(), values, 2, draw=True, use_start=start)
+    animate.create_mp4(DAY_NUM, rate=30, final_secs=5)
 
 def test(log):
     values = log.decode_values("""
