@@ -3,17 +3,14 @@
 DAY_NUM = 15
 DAY_DESC = 'Day 15: Beacon Exclusion Zone'
 
-import re
-
 def calc(log, values, mode, is_test=False):
-    from grid import Grid, Point
+    from grid import Grid
+    from parsers import get_ints
     grid = Grid()
 
-    r = re.compile(r"Sensor at x=([\d-]+), y=([\d-]+): closest beacon is at x=([\d-]+), y=([\d-]+)")
     targets = []
     for val in values:
-        m = r.search(val)
-        x, y, sx, sy = list(map(int, m.groups()))
+        x, y, sx, sy = get_ints(val)
         dist = abs(x - sx) + abs(y - sy)
         targets.append((x, y, dist))
         grid[(x, y)] = "S"
@@ -61,11 +58,7 @@ def calc(log, values, mode, is_test=False):
         if oy == target:
             grid_line[ox] = value
 
-    for val in values:
-        m = r.search(val)
-        x, y, sx, sy = list(map(int, m.groups()))
-
-        dist = abs(x - sx) + abs(y - sy)
+    for x, y, dist in targets:
         for ox in range(x-dist, x+dist+1):
             if y-dist <= target < y + dist + 1:
                 dist2 = abs(x - ox) + abs(y - target)

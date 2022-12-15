@@ -566,11 +566,11 @@ def run_helper(helper_day, save):
         if real_run:
             safe_print(f"# That took {(finish - start).total_seconds():.4f} seconds to complete")
 
-        if copy_result:
-            log.copy_result_to_clipboard()
-
         filename = get_input_file(helper, file_type="expect")
         if save:
+            if copy_result:
+                log.copy_result_to_clipboard()
+
             if os.path.isfile(filename):
                 edit_file(filename)
                 log.save_to_file(filename)
