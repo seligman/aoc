@@ -8,6 +8,11 @@ def calc(log, values, mode, is_test=False):
     from parsers import get_ints
     grid = Grid()
 
+    if is_test:
+        target = 10
+    else:
+        target = 2000000
+
     targets = []
     for val in values:
         x, y, sx, sy = get_ints(val)
@@ -20,7 +25,6 @@ def calc(log, values, mode, is_test=False):
     if mode == 2:
         minx, maxx = grid.axis_min(0), grid.axis_max(0)
         miny, maxy = grid.axis_min(1), grid.axis_max(1)
-        centerx, centery = (minx + maxx) // 2, (miny + maxy) // 2
 
         targets.sort(key=lambda other: other[2])
         temp = []
@@ -48,25 +52,29 @@ def calc(log, values, mode, is_test=False):
                         ox += dx
                         oy += dy
 
-    if is_test:
-        target = 10
-    else:
-        target = 2000000
-
     grid_line = {}
     for (ox, oy), value in grid.grid.items():
         if oy == target:
             grid_line[ox] = value
 
+    segments = []
     for x, y, dist in targets:
-        for ox in range(x-dist, x+dist+1):
-            if y-dist <= target < y + dist + 1:
-                dist2 = abs(x - ox) + abs(y - target)
-                if dist2 <= dist:
-                    if ox not in grid_line:
-                        grid_line[ox] = "#"
+        a = x - (dist - abs(y - target))
+        b = x + (dist - abs(y - target))
+        if a <= b:
+            while True:
+                found = False
+                for i, (oa, ob) in enumerate(segments):
+                    if (oa <= a <= ob) or (oa <= b <= ob) or (a <= oa <= b) or (a <= ob <= b):
+                        a, b = min(a, oa), max(b, ob)
+                        segments.pop(i)
+                        found = True
+                        break
+                if not found:
+                    break
+            segments.append([a, b])
 
-    return sum(1 for x in grid_line.values() if x == "#")
+    return sum((b - a) + 1 for a, b in segments) - len(grid_line)
 
 def test(log):
     values = log.decode_values("""
