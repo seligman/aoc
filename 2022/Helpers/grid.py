@@ -174,6 +174,13 @@ class Point:
     def __hash__(self):
         return hash(self.x) ^ hash(self.y)
 
+    def line_to(self, other):
+        if self.x == other.x:
+            for y in range(min(self.y, other.y), max(self.y, other.y) + 1):
+                yield Point(self.x, y)
+        elif self.y == other.y:
+            for x in range(min(self.x, other.x), max(self.x, other.x) + 1):
+                yield Point(x, self.y)
 
 class Grid:
     def __init__(self, default=0):
