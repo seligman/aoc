@@ -16,50 +16,45 @@ def calc(log, values, mode, is_test=False):
         x, y, sx, sy = list(map(int, m.groups()))
         dist = abs(x - sx) + abs(y - sy)
         targets.append((x, y, dist))
+        grid[(x, y)] = "S"
+        if mode == 1:
+            grid[(sx, sy)] = "B"
 
     if mode == 2:
-        minx, miny, maxx, maxy = targets[0][0], targets[0][1], targets[0][0], targets[0][1]
+        minx, maxx = grid.axis_min(0), grid.axis_max(0)
+        miny, maxy = grid.axis_min(1), grid.axis_max(1)
+
         for x, y, dist in targets:
-            minx = min(minx, x)
-            miny = min(miny, y)
-            maxx = max(maxx, x)
-            maxy = max(maxy, y)
-
-        for offset, marker in [(1, "x")]:
-            for x, y, dist in targets:
-                others = targets[:]
-                others.sort(key=lambda other: abs(x - other[0]) + abs(y - other[1]))
-                ox, oy = x - (dist + offset), y
-                for dx, dy in [(1, -1), (1, 1), (-1, 1), (-1, -1)]:
-                    while True:
-                        if minx <= ox <= maxx and miny <= oy <= maxy:
-                            good = True
-                            if marker == "x":
-                                for tx, ty, tdist in others:
-                                    if abs(ox - tx) + abs(oy - ty) <= tdist:
-                                        good = False
-                                        break
-                            if good:
-                                return ox * 4000000 + oy
-                                grid[(ox, oy)] = marker
-                        if abs(x - (ox + dx)) + abs(y - (oy + dy)) == dist + offset:
-                            ox += dx
-                            oy += dy
-                        else:
-                            break
-
-    for val in values:
-        m = r.search(val)
-        x, y, sx, sy = list(map(int, m.groups()))
-        grid[(x, y)] = "S"
-        grid[(sx, sy)] = "B"
+            others = targets[:]
+            others.sort(key=lambda other: abs(x - other[0]) + abs(y - other[1]))
+            others = others[1:]
+            ox, oy = x - (dist + 1), y
+            for dx, dy in [(1, -1), (1, 1), (-1, 1), (-1, -1)]:
+                while True:
+                    if minx <= ox <= maxx and miny <= oy <= maxy:
+                        good = True
+                        for tx, ty, tdist in others:
+                            if abs(ox - tx) + abs(oy - ty) <= tdist:
+                                good = False
+                                break
+                        if good:
+                            return ox * 4000000 + oy
+                    if abs(x - (ox + dx)) + abs(y - (oy + dy)) == dist + 1:
+                        ox += dx
+                        oy += dy
+                    else:
+                        break
 
     if is_test:
         target = 10
     else:
         target = 2000000
 
-    r = re.compile(r"Sensor at x=([\d-]+), y=([\d-]+): closest beacon is at x=([\d-]+), y=([\d-]+)")
+    grid_line = {}
+    for (ox, oy), value in grid.grid.items():
+        if oy == target:
+            grid_line[ox] = value
+
     for val in values:
         m = r.search(val)
         x, y, sx, sy = list(map(int, m.groups()))
@@ -67,18 +62,12 @@ def calc(log, values, mode, is_test=False):
         dist = abs(x - sx) + abs(y - sy)
         for ox in range(x-dist, x+dist+1):
             if y-dist <= target < y + dist + 1:
-                for oy in [target]:
-                    dist2 = abs(x - ox) + abs(y - oy)
-                    if dist2 <= dist:
-                        if grid[(ox, oy)] == 0:
-                            grid[(ox, oy)] = "#"
+                dist2 = abs(x - ox) + abs(y - target)
+                if dist2 <= dist:
+                    if ox not in grid_line:
+                        grid_line[ox] = "#"
 
-    ret = 0
-    for y in [target]:
-        for x in grid.x_range():
-            if grid[(x, y)] in {"#", "S"}:
-                ret += 1
-    return ret
+    return sum(1 for x in grid_line.values() if x == "#")
 
 def test(log):
     values = log.decode_values("""
