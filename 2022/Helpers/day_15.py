@@ -23,14 +23,22 @@ def calc(log, values, mode, is_test=False):
     if mode == 2:
         minx, maxx = grid.axis_min(0), grid.axis_max(0)
         miny, maxy = grid.axis_min(1), grid.axis_max(1)
+        centerx, centery = (minx + maxx) // 2, (miny + maxy) // 2
+
+        targets.sort(key=lambda other: other[2])
+        temp = []
+        while len(targets) > 0:
+            if len(targets) > 0: temp.append(targets.pop(0))
+            if len(targets) > 0: temp.append(targets.pop(-1))
+        targets = temp[::-1]
 
         for x, y, dist in targets:
             others = targets[:]
             others.sort(key=lambda other: abs(x - other[0]) + abs(y - other[1]))
-            others = others[1:]
+
             ox, oy = x - (dist + 1), y
             for dx, dy in [(1, -1), (1, 1), (-1, 1), (-1, -1)]:
-                while True:
+                for move in range(dist + 2):
                     if minx <= ox <= maxx and miny <= oy <= maxy:
                         good = True
                         for tx, ty, tdist in others:
@@ -39,11 +47,9 @@ def calc(log, values, mode, is_test=False):
                                 break
                         if good:
                             return ox * 4000000 + oy
-                    if abs(x - (ox + dx)) + abs(y - (oy + dy)) == dist + 1:
+                    if move < dist + 2:
                         ox += dx
                         oy += dy
-                    else:
-                        break
 
     if is_test:
         target = 10
