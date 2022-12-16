@@ -3,6 +3,18 @@
 DAY_NUM = 15
 DAY_DESC = 'Day 15: Beacon Exclusion Zone'
 
+def get_dist(x1, y1, x2, y2):
+    return abs(x1 - x2) + abs(y1 - y2)
+
+def walk_edge(x, y, dist):
+    ox, oy = x - (dist + 1), y
+    for dx, dy in [(1, -1), (1, 1), (-1, 1), (-1, -1)]:
+        for move in range(dist + 2):
+            yield ox, oy
+            if move < dist + 2:
+                ox += dx
+                oy += dy
+
 def calc(log, values, mode, is_test=False):
     from grid import Grid
     from parsers import get_ints
@@ -34,23 +46,19 @@ def calc(log, values, mode, is_test=False):
         targets = temp[::-1]
 
         for x, y, dist in targets:
-            others = targets[:]
-            others.sort(key=lambda other: abs(x - other[0]) + abs(y - other[1]))
+            others = [other for other in targets if get_dist(x, y, other[0], other[1]) <= (other[2] + dist + 1)]
+            others = [other for other in others if (x, y, dist) != other]
 
-            ox, oy = x - (dist + 1), y
-            for dx, dy in [(1, -1), (1, 1), (-1, 1), (-1, -1)]:
-                for move in range(dist + 2):
+            if sum(1 for other in others if get_dist(x, y, other[0], other[1]) == (other[2] + dist)) == 1:
+                for ox, oy in walk_edge(x, y, dist):
                     if minx <= ox <= maxx and miny <= oy <= maxy:
                         good = True
                         for tx, ty, tdist in others:
-                            if abs(ox - tx) + abs(oy - ty) <= tdist:
+                            if get_dist(ox, oy, tx, ty) <= tdist:
                                 good = False
                                 break
                         if good:
                             return ox * 4000000 + oy
-                    if move < dist + 2:
-                        ox += dx
-                        oy += dy
 
     grid_line = {}
     for (ox, oy), value in grid.grid.items():
