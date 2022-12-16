@@ -1,107 +1,95 @@
 #!/usr/bin/env python3
 
+import re
+from collections import deque
+
 DAY_NUM = 16
 DAY_DESC = 'Day 16: Proboscidea Volcanium'
 
+class Node:
+    __slots__ = ['rate', 'node_name', 'tunnels', 'opened', 'valve_num']
+    def __init__(self, value, next_valve_num):
+        m = re.search("Valve (.*?) has flow rate=(.*?)\\; tunnels? leads? to valves? (.*?)$", value)
+        self.node_name, self.rate, self.tunnels = m.groups()
+        self.rate = int(self.rate)
+        self.tunnels = self.tunnels.split(", ")
+        self.opened = False
+        if self.rate > 0:
+            self.valve_num = 1 << next_valve_num[0]
+            next_valve_num[0] += 1
+        else:
+            self.valve_num = 0
+    
+class State:
+    __slots__ = ['a', 'b', 'opened', 'pressure']
+    def __init__(self, a, b, opened, pressure):
+        self.a = a
+        self.b = b
+        self.opened = opened
+        self.pressure = pressure
+
+    def __repr__(self):
+        return f"{self.a}-{self.b},{self.opened},{self.pressure}"
+
 def calc(log, values, mode):
-    import re
-    first = None
-    nodes = {}
-    for row in values:
-        m = re.search("Valve (.*?) has flow rate=(.*?)\\; tunnels? leads? to valves? (.*?)$", row)
-        node, rate, tunnels = m.groups()
-        tunnels = tunnels.split(", ")
-        rate = int(rate)
-        if first is None or node < first:
-            first = node
-        nodes[node] = {
-            "rate": rate,
-            "node": node,
-            "tunnels": tunnels,
-            "opened": False,
-        }
+    next_valve_num = [0]
+    nodes = {x.node_name: x for x in [Node(y, next_valve_num) for y in values]}
+    first = min(nodes.keys())
 
-    from collections import defaultdict
-    best = defaultdict(lambda:-1)
+    best = {}
+    target_best = 0
 
-    if mode == 1:
-        states = [(first, set(), 0)]
-        for time in range(1, 31):
-            temp = []
-            for node, opened, pressure in states:
-                key = (node,) + tuple(sorted(opened))
-                if pressure > best[key]:
-                    best[key] = pressure
-                    node = nodes[node]
-                    if node['rate'] > 0 and node['node'] not in opened:
-                        temp.append((node['node'], opened | set([node['node']]), pressure + node['rate'] * (30 - time)))
-                    for x in node['tunnels']:
-                        temp.append((x, opened, pressure))
-            states = temp
-    else:
-        seen = {}
-        m = 0
+    def is_best(val):
+        if val.pressure < target_best:
+            return False
 
-        def recurse(t, pos1, pos2, flow):
-            nonlocal m
+        key = (val.a, val.b, val.opened)
+
+        if key not in best or val.pressure > best[key]:
+            best[key] = val.pressure
+            return True
             
-            if seen.get((t, pos1, pos2), -1) >= sum(flow):
-                return
-            seen[t, pos1, pos2] = sum(flow)
-            
-            if t == 26:
-                if sum(flow) > m:
-                    m = sum(flow)
-                return
-            
-            if all(x['opened'] for x in nodes.values() if x['rate'] > 0):
-                tf = sum(x['rate'] for x in nodes.values() if x['opened'])
-                recurse(t + 1, pos1, pos2, flow + [tf])
-                return
-            
-            for k in (0, 1):
-                if k == 0:
-                    if nodes[pos1]['opened'] or nodes[pos1]['rate'] <= 0:
-                        continue
-                        
-                    nodes[pos1]['opened'] = True
-                    
-                    for k2 in (0, 1):
-                        if k2 == 0:
-                            if nodes[pos2]['opened'] or nodes[pos2]['rate'] <= 0:
-                                continue
-                            
-                            nodes[pos2]['opened'] = True
-                            j = sum(x['rate'] for x in nodes.values() if x['opened'])
-                            recurse(t + 1, pos1, pos2, flow + [ j ])
-                            nodes[pos2]['opened'] = False
-                        else:
-                            j = sum(x['rate'] for x in nodes.values() if x['opened'])
-                            for v2 in nodes[pos2]['tunnels']:
-                                recurse(t + 1, pos1, v2, flow + [ j ])
-                    nodes[pos1]['opened'] = False
-                else:
-                    j = sum(x['rate'] for x in nodes.values() if x['opened'])
-                    for v in nodes[pos1]['tunnels']:
-                        for k2 in (0, 1):
-                            if k2 == 0:
-                                if nodes[pos2]['opened'] or nodes[pos2]['rate'] <= 0:
-                                    continue
+        return False
 
-                                nodes[pos2]['opened'] = True
-                                j = sum(x['rate'] for x in nodes.values() if x['opened'])
-                                recurse(t + 1, v, pos2, flow + [ j ])
-                                nodes[pos2]['opened'] = False
-                            else:
-                                j = sum(x['rate'] for x in nodes.values() if x['opened'])
-                                for v2 in nodes[pos2]['tunnels']:
-                                    recurse(t + 1, v, v2, flow + [ j ])
+    best_history = []
+    total_time = 30 if mode == 1 else 26
+    states = deque([State(first, None if mode == 1 else first, 0, 0)])
 
-        recurse(1, first, first, [ 0 ])
+    for time in range(1, total_time + 1):
+        best_history.append(0 if len(best) == 0 else max(best.values()))
+        best_change = max(x.rate for x in nodes.values()) * (total_time - time)
+        target_best = int(best_history[-1] - best_change)
+        if mode == 2:
+            if len(best_history) > 3 and sum(best_history[-3:]) == best_history[-1] * 3:
+                return best_history[-1]
 
-        return m
+        next_states = deque()
+        for cur in states:
+            node_a = nodes[cur.a]
+            node_b = None if cur.b is None else nodes[cur.b]
 
-    return max(x for x in best.values())
+            if node_a.rate > 0 and (node_a.valve_num & cur.opened) == 0:
+                if node_b is not None and node_b.rate > 0 and (node_b.valve_num & cur.opened) == 0 and node_b.valve_num != node_a.valve_num:
+                    val = State(
+                        node_a.node_name, 
+                        node_b.node_name, 
+                        cur.opened | node_a.valve_num | node_b.valve_num, 
+                        cur.pressure + node_a.rate * (total_time - time) + node_b.rate * (total_time - time),
+                    )
+                    if is_best(val): next_states.append(val)
+                for y in [None] if node_b is None else node_b.tunnels:
+                    val = State(node_a.node_name, y, cur.opened | node_a.valve_num, cur.pressure + node_a.rate * (total_time - time))
+                    if is_best(val): next_states.append(val)
+            for x in node_a.tunnels:
+                if node_b is not None and node_b.rate > 0 and (node_b.valve_num & cur.opened) == 0:
+                    val = State(x, node_b.node_name, cur.opened | node_b.valve_num, cur.pressure + node_b.rate * (total_time - time))
+                    if is_best(val): next_states.append(val)
+                for y in [None] if node_b is None else node_b.tunnels:
+                    val = State(x, y, cur.opened, cur.pressure)
+                    if is_best(val): next_states.append(val)
+        states = next_states
+
+    return best_history[-1]
 
 def test(log):
     values = log.decode_values("""
