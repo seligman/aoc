@@ -41,10 +41,9 @@ def other_draw(describe, values):
     calc(DummyLog(), values, 2, draw=True)
     animate.create_mp4(DAY_NUM, rate=30, final_secs=35)
 
-source_code = None
-def draw_frame(nodes, points, last_step, step, info):
-    from PIL import Image, ImageDraw, ImageFont
-    import os
+def layout_points(points, im_width, im_height):
+    offsets = {}
+
     minx = min(x for x,y in points.values())
     maxx = max(x for x,y in points.values())
     miny = min(y for x,y in points.values())
@@ -58,14 +57,6 @@ def draw_frame(nodes, points, last_step, step, info):
     miny -= spany * 0.01
     maxy += spany * 0.01
 
-    im_width, im_height = 1024, 1024
-    font_size = im_width * 0.01
-
-    global source_code
-    if source_code is None:
-        source_code = os.path.join('Helpers', 'Font-SourceCodePro-Bold.ttf')
-        source_code = ImageFont.truetype(source_code, int(float(font_size) * 1.5))
-
     circ_size = int(im_width * 0.02)
     offsets = {}
     for node, (x, y) in points.items():
@@ -73,6 +64,21 @@ def draw_frame(nodes, points, last_step, step, info):
         y = ((y - miny) / (maxy - miny)) * (im_height - (circ_size * 2 + circ_size)) + circ_size
         offsets[node] = (x, y)
     
+    return offsets
+
+source_code = None
+def draw_frame(nodes, points, last_step, step, info, offsets, im_width, im_height):
+    from PIL import Image, ImageDraw, ImageFont
+    import os
+
+    font_size = im_width * 0.01
+    circ_size = int(im_width * 0.02)
+
+    global source_code
+    if source_code is None:
+        source_code = os.path.join('Helpers', 'Font-SourceCodePro-Bold.ttf')
+        source_code = ImageFont.truetype(source_code, int(float(font_size) * 1.5))
+
     if step is not None:
         a_verb, a_dest, b_verb, b_dest, pressure = step
         is_opening = set()
@@ -154,7 +160,7 @@ def draw_frame(nodes, points, last_step, step, info):
             info["pos_b"] = move_b
         info["time"] += 1
 
-def draw_steps(nodes, points, history):
+def draw_steps(nodes, points, history, im_width, im_height):
     last_step = None
     info = {
         "frame": 0,
@@ -174,8 +180,10 @@ def draw_steps(nodes, points, history):
             break
         history[i] = (x[0], x[1], "", x[3], x[4])
 
+    offsets = layout_points(points, im_width, im_height)
+
     for step in history:
-        draw_frame(nodes, points, last_step, step, info)
+        draw_frame(nodes, points, last_step, step, info, offsets, im_width, im_height)
         last_step = step
 
 def calc(log, values, mode, draw=False):
@@ -184,25 +192,70 @@ def calc(log, values, mode, draw=False):
     first = min(nodes.keys())
 
     if draw:
-        import networkx
-        edges = []
-        for x in nodes.values():
-            for y in x.tunnels:
-                edges.append((x.node_name, y))
-        graph = networkx.from_edgelist(edges)
+        im_width, im_height = 1024, 1024
+        saved_points = {
+            "AA": [-0.2592,  0.1372], "AH": [-0.2626,  0.5164], "AL": [-0.1706,  0.2748], "AM": [ 0.0168,  0.3657], "CD": [-0.3164, -0.7735], "CE": [-0.2950, -0.4771],
+            "CS": [-0.4092,  0.2149], "CX": [-0.0168,  0.2873], "DC": [-0.1999, -0.9999], "DU": [ 0.1395,  0.4486], "DX": [ 0.0199, -0.9806], "EA": [ 0.2278,  0.0482],
+            "EI": [ 0.6691, -0.0972], "GX": [ 0.1351, -0.1384], "HD": [ 0.4788, -0.2034], "HS": [-0.1963,  0.4810], "JC": [-0.3452, -0.6604], "JI": [ 0.2549, -0.2687],
+            "MS": [-0.3064,  0.3240], "MW": [ 0.9139,  0.3389], "NC": [ 0.2471,  0.6917], "NM": [-0.1315, -0.9671], "NU": [-0.0577,  0.4272], "OE": [-0.0952,  0.1608],
+            "OV": [-0.2733,  0.6155], "PY": [ 0.9004,  0.1912], "QC": [-0.3108,  0.4572], "QE": [ 0.1205,  0.1601], "RA": [ 0.0066, -0.2856], "RN": [-0.0912,  0.5709],
+            "SH": [ 0.2944,  0.4498], "TK": [-0.1408, -0.0898], "TP": [-0.0941, -0.5014], "UB": [ 0.8125,  0.0400], "UE": [-0.2022, -0.8613], "UI": [ 0.3688,  0.5748],
+            "VE": [-0.2813, -0.9001], "VJ": [-0.4360,  0.3531], "VQ": [ 0.0672,  0.7148], "WC": [-0.1946,  0.0872], "WD": [-0.1486, -0.3905], "WK": [-0.1253,  0.6411],
+            "XI": [-0.0202,  0.6181], "XK": [-0.2164, -0.6897], "XO": [ 0.3479,  0.2071], "XS": [-0.3962, -0.5669], "YH": [-0.3874, -0.8043], "YP": [ 0.1397, -0.9770],
+            "YS": [-0.1767,  0.3682], "ZG": [ 0.3864,  0.3973], "ZN": [ 0.0104,  0.4694],
+        }
         while True:
-            points = networkx.fruchterman_reingold_layout(graph, iterations=50)
-            info =     info = {
-                    "frame": 0,
-                    "opened": set(),
-                    "pos_a": "AA",
-                    "pos_b": "AA",
-                    "time": 0,
-                }
-            draw_frame(nodes, points, None, None, info)
-            yn = input("Good frame? ")
-            if yn == "y":
-                break
+            if saved_points is None:
+                import networkx
+                edges = []
+                for x in nodes.values():
+                    for y in x.tunnels:
+                        edges.append((x.node_name, y))
+                graph = networkx.from_edgelist(edges)
+                points = networkx.fruchterman_reingold_layout(graph, iterations=50)
+            else:
+                points = saved_points
+                saved_points = None
+            points = {k: (int(x * 10000) / 10000, int(y * 10000) / 10000) for k, (x, y) in points.items()}
+            info = {
+                "frame": 0,
+                "opened": set(),
+                "pos_a": "AA",
+                "pos_b": "AA",
+                "time": 0,
+            }
+            offsets = layout_points(points, im_width, im_height)
+            draw_frame(nodes, points, None, None, info, offsets, im_width, im_height)
+            cluster = False
+            for x in offsets:
+                if cluster:
+                    break
+                for y in offsets:
+                    if x != y:
+                        dist = (offsets[x][0] - offsets[y][0]) * (offsets[x][0] - offsets[y][0]) + (offsets[x][1] - offsets[y][1]) * (offsets[x][1] - offsets[y][1])
+                        if dist <= 40 * 40:
+                            cluster = True
+                            break
+
+            if cluster:
+                print("Ignoring clustered image")
+            else:
+                yn = input("Does that frame look good? [y/(n)] ")
+                if yn == "y":
+                    print("Use this variable to save this layout: ")
+                    print("-" * 100)
+                    print(" " * 8 + "saved_points = {")
+                    line = " " * 12
+                    for k, (x, y) in [(x, points[x]) for x in sorted(points)]:
+                        line += f'"{k}": [{x:7.4f}, {y:7.4f}], '
+                        if len(line) > 150:
+                            print(line)
+                            line = " " * 12
+                    if len(line.strip()) > 0:
+                        print(line)
+                    print(" " * 8 + "}")
+                    print("-" * 100)
+                    break
 
     best = {}
     target_best = 0
@@ -258,7 +311,7 @@ def calc(log, values, mode, draw=False):
     if draw:
         for x in best.values():
             if x.pressure == best_history[-1]:
-                draw_steps(nodes, points, x.history)
+                draw_steps(nodes, points, x.history, im_width, im_height)
                 break
 
     return best_history[-1]
