@@ -59,9 +59,6 @@ def calc(log, values, mode):
         best_history.append(0 if len(best) == 0 else max(best.values()))
         best_change = max(x.rate for x in nodes.values()) * (total_time - time)
         target_best = int(best_history[-1] - best_change)
-        if mode == 2:
-            if len(best_history) > 3 and sum(best_history[-3:]) == best_history[-1] * 3:
-                return best_history[-1]
 
         next_states = deque()
         for cur in states:
