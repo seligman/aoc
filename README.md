@@ -27,7 +27,7 @@ Done, 1 worked, 0 failed
 
 `advent.py` has a bunch of other options, including the ability to run with other test input, run other commands in the helpers that support them, mostly for drawing animations, and prepare a new day.  Run it without any arguments to see what it can do.
 
-Starting in 2019 I've started adding some animations to the respective yearly folders under `animations`.  These are simple attempts to visualize some of the puzzles as it's processed.
+Starting in 2019 I've started adding some animations to the respective yearly folders under `animations`.  These are simple attempts to visualize some of the puzzles as it's processed.  Starting in 2022, I've adding links in each year's README to online copies of all of the animations, including ones with files too big check in here.
 
 Two extra classes are common to the helpers, though they get expanded and modified from time to time:
 
