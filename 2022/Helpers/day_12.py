@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 
+# Animation: https://imgur.com/a/2EQCAaC
+
 DAY_NUM = 12
 DAY_DESC = 'Day 12: Hill Climbing Algorithm'
 

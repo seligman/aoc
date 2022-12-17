@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 
+# Animation: https://youtu.be/XyWthomQ9mM
+
 import re
 from collections import deque
 
@@ -104,9 +106,12 @@ def draw_frame(nodes, points, last_step, step, info, offsets, im_width, im_heigh
             x1, y1 = offsets[node.node_name]
             for dest in node.tunnels:
                 x2, y2 = offsets[dest]
-                dr.line((x1, y1, x2, y2), (192, 192, 192))
+                dr.line((x1, y1, x2, y2), (192, 192, 192), width=int(im_width * 0.01))
 
         perc = (cur_step / 29)
+        sqt = perc * perc
+        perc_ease = sqt / (2 * (sqt - perc) + 1)
+
         for node, (x, y) in offsets.items():
             msg = [node]
             color = (255, 255, 255)
@@ -141,8 +146,8 @@ def draw_frame(nodes, points, last_step, step, info, offsets, im_width, im_heigh
             if move_x is None:
                 x, y = offsets[info[key]]
             else:
-                x = offsets[move_x][0] * perc + offsets[info[key]][0] * (1 - perc)
-                y = offsets[move_x][1] * perc + offsets[info[key]][1] * (1 - perc)
+                x = offsets[move_x][0] * perc_ease + offsets[info[key]][0] * (1 - perc_ease)
+                y = offsets[move_x][1] * perc_ease + offsets[info[key]][1] * (1 - perc_ease)
 
             w, h = dr.textsize(desc, source_code)
             dr.rectangle((x - w / 2, y + circ_size - h / 2, x + w / 2, y + circ_size + h / 2), fill=(50, 50, 50))
@@ -192,7 +197,7 @@ def calc(log, values, mode, draw=False):
     first = min(nodes.keys())
 
     if draw:
-        im_width, im_height = 1024, 1024
+        im_width, im_height = 1080, 1080
         saved_points = {
             "AA": [-0.2592,  0.1372], "AH": [-0.2626,  0.5164], "AL": [-0.1706,  0.2748], "AM": [ 0.0168,  0.3657], "CD": [-0.3164, -0.7735], "CE": [-0.2950, -0.4771],
             "CS": [-0.4092,  0.2149], "CX": [-0.0168,  0.2873], "DC": [-0.1999, -0.9999], "DU": [ 0.1395,  0.4486], "DX": [ 0.0199, -0.9806], "EA": [ 0.2278,  0.0482],
@@ -233,7 +238,7 @@ def calc(log, values, mode, draw=False):
                 for y in offsets:
                     if x != y:
                         dist = (offsets[x][0] - offsets[y][0]) * (offsets[x][0] - offsets[y][0]) + (offsets[x][1] - offsets[y][1]) * (offsets[x][1] - offsets[y][1])
-                        if dist <= 40 * 40:
+                        if dist <= int(im_width * 0.035) * int(im_width * 0.035):
                             cluster = True
                             break
 

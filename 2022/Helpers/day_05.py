@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 
+# Animation: https://imgur.com/a/nyVEK2j
+
 DAY_NUM = 5
 DAY_DESC = 'Day 5: Supply Stacks'
 

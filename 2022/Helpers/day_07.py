@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 
+# Visualization: https://imgur.com/a/PDXx0GX
+
 import re
 from collections import defaultdict
 

@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 
+# Animation: https://youtu.be/Oqo4ee30pXU
+
 DAY_NUM = 14
 DAY_DESC = 'Day 14: Regolith Reservoir'
 

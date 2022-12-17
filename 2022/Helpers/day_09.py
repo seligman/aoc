@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 
+# Animation: https://youtu.be/zTpJBzVDktk
+
 DAY_NUM = 9
 DAY_DESC = 'Day 9: Rope Bridge'
 

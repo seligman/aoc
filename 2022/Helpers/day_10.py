@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 
+# Animation: https://imgur.com/a/Z02NxRl
+
 DAY_NUM = 10
 DAY_DESC = 'Day 10: Cathode-Ray Tube'
 
