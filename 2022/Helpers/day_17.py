@@ -108,6 +108,7 @@ def calc(log, values, mode, draw=False, fast_mode=False):
     step = 0
     rotates = 0
     seen = {}
+    cycles = {}
     SeenItem = namedtuple('SeenItem', ['height', 'step'])
 
     bail = -1
@@ -115,6 +116,7 @@ def calc(log, values, mode, draw=False, fast_mode=False):
     add = 0
     offset = 0
     blocks = 0
+    cur_height = 0
     if draw:
         helper = DrawHelper(grid, fast_mode)
 
@@ -144,22 +146,26 @@ def calc(log, values, mode, draw=False, fast_mode=False):
         shape = [Point(px, py + y) for px, py in shape]
 
         if bail < 0 and len(grid.grid) > 0:
-            cur_height = -grid.axis_min(1)
-            if cur_height > 500:
-                key = (step % 5, rotates % len(steps))
-                temp = seen.get(key, None)
-                if temp is None:
-                    temp = SeenItem(cur_height, step)
-                    seen[key] = temp
-                else:
-                    lines_added = cur_height - temp.height
-                    steps_taken = step - temp.step
-                    remaining_cycles = (max_steps - step) // steps_taken
-                    bail = (max_steps - step) % steps_taken + 1
-                    add += lines_added * int(remaining_cycles)
-                    offset = -1
-                    seen = {}
-                    continue
+            key = (step % 5, rotates % len(steps))
+            temp = seen.get(key, None)
+            if temp is None:
+                seen[key] = SeenItem(cur_height, step)
+            else:
+                cycle = (step - temp.step, cur_height - temp.height)
+                cycles[cycle] = cycles.get(cycle, 0) + 1
+                if cycles[cycle] < 50:
+                    temp = None
+                    seen[key] = SeenItem(cur_height, step)
+
+            if temp is not None:
+                lines_added = cur_height - temp.height
+                steps_taken = step - temp.step
+                remaining_cycles = (max_steps - step) // steps_taken
+                bail = (max_steps - step) % steps_taken + 1
+                add += lines_added * int(remaining_cycles)
+                offset = -1
+                seen = {}
+                continue
 
         while True:
             rotates += 1
@@ -193,6 +199,7 @@ def calc(log, values, mode, draw=False, fast_mode=False):
             if hit:
                 for pt in shape:
                     grid[pt] = "#"
+                    cur_height = max(-pt.y, cur_height)
                 blocks += 1
                 if draw:
                     helper.save_frame(grid, None, blocks)
