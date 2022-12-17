@@ -684,7 +684,7 @@ class Grid:
         return w, h
 
     def draw_grid(self, color_map=DEFAULT_COLOR_MAP, cell_size=(10, 10), extra_text=None, extra_text_rows=0, 
-        font_size=14, image_copies=1, extra=None, extra_callback=None, text_xy=None, show_lines=True, default_color=(64, 64, 64)):
+        font_size=14, image_copies=1, extra=None, extra_callback=None, text_xy=None, show_lines=True, default_color=(64, 64, 64), return_image=False):
         from PIL import Image, ImageDraw, ImageFont
         import os
         width = self.width()
@@ -784,6 +784,9 @@ class Grid:
                     )
             extra_callback(d, extra)
         del d
+
+        if return_image:
+            return im
 
         for _ in range(image_copies):
             im.save("frame_%05d.png" % (self.frame,))
