@@ -453,7 +453,12 @@ def test(helper_day):
     for helper in get_helpers_id(helper_day):
         print(f"## {helper.DAY_DESC}")
         try:
-            resp = helper.test(Logger())
+            try:
+                resp = helper.test(Logger())
+            except:
+                import traceback
+                traceback.print_exc()
+                exit(1)
             if resp is not None and resp == False:
                 raise ValueError("Returned false")
             print("That worked!")
