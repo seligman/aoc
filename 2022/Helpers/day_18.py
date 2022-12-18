@@ -7,10 +7,6 @@ DAY_DESC = 'Day 18: Boiling Boulders'
 
 from collections import deque
 
-def all_edges(x, y, z):
-    for ox, oy, oz in [(-1, 0, 0), (1, 0, 0), (0, -1, 0), (0, 1, 0), (0, 0, -1), (0, 0, 1)]:
-        yield (x + ox, y + oy, z + oz)
-
 def calc(log, values, mode, draw=False):
     from parsers import get_ints
     from grid import Grid
@@ -29,7 +25,7 @@ def calc(log, values, mode, draw=False):
     if mode == 1:
         ret = 0
         for pt in seen:
-            for pt in all_edges(*pt):
+            for pt in Grid.get_dirs(3, pt, False):
                 if grid[pt] == 0:
                     ret += 1
         return ret
@@ -44,7 +40,7 @@ def calc(log, values, mode, draw=False):
 
         while len(todo) > 0:
             pt = todo.pop(0)
-            for pt in all_edges(*pt):
+            for pt in Grid.get_dirs(3, pt, False):
                 if pt not in used:
                     used.add(pt)
                     if in_axis(pt[0], 0) and in_axis(pt[1], 1) and in_axis(pt[2], 2) and grid[pt] == 0:
@@ -55,17 +51,16 @@ def calc(log, values, mode, draw=False):
             return grid, escapes_cube
         ret = 0
         for pt in seen:
-            for pt in all_edges(*pt):
+            for pt in Grid.get_dirs(3, pt, False):
                 if pt in escapes_cube:
                     ret += 1
         return ret
-
-    return sum(x[3] for x in seen)
 
 def other_draw(describe, values):
     if describe:
         return "Draw this"
     from dummylog import DummyLog
+    from grid import Grid
     import animate
     animate.prep()
     grid, escapes_cube = calc(DummyLog(), values, 2, draw=True)
@@ -74,7 +69,7 @@ def other_draw(describe, values):
     import numpy as np
 
     for limit in range(22):
-        print(limit)
+        print(f"Working on frame {limit}")
         cubes = np.zeros((grid.axis_max(0), grid.axis_max(1), grid.axis_max(2)))
         colors = np.zeros(cubes.shape + (3,))
         cubes.astype(int)
@@ -82,7 +77,7 @@ def other_draw(describe, values):
         for (x, y, z), val in grid.grid.items():
             if val != 0 and z <= limit:
                 color = (1, 0, 0)
-                for pt in all_edges(x, y, z):
+                for pt in Grid.get_dirs(3, (x, y, z), False):
                     if pt in escapes_cube:
                         color = (1, 0, 1)
                         break

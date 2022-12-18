@@ -293,29 +293,46 @@ class Grid:
         return x, y
 
     @staticmethod
-    def get_dirs_hex():
-        return [(-1, -1), (1, -1), (-2, 0), (2, 0), (-1, 1), (1, 1)]
+    def get_dirs_hex(offset=None):
+        ret = [(-1, -1), (1, -1), (-2, 0), (2, 0), (-1, 1), (1, 1)]
+        if offset is not None:
+            ret = [(x + offset[0], y + offset[1]) for x, y in ret]
+        return ret
 
     @staticmethod
-    def get_dirs(axis_count):
+    def get_dirs(axis_count, offset=None, diagonal=True):
         ret = []
-        temp = [-1] * axis_count
-        found = True
-        while found:
-            if sum([abs(x) for x in temp]) > 0:
-                ret.append(temp[:])
-            found = False
-            i = len(temp) - 1
-            while True:
-                temp[i] += 1
-                if temp[i] == 2:
-                    temp[i] = -1
-                    i -= 1
-                    if i == -1:
+
+        if diagonal:
+            temp = [-1] * axis_count
+            found = True
+            while found:
+                if sum([abs(x) for x in temp]) > 0:
+                    ret.append(tuple(temp))
+                found = False
+                i = len(temp) - 1
+                while True:
+                    temp[i] += 1
+                    if temp[i] == 2:
+                        temp[i] = -1
+                        i -= 1
+                        if i == -1:
+                            break
+                    else:
+                        found = True
                         break
-                else:
-                    found = True
-                    break
+        else:
+            temp = [0] * axis_count
+            for i in range(axis_count):
+                temp[i] = -1
+                ret.append(tuple(temp))
+                temp[i] = 1
+                ret.append(tuple(temp))
+                temp[i] = 0
+
+        if offset is not None:
+            ret = [tuple(a+b for a,b in zip(pt, offset)) for pt in ret]
+
         return ret
 
     def blit(self, source, x, y, color_map=None, text_map=None):
