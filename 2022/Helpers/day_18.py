@@ -4,12 +4,8 @@ DAY_NUM = 18
 DAY_DESC = 'Day 18: Boiling Boulders'
 
 def calc(log, values, mode):
-    # TODO: Delete or use these
-    from parsers import get_ints, get_floats
-    from grid import Grid, Point
-    # from program import Program
-    # grid = Grid.from_text(values)
-    # program = Program(values)
+    from parsers import get_ints
+    from grid import Grid
 
     seen = []
     grid = Grid()
