@@ -1,11 +1,17 @@
 #!/usr/bin/env python3
 
+# Animation: https://imgur.com/a/e0rbktk
+
 DAY_NUM = 18
 DAY_DESC = 'Day 18: Boiling Boulders'
 
 from collections import deque
 
-def calc(log, values, mode):
+def all_edges(x, y, z):
+    for ox, oy, oz in [(-1, 0, 0), (1, 0, 0), (0, -1, 0), (0, 1, 0), (0, 0, -1), (0, 0, 1)]:
+        yield (x + ox, y + oy, z + oz)
+
+def calc(log, values, mode, draw=False):
     from parsers import get_ints
     from grid import Grid
 
@@ -19,10 +25,6 @@ def calc(log, values, mode):
 
     grid[(-1, -1, -1)] = 0
     grid[(max(x for x,y,z in seen)+1, max(y for x,y,z in seen)+1, max(z for x,y,z in seen)+1)] = 0
-
-    def all_edges(x, y, z):
-        for ox, oy, oz in [(-1, 0, 0), (1, 0, 0), (0, -1, 0), (0, 1, 0), (0, 0, -1), (0, 0, 1)]:
-            yield (x + ox, y + oy, z + oz)
 
     if mode == 1:
         ret = 0
@@ -49,6 +51,8 @@ def calc(log, values, mode):
                         escapes_cube.add(pt)
                         todo.append(pt)
 
+        if draw:
+            return grid, escapes_cube
         ret = 0
         for pt in seen:
             for pt in all_edges(*pt):
@@ -57,6 +61,52 @@ def calc(log, values, mode):
         return ret
 
     return sum(x[3] for x in seen)
+
+def other_draw(describe, values):
+    if describe:
+        return "Draw this"
+    from dummylog import DummyLog
+    import animate
+    animate.prep()
+    grid, escapes_cube = calc(DummyLog(), values, 2, draw=True)
+
+    import matplotlib.pyplot as plt
+    import numpy as np
+
+    for limit in range(22):
+        print(limit)
+        cubes = np.zeros((grid.axis_max(0), grid.axis_max(1), grid.axis_max(2)))
+        colors = np.zeros(cubes.shape + (3,))
+        cubes.astype(int)
+
+        for (x, y, z), val in grid.grid.items():
+            if val != 0 and z <= limit:
+                color = (1, 0, 0)
+                for pt in all_edges(x, y, z):
+                    if pt in escapes_cube:
+                        color = (1, 0, 1)
+                        break
+                    if grid[pt] == 0:
+                        color = (.5, .5, .5)
+                cubes[x][y][z] = 1
+                colors[x][y][z] = color
+
+        my_dpi = 100
+        ax = plt.figure(figsize=(800/my_dpi, 800/my_dpi), dpi=my_dpi).add_subplot(projection='3d')
+        ax.voxels(cubes, facecolors=colors, edgecolors='k') # facecolors=colors
+        ax.xaxis.pane.fill = False
+        ax.yaxis.pane.fill = False
+        ax.zaxis.pane.fill = False
+        ax.w_xaxis.set_pane_color((0.0, 0.0, 0.0, 0.0))
+        ax.w_yaxis.set_pane_color((0.0, 0.0, 0.0, 0.0))
+        ax.w_zaxis.set_pane_color((0.0, 0.0, 0.0, 0.0))
+        ax.set_facecolor('black') 
+        ax.grid(False)
+        plt.tight_layout()
+        plt.savefig(f"frame_{limit:05d}.png", dpi=my_dpi, format='png', facecolor='black', transparent=False)
+        plt.close()
+
+    animate.create_mp4(DAY_NUM, rate=2, final_secs=1)
 
 def test(log):
     values = log.decode_values("""
