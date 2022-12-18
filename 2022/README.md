@@ -9,7 +9,7 @@ Some visualizations for your viewing pleasure:
 * Day 5: [Watching the crane at work](https://imgur.com/a/nyVEK2j)
 * Day 7: [The layout of the drive](https://imgur.com/a/PDXx0GX)
 * Day 9: [Dragging a rope around](https://youtu.be/zTpJBzVDktk)
-* Day 10: [Decoding the message](https://imgur.com/a/Z02NxRl)
+* Day 10: [Decoding the message](https://imgur.com/a/Z02NxRl), [Beep Beep](https://imgur.com/a/ZoLPltM)
 * Day 12: [Finding a path up the hill](https://imgur.com/a/2EQCAaC)
 * Day 14: [Filling up the cave with sand](https://youtu.be/Oqo4ee30pXU)
 * Day 16: [Finding a path through the cave of pressure](https://youtu.be/XyWthomQ9mM)

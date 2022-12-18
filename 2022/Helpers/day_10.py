@@ -1,6 +1,9 @@
 #!/usr/bin/env python3
 
 # Animation: https://imgur.com/a/Z02NxRl
+# Beep Beep:
+#   Instructions: https://gist.github.com/seligman/6530e8c1a3e0e3ffb4887a57f51d46ee
+#   Animation:    https://imgur.com/a/ZoLPltM
 
 DAY_NUM = 10
 DAY_DESC = 'Day 10: Cathode-Ray Tube'
@@ -40,6 +43,81 @@ def calc(log, values, mode, draw=False, decode=False):
             return grid.decode_grid(log)
 
     return ret
+
+def other_encode(describe, values):
+    if describe:
+        return "Encode a value into a program"
+
+    valid = "ABCEFGHJKLOPRSUYZ "
+    first = "BEFPR"
+
+    to_encode = input("Enter string to encode: ").upper()
+
+    if len(to_encode) > 8:
+        raise Exception("Too long of a string, must be 8 chars or less")
+    if len(to_encode) < 8:
+        to_encode = to_encode + " " * (8 - len(to_encode))
+    if to_encode[0] not in first:
+        raise Exception(f"First character must be one of {first}")
+    for x in to_encode:
+        if x not in valid:
+            raise Exception(f"Character {x} not valid, must be one of {valid}")
+
+    save_instructions = input("Save instructions to: ")
+
+    from grid import encode_grid, Grid
+    from dummylog import DummyLog
+    grid = encode_grid(to_encode, log=None)
+    grid = Grid.from_text(grid)
+    grid.show_grid(DummyLog())
+
+    raster = ""
+    for y in range(6):
+        for x in range(40):
+            if grid[(x, y)] == "#":
+                raster += "#"
+            else:
+                raster += " "
+
+    raster = raster[3:]
+    values = ["noop"]
+
+    val_x = 1
+    target = val_x
+    while len(raster):
+        if raster[:3] == "###":
+            target += 3
+            if target > 40:
+                target -= 40
+            values.append(f"addx {target - val_x}")
+            val_x = target
+            values.append("noop")
+            raster = raster[3:]
+        elif raster[:2] == "##":
+            target += 2
+            if target > 39:
+                target -= 40
+            values.append(f"addx {target - val_x}")
+            val_x = target
+            raster = raster[2:]
+        elif raster[:1] == "#":
+            target += 1
+            if target > 38:
+                target -= 40
+            values.append(f"addx {target - val_x}")
+            val_x = target
+            target += 1
+            raster = raster[2:]
+        else:
+            raster = raster[1:]
+            values.append("noop")
+            target += 1
+
+    with open(save_instructions, "wt") as f:
+        for row in values:
+            f.write(row + "\n")
+
+    calc(DummyLog(), values, 2, decode=True)
 
 def test(log):
     values = log.decode_values("""

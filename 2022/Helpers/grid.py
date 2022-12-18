@@ -64,7 +64,8 @@ def encode_grid(value, log=print):
                     line += "#"
                 else:
                     line += " "
-        log('"' + line + '",')
+        if log is not None:
+            log('"' + line + '",')
         ret.append(line)
     return ret
 
