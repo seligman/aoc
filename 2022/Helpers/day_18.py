@@ -3,6 +3,8 @@
 DAY_NUM = 18
 DAY_DESC = 'Day 18: Boiling Boulders'
 
+from collections import deque
+
 def calc(log, values, mode):
     from parsers import get_ints
     from grid import Grid
@@ -12,56 +14,46 @@ def calc(log, values, mode):
 
     for cur in values:
         x, y, z = get_ints(cur)
-        sides = 6
-
-        for i in range(len(seen)):
-            ox, oy, oz, osides = seen[i]
-            touch = False
-            if abs(ox - x) == 1 and oy == y and oz == z:
-                touch = True
-            if abs(oy - y) == 1 and ox == x and oz == z:
-                touch = True
-            if abs(oz - z) == 1 and oy == y and ox == x:
-                touch = True
-            if touch:
-                sides -= 1
-                osides -= 1
-            seen[i] = (ox, oy, oz, osides)
-
-        seen.append((x, y, z, sides))
+        seen.append((x, y, z))
         grid[(x, y, z)] = "#"
 
-    if mode == 2:
-        ret = 0
-        for ax, ay, az, q in seen:
-            for ox, oy, oz in [(-1, 0, 0), (1, 0, 0), (0, -1, 0), (0, 1, 0), (0, 0, -1), (0, 0, 1)]:
-                todo = [(ax+ox, ay+oy, az+oz)]
-                if grid[todo[-1]] == 0:
-                    hit_end = False
-                    used = set()
-                    while len(todo) > 0:
-                        x, y, z = todo.pop(0)
-                        for ox, oy, oz in [(-1, 0, 0), (1, 0, 0), (0, -1, 0), (0, 1, 0), (0, 0, -1), (0, 0, 1)]:
-                                tx = ox + x
-                                ty = oy + y
-                                tz = oz + z
-                                use = False
-                                if tx >= 0 and ty >= 0 and tz >= 0:
-                                    if tx <= grid.axis_max(0) and ty <= grid.axis_max(1) and tz <= grid.axis_max(2):
-                                        use = True
-                                
-                                if use:
-                                    if (tx, ty, tz) not in used:
-                                        used.add((tx, ty, tz))
-                                        if grid[(tx, ty, tz)] == 0:
-                                            todo.append((tx, ty, tz))
-                                else:
-                                    hit_end = True
-                                    todo = []
-                                    break
-                    if hit_end:
-                        ret += 1
+    grid[(-1, -1, -1)] = 0
+    grid[(max(x for x,y,z in seen)+1, max(y for x,y,z in seen)+1, max(z for x,y,z in seen)+1)] = 0
 
+    def all_edges(x, y, z):
+        for ox, oy, oz in [(-1, 0, 0), (1, 0, 0), (0, -1, 0), (0, 1, 0), (0, 0, -1), (0, 0, 1)]:
+            yield (x + ox, y + oy, z + oz)
+
+    if mode == 1:
+        ret = 0
+        for pt in seen:
+            for pt in all_edges(*pt):
+                if grid[pt] == 0:
+                    ret += 1
+        return ret
+
+    if mode == 2:
+        todo = [(-1, -1, -1)]
+        used = set(todo)
+        escapes_cube = set(todo)
+
+        def in_axis(val, axis):
+            return grid.axis_min(axis) <= val <= grid.axis_max(axis)
+
+        while len(todo) > 0:
+            pt = todo.pop(0)
+            for pt in all_edges(*pt):
+                if pt not in used:
+                    used.add(pt)
+                    if in_axis(pt[0], 0) and in_axis(pt[1], 1) and in_axis(pt[2], 2) and grid[pt] == 0:
+                        escapes_cube.add(pt)
+                        todo.append(pt)
+
+        ret = 0
+        for pt in seen:
+            for pt in all_edges(*pt):
+                if pt in escapes_cube:
+                    ret += 1
         return ret
 
     return sum(x[3] for x in seen)
