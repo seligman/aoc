@@ -26,6 +26,9 @@ advent.py finish_day    # This runs the following commands:
                         # run_save cur, dl_day cur, get_index, gen_comment
 """
 
+class TestFailedException(Exception):
+    pass
+
 class Logger:
     def __init__(self):
         self.rows = []
@@ -102,12 +105,11 @@ class Logger:
         return ret
 
     def test(self, actual, expected):
-        if actual != expected:
+        if str(actual) != str(expected):
             self.show(f"Test returned {actual}, \x1b[97;101mexpected {expected}\x1b[m")
+            raise TestFailedException()
         else:
             self.show(f"Test returned {actual}, expected {expected}")
-        if actual != expected:
-            raise ValueError("Test failure")
 
 
 def edit_file(filename):
@@ -445,27 +447,27 @@ def get_helpers_id(helper_day):
 
 @opt("Test helper")
 def test(helper_day):
-    good = 0
-    bad = 0
+    good, bad = 0, 0
 
     sys.path.insert(0, 'Helpers')
 
     for helper in get_helpers_id(helper_day):
         print(f"## {helper.DAY_DESC}")
+
         try:
-            try:
-                resp = helper.test(Logger())
-            except:
-                import traceback
-                traceback.print_exc()
-                exit(1)
-            if resp is not None and resp == False:
-                raise ValueError("Returned false")
+            helper.test(Logger())
             print("That worked!")
             good += 1
-        except ValueError:
-            print("\x1b[97;101m" + "  FAILURE!  " + "\x1b[m")
+        except TestFailedException:
             bad += 1
+            print("\x1b[97;101m" + "  FAILURE!  " + "\x1b[m")
+        except SystemExit as e:
+            print("\x1b[97;101m" + f"  exit({e}) called!  " + "\x1b[m")
+            raise
+        except:
+            import traceback
+            traceback.print_exc()
+            exit(1)
 
     if good + bad > 1:
         print("# " + "-" * 60)
@@ -501,7 +503,18 @@ def run_time(helper_day):
     start = datetime.utcnow()
     run(helper_day)
     end = datetime.utcnow()
-    safe_print(f"Done, that took {(end - start).total_seconds():0.2f} seconds")
+    secs = (end - start).total_seconds()
+    if secs >= 90:
+        pretty = f"{secs / 60:0.2f} minutes.  That's a long time!"
+    elif secs >= 15:
+        pretty = f"{secs:0.2f} seconds.  That's a long time!"
+    elif secs >= 10:
+        pretty = f"{secs:0.2f} seconds."
+    elif secs >= 0.01:
+        pretty = f"{int(secs * 1000):d} milliseconds."
+    else:
+        pretty = f"no time."
+    safe_print(f"Done, that took {pretty}")
 
 
 @opt("Run helper")
@@ -569,7 +582,18 @@ def run_helper(helper_day, save):
             cached_runs["changed"] = True
         finish = datetime.utcnow()
         if real_run:
-            safe_print(f"# That took {(finish - start).total_seconds():.4f} seconds to complete")
+            secs = (finish - start).total_seconds()
+            if secs >= 90:
+                pretty = f"{secs / 60:0.2f} minutes to complete.  That's a long time!"
+            elif secs >= 15:
+                pretty = f"{secs:0.2f} seconds to complete.  That's a long time!"
+            elif secs >= 10:
+                pretty = f"{secs:0.2f} seconds to complete."
+            elif secs >= 0.01:
+                pretty = f"{int(secs * 1000):d} milliseconds to complete."
+            else:
+                pretty = f"no time to complete."
+            safe_print(f"# That took {pretty}")
 
         filename = get_input_file(helper, file_type="expect")
         if save:
