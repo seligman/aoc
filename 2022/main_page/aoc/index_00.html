@@ -37,6 +37,10 @@
 <span aria-hidden="true" class="calendar-day4">#@@@@#@##@@@@@##@@@@@@@@#@##@@##@#@@#@@#@@#@#@##@  <span class="calendar-day"> 4</span></span>
 <span aria-hidden="true" class="calendar-day3">#@@#@@@#@#@##@@#@@#@#@@@@@@@@#@@@@@@@@@@@#@@@@@@#  <span class="calendar-day"> 3</span></span>
 <span aria-hidden="true" class="calendar-day2">@@@###@##@#@#@@#@@@#@@##@@@@#@#@@@###@@#@@@@##@@@  <span class="calendar-day"> 2</span></span>
-<span aria-hidden="true" class="calendar-day1">#@@@@@##@@#@#@@@@#@#@@##@@@@@#@@#@##@@@#@#@#@@@@#  <span class="calendar-day"> 1</span></span>
+<span aria-hidden="true" class="calendar-day1">#@@@@@##@@#@#@@@@#@#@@##@@@@@#@@#@##@@@#@#@#@@@@#  <span class="calendar-day"> 1</span><span id="calendar-countdown"></span></span>
 </pre>
+<script>
+var countdown = document.getElementById("calendar-countdown");
+countdown.textContent = window.location.hash.substr(1);
+</script>
 </main></body></html>
