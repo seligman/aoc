@@ -1,33 +1,29 @@
 #!/usr/bin/env python3
 
-# Animation: https://youtu.be/ClDiigmV-Ng
+# Animation: https://youtu.be/Df63_i2p7jA
 
 DAY_NUM = 20
 DAY_DESC = 'Day 20: Grove Positioning System'
 
 def calc(log, values, mode, get_values=False, return_updates=None):
     key = 811589153
-
-    values = [(int(x), i) for i, x in enumerate(values)]
+    values = [(int(x) * (1 if mode == 1 else key), i) for i, x in enumerate(values)]
 
     if mode == 1:
         passes = 1
     elif mode == 2:
         passes = 10
-        values = [(x * key, i) for x, i in values]
 
-    todo = values[:]
+    todo = [x for x in values if x[0] != 0]
 
     for _ in range(passes):
         for x in todo:
-            cur_pos, next_pos = "-", "-"
-            if x != 0 or True:
-                cur_pos = values.index(x)
-                next_pos = (cur_pos + x[0]) % (len(values)-1)
-                values.pop(cur_pos)
-                values.insert(len(values) if next_pos == 0 else next_pos, x)
-                if return_updates:
-                    return_updates(cur_pos, next_pos, values)
+            cur_pos = values.index(x)
+            next_pos = (cur_pos + x[0]) % (len(values)-1)
+            if next_pos == 0: next_pos = len(values)
+            values.insert(next_pos, values.pop(cur_pos))
+            if return_updates:
+                return_updates(cur_pos, next_pos % len(values), values)
 
     if return_updates:
         return_updates(None, None, values)
@@ -36,13 +32,8 @@ def calc(log, values, mode, get_values=False, return_updates=None):
         return values
 
     at = min(i for i, (x, _) in enumerate(values) if x == 0)
+    return sum(values[(i * 1000 + at) % len(values)][0] for i in range(1, 4))
 
-    ret = 0
-    for i in range(1, 4):
-        ret += values[(i * 1000 + at) % len(values)][0]
-
-    return ret
-# colorsys.hsv_to_rgb(.66,1,1)
 def other_draw(describe, values):
     if describe:
         return "Draw this"
@@ -54,15 +45,17 @@ def other_draw(describe, values):
 
     animate.prep()
 
+    scale = 4
+
     targets = calc(DummyLog(), values, 1, get_values=True)
     colors = {}
     locs = {}
     for i, (x, node) in enumerate(targets):
         rgb = colorsys.hsv_to_rgb(i / len(targets), 1, 1)
         rgb = (int(rgb[0] * 255), int(rgb[1] * 255), int(rgb[2] * 255))
-        radius = 325
-        mid_x = 640
-        mid_y = 360
+        radius = 325 * scale
+        mid_x = 640 * scale
+        mid_y = 360 * scale
         colors[node] = rgb
         locs[i] = (
             math.cos(2 * math.pi / len(targets) * i) * radius + mid_x, 
@@ -83,19 +76,22 @@ def other_draw(describe, values):
         while True:
             steps += 1
             if steps % 5 == 0:
-                im = Image.new('RGB', (1280, 720), (0, 0, 0))
+                im = Image.new('RGB', (1280 * scale, 720 * scale), (0, 0, 0))
                 dr = ImageDraw.ImageDraw(im)
 
                 for i, (a, b) in enumerate(trail):
                     if a is not None:
                         gray = int((i / max_trail) * 128)
-                        dr.line((locs[a], locs[b]), (gray, gray, gray), 2)
+                        dr.line((locs[a], locs[b]), (gray, gray, gray), 2 * scale)
 
                 for i, (x, node) in enumerate(targets):
                     pt = locs[i]
                     rgb = colors[node]
-                    size = 10
+                    size = 10 * scale
                     dr.ellipse((pt[0] - size, pt[1] - size, pt[0] + size, pt[1] + size), rgb)
+                
+                if scale > 1:
+                    im = im.resize((1280, 720), Image.Resampling.LANCZOS)
                 im.save(f"frame_{frame:05d}.png")
                 if frame % 10 == 0:
                     print(f"Saved {frame}")
@@ -106,7 +102,6 @@ def other_draw(describe, values):
                 break
             if len(trail) > 0:
                 trail.pop(0)
-
 
     calc(DummyLog(), values, 1, return_updates=helper)
 
