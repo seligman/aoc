@@ -20,46 +20,23 @@ State = namedtuple('State', [
     'time',
 ])
 
-# Cache all of the answers because my solver is slow
-# This will also be handy to compare answers as I test my solver
-# trying to speed it up
-CACHED = {
-    (True, 1, 24): 9, (True, 2, 24): 12,
-
-    (False, 1, 24): 0, (False, 2, 24): 15, (False, 3, 24): 1, (False, 4, 24): 3, (False, 5, 24): 3, 
-    (False, 6, 24): 0, (False, 7, 24): 2, (False, 8, 24): 5, (False, 9, 24): 9, (False, 10, 24): 2, 
-    (False, 11, 24): 5, (False, 12, 24): 0, (False, 13, 24): 0, (False, 14, 24): 1, (False, 15, 24): 0, 
-    (False, 16, 24): 0, (False, 17, 24): 13, (False, 18, 24): 5, (False, 19, 24): 0, (False, 20, 24): 2, 
-    (False, 21, 24): 1, (False, 22, 24): 0, (False, 23, 24): 1, (False, 24, 24): 0, (False, 25, 24): 4, 
-    (False, 26, 24): 0, (False, 27, 24): 0, (False, 28, 24): 5, (False, 29, 24): 1, (False, 30, 24): 1,
-
-    (False, 1, 32): 11, (False, 2, 32): 69, (False, 3, 32): 21,
-
-    # Unverified
-    (False, 4, 32): 28, (False, 5, 32): 31, (False, 6, 32): 8, (False, 7, 32): 35, (False, 8, 32): 42, 
-    (False, 9, 32): 54, (False, 10, 32): 25, (False, 11, 32): 39, (False, 12, 32): 6, (False, 13, 32): 13, 
-    (False, 14, 32): 16, (False, 15, 32): 15, (False, 16, 32): 9, (False, 17, 32): 64, (False, 18, 32): 43, 
-    (False, 19, 32): 11, (False, 20, 32): 31, (False, 21, 32): 22, (False, 22, 32): 11, (False, 23, 32): 18, 
-    (False, 24, 32): 15, (False, 25, 32): 39, (False, 26, 32): 11, (False, 27, 32): 13, (False, 28, 32): 38, 
-    (False, 29, 32): 21, (False, 30, 32): 26,
-}
-
 def solve(cost):
     cost = Costs(*cost)
-    cached_key = (cost.is_test, cost.blueprint, cost.time)
-    if CACHED is not None:
-        if cached_key in CACHED:
-            return CACHED[cached_key], tuple(cost)
 
     todo = deque([State(1, 0, 0, 0, 0, 0, 0, 0, cost.time)])
-    seen = set()
 
     max_ore = max(cost.ore_for_ore, cost.ore_for_clay, cost.ore_for_obsidian, cost.ore_for_geode)
     max_clay = cost.clay_for_obsidian
     max_obsidian = cost.obsidian_for_geode
 
+    max_ore = max_ore * 2 - 1
+    max_clay = max_clay * 2 - 1
+    max_obsidian = max_obsidian * 2 - 1
+
     best = 0
     steps = 0
+
+    seen = set()
 
     while len(todo) > 0:
         cur = todo.popleft()
@@ -68,10 +45,10 @@ def solve(cost):
             cur.ore_robots, 
             cur.clay_robots, 
             cur.obsidian_robots, 
-            cur.geode_robots, 
-            min(cur.ore, max_ore*3), 
-            min(cur.clay, max_clay*9), 
-            min(cur.obsidian, max_obsidian*3),
+            cur.geode, 
+            min(cur.ore, max_ore),
+            min(cur.clay, max_clay),
+            min(cur.obsidian, max_obsidian),
         )
 
         if key not in seen:
@@ -80,10 +57,10 @@ def solve(cost):
             old_state = cur
             cur = cur._replace(time=cur.time-1)
 
-            if 0 < cur.ore_robots : cur = cur._replace(ore=cur.ore + cur.ore_robots)
-            if 0 < cur.clay_robots : cur = cur._replace(clay=cur.clay + cur.clay_robots)
-            if 0 < cur.obsidian_robots : cur = cur._replace(obsidian=cur.obsidian + cur.obsidian_robots)
-            if 0 < cur.geode_robots: cur = cur._replace(geode=cur.geode + cur.geode_robots)
+            cur = cur._replace(ore=cur.ore + cur.ore_robots)
+            cur = cur._replace(clay=cur.clay + cur.clay_robots)
+            cur = cur._replace(obsidian=cur.obsidian + cur.obsidian_robots)
+            cur = cur._replace(geode=cur.geode + cur.geode_robots)
 
             if cur.time == 0:
                 if cur.geode > best:
@@ -114,9 +91,6 @@ def solve(cost):
 
                 todo.append(cur)
 
-    # Cache these, because I can't find a faster path yet
-    print("    " + str(cached_key) + ": " + str(best) + ",")
-    
     return best, tuple(cost)
 
 def calc(log, values, mode, is_test=False):
@@ -124,35 +98,21 @@ def calc(log, values, mode, is_test=False):
 
     time = 24 if mode == 1 else 32
     costs = [Costs(*(get_ints(x) + [time, is_test, None])) for x in values]
-    if mode == 2:
-        costs = costs[:3]
 
-    if CACHED is not None:
-        for i, cost in enumerate(costs):
-            key = (is_test, cost.blueprint, cost.time)
-            if key in CACHED:
-                costs[i] = cost._replace(best=CACHED[key])
-
-    todo = [x for x in costs if x.best is None]
-    if len(todo) > 0:
-        if len(todo) == 1:
-            best, cost = solve(todo[0])
-            cost = Costs(*cost)
-            costs = [(x._replace(best=best) if cost.blueprint == x.blueprint else x) for x in costs]
+    with multiprocessing.Pool() as pool:
+        costs = [tuple(x) for x in costs]
+        if mode == 1:
+            ret = 0
         else:
-            with multiprocessing.Pool() as pool:
-                for best, cost in pool.imap_unordered(solve, todo):
-                    cost = Costs(*cost)
-                    costs = [(x._replace(best=best) if cost.blueprint == x.blueprint else x) for x in costs]
-    
-    if mode == 1:
-        ret = 0
-        for cost in costs:
-            ret += cost.blueprint * cost.best
-    else:
-        ret = 1
-        for cost in costs:
-            ret *= cost.best
+            ret = 1
+            costs = costs[:3]
+
+        for solution, cost in pool.imap_unordered(solve, costs):
+            cost = Costs(*cost)
+            if mode == 1:
+                ret += cost.blueprint * solution
+            else:
+                ret *= solution
 
     return ret
 
