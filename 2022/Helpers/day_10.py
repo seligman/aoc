@@ -2,8 +2,11 @@
 
 # Animation: https://imgur.com/a/Z02NxRl
 # Beep Beep:
-#   Instructions: https://gist.github.com/seligman/6530e8c1a3e0e3ffb4887a57f51d46ee
+#   Instructions: https://github.com/seligman/aoc/blob/master/2022/Puzzles/day_10_input_alt_01.txt
 #   Animation:    https://imgur.com/a/ZoLPltM
+# Christmas Tree:
+#   Instructions: https://github.com/seligman/aoc/blob/master/2022/Puzzles/day_10_input_alt_02.txt
+#   Animation:    https://imgur.com/a/OWCDnlP
 
 DAY_NUM = 10
 DAY_DESC = 'Day 10: Cathode-Ray Tube'
