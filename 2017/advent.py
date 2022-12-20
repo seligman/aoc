@@ -231,19 +231,22 @@ def gen_comment():
 
 @opt("Launch website")
 def launch():
+    import webbrowser
     urls = [
-        "https://imgur.com/upload",
         "https://www.reddit.com/r/adventofcode/",
         "https://adventofcode.com/" + YEAR_NUMBER,
     ]
 
     for url in urls:
-        if os.name == 'nt':
-            cmd = ["cmd", "/c", "start", url]
-        else:
-            cmd = ["open", url]
-        subprocess.check_call(cmd)
-    subprocess.check_call("code .", shell=True)
+        print("Launch: " + url)
+        webbrowser.open(url, 2)
+
+    if os.environ.get("TERM_PROGRAM", "") == "vscode":
+        print("Already running inside of VS Code")
+    else:
+        print("Launching VS Code")
+        subprocess.check_call("code .", shell=True)
+
     make_day_wait()
 
 
