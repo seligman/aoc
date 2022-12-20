@@ -15,3 +15,4 @@ Some visualizations for your viewing pleasure:
 * Day 16: [Finding a path through the cave of pressure](https://youtu.be/XyWthomQ9mM)
 * Day 17: [Playing a game](https://youtu.be/dMAxp1nmmiI), [(speed up version)](https://youtu.be/Hrsan4LFvDo)
 * Day 18: [Showing the lava drop](https://imgur.com/a/e0rbktk)
+* Day 20: [Sorting the buffer](https://youtu.be/ClDiigmV-Ng)

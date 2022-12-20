@@ -1,9 +1,11 @@
 #!/usr/bin/env python3
 
+# Animation: https://youtu.be/ClDiigmV-Ng
+
 DAY_NUM = 20
 DAY_DESC = 'Day 20: Grove Positioning System'
 
-def calc(log, values, mode):
+def calc(log, values, mode, get_values=False, return_updates=None):
     key = 811589153
 
     values = [(int(x), i) for i, x in enumerate(values)]
@@ -24,6 +26,14 @@ def calc(log, values, mode):
                 next_pos = (cur_pos + x[0]) % (len(values)-1)
                 values.pop(cur_pos)
                 values.insert(len(values) if next_pos == 0 else next_pos, x)
+                if return_updates:
+                    return_updates(cur_pos, next_pos, values)
+
+    if return_updates:
+        return_updates(None, None, values)
+
+    if get_values:
+        return values
 
     at = min(i for i, (x, _) in enumerate(values) if x == 0)
 
@@ -32,6 +42,75 @@ def calc(log, values, mode):
         ret += values[(i * 1000 + at) % len(values)][0]
 
     return ret
+# colorsys.hsv_to_rgb(.66,1,1)
+def other_draw(describe, values):
+    if describe:
+        return "Draw this"
+    from dummylog import DummyLog
+    import colorsys
+    from PIL import Image, ImageDraw
+    import animate
+    import math
+
+    animate.prep()
+
+    targets = calc(DummyLog(), values, 1, get_values=True)
+    colors = {}
+    locs = {}
+    for i, (x, node) in enumerate(targets):
+        rgb = colorsys.hsv_to_rgb(i / len(targets), 1, 1)
+        rgb = (int(rgb[0] * 255), int(rgb[1] * 255), int(rgb[2] * 255))
+        radius = 325
+        mid_x = 640
+        mid_y = 360
+        colors[node] = rgb
+        locs[i] = (
+            math.cos(2 * math.pi / len(targets) * i) * radius + mid_x, 
+            math.sin(2 * math.pi / len(targets) * i) * radius + mid_y,
+        )
+
+    max_trail = 100
+    trail = [(None, None)] * max_trail
+    steps = 0
+    frame = 0
+    def helper(cur_pos, next_pos, targets):
+        nonlocal steps, frame
+        if cur_pos is not None:
+            trail.append((cur_pos, next_pos))
+            while len(trail) > max_trail:
+                trail.pop(0)
+
+        while True:
+            steps += 1
+            if steps % 5 == 0:
+                im = Image.new('RGB', (1280, 720), (0, 0, 0))
+                dr = ImageDraw.ImageDraw(im)
+
+                for i, (a, b) in enumerate(trail):
+                    if a is not None:
+                        gray = int((i / max_trail) * 128)
+                        dr.line((locs[a], locs[b]), (gray, gray, gray), 2)
+
+                for i, (x, node) in enumerate(targets):
+                    pt = locs[i]
+                    rgb = colors[node]
+                    size = 10
+                    dr.ellipse((pt[0] - size, pt[1] - size, pt[0] + size, pt[1] + size), rgb)
+                im.save(f"frame_{frame:05d}.png")
+                if frame % 10 == 0:
+                    print(f"Saved {frame}")
+                frame += 1
+                if len(trail) == 0:
+                    break
+            if cur_pos is not None:
+                break
+            if len(trail) > 0:
+                trail.pop(0)
+
+
+    calc(DummyLog(), values, 1, return_updates=helper)
+
+    animate.create_mp4(DAY_NUM, rate=30, final_secs=5)
 
 def test(log):
     values = log.decode_values("""
