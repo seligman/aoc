@@ -3,21 +3,60 @@
 DAY_NUM = 21
 DAY_DESC = 'Day 21: Monkey Math'
 
-def oper_func(oper, a, b):
-    if oper == "+":
-        def helper(x): return (a(x) if callable(a) else a) + (b(x) if callable(b) else b)
-        return helper
-    elif oper == "*":
-        def helper(x): return (a(x) if callable(a) else a) * (b(x) if callable(b) else b)
-        return helper
-    elif oper == "/":
-        def helper(x): return (a(x) if callable(a) else a) // (b(x) if callable(b) else b)
-        return helper
-    elif oper == "-":
-        def helper(x): return (a(x) if callable(a) else a) - (b(x) if callable(b) else b)
-        return helper
-    else:
-        raise Exception()
+def solver(equation, show_work=None):
+    a, oper, b = equation
+    if isinstance(b, int):
+        a, b = b, a
+
+    def to_str(val):
+        if isinstance(val, int) or isinstance(val, str):
+            return str(val)
+        else:
+            return f"({to_str(val[0])} {val[1]} {to_str(val[2])})"
+
+    while isinstance(b, list):
+        if show_work is not None: show_work(to_str([a, oper, b]))
+            
+        if b[1] == "+":
+            if isinstance(b[0], int):
+                a -= b[0]
+                b = b[2]
+            else:
+                a -= b[2]
+                b = b[0]
+        elif b[1] == "-":
+            if isinstance(b[0], int):
+                a = -(a - b[0])
+                b = b[2]
+            else:
+                a = (a + b[2])
+                b = b[0]
+        elif b[1] == "*":
+            if isinstance(b[0], int):
+                a = a // b[0]
+                b = b[2]
+            else:
+                a = a // b[2]
+                b = b[0]
+        elif b[1] == "/":
+            if isinstance(b[0], int):
+                a = a * b[0]
+                b = b[2]
+            else:
+                a = a * b[2]
+                b = b[0]
+
+    if show_work is not None: show_work(to_str([a, oper, b]))
+
+    return a
+
+def builder(a, oper, b):
+    if isinstance(a, int) and isinstance(b, int):
+        if oper == "+": return a + b
+        if oper == "-": return a - b
+        if oper == "*": return a * b
+        if oper == "/": return a // b
+    return [a, oper, b]
 
 def calc(log, values, mode):
     todo = {}
@@ -33,44 +72,18 @@ def calc(log, values, mode):
     
     if mode == 2:
         todo["root"][1] = "=="
-        done["humn"] = lambda x: x
+        done["humn"] = "x"
 
     while "root" not in done:
         for monkey, (a, oper, b) in todo.items():
             if a in done and b in done:
-                if oper == "==":
-                    done[monkey] = [done[a], done[b]]
-                else:
-                    if callable(done[a]) or callable(done[b]):
-                        done[monkey] = oper_func(oper, done[a], done[b])
-                    else:
-                        done[monkey] = oper_func(oper, done[a], done[b])(0)
+                done[monkey] = builder(done[a], oper, done[b])
         todo = {x: y for x, y in todo.items() if x not in done}
 
-    if mode == 2:
-        check = 0
-        inc = 1
-        grow_mode = True
-        a, b = done["root"]
-        if callable(a): a, b = b, a
-
-        too_low = b(0) < a
-        while True:
-            temp = b(check)
-            if temp == a:
-                while b(check-1) == a: check -= 1
-                return check
-            elif (too_low and temp < a) or (not too_low and temp > a):
-                if grow_mode:
-                    inc *= 2
-                check += inc
-            else:
-                grow_mode = False
-                check -= inc
-                inc //= 2
-                check += inc
-    else:
+    if isinstance(done["root"], int):
         return done["root"]
+    else:
+        return solver(done['root'])
 
 def test(log):
     values = log.decode_values("""
