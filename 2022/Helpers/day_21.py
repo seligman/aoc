@@ -3,6 +3,22 @@
 DAY_NUM = 21
 DAY_DESC = 'Day 21: Monkey Math'
 
+def oper_func(oper, a, b):
+    if oper == "+":
+        def helper(x): return (a(x) if callable(a) else a) + (b(x) if callable(b) else b)
+        return helper
+    elif oper == "*":
+        def helper(x): return (a(x) if callable(a) else a) * (b(x) if callable(b) else b)
+        return helper
+    elif oper == "/":
+        def helper(x): return (a(x) if callable(a) else a) // (b(x) if callable(b) else b)
+        return helper
+    elif oper == "-":
+        def helper(x): return (a(x) if callable(a) else a) - (b(x) if callable(b) else b)
+        return helper
+    else:
+        raise Exception()
+
 def calc(log, values, mode):
     todo = {}
     done = {}
@@ -17,52 +33,32 @@ def calc(log, values, mode):
     
     if mode == 2:
         todo["root"][1] = "=="
-        done["humn"] = "human_val"
+        done["humn"] = lambda x: x
 
     while "root" not in done:
-        to_del = set()
-        for monkey, exp in todo.items():
-            if exp[0] in done and exp[2] in done:
-                if isinstance(done[exp[0]], str) or isinstance(done[exp[2]], str):
-                    if exp[1] == "+":
-                        done[monkey] = f"({done[exp[0]]}+{done[exp[2]]})"
-                    elif exp[1] == "-":
-                        done[monkey] = f"({done[exp[0]]}-{done[exp[2]]})"
-                    elif exp[1] == "/":
-                        done[monkey] = f"({done[exp[0]]}//{done[exp[2]]})"
-                    elif exp[1] == "*":
-                        done[monkey] = f"({done[exp[0]]}*{done[exp[2]]})"
-                    elif exp[1] == "==":
-                        done[monkey] = [done[exp[0]], done[exp[2]]]
+        for monkey, (a, oper, b) in todo.items():
+            if a in done and b in done:
+                if oper == "==":
+                    done[monkey] = [done[a], done[b]]
                 else:
-                    if exp[1] == "+":
-                        done[monkey] = done[exp[0]] + done[exp[2]]
-                    elif exp[1] == "-":
-                        done[monkey] = done[exp[0]] - done[exp[2]]
-                    elif exp[1] == "/":
-                        done[monkey] = done[exp[0]] // done[exp[2]]
-                    elif exp[1] == "*":
-                        done[monkey] = done[exp[0]] * done[exp[2]]
+                    if callable(done[a]) or callable(done[b]):
+                        done[monkey] = oper_func(oper, done[a], done[b])
                     else:
-                        raise Exception()
-                to_del.add(monkey)
-        todo = {x: y for x, y in todo.items() if x not in to_del}
+                        done[monkey] = oper_func(oper, done[a], done[b])(0)
+        todo = {x: y for x, y in todo.items() if x not in done}
 
     if mode == 2:
         check = 0
         inc = 1
         grow_mode = True
         a, b = done["root"]
-        if "human_val" in a:
-            a, b = b, a
-        a = int(a)
+        if callable(a): a, b = b, a
 
-        too_low = eval(b.replace("human_val", "0")) < a
+        too_low = b(0) < a
         while True:
-            temp = eval(b.replace("human_val", str(check)))
+            temp = b(check)
             if temp == a:
-                while eval(b.replace("human_val", str(check-1))) == a:
-                    check -= 1
+                while b(check-1) == a: check -= 1
                 return check
             elif (too_low and temp < a) or (not too_low and temp > a):
                 if grow_mode:
