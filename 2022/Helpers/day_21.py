@@ -19,10 +19,11 @@ def calc(log, values, mode):
         todo["root"][1] = "=="
         done["humn"] = "XX"
 
-        while "root" not in done:
-            to_del = set()
-            for monkey, exp in todo.items():
-                if exp[0] in done and exp[2] in done:
+    while "root" not in done:
+        to_del = set()
+        for monkey, exp in todo.items():
+            if exp[0] in done and exp[2] in done:
+                if isinstance(done[exp[0]], str) or isinstance(done[exp[2]], str):
                     if exp[1] == "+":
                         done[monkey] = f"({done[exp[0]]} + {done[exp[2]]})"
                     elif exp[1] == "-":
@@ -33,33 +34,7 @@ def calc(log, values, mode):
                         done[monkey] = f"({done[exp[0]]} * {done[exp[2]]})"
                     elif exp[1] == "==":
                         done[monkey] = f"{done[exp[0]]} == {done[exp[2]]}"
-                    else:
-                        raise Exception
-                    to_del.add(monkey)
-            todo = {x: y for x, y in todo.items() if x not in to_del}
-        
-        check = 0
-        inc = 1 << 30
-        a, b = done["root"].split("==")
-        if "XX" in a:
-            a, b = b, a
-        a = eval(a)
-        while True:
-            temp = eval(b.replace("XX", str(check)))
-            if temp == a:
-                while eval(b.replace("XX", str(check-1))) == a:
-                    check -= 1
-                return check
-            elif temp > a:
-                check += inc
-            else:
-                check -= inc
-                inc //= 2
-    else:
-        while "root" not in done:
-            to_del = set()
-            for monkey, exp in todo.items():
-                if exp[0] in done and exp[2] in done:
+                else:
                     if exp[1] == "+":
                         done[monkey] = done[exp[0]] + done[exp[2]]
                     elif exp[1] == "-":
@@ -69,21 +44,36 @@ def calc(log, values, mode):
                     elif exp[1] == "*":
                         done[monkey] = done[exp[0]] * done[exp[2]]
                     else:
-                        raise Exception
-                    to_del.add(monkey)
-            todo = {x: y for x, y in todo.items() if x not in to_del}
-    
-        return done["root"]
-        
-    # TODO: Delete or use these
-    # from parsers import get_ints, get_floats
-    # from grid import Grid, Point
-    # from program import Program
-    # grid = Grid.from_text(values)
-    # program = Program(values)
+                        raise Exception()
+                to_del.add(monkey)
+        todo = {x: y for x, y in todo.items() if x not in to_del}
 
-    # TODO
-    return 0
+    if mode == 2:
+        check = 0
+        inc = 1
+        grow_mode = True
+        a, b = done["root"].split("==")
+        if isinstance(a, str):
+            a, b = b, a
+        a = int(a)
+
+        too_low = eval(b.replace("XX", "0")) < a
+        while True:
+            temp = eval(b.replace("XX", str(check)))
+            if temp == a:
+                while eval(b.replace("XX", str(check-1))) == a:
+                    check -= 1
+                return check
+            elif (too_low and temp < a) or (not too_low and temp > a):
+                if grow_mode:
+                    inc *= 2
+                check += inc
+            else:
+                grow_mode = False
+                check -= inc
+                inc //= 2
+    else:
+        return done["root"]
 
 def test(log):
     values = log.decode_values("""
@@ -105,7 +95,7 @@ def test(log):
     """)
 
     log.test(calc(log, values, 1), '152')
-    # log.test(calc(log, values, 2), '301')
+    log.test(calc(log, values, 2), '301')
 
 def run(log, values):
     log(calc(log, values, 1))
