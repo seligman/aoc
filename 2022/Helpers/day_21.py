@@ -17,7 +17,7 @@ def calc(log, values, mode):
     
     if mode == 2:
         todo["root"][1] = "=="
-        done["humn"] = "XX"
+        done["humn"] = "human_val"
 
     while "root" not in done:
         to_del = set()
@@ -25,15 +25,15 @@ def calc(log, values, mode):
             if exp[0] in done and exp[2] in done:
                 if isinstance(done[exp[0]], str) or isinstance(done[exp[2]], str):
                     if exp[1] == "+":
-                        done[monkey] = f"({done[exp[0]]} + {done[exp[2]]})"
+                        done[monkey] = f"({done[exp[0]]}+{done[exp[2]]})"
                     elif exp[1] == "-":
-                        done[monkey] = f"({done[exp[0]]} - {done[exp[2]]})"
+                        done[monkey] = f"({done[exp[0]]}-{done[exp[2]]})"
                     elif exp[1] == "/":
-                        done[monkey] = f"({done[exp[0]]} // {done[exp[2]]})"
+                        done[monkey] = f"({done[exp[0]]}//{done[exp[2]]})"
                     elif exp[1] == "*":
-                        done[monkey] = f"({done[exp[0]]} * {done[exp[2]]})"
+                        done[monkey] = f"({done[exp[0]]}*{done[exp[2]]})"
                     elif exp[1] == "==":
-                        done[monkey] = f"{done[exp[0]]} == {done[exp[2]]}"
+                        done[monkey] = [done[exp[0]], done[exp[2]]]
                 else:
                     if exp[1] == "+":
                         done[monkey] = done[exp[0]] + done[exp[2]]
@@ -52,16 +52,16 @@ def calc(log, values, mode):
         check = 0
         inc = 1
         grow_mode = True
-        a, b = done["root"].split("==")
-        if isinstance(a, str):
+        a, b = done["root"]
+        if "human_val" in a:
             a, b = b, a
         a = int(a)
 
-        too_low = eval(b.replace("XX", "0")) < a
+        too_low = eval(b.replace("human_val", "0")) < a
         while True:
-            temp = eval(b.replace("XX", str(check)))
+            temp = eval(b.replace("human_val", str(check)))
             if temp == a:
-                while eval(b.replace("XX", str(check-1))) == a:
+                while eval(b.replace("human_val", str(check-1))) == a:
                     check -= 1
                 return check
             elif (too_low and temp < a) or (not too_low and temp > a):
