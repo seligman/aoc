@@ -554,6 +554,7 @@ def run_helper(helper_day, save):
 
     passed = 0
     failed = []
+    summary = []
     cached_runs = {"year": YEAR_NUMBER}
     if os.path.isfile(os.path.join(tempfile.gettempdir(), "aoc_run_cache.json")):
         try:
@@ -564,6 +565,10 @@ def run_helper(helper_day, save):
         except:
             cached_runs = {"year": YEAR_NUMBER}
     cached_runs['changed'] = False
+
+    max_len = 0
+    for helper in get_helpers_id(helper_day):
+        max_len = max(max_len, len(helper.DAY_DESC))
 
     for helper in get_helpers_id(helper_day):
         safe_print(f"## {helper.DAY_DESC}")
@@ -584,8 +589,8 @@ def run_helper(helper_day, save):
             cached_runs[str(helper.DAY_NUM)] = {"hash": helper.hash, "rows": log.rows}
             cached_runs["changed"] = True
         finish = datetime.utcnow()
+        secs = (finish - start).total_seconds()
         if real_run:
-            secs = (finish - start).total_seconds()
             if secs >= 90:
                 pretty = f"{secs / 60:0.2f} minutes to complete.  That's a long time!"
             elif secs >= 15:
@@ -600,6 +605,7 @@ def run_helper(helper_day, save):
 
         filename = get_input_file(helper, file_type="expect")
         if save:
+            info = "Saved output."
             if copy_result:
                 log.copy_result_to_clipboard()
 
@@ -612,13 +618,18 @@ def run_helper(helper_day, save):
         else:
             if os.path.isfile(filename):
                 if log.compare_to_file(filename):
+                    info = "Good"
                     safe_print("# Got expected output!")
                     passed += 1
                 else:
+                    info = "ERROR"
                     safe_print("# " + "\x1b[97;101m" + "  ERROR: Expected output doesn't match!  " + "\x1b[m")
                     failed.append(f"## {helper.DAY_DESC} FAILED!")
             else:
+                info = "Unknown"
                 safe_print("# No expected output to check")
+        temp = helper.DAY_DESC + ":" + " " * (max_len - len(helper.DAY_DESC))
+        summary.append(f"{temp} {int(secs * 1000):6d}ms {'!' if secs > 15 else ' '} {info}")
 
     if cached_runs["changed"]:
         with open(os.path.join(tempfile.gettempdir(), "aoc_run_cache.json"), "wt") as f:
@@ -626,7 +637,10 @@ def run_helper(helper_day, save):
             f.write("\n")
 
     if passed + len(failed) > 1:
-        safe_print("# " + "-" * 60)
+        safe_print("# " + "-" * 75)
+        for cur in summary:
+            safe_print(cur)
+        safe_print("# " + "-" * 75)
         safe_print(f"Passed: {passed}")
         if len(failed) > 0:
             safe_print(f"# \x1b[97;101m  ERROR: Failed: {len(failed)}  \x1b[m")
