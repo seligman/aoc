@@ -15,7 +15,7 @@ import subprocess
 from PIL import Image, ImageDraw
 import time
 
-def save_screenshot(driver, path, images, files):
+def save_screenshot(msg, driver, path, to_grab, files):
     original_size = driver.get_window_size()
     required_width = max(driver.execute_script('return document.body.parentNode.scrollWidth'), 900)
     required_height = max(driver.execute_script('return document.body.parentNode.scrollHeight'), 900)
@@ -23,19 +23,19 @@ def save_screenshot(driver, path, images, files):
     body = driver.find_element(By.TAG_NAME, "body")
     next = None
     start = datetime.utcnow()
-    for i in range(images):
+    for i in range(to_grab):
         if next is not None:
             now = datetime.utcnow()
             if now < next:
                 time.sleep((next - now).total_seconds())
-        files.append(path % (i,))
+        files.append(os.path.join(path, f"temp_{i:04d}.png"))
         now = datetime.utcnow()
-        print(f"{(now - start).total_seconds():8.4f}: Saving {files[-1]}...")
+        print(f"{(now - start).total_seconds():8.4f}: {msg}: Saving {files[-1]}...")
         if next is None:
             next = start + timedelta(seconds=0.1)
         else:
             next += timedelta(seconds=0.1)
-        body.screenshot(path % (i,))
+        body.screenshot(files[-1])
     driver.set_window_size(original_size['width'], original_size['height'])
 
 
@@ -61,45 +61,73 @@ def main():
     driver.set_window_size(1000, 1000)
     now = datetime.utcnow()
 
-    frame = 0
     todo = []
     for cur in sorted(os.listdir("aoc")):
         if cur.startswith("index_") and cur.endswith(".html"):
-            todo.append(cur)
+            todo.append({"fn": cur, "first": False, "last": False})
+
+    todo[0]['first'] = True
+    todo[-1]['last'] = True
 
     if not os.path.isdir("screenshots"):
         os.mkdir("screenshots")
     for cur in list(os.listdir("screenshots")):
         os.unlink(os.path.join("screenshots", cur))
 
-    for curi, cur in enumerate(todo):
-        print(f"Working on {cur}")
+    frame_number = 0
+    for cur in todo:
+        print(f"Working on {cur['fn']}")
         
-        frames = 1
-        dupes = 10
-        extras = [""]
-        if curi == 0:
-            dupes = 10
-            extras = ["00:00:05", "00:00:04", "00:00:03", "00:00:02", "00:00:01"]
-        if curi == len(todo) - 1:
-            frames = 100
-            dupes = 1
-        
-        for extra in extras:
+        if cur['first']:
+            steps = [
+                {"dupes": 10, "frames": 1, "extra": "00:00:05", "hide_stars": None},
+                {"dupes": 10, "frames": 1, "extra": "00:00:04", "hide_stars": None},
+                {"dupes": 10, "frames": 1, "extra": "00:00:03", "hide_stars": None},
+                {"dupes": 10, "frames": 1, "extra": "00:00:02", "hide_stars": None},
+                {"dupes": 10, "frames": 1, "extra": "00:00:01", "hide_stars": None},
+            ]
+        elif cur['last']:
+            steps = [
+                {"dupes": 3, "frames": 1, "extra": "", "hide_stars": (1, 2)},
+                {"dupes": 3, "frames": 1, "extra": "", "hide_stars": (2, )},
+                {"dupes": 3, "frames": 1, "extra": "", "hide_stars": None},
+                {"dupes": 1, "frames": 100, "extra": "", "hide_stars": None},
+            ]
+        else:
+            steps = [
+                {"dupes": 3, "frames": 1, "extra": "", "hide_stars": (1, 2)},
+                {"dupes": 3, "frames": 1, "extra": "", "hide_stars": (2, )},
+                {"dupes": 3, "frames": 1, "extra": "", "hide_stars": None},
+            ]
+
+        for step in steps:
             files = []
             driver.get("about:blank")
-            driver.get(os.path.join(os.path.split(__file__)[0], "aoc", cur + "#" + extra))
-            save_screenshot(driver, os.path.join("screenshots", f"temp_{curi:03d}_%03d.png"), frames, files)
+            with open(os.path.join(os.path.split(__file__)[0], "aoc", cur['fn']), "rt") as f:
+                html = f.read()
+            if step['hide_stars'] is not None:
+                if 1 in step['hide_stars']:
+                    html = html.replace('<span class="calendar-mark-complete">*</span>', '', 1)
+                if 2 in step['hide_stars']:
+                    html = html.replace('<span class="calendar-mark-verycomplete">*</span>', '', 1)
+            with open(os.path.join(os.path.split(__file__)[0], "aoc", "_temp_.html"), "wt") as f:
+                f.write(html)
+
+            driver.get(os.path.join(os.path.split(__file__)[0], "aoc", "_temp_.html#" + step['extra']))
+
+            save_screenshot(f"{cur['fn']} {step['extra']} {step['hide_stars']}", driver, "screenshots", step['frames'], files)
             
+            os.unlink(os.path.join(os.path.split(__file__)[0], "aoc", "_temp_.html"))
+
             crop_x = 700
-            crop_y = 580
+            crop_y = 23 * 27
             for fn in files:
                 im = Image.open(fn)
                 im_crop = Image.new("RGB", (crop_x, crop_y), (15, 15, 35))
                 im_crop.paste(im)
-                for _ in range(dupes):
-                    im_crop.save(os.path.join("screenshots", f"frame_{frame:05d}.png"))
-                    frame += 1
+                for _ in range(step['dupes']):
+                    im_crop.save(os.path.join("screenshots", f"frame_{frame_number:05d}.png"))
+                    frame_number += 1
                 im.close()
 
             for fn in files:
