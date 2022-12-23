@@ -16,3 +16,4 @@ Some visualizations for your viewing pleasure:
 * Day 17: [Playing a game](https://youtu.be/dMAxp1nmmiI), [(speed up version)](https://youtu.be/Hrsan4LFvDo)
 * Day 18: [Showing the lava drop](https://imgur.com/a/e0rbktk)
 * Day 20: [Sorting the buffer](https://youtu.be/Df63_i2p7jA)
+* Day 23: [The elves moving](https://youtu.be/s3xn8bOo6pA)

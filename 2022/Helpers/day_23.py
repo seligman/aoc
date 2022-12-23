@@ -1,9 +1,11 @@
 #!/usr/bin/env python3
 
+# Animation: https://youtu.be/s3xn8bOo6pA
+
 DAY_NUM = 23
 DAY_DESC = 'Day 23: Unstable Diffusion'
 
-def calc(log, values, mode):
+def calc(log, values, mode, draw=False):
     from grid import Grid, Point
     grid = Grid.from_text(values)
 
@@ -33,6 +35,9 @@ def calc(log, values, mode):
 
         from collections import defaultdict
         counts = defaultdict(int)
+        if draw:
+            moved = set()
+
         for elf in elves:
             for target, check in checks:
                 if elf["can_move"]:
@@ -50,6 +55,8 @@ def calc(log, values, mode):
                 if counts[elf["move"].tuple] == 1:
                     grid[elf["pt"]] = 0
                     grid[elf["move"]] = "#"
+                    if draw:
+                        moved.add(elf["move"].tuple)
                     any_moved += 1
         
         checks.append(checks.pop(0))
@@ -57,7 +64,18 @@ def calc(log, values, mode):
             if round == 10:
                 break
         else:
+            if draw:
+                for pt in grid.grid.keys():
+                    if grid[pt] == "#":
+                        if pt not in moved:
+                            grid[pt] = "star"
+                grid.save_frame()
+                for pt in grid.grid.keys():
+                    if grid[pt] == "star":
+                        grid[pt] = "#"
             if any_moved == 0:
+                if draw:
+                    grid.draw_frames()
                 return round 
         round += 1
 
@@ -74,6 +92,15 @@ def calc(log, values, mode):
                 count += 1
 
     return count
+
+def other_draw(describe, values):
+    if describe:
+        return "Draw this"
+    from dummylog import DummyLog
+    import animate
+    animate.prep()
+    calc(DummyLog(), values, 2, draw=True)
+    animate.create_mp4(DAY_NUM, rate=15, final_secs=5)
 
 def test(log):
     values = log.decode_values("""
