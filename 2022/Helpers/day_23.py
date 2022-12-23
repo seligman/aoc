@@ -4,12 +4,8 @@ DAY_NUM = 23
 DAY_DESC = 'Day 23: Unstable Diffusion'
 
 def calc(log, values, mode):
-    # TODO: Delete or use these
-    # from parsers import get_ints, get_floats
     from grid import Grid, Point
-    # from program import Program
     grid = Grid.from_text(values)
-    # program = Program(values)
 
     checks = [
         [( 0,-1), [( 0, -1), ( 1, -1), (-1, -1)]],
@@ -77,7 +73,6 @@ def calc(log, values, mode):
             if clean[(x, y)] != "#":
                 count += 1
 
-    # TODO
     return count
 
 def test(log):
