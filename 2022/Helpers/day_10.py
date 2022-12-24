@@ -5,28 +5,51 @@
 #   Instructions: https://github.com/seligman/aoc/blob/master/2022/Puzzles/day_10_input_alt_01.txt
 #   Animation:    https://imgur.com/a/ZoLPltM
 # Christmas Tree:
-#   Instructions: https://github.com/seligman/aoc/blob/master/2022/Puzzles/day_10_input_alt_02.txt
-#   Animation:    https://imgur.com/a/OWCDnlP
+#   Instructions: https://github.com/seligman/aoc/blob/master/2022/Puzzles/day_10_input_alt_99.txt
+#   Animation:    https://imgur.com/a/Wzv32Dn
 
 DAY_NUM = 10
 DAY_DESC = 'Day 10: Cathode-Ray Tube'
 
-def calc(log, values, mode, draw=False, decode=False):
+def calc(log, values, mode, draw=False, decode=False, christmas=False):
     from grid import Grid
     from program import Program
     grid = Grid()
     program = Program(values)
     ret = 0
 
+    frame_no = 0
     for _ in program.run():
-        temp = program.cycles - 1
+        program_cycles = ((program.cycles - 1) % (40 * 6)) + 1
+        if program_cycles == 1:
+            frame_no += 1
+        temp = program_cycles - 1
         if draw:
-            grid[(temp % 40, temp // 40)] = "star"
-            grid.save_frame((
-                program.ins, 
-                f"Cycle: {program.cycles}", 
-                f"register X: {program.regs['x']}",
-            ))
+            use = True
+            if christmas:
+                use = False
+                if frame_no == 1:
+                    if temp < 40:
+                        use = True
+                    elif temp % 10 == 0:
+                        use = True
+                elif frame_no == 2:
+                    if temp % 20 == 0:
+                        use = True
+                elif frame_no == 3:
+                    if temp % 40 == 0:
+                        use = True
+                else:
+                    if temp == 40 * 6 - 1:
+                        use = True
+
+            if use:
+                grid[(temp % 40, temp // 40)] = "star"
+                grid.save_frame((
+                    program.ins, 
+                    f"Cycle: {program.cycles}", 
+                    f"register X: {program.regs['x']}",
+                ))
 
         if abs((temp % 40) - program.regs['x']) <= 1:
             grid[(temp % 40, temp // 40)] = "#"
@@ -46,6 +69,82 @@ def calc(log, values, mode, draw=False, decode=False):
             return grid.decode_grid(log)
 
     return ret
+
+def other_christmas_draw(describe, values):
+    if describe:
+        return "Draw the Christmas card"
+    from dummylog import DummyLog
+    import animate
+    animate.prep()
+    calc(DummyLog(), values, 2, draw=True, christmas=True)
+    animate.create_mp4(DAY_NUM, rate=10, final_secs=5)
+
+def other_christmas(describe, values):
+    if describe:
+        return "Create a Christmas greeting message"
+
+    tree = set([
+        (3,3),(3,4),(4,1),(4,2),(4,3),(4,4),(5,0),(5,1),(5,2),(5,3),(5,4),(5,5),(6,1),(6,2),(6,3),(6,4),(7,3),
+        (7,4),
+    ])
+
+    from grid import encode_grid, Grid
+    from dummylog import DummyLog
+    import os
+
+    grid = Grid()
+    for pt in tree:
+        grid[pt] = "#"
+
+    import random
+    random.seed(42)
+    snow = set()
+    ground = set()
+    bag_of_snow = []
+
+    def let_it_snow():
+        nonlocal snow, ground, bag_of_snow
+        temp = set()
+        for pt in snow:
+            if pt[1] == 5 or (pt[0], pt[1] + 1) in ground:
+                ground.add(pt)
+            else:
+                temp.add((pt[0], pt[1] + 1))
+        snow = temp
+        for _ in range(5):
+            for _ in range(40):
+                if len(bag_of_snow) == 0:
+                    bag_of_snow = list(range(10, 39))
+                    random.shuffle(bag_of_snow)
+                x = bag_of_snow.pop(0)
+                y = 0
+                if (x, y) not in snow and (x, y) not in ground:
+                    snow.add((x, y))
+                    break
+
+    def setup_grid():
+        for key in grid.grid.keys():
+            grid[key] = 0
+        
+        for pt in tree | snow | ground:
+            grid[pt] = "#"
+
+    for _ in range(6):
+        let_it_snow()
+    values = []
+    setup_grid()
+    temp, val_x = compile_grid(grid)
+    values += temp
+
+    for _ in range(30):
+        let_it_snow()
+        setup_grid()
+        temp, val_x = compile_grid(grid, val_x)
+        values += temp
+
+    with open(os.path.join("Puzzles", "day_10_input_alt_99.txt"), "wt") as f:
+        for row in values:
+            f.write(row + "\n")
 
 def other_encode(describe, values):
     if describe:
@@ -70,8 +169,20 @@ def other_encode(describe, values):
 
     from grid import encode_grid, Grid
     from dummylog import DummyLog
+
     grid = encode_grid(to_encode, log=None)
     grid = Grid.from_text(grid)
+
+    values, _ = compile_grid(grid)
+
+    with open(save_instructions, "wt") as f:
+        for row in values:
+            f.write(row + "\n")
+
+    calc(DummyLog(), values, 2, decode=True)
+
+def compile_grid(grid, val_x=1):
+    from dummylog import DummyLog
     grid.show_grid(DummyLog())
 
     raster = ""
@@ -85,8 +196,7 @@ def other_encode(describe, values):
     raster = raster[3:]
     values = ["noop"]
 
-    val_x = 1
-    target = val_x
+    target = 1
     while len(raster):
         if raster[:3] == "###":
             target += 3
@@ -115,12 +225,12 @@ def other_encode(describe, values):
             raster = raster[1:]
             values.append("noop")
             target += 1
+    
+    # values.append(f"addx {1 - val_x}")
+    for _ in range(2):
+        values.append("noop")
 
-    with open(save_instructions, "wt") as f:
-        for row in values:
-            f.write(row + "\n")
-
-    calc(DummyLog(), values, 2, decode=True)
+    return values, val_x
 
 def test(log):
     values = log.decode_values("""
