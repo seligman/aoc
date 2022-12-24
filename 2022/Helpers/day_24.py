@@ -5,7 +5,7 @@ DAY_DESC = 'Day 24: Blizzard Basin'
 
 from collections import deque
 
-def calc(log, values, mode):
+def calc(log, values, mode, draw=True):
     from grid import Grid, Point
     grid = Grid.from_text(values)
 
@@ -48,13 +48,14 @@ def calc(log, values, mode):
         else:
             continue
 
+        ret = None
         if mode == 1:
             if tuple(hits) == ("S", "E"):
-                return len(steps)
+                ret = len(steps)
         else:
             if tuple(hits) == ("S", "E", "S", "E"):
-                return len(steps)
-
+                ret = len(steps)
+        
         if len(steps) not in seen:
             next_grid = {}
             for (x, y), vals in blizzards.items():
@@ -68,6 +69,37 @@ def calc(log, values, mode):
             seen[len(steps)] = next_grid
         else:
             next_grid = seen[len(steps)]
+
+        if ret is not None:
+            if draw:
+                for i, pt in enumerate(steps + [pt]):
+                    temp = seen[i]
+                    for dir, offx, offy, rgb in (
+                        ("^", 0, 0, (18, 52, 195)), 
+                        ("v", 0, 1, (144, 67, 195)), 
+                        ("<", 1, 0, (215, 92, 162)), 
+                        (">", 1, 1, (189, 43, 72))):
+                        for x in range(from_x - 1, to_x + 2):
+                            grid[(x*2 + offx, (from_y - 1) * 2 + offy)] = "#"
+                            grid[(x*2 + offx, (to_y + 1) * 2 + offy)] = "#"
+                        for y in range(from_y - 1, to_y + 2):
+                            grid[((from_x - 1)*2 + offx, y*2 + offy)] = "#"
+                            grid[((to_x + 1)*2 + offx, y*2 + offy)] = "#"
+
+                        grid[(from_x*2 + offx, (from_y - 1)*2 + offy)] = 0
+                        grid[(to_x*2 + offx, (to_y + 1)*2 + offy)] = 0
+
+                        for x in range(from_x, to_x + 1):
+                            for y in range(from_y, to_y + 1):
+                                if (x, y) in temp and dir in temp[(x, y)]:
+                                    grid[(x*2 + offx, y*2 + offy)] = ["", rgb]
+                                else:
+                                    grid[(x*2 + offx, y*2 + offy)] = ["", (0, 0, 0)]
+                        grid[pt[0]*2 + offx, pt[1]*2 + offy] = "star"
+                    grid.save_frame()
+                grid.draw_frames(show_lines=False)
+            return ret
+
 
         def is_valid_pos(x, y):
             if (len(steps), x, y) in used:
@@ -92,6 +124,15 @@ def calc(log, values, mode):
                 used.add((len(steps), x, y))
 
     return 0
+
+def other_draw(describe, values):
+    if describe:
+        return "Draw this"
+    from dummylog import DummyLog
+    import animate
+    animate.prep()
+    calc(DummyLog(), values, 2, draw=True)
+    animate.create_mp4(DAY_NUM, rate=15, final_secs=10)
 
 def test(log):
     values = log.decode_values("""

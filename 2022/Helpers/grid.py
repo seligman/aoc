@@ -776,11 +776,12 @@ class Grid:
                         color, color
                     )
                     if text is not None:
-                        w, h = d.textsize(text, font=self.fonts[0])
-                        d.text((
-                            border + x * (cell_size[0] + 1) + 1 + (cell_size[0] - w) / 2, 
-                            border + y * (cell_size[1] + 1) + 1 + (cell_size[1] - h) / 2), 
-                            text, fill=(255, 255, 255), font=self.fonts[0])
+                        for part in text.split("\b"):
+                            w, h = d.textsize(part, font=self.fonts[0])
+                            d.text((
+                                border + x * (cell_size[0] + 1) + 1 + (cell_size[0] - w) / 2, 
+                                border + y * (cell_size[1] + 1) + 1 + (cell_size[1] - h) / 2), 
+                                part, fill=(255, 255, 255), font=self.fonts[0])
 
         if extra_text is not None:
             y = offset if text_xy is None else text_xy[1]
