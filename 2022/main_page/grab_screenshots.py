@@ -91,7 +91,7 @@ def main():
                 {"dupes": 3, "frames": 1, "extra": "", "hide_stars": (1, 2)},
                 {"dupes": 3, "frames": 1, "extra": "", "hide_stars": (2, )},
                 {"dupes": 3, "frames": 1, "extra": "", "hide_stars": None},
-                {"dupes": 1, "frames": 100, "extra": "", "hide_stars": None},
+                {"dupes": 1, "frames": 600, "extra": "", "hide_stars": None},
             ]
         else:
             steps = [
