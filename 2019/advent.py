@@ -94,14 +94,11 @@ class Logger:
             ret = ret[1:]
         while len(ret) > 0 and len(ret[-1].strip()) == 0:
             ret = ret[:-1]
-        # Remove the indenting based off the first line
+        # Remove the common indent so extra spaces on the first line are left
         if len(ret) > 0:
-            pad = len(ret[0]) - len(ret[0].lstrip(' '))
-            pad -= pad % 4
-        if pad > 0 and len(ret) > 0:
-            for i in range(len(ret)):
-                if ret[i].startswith(" " * pad):
-                    ret[i] = ret[i][pad:]
+            pad = min(len(x) - len(x.lstrip(' ')) for x in ret if len(x.strip()) > 0)
+            if pad > 0:
+                ret = [x[pad:] for x in ret]
         return ret
 
     def test(self, actual, expected):

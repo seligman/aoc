@@ -5,7 +5,7 @@ DAY_DESC = 'Day 24: Blizzard Basin'
 
 from collections import deque
 
-def calc(log, values, mode, draw=True):
+def calc(log, values, mode, draw=False):
     from grid import Grid, Point
     grid = Grid.from_text(values)
 

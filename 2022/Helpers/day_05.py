@@ -18,9 +18,9 @@ def calc(log, values, mode, draw=False, info={}, get_info=False, replace_pattern
         from grid import Grid
         animated = Grid()
 
+    values = values[:]
     letters = []
     stacks = []
-    values = [x.lstrip(".") for x in values]
     while True:
         row = values.pop(0)
         if row.strip().startswith("1"):
@@ -123,15 +123,15 @@ def other_draw(describe, values):
 
 def test(log):
     values = log.decode_values("""
-        .    [D]    
-        .[N] [C]    
-        .[Z] [M] [P]
-        . 1   2   3 
-        .
-        .move 1 from 2 to 1
-        .move 3 from 1 to 3
-        .move 2 from 2 to 1
-        .move 1 from 1 to 2
+            [D]    
+        [N] [C]    
+        [Z] [M] [P]
+         1   2   3 
+        
+        move 1 from 2 to 1
+        move 3 from 1 to 3
+        move 2 from 2 to 1
+        move 1 from 1 to 2
     """)
 
     log.test(calc(log, values, 1), 'CMZ')

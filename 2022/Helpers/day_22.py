@@ -29,7 +29,6 @@ def paper_box_coords(pt, cur_dir):
         if pt.y == 100: return (50, pt.x+50), (1, 0)
 
 def calc(log, values, mode, is_test=False):
-    values = [x.replace("] ", "") for x in values]
     from grid import Grid, Point
     grid = Grid.from_text(values[:-2])
     pattern = values[-1]
@@ -80,20 +79,20 @@ def calc(log, values, mode, is_test=False):
 
 def test(log):
     values = log.decode_values("""
-        ]         ...#
-        ]         .#..
-        ]         #...
-        ]         ....
-        ] ...#.......#
-        ] ........#...
-        ] ..#....#....
-        ] ..........#.
-        ]         ...#....
-        ]         .....#..
-        ]         .#......
-        ]         ......#.
-        ] 
-        ] 10R5L5R10L4R5L5        
+                ...#
+                .#..
+                #...
+                ....
+        ...#.......#
+        ........#...
+        ..#....#....
+        ..........#.
+                ...#....
+                .....#..
+                .#......
+                ......#.
+        
+        10R5L5R10L4R5L5        
     """)
 
     log.test(calc(log, values, 1, is_test=True), '6032')
