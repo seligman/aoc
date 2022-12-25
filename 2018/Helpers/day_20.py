@@ -335,7 +335,7 @@ def other_show(describe, values):
     decode(values[0], [0], 0, 0, 0, grid)
     grid.set(0, 0, "s")
     grid.show(DummyLog(), )
-    
+
 if __name__ == "__main__":
     import sys, os
     def find_input_file():
@@ -344,7 +344,8 @@ if __name__ == "__main__":
                 cur = os.path.join(*(dn + [fn]))
                 if os.path.isfile(cur): return cur
     fn = find_input_file()
-    if fn is None: print("Unable to find input file!"); exit(1)
+    if fn is None: print("Unable to find input file!\nSpecify filename on command line"); exit(1)
+    print(f"Using '{fn}' as input file:")
     with open(fn) as f: values = [x.strip("\r\n") for x in f.readlines()]
     print(f"Running day {DAY_DESC}:")
     run(print, values)
