@@ -4,13 +4,6 @@ DAY_NUM = 25
 DAY_DESC = 'Day 25: Full of Hot Air'
 
 def calc(log, values, mode):
-    # TODO: Delete or use these
-    # from parsers import get_ints, get_floats
-    # from grid import Grid, Point
-    # from program import Program
-    # grid = Grid.from_text(values)
-    # program = Program(values)
-
     def decode(val):
         val = 0
         dig = 1
@@ -25,7 +18,6 @@ def calc(log, values, mode):
                 val += dig * int(x)
             dig //= 5
         return val
-
 
     ret = 0
     for row in values:
