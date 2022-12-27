@@ -76,7 +76,7 @@ def calc(log, values, mode, draw=False, start_pt=False, use_start=None):
                 next_step = last_step + d
                 if next_step not in visited:
                     if next_step in grid:
-                        if grid[next_step] == "E" and grid[last_step] == "z":
+                        if grid[next_step] == "E" and grid[last_step] in {"y", "z"}:
                             if best is None or len(steps) < best:
                                 best = len(steps)
                                 best_start = start
