@@ -46,10 +46,11 @@ def calc(log, values, mode, is_test=False):
         targets = temp[::-1]
 
         for x, y, dist in targets:
-            others = [other for other in targets if get_dist(x, y, other[0], other[1]) <= (other[2] + dist + 1)]
-            others = [other for other in others if (x, y, dist) != other]
+            # others = [other for other in targets if get_dist(x, y, other[0], other[1]) <= (other[2] + dist + 1)]
+            others = [other for other in targets if (x, y, dist) != other]
 
-            if sum(1 for other in others if get_dist(x, y, other[0], other[1]) == (other[2] + dist)) == 1:
+            if True:
+            # if sum(1 for other in others if get_dist(x, y, other[0], other[1]) == (other[2] + dist)) == 1:
                 for ox, oy in walk_edge(x, y, dist):
                     if minx <= ox <= maxx and miny <= oy <= maxy:
                         good = True
