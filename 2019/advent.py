@@ -1,18 +1,18 @@
 #!/usr/bin/env python3
 
-from PIL.ImageFont import truetype
+from advent_year import YEAR_NUMBER
 from command_opts import opt, main_entry
-import utils
+from datetime import datetime, timedelta
+import itertools
+import json
 import os
-import subprocess
 import re
+import subprocess
+import sys
+import tempfile
 import textwrap
 import time
-import sys
-import json
-import tempfile
-from datetime import datetime, timedelta
-from advent_year import YEAR_NUMBER
+import utils
 
 ALT_DATA_FILE = None
 SOURCE_CONTROL = "p4"
@@ -36,7 +36,7 @@ class Logger:
     def __call__(self, value):
         self.show(value)
 
-    def show(self, value):
+    def show(self, value, log_msg=True):
         global _print_catcher
         if _print_catcher is not None:
             _print_catcher.safe = True
@@ -45,7 +45,8 @@ class Logger:
         value = value.replace("\r\n", "\n")
         for cur in value.split("\n"):
             cur += "\n"
-            self.rows.append(cur)
+            if log_msg:
+                self.rows.append(cur)
             sys.stdout.write(cur)
         sys.stdout.flush()
 
@@ -55,17 +56,11 @@ class Logger:
     def copy_result_to_clipboard(self):
         if len(self.rows) > 0:
             import clipboard
-            if _print_catcher is not None:
-                _print_catcher.safe = True
             try:
-                pass
                 clipboard.copy(self.rows[-1].strip())
-                sys.stdout.write("# '" + self.rows[-1].strip() + "' copied to clipboard\n")
+                self.show("# '" + self.rows[-1].strip() + "' copied to clipboard", log_msg=False)
             except:
-                sys.stdout.write("# Unable to copy text to clipboard!\n")
-            sys.stdout.flush()
-            if _print_catcher is not None:
-                _print_catcher.safe = False
+                self.show("# Unable to copy text to clipboard!", log_msg=False)
 
     def save_to_file(self, filename):
         with open(filename, "w") as f:
@@ -73,19 +68,15 @@ class Logger:
                 f.write(cur)
 
     def compare_to_file(self, filename):
-        if len(self.rows) == 0:
-            return False
-        i = 0
+        is_good = True
         with open(filename) as f:
-            for cur in f:
-                if i >= len(self.rows):
-                    return False
-                if self.rows[i] != cur:
-                    return False
-                i += 1
-        if i != len(self.rows):
-            return False
-        return True
+            for i, (before, after) in enumerate(itertools.zip_longest(f, self.rows)):
+                if before != after:
+                    is_good = False
+                    before = "(empty line)" if before is None else before.rstrip('\r\n')
+                    after = "(empty line)" if after is None else after.rstrip('\r\n')
+                    self.show(error_msg("ERROR") + f": Line {i+1}: Got '{after}', expected: '{before}'", log_msg=False)
+        return is_good
 
     def decode_values(self, values):
         ret = values.replace("\t", "    ").split("\n")
@@ -103,11 +94,13 @@ class Logger:
 
     def test(self, actual, expected):
         if str(actual) != str(expected):
-            self.show(f"Test returned {actual}, \x1b[97;101mexpected {expected}\x1b[m")
+            self.show(f"Test returned {actual}, " + error_msg(f"expected {expected}"))
             raise TestFailedException()
         else:
             self.show(f"Test returned {actual}, expected {expected}")
 
+def error_msg(value):
+    return "\x1b[97;101m" + value + "\x1b[m"
 
 def edit_file(filename):
     if SOURCE_CONTROL is not None:
@@ -120,7 +113,6 @@ def edit_file(filename):
         else:
             raise Exception()
 
-
 def add_file(filename):
     if SOURCE_CONTROL is not None:
         if SOURCE_CONTROL == "p4":
@@ -131,7 +123,6 @@ def add_file(filename):
             pass
         else:
             raise Exception()
-
 
 def revert_file(filename):
     if SOURCE_CONTROL is not None:
@@ -180,7 +171,6 @@ def alt(file_number):
     global ALT_DATA_FILE
     ALT_DATA_FILE = int(file_number)
 
-
 def get_input_file(helper, file_type="input"):
     global ALT_DATA_FILE
     if ALT_DATA_FILE is None or ALT_DATA_FILE == 0:
@@ -188,7 +178,6 @@ def get_input_file(helper, file_type="input"):
     else:
         fn = f"day_{helper.DAY_NUM:02d}_{file_type}_alt_{ALT_DATA_FILE:02d}.txt"
     return os.path.join("Puzzles", fn)
-
 
 @opt("Generate a comment based off scores")
 def gen_comment():
@@ -225,7 +214,6 @@ def gen_comment():
     import clipboard
     clipboard.copy(msg)
 
-
 @opt("Launch website")
 def launch():
     import webbrowser
@@ -246,7 +234,6 @@ def launch():
 
     make_day_wait()
 
-
 @opt("Show other commands for a day")
 def show_others(helper_day):
     sys.path.insert(0, 'Helpers')
@@ -259,7 +246,6 @@ def show_others(helper_day):
                 found = True
         if not found:
             print("(No other commands found)")
-
 
 @opt("Run other command for a day")
 def run_other(helper_day, command):
@@ -278,16 +264,13 @@ def run_other(helper_day, command):
             print(f"## {helper.DAY_DESC}")
             print(f"ERROR: Unable to find '{command}'")
 
-
 @opt("Make new day (Offline)")
 def make_day_offline(target_day="cur"):
     make_day_helper(True, force_day=target_day)
 
-
 @opt("Make new day")
 def make_day(target_day="cur"):
     make_day_helper(False, force_day=target_day)
-
 
 @opt("Make new day, after sleeping till midnight")
 def make_day_wait(target_day="cur"):
@@ -298,7 +281,6 @@ def make_day_wait(target_day="cur"):
     eta = int(m.group("eta")) + random.randint(5, 10)
     if sleeper.sleep(str(eta), exit_at_end=False):
         make_day_helper(False, force_day=target_day)
-
 
 @opt("Load cookie from browser to cache")
 def save_cookie(browser="Chrome", alt_id=""):
@@ -338,7 +320,6 @@ def save_cookie(browser="Chrome", alt_id=""):
 
     print("Done")
 
-
 def get_cookie():
     fn = os.path.expanduser(os.path.join("~", ".aoc_cookies.json"))
     if os.path.isfile(fn):
@@ -351,7 +332,6 @@ def get_cookie():
     with open(fn) as f:
         data = json.load(f)
         return data[str(-1 if (ALT_DATA_FILE is None or ALT_DATA_FILE == 0) else ALT_DATA_FILE)]
-
 
 def make_day_helper(offline, force_day=None):
     if not offline:
@@ -409,12 +389,10 @@ def make_day_helper(offline, force_day=None):
 
     print(f"Created day #{helper_day}")
 
-
 @opt("Show days")
 def show_days():
     for helper in utils.get_helpers():
         print(helper.DAY_DESC)
-
 
 def get_helpers_id(helper_day):
     helper_day = helper_day.lower()
@@ -444,7 +422,6 @@ def get_helpers_id(helper_day):
             if helper.DAY_NUM in valid:
                 yield helper
 
-
 @opt("Test helper")
 def test(helper_day):
     good, bad = 0, 0
@@ -460,9 +437,9 @@ def test(helper_day):
             good += 1
         except TestFailedException:
             bad += 1
-            print("\x1b[97;101m" + "  FAILURE!  " + "\x1b[m")
+            print(error_msg("  FAILURE!  "))
         except SystemExit as e:
-            print("\x1b[97;101m" + f"  exit({e}) called!  " + "\x1b[m")
+            print(error_msg(f"  exit({e}) called!  "))
             raise
         except:
             import traceback
@@ -474,8 +451,7 @@ def test(helper_day):
 
     print(f"Done, {good} worked, {bad} failed")
     if bad != 0:
-        print("\x1b[97;101m" + "  THERE WERE PROBLEMS  " + "\x1b[m")
-
+        print(error_msg("  THERE WERE PROBLEMS  "))
 
 _print_catcher = None
 class PrintCatcher:
@@ -497,7 +473,6 @@ class PrintCatcher:
         sys.stdout = self.old_stdout
         return None
 
-
 @opt("Run and time duration")
 def run_time(helper_day):
     start = datetime.utcnow()
@@ -516,7 +491,6 @@ def run_time(helper_day):
         pretty = f"no time."
     safe_print(f"Done, that took {pretty}")
 
-
 @opt("Run helper")
 def run(helper_day):
     global _print_catcher
@@ -526,11 +500,9 @@ def run(helper_day):
         safe_print("WARNING: Raw 'print' used somewhere!")
     _print_catcher = _print_catcher.undo() # pylint: disable=assignment-from-none
 
-
 @opt("Run helper and save output as correct")
 def run_save(helper_day):
     run_helper(helper_day, True)
-
 
 def safe_print(value):
     global _print_catcher
@@ -539,7 +511,6 @@ def safe_print(value):
     print(value)
     if _print_catcher is not None:
         _print_catcher.safe = False
-
 
 def run_helper(helper_day, save):
     sys.path.insert(0, 'Helpers')
@@ -619,14 +590,14 @@ def run_helper(helper_day, save):
                     safe_print("# Got expected output!")
                     passed += 1
                 else:
-                    info = "ERROR"
-                    safe_print("# " + "\x1b[97;101m" + "  ERROR: Expected output doesn't match!  " + "\x1b[m")
+                    info = error_msg("ERROR")
+                    safe_print("# " + error_msg("  ERROR: Expected output doesn't match!  "))
                     failed.append(f"## {helper.DAY_DESC} FAILED!")
             else:
                 info = "Unknown"
                 safe_print("# No expected output to check")
         temp = helper.DAY_DESC + ":" + " " * (max_len - len(helper.DAY_DESC))
-        summary.append(f"{temp} {int(secs * 1000):6d}ms {'!' if secs > 15 else ' '} {info}")
+        summary.append(f"{temp} {int(secs * 1000):6d}ms {error_msg('!') if secs > 15 else ' '} {info}")
 
     if cached_runs["changed"]:
         with open(os.path.join(tempfile.gettempdir(), "aoc_run_cache.json"), "wt") as f:
@@ -640,10 +611,9 @@ def run_helper(helper_day, save):
         safe_print("# " + "-" * 75)
         safe_print(f"Passed: {passed}")
         if len(failed) > 0:
-            safe_print(f"# \x1b[97;101m  ERROR: Failed: {len(failed)}  \x1b[m")
+            safe_print(f"# " + error_msg(f"  ERROR: Failed: {len(failed)}  "))
             for cur in failed:
                 safe_print(cur)
-
 
 @opt("Make a stand alone version of the day")
 def make_demo(helper_day):
@@ -697,7 +667,6 @@ def make_demo(helper_day):
         print('    main()')
         print('')
 
-
 def get_header_footer():
     header = textwrap.dedent("""
         <!DOCTYPE html>
@@ -718,7 +687,6 @@ def get_header_footer():
 
     return header, footer
 
-
 def get_page(url):
     import urllib.request
     cookie = get_cookie()
@@ -735,7 +703,6 @@ def get_page(url):
     resp = resp.encode('ascii', 'xmlcharrefreplace')
     resp = resp.decode("utf-8")
     return resp
-
 
 @opt("Download Index")
 def get_index():
@@ -755,7 +722,6 @@ def get_index():
         f.write(header + resp + footer)
 
     print("Wrote out index")
-
 
 @opt("Download Day")
 def dl_day(helper_day, input_only="no"):
@@ -811,7 +777,38 @@ def dl_day(helper_day, input_only="no"):
 
     return ret
 
+@opt("Compare expected results with website")
+def compare_results(helper_day):
+    already_downloaded = False
+
+    for helper in get_helpers_id(helper_day):
+        print(f"## {helper.DAY_DESC}")
+        if already_downloaded:
+            time.sleep(0.250)
+
+        filename = get_input_file(helper, file_type="expect")
+        data = []
+        if os.path.isfile(filename):
+            with open(filename) as f:
+                for row in f:
+                    row = row.strip()
+                    if " " not in row:
+                        data.append(row)
+
+        resp = get_page(f"https://adventofcode.com/{YEAR_NUMBER}/day/{helper.DAY_NUM}")
+        expecteds = []
+        for m in re.finditer(f'Your puzzle answer was <code>(?P<answer>.*?)</code>', resp):
+            expecteds.append(m.group("answer"))
+
+        all_good = True
+        for i, (current, expected) in enumerate(itertools.zip_longest(data, expecteds)):
+            current = "(nothing)" if current is None else current.rstrip("\r\n")
+            expected = "(nothing)" if expected is None else expected.rstrip("\r\n")
+            if current != expected:
+                print(error_msg("ERROR: ") + f"Have '{current}', but website reports '{expected}' for line {i+1}")
+                all_good = False
+        if all_good:
+            print("(all results are good)")
 
 if __name__ == "__main__":
     main_entry('func', program_desc=DESC)
-
