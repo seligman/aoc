@@ -180,21 +180,21 @@ def run_timer():
         dur = datetime.utcnow() - start
 
         if dur.total_seconds() > 90000:
-            last_len = _temp_msg("Timer at %.1f days..." % (float(dur.total_seconds()) / 86400.0,), last_len)
+            last_len = _temp_msg(f"Timer at {float(dur.total_seconds()) / 86400.0:.1f} days...", last_len)
             to_sleep = 8640
         elif dur.total_seconds() > 3900:
-            last_len = _temp_msg("Timer at %.1f hours..." % (float(dur.total_seconds()) / 3600.0,), last_len)
+            last_len = _temp_msg(f"Timer at {float(dur.total_seconds()) / 3600.0:.1f} hours...", last_len)
             to_sleep = 360
         elif dur.total_seconds() > 90:
-            last_len = _temp_msg("Timer at %.1f minutes..." % (float(dur.total_seconds()) / 60.0,), last_len)
+            last_len = _temp_msg(f"Timer at {float(dur.total_seconds()) / 60.0:.1f} minutes...", last_len)
             to_sleep = 6
         else:
             val = int(math.floor(dur.total_seconds()))
             to_sleep = 1
             if val == 1:
-                last_len = _temp_msg("Timer at %d second..." % (val,), last_len)
+                last_len = _temp_msg(f"Timer at {val:d} second...", last_len)
             else:
-                last_len = _temp_msg("Timer at %d seconds..." % (val,), last_len)
+                last_len = _temp_msg(f"Timer at {val:d} seconds...", last_len)
 
         last += timedelta(seconds=to_sleep)
         to_sleep = (last - datetime.utcnow()).total_seconds()
@@ -296,7 +296,7 @@ def _temp_msg(value, old_len):
     if value is None:
         value = ""
     else:
-        value = "%s: %s" % (now.strftime("%d %H:%M:%S"), value)
+        value = f"{now.strftime('%d %H:%M:%S')}: {value}"
     
     sys.stdout.write("\r" + " " * old_len + "\r" + value)
     sys.stdout.flush()
@@ -367,7 +367,7 @@ def _launch_server():
 _enter_waiter = None
 _sentinel = []
 _end_at = None
-def sleep(to_sleep, exit_at_end=True):
+def sleep(to_sleep, exit_at_end=True, extra_msg=""):
     global _enter_waiter, _sentinel, _end_at
 
     if isinstance(to_sleep, str):
@@ -399,21 +399,21 @@ def sleep(to_sleep, exit_at_end=True):
         max_sleep = 5.0
 
         if sleep.total_seconds() > 90000:
-            last_len = _temp_msg("Sleeping for %.1f days..." % (float(sleep.total_seconds()) / 86400.0,), last_len)
+            last_len = _temp_msg(f"{extra_msg}Sleeping for {float(sleep.total_seconds()) / 86400.0:.1f} days...", last_len)
             max_sleep = sleep.total_seconds() - ((math.floor(sleep.total_seconds()) // 8640) * 8640)
         elif sleep.total_seconds() > 3900:
-            last_len = _temp_msg("Sleeping for %.1f hours..." % (float(sleep.total_seconds()) / 3600.0,), last_len)
+            last_len = _temp_msg(f"{extra_msg}Sleeping for {float(sleep.total_seconds()) / 3600.0:.1f} hours...", last_len)
             max_sleep = sleep.total_seconds() - ((math.floor(sleep.total_seconds()) // 360) * 360)
         elif sleep.total_seconds() > 180:
-            last_len = _temp_msg("Sleeping for %.1f minutes..." % (float(sleep.total_seconds()) / 60.0,), last_len)
+            last_len = _temp_msg(f"{extra_msg}Sleeping for {float(sleep.total_seconds()) / 60.0:.1f} minutes...", last_len)
             max_sleep = sleep.total_seconds() - ((math.floor(sleep.total_seconds()) // 6) * 6)
         else:
             val = int(math.ceil(sleep.total_seconds()))
             max_sleep = sleep.total_seconds() - math.floor(sleep.total_seconds())
             if val == 1:
-                last_len = _temp_msg("Sleeping for %d second..." % (val,), last_len)
+                last_len = _temp_msg(f"Sleeping for {val:d} second...", last_len)
             else:
-                last_len = _temp_msg("Sleeping for %d seconds..." % (val,), last_len)
+                last_len = _temp_msg(f"Sleeping for {val:d} seconds...", last_len)
 
         if sleep.total_seconds() < max_sleep:
             max_sleep = sleep.total_seconds()
