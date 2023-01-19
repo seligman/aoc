@@ -298,10 +298,13 @@ def _temp_msg(value, old_len):
     else:
         value = f"{now.strftime('%d %H:%M:%S')}: {value}"
     
-    sys.stdout.write("\r" + " " * old_len + "\r" + value)
-    sys.stdout.flush()
-    
-    return len(value)
+    if sys.stdout.isatty():
+        sys.stdout.write("\r" + " " * old_len + "\r" + value)
+        sys.stdout.flush()
+        
+        return len(value)
+    else:
+        return 0
 
 
 def temp_nl():

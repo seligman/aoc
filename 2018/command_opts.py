@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 
+import inspect
 import os
 import sys
-import inspect
 import textwrap
 
-VERSION = 21
+VERSION = 22
 SAMPLE_CODE = """
 # --------------------------------------------------------------------------
 # This module is not meant to be run directly.  To use it, add code like
@@ -28,7 +28,6 @@ if __name__ == "__main__":
 """
 _g_options = []
 
-
 def opt_to_bool(value):
     # Helper to turn an opt into a bool, can return None if the value is empty
     if isinstance(value, bool):
@@ -41,7 +40,6 @@ def opt_to_bool(value):
         return None
     
     return value.lower() in {"true", "yes", "y"}
-
 
 def opt_to_int(value):
     # Helper to turn an opt into an int, can return None if the value is empty
@@ -59,7 +57,6 @@ def opt_to_int(value):
         return int(value)
     except:
         return None
-
 
 class OptMethod:
     # Internal data structure to keep track a single option
@@ -91,7 +88,6 @@ class OptMethod:
             ret.group_name = self.group_name
             ret.default = self.default
             yield ret
-
 
 def opt(*args, **kargs):
     # This method acts as the decorator for the function
@@ -142,7 +138,6 @@ def opt(*args, **kargs):
         return wrapper
 
     return real_opts
-
 
 def main_entry(order_by='none', include_other=False, program_desc=None, default_action=None, picker=None):
     # order_by = A string representing the order conditions
@@ -333,11 +328,7 @@ def main_entry(order_by='none', include_other=False, program_desc=None, default_
         print("-" * dec_len)
         sys.exit(1)
 
-
-def main():
-    # If called as a script, just dump a little help screen
-    # showing how to embed this script in another script
-
+def get_sample_code():
     # See what this script should be called, basically
     # if this is in a package, add the package name, 
     # otherwise the name is just "command_opts", but only
@@ -354,9 +345,13 @@ def main():
             if os.path.isfile(temp):
                 import_name = str(temp.parent.name) + "." + import_name
 
-    print(SAMPLE_CODE.replace("command_opts", import_name))
-    sys.exit(1)
+    return SAMPLE_CODE.replace("command_opts", import_name)
 
+def main():
+    # If called as a script, just dump a little help screen
+    # showing how to embed this script in another script
+    print(get_sample_code())
+    sys.exit(1)
 
 if __name__ == "__main__":
     main()
