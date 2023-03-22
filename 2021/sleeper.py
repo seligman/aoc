@@ -13,7 +13,12 @@ def _make_server_call(**kargs):
 
 
 def _input_thread(sentinel):
-    input()
+    try:
+        input()
+    except EOFError:
+        pass
+    except KeyboardInterrupt:
+        pass
     sentinel.append(None)
 
 
