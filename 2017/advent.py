@@ -13,6 +13,8 @@ import tempfile
 import textwrap
 import time
 import utils
+if sys.version_info >= (3, 11): from datetime import UTC
+else: import datetime as datetime_fix; UTC=datetime_fix.timezone.utc
 
 ALT_DATA_FILE = None
 SOURCE_CONTROL = "p4"
@@ -323,7 +325,7 @@ def save_cookie(browser="Chrome", alt_id=""):
 def get_cookie():
     fn = os.path.expanduser(os.path.join("~", ".aoc_cookies.json"))
     if os.path.isfile(fn):
-        if (datetime.utcnow() - datetime.fromtimestamp(os.path.getmtime(fn))) > timedelta(days=60):
+        if (datetime.datetime.now(UTC).replace(tzinfo=None) - datetime.fromtimestamp(os.path.getmtime(fn))) > timedelta(days=60):
             print("Warning, cookie is very old, removing it")
             os.unlink(fn)
     if not os.path.isfile(fn):
@@ -475,9 +477,9 @@ class PrintCatcher:
 
 @opt("Run and time duration")
 def run_time(helper_day):
-    start = datetime.utcnow()
+    start = datetime.datetime.now(UTC).replace(tzinfo=None)
     run(helper_day)
-    end = datetime.utcnow()
+    end = datetime.datetime.now(UTC).replace(tzinfo=None)
     secs = (end - start).total_seconds()
     if secs >= 90:
         pretty = f"{secs / 60:0.2f} minutes.  That's a long time!"
@@ -545,7 +547,7 @@ def run_helper(helper_day, save):
             for cur in f:
                 values.append(cur.strip("\r\n"))
         log = Logger()
-        start = datetime.utcnow()
+        start = datetime.datetime.now(UTC).replace(tzinfo=None)
         real_run = True
         if save and cached_runs.get(str(helper.DAY_NUM), {}).get("hash", "--") == helper.hash:
             log.rows = cached_runs[str(helper.DAY_NUM)]["rows"]
@@ -556,7 +558,7 @@ def run_helper(helper_day, save):
             helper.run(log, values)
             cached_runs[str(helper.DAY_NUM)] = {"hash": helper.hash, "rows": log.rows}
             cached_runs["changed"] = True
-        finish = datetime.utcnow()
+        finish = datetime.datetime.now(UTC).replace(tzinfo=None)
         secs = (finish - start).total_seconds()
         if real_run:
             if secs >= 90:

@@ -6,6 +6,8 @@ import time
 import re
 import threading
 import math
+if sys.version_info >= (3, 11): from datetime import UTC
+else: import datetime as datetime_fix; UTC=datetime_fix.timezone.utc
 
 ENABLE_SERVER = False
 def _make_server_call(**kargs):
@@ -28,7 +30,7 @@ def parse_duration(val):
     if sleep_amount is None:
         m = re.search("^[xX]:([0-9]{2})$", val)
         if m is not None:
-            now = datetime.utcnow()
+            now = datetime.now(UTC).replace(tzinfo=None)
             future = datetime(
                 now.year, now.month, now.day, 
                 now.hour, int(m.groups()[0]), 0)
@@ -39,7 +41,7 @@ def parse_duration(val):
     if sleep_amount is None:
         m = re.search("^([0-9]+):([0-9]{2})[Uu]$", val)
         if m is not None:
-            now = datetime.utcnow()
+            now = datetime.now(UTC).replace(tzinfo=None)
             future = datetime(
                 now.year, now.month, now.day, 
                 int(m.groups()[0]), int(m.groups()[1]), 0)
@@ -50,7 +52,7 @@ def parse_duration(val):
     if sleep_amount is None:
         m = re.search("^([0-9]+):([0-9]{2}):([0-9]{2})[Uu]$", val)
         if m is not None:
-            now = datetime.utcnow()
+            now = datetime.now(UTC).replace(tzinfo=None)
             future = datetime(
                 now.year, now.month, now.day, 
                 int(m.groups()[0]), int(m.groups()[1]), int(m.groups()[2]))
@@ -101,7 +103,7 @@ def parse_duration(val):
     if sleep_amount is None:
         m = re.search("^([0-9]{4})-([0-9]{1,2})-([0-9]{1,2}) ([0-9]+):([0-9]{2})[Uu]$", val)
         if m is not None:
-            now = datetime.utcnow()
+            now = datetime.now(UTC).replace(tzinfo=None)
             future = datetime(
                 int(m.groups()[0]), int(m.groups()[1]), int(m.groups()[2]), 
                 int(m.groups()[3]), int(m.groups()[4]), 0)
@@ -110,7 +112,7 @@ def parse_duration(val):
     if sleep_amount is None:
         m = re.search("^([0-9]{4})-([0-9]{1,2})-([0-9]{1,2}) ([0-9]+):([0-9]{2}):([0-9]{2})[Uu]$", val)
         if m is not None:
-            now = datetime.utcnow()
+            now = datetime.now(UTC).replace(tzinfo=None)
             future = datetime(
                 int(m.groups()[0]), int(m.groups()[1]), int(m.groups()[2]), 
                 int(m.groups()[3]), int(m.groups()[4]), int(m.groups()[5]))
@@ -138,13 +140,13 @@ def parse_duration(val):
 
 def time_command(cmd):
     import subprocess
-    start = datetime.utcnow()
+    start = datetime.now(UTC).replace(tzinfo=None)
     print(f" Started: {start.strftime('%Y-%m-%d %H:%M:%S')}.{start.microsecond // 1000:03d}")
     print(f" Running: '{cmd}'")
     ret = subprocess.call(cmd, shell=True)
     if ret != 0:
         print(f"  Command returned {ret}")
-    stop = datetime.utcnow()
+    stop = datetime.now(UTC).replace(tzinfo=None)
     print(f" Started: {start.strftime('%Y-%m-%d %H:%M:%S')}.{start.microsecond // 1000:03d}")
     _show_total(start, stop, "")
     return ret
@@ -168,7 +170,7 @@ def _show_total(start, stop, extra):
 def run_timer():
     global _enter_waiter, _sentinel
 
-    start = datetime.utcnow()
+    start = datetime.now(UTC).replace(tzinfo=None)
     last = start
     print(f"{start.strftime('%d %H:%M:%S')}:  Started: {start.strftime('%Y-%m-%d %H:%M:%S')}.{start.microsecond // 1000:03d}")
 
@@ -182,7 +184,7 @@ def run_timer():
         if len(_sentinel) != 0:
             break
 
-        dur = datetime.utcnow() - start
+        dur = datetime.now(UTC).replace(tzinfo=None) - start
 
         if dur.total_seconds() > 90000:
             last_len = _temp_msg(f"Timer at {float(dur.total_seconds()) / 86400.0:.1f} days...", last_len)
@@ -202,7 +204,7 @@ def run_timer():
                 last_len = _temp_msg(f"Timer at {val:d} seconds...", last_len)
 
         last += timedelta(seconds=to_sleep)
-        to_sleep = (last - datetime.utcnow()).total_seconds()
+        to_sleep = (last - datetime.now(UTC).replace(tzinfo=None)).total_seconds()
         stop_at = time.time() + to_sleep
         while time.time() <= stop_at and len(_sentinel) == 0:
             to_sleep = max(0.01, stop_at - time.time())
@@ -214,7 +216,7 @@ def run_timer():
     else:
         _temp_msg(None, last_len)
 
-    stop = datetime.utcnow()
+    stop = datetime.now(UTC).replace(tzinfo=None)
     _show_total(start, stop, f"{stop.strftime('%d %H:%M:%S')}: ")
     _sentinel.clear()
     return 0
@@ -292,12 +294,12 @@ def main():
                 sleep(sleep_amount, exit_at_end=not keep_going)
                 keep_going, sleep_amount = _get_time()
         else:
-            now = datetime.utcnow()
+            now = datetime.now(UTC).replace(tzinfo=None)
             print(now.strftime("%d %H:%M:%S") + ": Nothing to do!")
 
 
 def _temp_msg(value, old_len):
-    now = datetime.utcnow()
+    now = datetime.now(UTC).replace(tzinfo=None)
     if value is None:
         value = ""
     else:
@@ -331,19 +333,19 @@ def _server_thread():
     _local_running.set()
 
     last_end = None
-    update_tick = datetime.utcnow() + timedelta(seconds=25)
+    update_tick = datetime.now(UTC).replace(tzinfo=None) + timedelta(seconds=25)
 
     while True:
         time.sleep(1)
-        if datetime.utcnow() >= update_tick or last_end != _end_at:
+        if datetime.now(UTC).replace(tzinfo=None) >= update_tick or last_end != _end_at:
             last_end = _end_at
             if last_end is None:
                 _make_server_call(update=word, secs=30, alive=1)
             else:
-                now = datetime.utcnow()
+                now = datetime.now(UTC).replace(tzinfo=None)
                 secs = (last_end - now).total_seconds()
                 _make_server_call(update=word, secs=secs, alive=0)
-            update_tick = datetime.utcnow() + timedelta(seconds=25)
+            update_tick = datetime.now(UTC).replace(tzinfo=None) + timedelta(seconds=25)
             if last_end is not None:
                 break
 
@@ -384,7 +386,7 @@ def sleep(to_sleep, exit_at_end=True, extra_msg=""):
         if to_sleep is None:
             raise Exception(f"Unable to parse '{temp}'")
 
-    now = datetime.utcnow()
+    now = datetime.now(UTC).replace(tzinfo=None)
     sleep = timedelta(seconds=to_sleep)
     target = now + sleep
     _end_at = target
@@ -399,7 +401,7 @@ def sleep(to_sleep, exit_at_end=True, extra_msg=""):
         if len(_sentinel) != 0:
             break
 
-        now = datetime.utcnow()
+        now = datetime.now(UTC).replace(tzinfo=None)
         if now >= target:
             break
 

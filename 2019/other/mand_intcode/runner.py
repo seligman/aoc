@@ -3,6 +3,8 @@
 import sys
 from datetime import datetime, timedelta
 import os
+if sys.version_info >= (3, 11): from datetime import UTC
+else: import datetime as datetime_fix; UTC=datetime_fix.timezone.utc
 
 def main(lines):
     sys.path.insert(0, os.path.join('..', '..', 'Helpers'))
@@ -14,7 +16,7 @@ def main(lines):
     SIF = False
 
     Program.debug(lines)
-    msg = datetime.utcnow()
+    msg = datetime.datetime.now(UTC).replace(tzinfo=None)
 
     g = Grid(default=" ")
     p = Program([int(x) for x in lines.split(",")], DummyLog())
@@ -33,7 +35,7 @@ def main(lines):
                 else:
                     x, y, i = p.get_output(to_get=3)
 
-                if datetime.utcnow() >= msg:
+                if datetime.datetime.now(UTC).replace(tzinfo=None) >= msg:
                     msg += timedelta(seconds=5)
                     print("x: %4d, y: %4d, %3d, '%s'" % (x, y, i, chr(i)))
                     

@@ -506,8 +506,11 @@ class Grid:
 
     def draw_frames(self, color_map=DEFAULT_COLOR_MAP, cell_size=(10, 10), repeat_final=0, font_size=10, extra_callback=None, show_lines=True):
         from datetime import datetime, timedelta
+        import sys
+        if sys.version_info >= (3, 11): from datetime import UTC
+        else: import datetime as datetime_fix; UTC=datetime_fix.timezone.utc
 
-        msg = datetime.utcnow()
+        msg = datetime.datetime.now(UTC).replace(tzinfo=None)
         print("Creating animation...")
         temp = self.grid
         self._ranges = {}
@@ -522,7 +525,7 @@ class Grid:
         i = 0
         for grid, extra_text, extra in self.frames:
             i += 1
-            if datetime.utcnow() >= msg:
+            if datetime.datetime.now(UTC).replace(tzinfo=None) >= msg:
                 msg += timedelta(seconds=1)
                 print("Working, on frame %5d of %5d" % (i, len(self.frames)))
             self.grid = grid
