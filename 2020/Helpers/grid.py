@@ -510,7 +510,7 @@ class Grid:
         if sys.version_info >= (3, 11): from datetime import UTC
         else: import datetime as datetime_fix; UTC=datetime_fix.timezone.utc
 
-        msg = datetime.datetime.now(UTC).replace(tzinfo=None)
+        msg = datetime.now(UTC).replace(tzinfo=None)
         print("Creating animation...")
         temp = self.grid
         self._ranges = {}
@@ -525,7 +525,7 @@ class Grid:
         i = 0
         for grid, extra_text, extra in self.frames:
             i += 1
-            if datetime.datetime.now(UTC).replace(tzinfo=None) >= msg:
+            if datetime.now(UTC).replace(tzinfo=None) >= msg:
                 msg += timedelta(seconds=1)
                 print("Working, on frame %5d of %5d" % (i, len(self.frames)))
             self.grid = grid

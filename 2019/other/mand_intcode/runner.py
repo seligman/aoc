@@ -16,7 +16,7 @@ def main(lines):
     SIF = False
 
     Program.debug(lines)
-    msg = datetime.datetime.now(UTC).replace(tzinfo=None)
+    msg = datetime.now(UTC).replace(tzinfo=None)
 
     g = Grid(default=" ")
     p = Program([int(x) for x in lines.split(",")], DummyLog())
@@ -35,7 +35,7 @@ def main(lines):
                 else:
                     x, y, i = p.get_output(to_get=3)
 
-                if datetime.datetime.now(UTC).replace(tzinfo=None) >= msg:
+                if datetime.now(UTC).replace(tzinfo=None) >= msg:
                     msg += timedelta(seconds=5)
                     print("x: %4d, y: %4d, %3d, '%s'" % (x, y, i, chr(i)))
                     

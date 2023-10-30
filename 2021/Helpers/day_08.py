@@ -309,10 +309,10 @@ def create_frames(script):
     import sys
     if sys.version_info >= (3, 11): from datetime import UTC
     else: import datetime as datetime_fix; UTC=datetime_fix.timezone.utc
-    next_msg = datetime.datetime.now(UTC).replace(tzinfo=None)
+    next_msg = datetime.now(UTC).replace(tzinfo=None)
     with multiprocessing.Pool() as pool:
         for msg in pool.imap_unordered(draw_helper, data.todo):
-            if datetime.datetime.now(UTC).replace(tzinfo=None) >= next_msg:
+            if datetime.now(UTC).replace(tzinfo=None) >= next_msg:
                 next_msg += timedelta(seconds=1)
                 print(msg)
 

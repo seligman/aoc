@@ -630,7 +630,7 @@ class Grid:
         if sys.version_info >= (3, 11): from datetime import UTC
         else: import datetime as datetime_fix; UTC=datetime_fix.timezone.utc
 
-        msg = datetime.datetime.now(UTC).replace(tzinfo=None)
+        msg = datetime.now(UTC).replace(tzinfo=None)
         print("Creating animation...")
         temp = self.grid
         self._ranges = {}
@@ -668,15 +668,15 @@ class Grid:
             with multiprocessing.Pool() as pool:
                 left = len(todo)
                 for result in pool.imap_unordered(draw_frames_helper, todo):
-                    if datetime.datetime.now(UTC).replace(tzinfo=None) >= msg:
-                        while datetime.datetime.now(UTC).replace(tzinfo=None) >= msg:
+                    if datetime.now(UTC).replace(tzinfo=None) >= msg:
+                        while datetime.now(UTC).replace(tzinfo=None) >= msg:
                             msg += timedelta(seconds=5)
                         print(f"{result}, {left:5d} left")
                     left -= 1
         else:
             for cur in todo:
-                if datetime.datetime.now(UTC).replace(tzinfo=None) >= msg:
-                    while datetime.datetime.now(UTC).replace(tzinfo=None) >= msg:
+                if datetime.now(UTC).replace(tzinfo=None) >= msg:
+                    while datetime.now(UTC).replace(tzinfo=None) >= msg:
                         msg += timedelta(seconds=5)
                     print(cur["msg"])
                 self.grid = cur["grid"]

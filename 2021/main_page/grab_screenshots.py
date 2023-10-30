@@ -25,14 +25,14 @@ def save_screenshot(msg, driver, path, to_grab, files):
     driver.set_window_size(required_width, required_height)
     body = driver.find_element(By.TAG_NAME, "body")
     next = None
-    start = datetime.datetime.now(UTC).replace(tzinfo=None)
+    start = datetime.now(UTC).replace(tzinfo=None)
     for i in range(to_grab):
         if next is not None:
-            now = datetime.datetime.now(UTC).replace(tzinfo=None)
+            now = datetime.now(UTC).replace(tzinfo=None)
             if now < next:
                 time.sleep((next - now).total_seconds())
         files.append(os.path.join(path, f"temp_{i:04d}.png"))
-        now = datetime.datetime.now(UTC).replace(tzinfo=None)
+        now = datetime.now(UTC).replace(tzinfo=None)
         print(f"{(now - start).total_seconds():8.4f}: {msg}: Saving {files[-1]}...")
         if next is None:
             next = start + timedelta(seconds=0.1)
@@ -62,7 +62,7 @@ def main():
     options.headless = True
     driver = uc.Chrome(options=options)
     driver.set_window_size(1000, 1000)
-    now = datetime.datetime.now(UTC).replace(tzinfo=None)
+    now = datetime.now(UTC).replace(tzinfo=None)
 
     todo = []
     for cur in sorted(os.listdir("aoc")):
