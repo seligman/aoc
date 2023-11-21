@@ -5,7 +5,7 @@ import os
 import sys
 import textwrap
 
-VERSION = 22
+VERSION = 23
 SAMPLE_CODE = """
 # --------------------------------------------------------------------------
 # This module is not meant to be run directly.  To use it, add code like
@@ -58,6 +58,23 @@ def opt_to_int(value):
     except:
         return None
 
+def opt_to_float(value):
+    # Helper to turn an opt into a float, can return None if the value is empty
+    # Also returns None if the value isn't parsable as a number
+    if isinstance(value, float):
+        return value
+    
+    if not isinstance(value, str):
+        value = str(value)
+    
+    if len(value) == 0:
+        return None
+    
+    try:
+        return float(value)
+    except:
+        return None
+
 class OptMethod:
     # Internal data structure to keep track a single option
 
@@ -66,6 +83,7 @@ class OptMethod:
         self.func_names = []        # List of all strings that this option can can be called by
         self.help = help            # The help description for this option
         self.args = []              # List of arguments for this option
+        self.parsers = []           # Optional parser to use to convert the type of each arg
         self.hidden = False         # Is this option hidden on the help screen?
         self.other = None           # The default name for this option (synthesized from .func_names)
         self.aka = None             # List of all other names for this option (synthesized from .func_names)
@@ -87,6 +105,7 @@ class OptMethod:
             ret.module_name = self.module_name
             ret.group_name = self.group_name
             ret.default = self.default
+            ret.parsers = self.parsers
             yield ret
 
 def opt(*args, **kargs):
@@ -126,7 +145,24 @@ def opt(*args, **kargs):
 
         method.module_name = func.__module__
         method.func = func
-        method.args += inspect.getfullargspec(func)[0]
+        arg_spec = inspect.getfullargspec(func)
+        method.args += arg_spec.args
+
+        for i, arg in enumerate(arg_spec.args):
+            target_type = None
+            if arg_spec.defaults is not None and i < len(arg_spec.defaults) and arg_spec.defaults[i] is not None:
+                target_type = type(arg_spec.defaults[i])
+            if arg in arg_spec.annotations:
+                target_type = arg_spec.annotations[arg]
+
+            if target_type is bool:
+                method.parsers.append(opt_to_bool)
+            elif target_type is int:
+                method.parsers.append(opt_to_int)
+            elif target_type is float:
+                method.parsers.append(opt_to_float)
+            else:
+                method.parsers.append(None)
 
         if inspect.getfullargspec(func)[3] is not None:
             for i in range(len(inspect.getfullargspec(func)[3])):
@@ -185,7 +221,11 @@ def main_entry(order_by='none', include_other=False, program_desc=None, default_
                     params = len(arg.args)
                     while True:
                         if len(temp) - 1 >= params:
-                            arg.func(*(temp[1:params + 1]))
+                            temp_args = temp[1:params + 1]
+                            for i in range(len(temp_args)):
+                                if callable(arg.parsers[i]):
+                                    temp_args[i] = arg.parsers[i](temp_args[i])
+                            arg.func(*temp_args)
                             temp = temp[params + 1:]
                             handled = True
                             break
