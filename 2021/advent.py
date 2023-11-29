@@ -320,6 +320,14 @@ def save_cookie(browser="Chrome", alt_id=""):
         data = json.dump(data, f, indent=2, sort_keys=True)
         f.write("\n")
 
+    resp = get_page(f"https://adventofcode.com/{YEAR_NUMBER}")
+    with open("main_page.html", "wt") as f:
+        f.write(resp)
+
+    print("Make sure to validate that main_page.html looks good, look for the")
+    print("username in the source code and delete the file after validating it")
+    print("")
+
     print("Done")
 
 def get_cookie():
