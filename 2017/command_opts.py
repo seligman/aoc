@@ -5,7 +5,7 @@ import os
 import sys
 import textwrap
 
-VERSION = 24
+VERSION = 25
 SAMPLE_CODE = """
 # --------------------------------------------------------------------------
 # This module is not meant to be run directly.  To use it, add code like
@@ -110,11 +110,26 @@ class OptMethod:
             ret.hidden_args = self.hidden_args[:]
             yield ret
 
-def opt(help_string, hidden=False, func_name:str=None, func_names:list=None, sort:str=None, group="", default=False, hidden_args:list=None):
-    # This method acts as the decorator for the function
-    # It's primary job is to crack out the various options passed in, create
-    # a OptMethod object and add it to the global list of options.  It returns
-    # a function that can be called, making the decorator work
+def opt(help_string, hidden=False, name:str=None, names:list=None, sort:str=None, group="", default=False, hidden_args:list=None):
+    """
+    Decorator for the function to bubble it up as a command line option
+
+    :param help_string: Help description string
+
+    :param hidden: This option isn't shown in the help
+
+    :param name: The name to use for this option instead of the function name
+
+    :param names: A list of valid names to use for this option
+
+    :param sort: Key to use for 'special' sort mode
+
+    :param group: Group to cluster this option in
+
+    :param default: Treat this option as the default option to run
+
+    :param hidden_args: Args to hide from being shown in the help
+    """
 
     global _g_options
     method = OptMethod(help_string)
@@ -122,10 +137,10 @@ def opt(help_string, hidden=False, func_name:str=None, func_names:list=None, sor
 
     # Store the various options
     method.hidden = hidden
-    if func_name is not None:
-        method.func_names.append(func_name)
-    if func_names is not None:
-        method.func_names.extend(func_names)
+    if name is not None:
+        method.func_names.append(name)
+    if names is not None:
+        method.func_names.extend(names)
     if hidden_args is not None:
         method.hidden_args.extend(hidden_args)
     if sort is not None:
@@ -179,19 +194,24 @@ def opt(help_string, hidden=False, func_name:str=None, func_names:list=None, sor
     return real_opts
 
 def main_entry(order_by='none', include_other=False, program_desc=None, default_action=None, picker=None):
-    # order_by = A string representing the order conditions
-    #              'none' = No order to the options
-    #              'func' = Order by the function name
-    #              'desc' = Order by the help text
-    #              'special' = Order by the 'sort' flag to @opt
-    # include_other = Include @opt methods in modules outside of the main module
-    # program_desc = Text to show before the main options help display
-    # default_action = Default action to run if no options are present.  Can be a 
-    #                  string or function
-    # picker = Function to call to pick an option to run with a list of 
-    #          ("desc", "object") tuples to pick an option if no options are 
-    #          selected.  Expected to return "object" for the user's choice.
+    """
+    Main entry responsible for parsing command line args and running
+    picked option.
 
+    :param order_by: String representing the order conditions, 'none' = No order to the options, 
+        'func' = Order by the function name, 'desc' = Order by the help text, 'special' = Order by 
+        the 'sort' flag to @opt
+
+    :param include_other: Include @opt methods in modules outside of the main module
+
+    :param program_desc: Text to show before the main options help display
+
+    :param default_action: Default action to run if no options are present.  Can be a 
+        string or function
+    
+    :param picker: Function to call to pick an option to run with a list of ("desc", "object") tuples 
+    to pick an option if no options are selected.  Expected to return "object" for the user's choice.
+    """
     global _g_options
     temp = sys.argv[1:]
     good = False
