@@ -2,7 +2,7 @@
 
 import os
 import sys
-if sys.version_info >= (3, 11): 
+if sys.version_info >= (3, 10): 
     import importlib.util
     import importlib.machinery
 else: 
@@ -15,6 +15,7 @@ def load_source(modname, filename):
         spec = importlib.util.spec_from_file_location(modname, filename, loader=loader)
         module = importlib.util.module_from_spec(spec)
         loader.exec_module(module)
+        sys.modules[module.__name__] = module
         return module
     else:
         return imp.load_source(modname, filename)

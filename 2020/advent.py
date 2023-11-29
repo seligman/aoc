@@ -279,7 +279,7 @@ def make_day_wait(target_day="cur"):
     import sleeper
     import random
     resp = get_page(f"https://adventofcode.com/{YEAR_NUMBER}")
-    m = re.search("var server_eta *= *(?P<eta>\d+);", resp)
+    m = re.search(r"var server_eta *= *(?P<eta>\d+);", resp)
     eta = int(m.group("eta")) + random.randint(5, 10)
     if sleeper.sleep(str(eta), exit_at_end=False):
         make_day_helper(False, force_day=target_day)
@@ -287,7 +287,7 @@ def make_day_wait(target_day="cur"):
 @opt("Load cookie from browser to cache")
 def save_cookie(browser="Chrome", alt_id=""):
     try:
-        import browser_cookie3
+        import browser_cookie3 # type: ignore
     except:
         raise Exception("Unable to load 'browser_cookie3', please try running in a venv with requirements.txt")
 
