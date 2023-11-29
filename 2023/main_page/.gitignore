@@ -1,0 +1,10 @@
+.p4ignore
+.venv
+screenshots
+frames
+*.exe
+*.png
+*.ttf
+*.css
+*.js
+*.mp4
