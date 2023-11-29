@@ -5,7 +5,7 @@ import os
 import sys
 import textwrap
 
-VERSION = 23
+VERSION = 24
 SAMPLE_CODE = """
 # --------------------------------------------------------------------------
 # This module is not meant to be run directly.  To use it, add code like
@@ -81,6 +81,7 @@ class OptMethod:
     def __init__(self, help):
         self.func = None            # The function to call when the option is picked
         self.func_names = []        # List of all strings that this option can can be called by
+        self.hidden_args = []       # List of all args to hide in the help display
         self.help = help            # The help description for this option
         self.args = []              # List of arguments for this option
         self.parsers = []           # Optional parser to use to convert the type of each arg
@@ -97,7 +98,7 @@ class OptMethod:
         if len(self.func_names) >= 1:
             ret = OptMethod(self.help)
             ret.func = self.func
-            ret.args = self.args
+            ret.args = self.args[:]
             ret.hidden = self.hidden
             ret.other = self.func_names[0]
             ret.aka = self.func_names[1:]
@@ -105,37 +106,32 @@ class OptMethod:
             ret.module_name = self.module_name
             ret.group_name = self.group_name
             ret.default = self.default
-            ret.parsers = self.parsers
+            ret.parsers = self.parsers[:]
+            ret.hidden_args = self.hidden_args[:]
             yield ret
 
-def opt(*args, **kargs):
+def opt(help_string, hidden=False, func_name:str=None, func_names:list=None, sort:str=None, group="", default=False, hidden_args:list=None):
     # This method acts as the decorator for the function
     # It's primary job is to crack out the various options passed in, create
     # a OptMethod object and add it to the global list of options.  It returns
     # a function that can be called, making the decorator work
 
     global _g_options
-    method = OptMethod(args[0])
+    method = OptMethod(help_string)
     _g_options.append(method)
 
-    # Crack out the various options
-    if 'hidden' in kargs and kargs['hidden']:
-        method.hidden = True
-
-    if 'name' in kargs:
-        method.func_names.append(kargs['name'])
-
-    if 'names' in kargs:
-        method.func_names.extend(kargs['names'])
-
-    if 'sort' in kargs:
-        method.special = kargs['sort']
-
-    if 'group' in kargs:
-        method.group_name = kargs['group']
-
-    if 'default' in kargs:
-        method.default = kargs['default']
+    # Store the various options
+    method.hidden = hidden
+    if func_name is not None:
+        method.func_names.append(func_name)
+    if func_names is not None:
+        method.func_names.extend(func_names)
+    if hidden_args is not None:
+        method.hidden_args.extend(hidden_args)
+    if sort is not None:
+        method.special = sort
+    method.group_name = group
+    method.default = default
 
     # Create a bounce function that's actually called by scripts
     # This exists to let us get a pointer to the real function
@@ -164,10 +160,17 @@ def opt(*args, **kargs):
             else:
                 method.parsers.append(None)
 
+        for i in range(len(method.args)):
+            if method.args[i] in method.hidden_args:
+                method.args[i] = None
+
         if inspect.getfullargspec(func)[3] is not None:
             for i in range(len(inspect.getfullargspec(func)[3])):
                 i = -(i + 1)
-                method.args[i] = "(" + method.args[i] + ")"
+                if method.args[i] is not None:
+                    method.args[i] = "(" + method.args[i] + ")"
+        
+        method.args = [x for x in method.args if x]
 
         def wrapper(*args2, **kwargs):
             return func(*args2, **kwargs)
