@@ -1,20 +1,21 @@
 #!/usr/bin/env python3
 
-import code
-import undetected_chromedriver as uc
-import chromedriver_binary
+from datetime import datetime, timedelta
+from PIL import Image, ImageDraw
 from selenium import webdriver
-from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
+from selenium.webdriver.common.keys import Keys
+from urllib.parse import urljoin
+from urllib.request import urlopen, urlretrieve
+import chromedriver_binary
+import code
 import json
 import os
-from urllib.request import urlopen, urlretrieve
-from urllib.parse import urljoin
-from datetime import datetime, timedelta
+import re
 import subprocess
-from PIL import Image, ImageDraw
-import time
 import sys
+import time
+import undetected_chromedriver as uc
 if sys.version_info >= (3, 11): from datetime import UTC
 else: import datetime as datetime_fix; UTC=datetime_fix.timezone.utc
 
@@ -113,6 +114,7 @@ def main():
                     html = html.replace('<span class="calendar-mark-complete">*</span>', '', 1)
                 if 2 in step['hide_stars']:
                     html = html.replace('<span class="calendar-mark-verycomplete">*</span>', '', 1)
+            html = re.sub('<p>.*?AI.*?</p>', '', html)
             with open(os.path.join(os.path.split(__file__)[0], "aoc", "_temp_.html"), "wt") as f:
                 f.write(html)
 

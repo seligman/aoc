@@ -10,7 +10,6 @@
 <link rel="shortcut icon" href="favicon.png"/>
 </head><body>
 <main>
-<p>The first puzzles will unlock on December 1st at midnight EST (UTC-5).  See you then!</p>
 <p>Also, starting this December, please <a href="/about#faq_ai_leaderboard">don't use AI to get on the global leaderboard</a>.</p><pre class="calendar"><span aria-hidden="true" class="">                                                 </span>
 <span aria-hidden="true" class="">                                                 </span>
 <span aria-hidden="true" class="">                                                 </span>
@@ -82,9 +81,12 @@ function update_countdown() {
     countdown.textContent = (hours < 10 ? "0" : "") + hours + ":" + (minutes < 10 ? "0" : "") + minutes + ":" + (seconds < 10 ? "0" : "") + seconds;
   }
 }
-interval = setInterval(update_countdown,1000);
-update_countdown();
 })();
 </script></span>
 </pre>
-</main></body></html>
+</main>
+<script>
+  var countdown = document.getElementById("calendar-countdown");
+  countdown.textContent = window.location.hash.substr(1);
+</script>
+</body></html>

@@ -2,6 +2,10 @@
 
 import os
 
+if not os.path.isdir("aoc"):
+    os.mkdir("aoc")
+    print("Newly created folder detected, you'll need to copy the <script> helper to make the countdown work!")
+
 i = 0
 while True:
     fn = os.path.join("aoc", f"index_{i:02d}.html")
