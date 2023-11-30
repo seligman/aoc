@@ -137,7 +137,7 @@ def revert_file(filename):
         else:
             raise Exception()
 
-@opt("Update all advent.py files")
+@opt("Update all advent.py files", group="Utilities")
 def update_selfs():
     with open("advent.py", "rb") as f:
         source_data = f.read()
@@ -157,7 +157,7 @@ def update_selfs():
                     with open(dest, "wb") as f:
                         f.write(source_data)
 
-@opt("Finish off all items for a day")
+@opt("Finish off all items for a day", group="Advent of Code")
 def finish_day():
     print("$ advent.py run_save cur")
     run_save("cur")
@@ -168,7 +168,7 @@ def finish_day():
     print("$ advent.py gen_comment")
     gen_comment()
 
-@opt("Use alt data file")
+@opt("Use alt data file", group="Session Management")
 def alt(file_number):
     global ALT_DATA_FILE
     ALT_DATA_FILE = int(file_number)
@@ -181,7 +181,7 @@ def get_input_file(helper, file_type="input"):
         fn = f"day_{helper.DAY_NUM:02d}_{file_type}_alt_{ALT_DATA_FILE:02d}.txt"
     return os.path.join("Puzzles", fn)
 
-@opt("Generate a comment based off scores")
+@opt("Generate a comment based off scores", group="Advent of Code")
 def gen_comment():
     max_day = 0
     for helper in utils.get_helpers():
@@ -216,7 +216,7 @@ def gen_comment():
     import clipboard
     clipboard.copy(msg)
 
-@opt("Launch website")
+@opt("Launch website", group="Advent of Code")
 def launch():
     import webbrowser
     urls = [
@@ -236,7 +236,7 @@ def launch():
 
     make_day_wait()
 
-@opt("Show other commands for a day")
+@opt("Show other commands for a day", group="Utilities")
 def show_others(helper_day):
     sys.path.insert(0, 'Helpers')
     for helper in get_helpers_id(helper_day):
@@ -249,7 +249,7 @@ def show_others(helper_day):
         if not found:
             print("(No other commands found)")
 
-@opt("Run other command for a day")
+@opt("Run other command for a day", group="Utilities")
 def run_other(helper_day, command):
     sys.path.insert(0, 'Helpers')
     for helper in get_helpers_id(helper_day):
@@ -266,15 +266,15 @@ def run_other(helper_day, command):
             print(f"## {helper.DAY_DESC}")
             print(f"ERROR: Unable to find '{command}'")
 
-@opt("Make new day (Offline)")
+@opt("Make new day (Offline)", group="Utilities")
 def make_day_offline(target_day="cur"):
     make_day_helper(True, force_day=target_day)
 
-@opt("Make new day")
+@opt("Make new day", group="Utilities")
 def make_day(target_day="cur"):
     make_day_helper(False, force_day=target_day)
 
-@opt("Make new day, after sleeping till midnight")
+@opt("Make new day, after sleeping till midnight", group="Utilities")
 def make_day_wait(target_day="cur"):
     import sleeper
     import random
@@ -284,7 +284,7 @@ def make_day_wait(target_day="cur"):
     if sleeper.sleep(str(eta), exit_at_end=False):
         make_day_helper(False, force_day=target_day)
 
-@opt("Load cookie from browser to cache")
+@opt("Load cookie from browser to cache", group="Session Management")
 def save_cookie(browser="Chrome", alt_id=""):
     try:
         import browser_cookie3 # type: ignore
@@ -292,7 +292,13 @@ def save_cookie(browser="Chrome", alt_id=""):
         raise Exception("Unable to load 'browser_cookie3', please try running in a venv with requirements.txt")
 
     browser = browser.lower().strip().replace(" ", "")
-    alt_id = -1 if alt_id == "" else int(alt_id)
+    if alt_id == "":
+        alt_id = -1
+    else:
+        global ALT_DATA_FILE
+        alt_id = int(alt_id)
+        ALT_DATA_FILE = alt_id
+
     browsers = {
         "chrome": browser_cookie3.chrome,
         "chromium": browser_cookie3.chromium,
@@ -315,6 +321,7 @@ def save_cookie(browser="Chrome", alt_id=""):
     cookie = browsers[browser](domain_name='adventofcode.com')
     cookie = ';'.join(f'{x.name}={x.value}' for x in cookie)
     data[str(alt_id)] = cookie
+    data["_last_updated"] = datetime.now(UTC).strftime("%Y-%m-%d %H:%M:%S")
 
     with open(fn, "w") as f:
         data = json.dump(data, f, indent=2, sort_keys=True)
@@ -336,6 +343,7 @@ def get_cookie():
         if (datetime.now(UTC).replace(tzinfo=None) - datetime.fromtimestamp(os.path.getmtime(fn))) > timedelta(days=60):
             print("Warning, cookie is very old, removing it")
             os.unlink(fn)
+
     if not os.path.isfile(fn):
         save_cookie(alt_id="-1" if (ALT_DATA_FILE is None or ALT_DATA_FILE == 0) else ALT_DATA_FILE)
 
@@ -399,7 +407,7 @@ def make_day_helper(offline, force_day=None):
 
     print(f"Created day #{helper_day}")
 
-@opt("Show days")
+@opt("Show days", group="Utilities")
 def show_days():
     for helper in utils.get_helpers():
         print(helper.DAY_DESC)
@@ -432,7 +440,7 @@ def get_helpers_id(helper_day):
             if helper.DAY_NUM in valid:
                 yield helper
 
-@opt("Test helper")
+@opt("Test helper", group="Advent of Code")
 def test(helper_day):
     good, bad = 0, 0
 
@@ -483,7 +491,7 @@ class PrintCatcher:
         sys.stdout = self.old_stdout
         return None
 
-@opt("Run and time duration")
+@opt("Run and time duration", group="Advent of Code")
 def run_time(helper_day):
     start = datetime.now(UTC).replace(tzinfo=None)
     run(helper_day)
@@ -501,7 +509,7 @@ def run_time(helper_day):
         pretty = f"no time."
     safe_print(f"Done, that took {pretty}")
 
-@opt("Run helper")
+@opt("Run helper", group="Advent of Code")
 def run(helper_day):
     global _print_catcher
     _print_catcher = PrintCatcher()
@@ -510,7 +518,7 @@ def run(helper_day):
         safe_print("WARNING: Raw 'print' used somewhere!")
     _print_catcher = _print_catcher.undo() # pylint: disable=assignment-from-none
 
-@opt("Run helper and save output as correct")
+@opt("Run helper and save output as correct", group="Advent of Code")
 def run_save(helper_day):
     run_helper(helper_day, True)
 
@@ -625,7 +633,7 @@ def run_helper(helper_day, save):
             for cur in failed:
                 safe_print(cur)
 
-@opt("Make a stand alone version of the day")
+@opt("Make a stand alone version of the day", group="Utilities")
 def make_demo(helper_day):
     sys.path.insert(0, 'Helpers')
 
@@ -714,7 +722,7 @@ def get_page(url):
     resp = resp.decode("utf-8")
     return resp
 
-@opt("Download Index")
+@opt("Download Index", group="Advent of Code")
 def get_index():
     resp = get_page(f"https://adventofcode.com/{YEAR_NUMBER}")
 
@@ -733,7 +741,7 @@ def get_index():
 
     print("Wrote out index")
 
-@opt("Download Day")
+@opt("Download Day", group="Advent of Code")
 def dl_day(helper_day, input_only="no"):
     input_only = input_only.lower() in {"yes", "true", "y"}
     ret = ""
@@ -787,7 +795,7 @@ def dl_day(helper_day, input_only="no"):
 
     return ret
 
-@opt("Compare expected results with website")
+@opt("Compare expected results with website", group="Advent of Code")
 def compare_results(helper_day):
     already_downloaded = False
 
