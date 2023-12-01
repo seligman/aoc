@@ -6,13 +6,6 @@ DAY_DESC = 'Day 1: Trebuchet?!'
 import re
 
 def calc(log, values, mode):
-    # TODO: Delete or use these
-    # from parsers import get_ints, get_floats
-    # from grid import Grid, Point
-    # grid = Grid.from_text(values)
-    # from program import Program
-    # program = Program(values)
-
     ret = 0
 
     digits = {
@@ -32,7 +25,7 @@ def calc(log, values, mode):
         test += "|" + "|".join(digits)
 
     for cur in values:
-        m = re.search(".*?(" + test + ")", cur)
+        m = re.search("(" + test + ")", cur)
         val = digits.get(m.group(1), m.group(1))
         m = re.search(".*(" + test + ")", cur)
         val += digits.get(m.group(1), m.group(1))
