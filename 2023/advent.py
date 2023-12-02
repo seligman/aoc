@@ -208,7 +208,7 @@ def gen_comment():
         print("Warning: Couldn't find day!")
         print("")
     
-    msg = f"[LANGUAGE:Python] {score1} / {score2}\n"
+    msg = f"[LANGUAGE: Python] {score1} / {score2}\n"
     msg += "\n"
     msg += f"[github](https://github.com/seligman/aoc/blob/master/{YEAR_NUMBER}/Helpers/day_{max_day:02}.py)\n"
 
