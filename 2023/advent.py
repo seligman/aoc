@@ -3,16 +3,7 @@
 from advent_year import YEAR_NUMBER
 from command_opts import opt, main_entry
 from datetime import datetime, timedelta
-import itertools
-import json
-import os
-import re
-import subprocess
-import sys
-import tempfile
-import textwrap
-import time
-import utils
+import itertools, json, os, re, subprocess, sys, tempfile, textwrap, time, utils
 if sys.version_info >= (3, 11): from datetime import UTC
 else: import datetime as datetime_fix; UTC=datetime_fix.timezone.utc
 
@@ -22,7 +13,7 @@ DESC = """
 ### The suggested dail routine looks like this:
 advent.py launch        # This launches some useful links, and waits to make the next day
 advent.py test cur      # This tests the current day, keep going till it works!
-advent.py run cur       # This runs on the same data
+advent.py run cur       # This runs on the same day with the clue's data
 ### And finally, when everything's done, some clean up, and make a comment to post
 advent.py finish_day    # This runs the following commands:
                         # run_save cur, dl_day cur, get_index, gen_comment
@@ -57,8 +48,8 @@ class Logger:
 
     def copy_result_to_clipboard(self):
         if len(self.rows) > 0:
-            import clipboard
             try:
+                import clipboard
                 clipboard.copy(self.rows[-1].strip())
                 self.show("# '" + self.rows[-1].strip() + "' copied to clipboard", log_msg=False)
             except:
@@ -169,9 +160,9 @@ def finish_day():
     gen_comment()
 
 @opt("Use alt data file", group="Session Management")
-def alt(file_number):
+def alt(file_number:int):
     global ALT_DATA_FILE
-    ALT_DATA_FILE = int(file_number)
+    ALT_DATA_FILE = file_number
 
 def get_input_file(helper, file_type="input"):
     global ALT_DATA_FILE
@@ -182,7 +173,7 @@ def get_input_file(helper, file_type="input"):
     return os.path.join("Puzzles", fn)
 
 @opt("Generate a comment based off scores", group="Advent of Code")
-def gen_comment():
+def gen_comment(for_sharing=False):
     max_day = 0
     for helper in utils.get_helpers():
         max_day = max(helper.DAY_NUM, max_day)
@@ -202,19 +193,27 @@ def gen_comment():
                 found = True
                 break
     
-    print("-" * 70)
-
     if not found:
         print("Warning: Couldn't find day!")
         print("")
     
-    msg = f"[LANGUAGE: Python] {score1} / {score2}\n"
-    msg += "\n"
-    msg += f"[github](https://github.com/seligman/aoc/blob/master/{YEAR_NUMBER}/Helpers/day_{max_day:02}.py)\n"
+    if for_sharing:
+        msg = f"Advent of Code, day {max_day}: {score1} / {score2}\n"
+    else:
+        msg = f"[LANGUAGE: Python] {score1} / {score2}\n"
+        msg += "\n"
+        msg += f"[github](https://github.com/seligman/aoc/blob/master/{YEAR_NUMBER}/Helpers/day_{max_day:02}.py)\n"
 
-    print(msg)
-    import clipboard
-    clipboard.copy(msg)
+    print("-" * 70)
+    print(msg.rstrip("\n"))
+    print("-" * 70)
+
+    try:
+        import clipboard
+        clipboard.copy(msg)
+        print("# Copied to clipboard")
+    except:
+        print("# Unable to copy to clipboard")
 
 @opt("Launch website", group="Advent of Code")
 def launch():
@@ -590,11 +589,12 @@ def run_helper(helper_day, save):
             safe_print(f"# That took {pretty}")
 
         filename = get_input_file(helper, file_type="expect")
+
+        if copy_result:
+            log.copy_result_to_clipboard()
+
         if save:
             info = "Saved output."
-            if copy_result:
-                log.copy_result_to_clipboard()
-
             if os.path.isfile(filename):
                 edit_file(filename)
                 log.save_to_file(filename)
