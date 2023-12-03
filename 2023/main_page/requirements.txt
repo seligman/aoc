@@ -1,3 +1,6 @@
+pip
+wheel
+setuptools
 selenium
 chromedriver-binary-auto
 slackclient

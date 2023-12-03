@@ -41,9 +41,14 @@ def save_screenshot(msg, driver, path, to_grab, files):
     driver.set_window_size(original_size['width'], original_size['height'])
 
 def make_animation():
+    make_animation_runner(False)
+
+def make_animation_runner(single_frame):
     if 'VIRTUAL_ENV' not in os.environ:
+        need_install = False
         if not os.path.isdir(".venv"):
             subprocess.check_call(["python3", "-m", "venv", ".venv"])
+            need_install = True
         os.environ['VIRTUAL_ENV_PROMPT'] = '(.venv) '
         os.environ['VIRTUAL_ENV'] = os.path.join(os.getcwd(), ".venv")
         for cur in ["Scripts", "bin"]:
@@ -55,14 +60,24 @@ def make_animation():
                 venv_file = os.path.join(venv_path, cur)
                 break
         os.environ['PATH'] = venv_path + (";" if ";" in os.environ['PATH'] else ":") + os.environ['PATH']
+        if need_install:
+            subprocess.call(["pip", "install", "-r", "requirements.txt"])
         exit(subprocess.call([venv_file, __file__] + sys.argv[1:]))
 
-    try:
-        from selenium import webdriver # type: ignore
-    except:
-        subprocess.check_call(["pip", "install", "-r", "requirements.txt"])
+    make_animation_worker(single_frame)
+    if single_frame:
+        dest = os.path.join("..", "Puzzles", "main_page.png")
+        dest2 = os.path.join("..", "Puzzles", "main_page_small.png")
+        from PIL import Image, ImageDraw # type: ignore
+        im = Image.open(os.path.join("screenshots", "frame_00000.png"))
+        subprocess.check_call(["p4", "edit", dest])
+        subprocess.check_call(["p4", "edit", dest2])
+        im.save(dest, "PNG")
+        im = im.resize((im.width // 2, im.height // 2), Image.Resampling.BICUBIC)
+        im.save(dest2, "PNG")
 
-    make_animation_worker()
+def update_preview():
+    make_animation_runner(True)
 
 def clean_up():
     for dn in ["screenshots", ".venv"]:
@@ -74,7 +89,7 @@ def clean_up():
             print("$ rm " + fn)
             os.unlink(fn)
 
-def make_animation_worker():
+def make_animation_worker(single_frame):
     from selenium import webdriver # type: ignore
     import chromedriver_binary # type: ignore
     import undetected_chromedriver as uc # type: ignore
@@ -104,7 +119,7 @@ def make_animation_worker():
     todo = []
     for cur in sorted(os.listdir("aoc")):
         if cur.startswith("index_") and cur.endswith(".html"):
-            todo.append({"fn": cur, "first": False, "last": False})
+            todo.append({"fn": cur, "first": False, "last": False, 'single': False})
 
     todo[0]['first'] = True
     todo[-1]['last'] = True
@@ -115,10 +130,19 @@ def make_animation_worker():
         os.unlink(os.path.join("screenshots", cur))
 
     frame_number = 0
+
+    if single_frame:
+        todo = todo[-1:]
+        todo[0]['single'] = True
+
     for cur in todo:
         print(f"Working on {cur['fn']}")
-        
-        if cur['first']:
+
+        if cur['single']: 
+            steps = [
+                {"dupes": 1, "frames": 1, "extra": "", "hide_stars": None},
+            ]
+        elif cur['first']:
             steps = [
                 {"dupes": 10, "frames": 1, "extra": "00:00:05", "hide_stars": None},
                 {"dupes": 10, "frames": 1, "extra": "00:00:04", "hide_stars": None},
@@ -180,17 +204,21 @@ def make_animation_worker():
     if os.path.isfile(os.path.join("animated.mp4")):
         os.unlink(os.path.join("animated.mp4"))
     
-    subprocess.check_call([
-        "ffmpeg", 
-        "-framerate", "10",
-        "-i", os.path.join("screenshots", "frame_%05d.png"), 
-        os.path.join("animated.mp4"),
-    ])
+    if single_frame:
+        time.sleep(1)
+    else:
+        subprocess.check_call([
+            "ffmpeg", 
+            "-framerate", "10",
+            "-i", os.path.join("screenshots", "frame_%05d.png"), 
+            os.path.join("animated.mp4"),
+        ])
 
 def main():
     cmds = {
         "animate": ("Create animation", make_animation),
         "cleanup": ("Clean up temp files", clean_up),
+        "preview": ("Update preview images", update_preview),
     }
     for cur in sys.argv[1:]:
         if cur in cmds:
