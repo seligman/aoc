@@ -1,13 +1,8 @@
 #!/usr/bin/env python3
 
 from datetime import datetime, timedelta
-from PIL import Image, ImageDraw
-from selenium import webdriver
-from selenium.webdriver.common.by import By
-from selenium.webdriver.common.keys import Keys
 from urllib.parse import urljoin
 from urllib.request import urlopen, urlretrieve
-import chromedriver_binary
 import code
 import json
 import os
@@ -15,11 +10,14 @@ import re
 import subprocess
 import sys
 import time
-import undetected_chromedriver as uc
+import shutil
 if sys.version_info >= (3, 11): from datetime import UTC
 else: import datetime as datetime_fix; UTC=datetime_fix.timezone.utc
 
 def save_screenshot(msg, driver, path, to_grab, files):
+    from selenium.webdriver.common.by import By # type: ignore
+    from selenium.webdriver.common.keys import Keys # type: ignore
+
     original_size = driver.get_window_size()
     required_width = max(driver.execute_script('return document.body.parentNode.scrollWidth'), 900)
     required_height = max(driver.execute_script('return document.body.parentNode.scrollHeight'), 900)
@@ -42,8 +40,46 @@ def save_screenshot(msg, driver, path, to_grab, files):
         body.screenshot(files[-1])
     driver.set_window_size(original_size['width'], original_size['height'])
 
+def make_animation():
+    if 'VIRTUAL_ENV' not in os.environ:
+        if not os.path.isdir(".venv"):
+            subprocess.check_call(["python3", "-m", "venv", ".venv"])
+        os.environ['VIRTUAL_ENV_PROMPT'] = '(.venv) '
+        os.environ['VIRTUAL_ENV'] = os.path.join(os.getcwd(), ".venv")
+        for cur in ["Scripts", "bin"]:
+            if os.path.isdir(os.path.join(os.getcwd(), ".venv", cur)):
+                venv_path = os.path.join(os.getcwd(), ".venv", cur)
+                break
+        for cur in ["python", "python.exe"]:
+            if os.path.isfile(os.path.join(venv_path, cur)):
+                venv_file = os.path.join(venv_path, cur)
+                break
+        os.environ['PATH'] = venv_path + (";" if ";" in os.environ['PATH'] else ":") + os.environ['PATH']
+        exit(subprocess.call([venv_file, __file__] + sys.argv[1:]))
 
-def main():
+    try:
+        from selenium import webdriver # type: ignore
+    except:
+        subprocess.check_call(["pip", "install", "-r", "requirements.txt"])
+
+    make_animation_worker()
+
+def clean_up():
+    for dn in ["screenshots", ".venv"]:
+        if os.path.isdir(dn):
+            print("$ rm -rf " + dn)
+            shutil.rmtree(dn)
+    for fn in ["animated.mp4"]:
+        if os.path.isfile(fn):
+            print("$ rm " + fn)
+            os.unlink(fn)
+
+def make_animation_worker():
+    from selenium import webdriver # type: ignore
+    import chromedriver_binary # type: ignore
+    import undetected_chromedriver as uc # type: ignore
+    from PIL import Image, ImageDraw # type: ignore
+
     files = [
         "favicon.png",
         "highcontrast.css",
@@ -151,6 +187,19 @@ def main():
         os.path.join("animated.mp4"),
     ])
 
+def main():
+    cmds = {
+        "animate": ("Create animation", make_animation),
+        "cleanup": ("Clean up temp files", clean_up),
+    }
+    for cur in sys.argv[1:]:
+        if cur in cmds:
+            cmds[cur][1]()
+            exit(0)
+    
+    print("Usage:")
+    for cmd, (desc, func) in cmds.items():
+        print(f"  {cmd} = {desc}")
 
 if __name__ == "__main__":
     main()
