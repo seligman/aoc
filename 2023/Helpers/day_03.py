@@ -6,56 +6,41 @@ DAY_DESC = 'Day 3: Gear Ratios'
 def calc(log, values, mode):
     from grid import Grid, Point
     grid = Grid.from_text(values)
-    grid.default = "."
 
-    nums = set("1234567890")
     ret = 0
-    valid = set()
-    for x in grid.x_range():
-        for y in grid.y_range():
-            if grid[x, y] in nums and grid[x - 1, y] not in nums:
-                temp = ""
-                x2 = x
-                part_no = False
-                maybe = []
-                while grid[x2, y] in nums:
-                    temp += grid[x2, y]
-                    maybe.append((x2, y))
-                    for pt in grid.get_dirs(2, (x2, y)):
-                        if grid[pt] not in {".", 0} | nums:
-                            part_no = True
-                    x2 += 1
-                if part_no:
-                    ret += int(temp)
-                    for cur in maybe:
-                        valid.add(cur)
-    if mode != 1:
-        ret = 0
-        for x in grid.x_range():
-            for y in grid.y_range():
-                if grid[x, y] == "*":
-                    hits = []
-                    for pt in grid.get_dirs(2, (x, y)):
-                        if grid[pt] in nums:
-                            hits.append(pt)
+    digits = set("1234567890")
+    part_numbers = []
+    parts = []
+    gears = []
 
-                    used = set()
-                    vals = []
-                    for ox, oy in hits:
-                        temp = ""
-                        if (ox, oy) not in used:
-                            while grid[ox - 1, oy] in nums:
-                                ox -= 1
-                            while grid[ox, oy] in nums:
-                                used.add((ox, oy))
-                                temp += grid[ox, oy]
-                                ox += 1
-                            if len(temp) > 0:
-                                vals.append(temp)
-                    if len(vals) == 2:
-                        vals[0] = int(vals[0])
-                        vals[1] = int(vals[1])
-                        ret += int(vals[0]) * int(vals[1])
+    table = {}
+    for (x, y), val in grid.grid.items():
+        if val in digits:
+            temp = table.get((x - 1, y), None)
+            if temp is None:
+                temp = {"val": 0, "pts": set()}
+                part_numbers.append(temp)
+            temp['val'] = temp['val'] * 10 + int(val)
+            temp['pts'].add((x, y))
+            table[(x, y)] = temp
+        elif val != '.':
+            parts.append((x, y))
+            if val == "*":
+                gears.append((x, y))
+
+    if mode == 1:
+        possible = set()
+        for pt in parts:
+            possible |= set(grid.get_dirs(2, pt))
+        for pt in part_numbers:
+            if len(pt['pts'] & possible):
+                ret += pt['val']
+    else:
+        for pt in gears:
+            neighbors = set(grid.get_dirs(2, pt))
+            neighbors = [x for x in part_numbers if len(x['pts'] & neighbors)]
+            if len(neighbors) == 2:
+                ret += neighbors[0]['val'] * neighbors[1]['val']
 
     return ret
 
