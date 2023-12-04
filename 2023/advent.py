@@ -13,6 +13,8 @@ DESC = """
 ### The suggested dail routine looks like this:
 advent.py launch        # This launches some useful links, and waits to make the next day
 advent.py test cur      # This tests the current day, keep going till it works!
+                        # Or, use "retest cur" to test over and over again whenever 
+                        # the file changes
 advent.py run cur       # This runs on the same day with the clue's data
 ### And finally, when everything's done, some clean up, and make a comment to post
 advent.py finish_day    # This runs the following commands:
@@ -439,8 +441,49 @@ def get_helpers_id(helper_day):
             if helper.DAY_NUM in valid:
                 yield helper
 
+@opt("Test helper over and over again", group="Advent of Code")
+def retest(helper_day):
+    sys.path.insert(0, 'Helpers')
+
+    history = []
+    for helper in get_helpers_id(helper_day):
+        fn = helper.__file__
+        history.append({
+            "fn": helper.__file__,
+            "last": b'',
+            "num": str(helper.DAY_NUM),
+        })
+    
+    while True:
+        changed = False
+        for cur in history:
+            with open(cur['fn'], "rb") as f:
+                data = f.read()
+            if cur['last'] != data:
+                cur['last'] = data
+                changed = True
+        
+        if changed:
+            all_good = True
+            for cur in history:
+                try:
+                    subprocess.check_call(["python3", "advent.py", "test", cur["num"], "yes"])
+                except:
+                    all_good = False
+
+                subprocess.call(["python3", "advent.py", "run", cur["num"]])
+
+            if all_good:
+                print("Everything worked!")
+                break
+            else:
+                print("# Failures detected, waiting to try again...")
+                print("-" * 80)
+
+        time.sleep(0.1)
+
 @opt("Test helper", group="Advent of Code")
-def test(helper_day):
+def test(helper_day, return_failure=False):
     good, bad = 0, 0
 
     sys.path.insert(0, 'Helpers')
@@ -469,6 +512,8 @@ def test(helper_day):
     print(f"Done, {good} worked, {bad} failed")
     if bad != 0:
         print(error_msg("  THERE WERE PROBLEMS  "))
+        if return_failure:
+            exit(1)
 
 _print_catcher = None
 class PrintCatcher:
