@@ -51,7 +51,7 @@ xtwone3four
 4nineeightseven2
 zoneight234
 7pqrstsixteen
-        """)
+    """)
 
     log.test(calc(log, values, 2), '281')
 

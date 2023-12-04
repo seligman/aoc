@@ -5,23 +5,20 @@ DAY_DESC = 'Day 4: Scratchcards'
 
 def calc(log, values, mode):
     ret = 0
-    mult = {}
+    mult = {x: 1 for x in range(len(values))}
     for i, cur in enumerate(values):
-        if i not in mult:
-            mult[i] = 1
+        cur = cur.split(":")[1].split("|")
+        good = set(x for x in cur[0].split(" ") if len(x))
+        hits = set(x for x in cur[1].split(" ") if len(x))
 
-        cur = cur[8:]
-        cur = cur.split("|")
-        good = [x for x in cur[0].split(" ") if len(x)]
-        hits = [x for x in cur[1].split(" ") if len(x)]
-        x = len(set(good) & set(hits))
+        wins = len(good & hits)
 
         if mode == 1:
-            if x > 0:
-                ret += 2 ** (x - 1)
+            if wins > 0:
+                ret += 2 ** (wins - 1)
         else:
-            for j in range(i + 1, min(len(values), i + x + 1)):
-                mult[j] = mult.get(j, 1) + mult[i]
+            for j in range(i + 1, min(len(values), i + wins + 1)):
+                mult[j] += mult[i]
         
     if mode == 1:
         return ret
