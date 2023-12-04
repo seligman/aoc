@@ -5,7 +5,7 @@ import os
 import sys
 import textwrap
 
-VERSION = 25
+VERSION = 26
 SAMPLE_CODE = """
 # --------------------------------------------------------------------------
 # This module is not meant to be run directly.  To use it, add code like
@@ -161,11 +161,13 @@ def opt(help_string, hidden=False, name:str=None, names:list=None, sort:str=None
 
         for i, arg in enumerate(arg_spec.args):
             target_type = None
-            if arg_spec.defaults is not None and i < len(arg_spec.defaults) and arg_spec.defaults[i] is not None:
-                target_type = type(arg_spec.defaults[i])
+            if arg_spec.defaults is not None:
+                offset = -len(arg_spec.args) + i + len(arg_spec.defaults)
+                if offset >= 0:
+                    target_type = type(arg_spec.defaults[offset])
             if arg in arg_spec.annotations:
                 target_type = arg_spec.annotations[arg]
-
+    
             if target_type is bool:
                 method.parsers.append(opt_to_bool)
             elif target_type is int:
