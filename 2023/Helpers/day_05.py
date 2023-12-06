@@ -5,6 +5,25 @@ import re
 DAY_NUM = 5
 DAY_DESC = 'Day 5: If You Give A Seed A Fertilizer'
 
+def intersect(target_start, target_end, test_start, test_end):
+    # Check to see if 'test' intersects with 'target', break up results as needed
+    # Return is_inside, part_start, part_end for each segment
+    target_start, target_end = min(target_start, target_end), max(target_start, target_end)
+    test_start, test_end = min(test_start, test_end), max(test_start, test_end)
+
+    if target_start <= test_start <= target_end and target_start <= test_end <= target_end:
+        yield True, test_start, test_end
+    elif target_start <= test_start <= target_end:
+        yield True, test_start, target_end
+        yield False, target_end + 1, test_end
+    elif target_start <= test_end <= target_end:
+        yield False, test_start, target_start - 1
+        yield True, target_start, test_end
+    elif test_start < target_start and test_end > target_end:
+        yield False, test_start, target_start - 1
+        yield True, target_start, target_end
+        yield False, target_end + 1, test_end
+
 def calc(log, values, mode):
     seeds = list(map(int, values[0].split(": ")[1].split(" ")))
     all_maps = {}
@@ -36,31 +55,19 @@ def calc(log, values, mode):
         temp = all_maps[pos]
         pos = temp["target"]
         while len(seeds) > 0:
-            a, b = seeds.pop(0)
+            seed_start, seed_end = seeds.pop(0)
             found = False
-            for offset, c, d in temp["maps"]:
-                if c <= a <= d and c <= b <= d:
-                    next_seeds.append((a + offset, b + offset))
+            for offset, target_start, target_end in temp["maps"]:
+                for is_inside, part_start, part_end in intersect(target_start, target_end, seed_start, seed_end):
                     found = True
-                    break
-                elif c <= a <= d:
-                    next_seeds.append((a + offset, d + offset))
-                    seeds.append((d + 1, b))
-                    found = True
-                    break
-                elif c <= b <= d:
-                    seeds.append((a, c - 1))
-                    next_seeds.append((c + offset, b + offset))
-                    found = True
-                    break
-                elif a < c and b > d:
-                    seeds.append((d + 1, b))
-                    seeds.append((a, c - 1))
-                    next_seeds.append((c + offset, d + offset))
-                    found = True
+                    if is_inside:
+                        next_seeds.append((part_start + offset, part_end + offset))
+                    else:
+                        seeds.append((part_start, part_end))
+                if found:
                     break
             if not found:
-                next_seeds.append((a, b))
+                next_seeds.append((seed_start, seed_end))
         seeds = next_seeds
 
     ret = min(x[0] for x in seeds)
