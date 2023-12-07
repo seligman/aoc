@@ -3,6 +3,8 @@
 DAY_NUM = 6
 DAY_DESC = 'Day 6: Wait For It'
 
+import math
+
 def calc(log, values, mode):
     if mode == 1:
         times = [int(x) for x in values[0].split(":")[1].split(" ") if len(x)]
@@ -12,11 +14,15 @@ def calc(log, values, mode):
         distances = [int(values[1].split(":")[1].replace(" ", ""))]
 
     ret = 1
+
     for time, distance in zip(times, distances):
-        wins = 0
-        for i in range(time):
-            if i * (time - i) > distance:
-                wins += 1
+        # Solving "i * (time - i) > distance" for i
+        start = (1/2) * (time - math.sqrt((time * time) - (4 * distance)))
+        end = (1/2) * (math.sqrt((time ** 2) - 4 * distance) + time)
+        # Clamp possible "i" for real numbers
+        start = (int(start) + 1) if (start == int(start)) else int(math.ceil(start))
+        end = (int(end) - 1) if (end == int(end)) else int(math.floor(end))
+        wins = max(end - start + 1, 0)
         ret *= wins
 
     return ret
