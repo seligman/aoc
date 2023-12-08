@@ -3,7 +3,41 @@
 DAY_NUM = 8
 DAY_DESC = 'Day 8: Haunted Wasteland'
 
-def calc(log, values, mode):
+def other_draw(describe, values):
+    if describe:
+        return "Draw this"
+    from dummylog import DummyLog
+    import animate
+    animate.prep()
+    calc(DummyLog(), values, 2, draw=True)
+    # animate.create_mp4(DAY_NUM, rate=30, final_secs=35)
+
+source_code = None
+def draw_frame(im_width, im_height, frame, seen, map, points):
+    from PIL import Image, ImageDraw, ImageFont
+    import os
+
+    font_size = im_width * 0.01
+    circ_size = int(im_width * 0.02)
+
+    global source_code
+    if source_code is None:
+        source_code = os.path.join('Helpers', 'Font-SourceCodePro-Bold.ttf')
+        source_code = ImageFont.truetype(source_code, int(float(font_size) * 1.5))
+
+        im = Image.new('RGB', (im_width, im_height), (0, 0, 0))
+        dr = ImageDraw.Draw(im)
+
+        for node in seen:
+            l, r = map[node]
+            x1, y1 = points[node]
+            for dest in [l, r]:
+                x2, y2 = points[dest]
+                dr.line((x1, y1, x2, y2), (192, 192, 192), width=int(im_width * 0.001))
+
+        im.save(f"frame_{frame:05d}.png")
+
+def calc(log, values, mode, draw=False):
     import re
     dirs = values[0]
     map = {}
@@ -16,6 +50,28 @@ def calc(log, values, mode):
         pos = ["AAA"]
     else:
         pos = [x for x in map if x.endswith("A")]
+
+    if draw:
+        import networkx
+        seen = set()
+        temp = [pos[0]]
+        edges = []
+        while len(temp) > 0:
+            if temp[0] not in seen:
+                seen.add(temp[0])
+                edges.append((temp[0], map[temp[0]][0]))
+                edges.append((temp[0], map[temp[0]][1]))
+                temp.append(map[temp[0]][0])
+                temp.append(map[temp[0]][1])
+            temp.pop(0)
+
+        graph = networkx.from_edgelist(edges)
+        points = networkx.spring_layout(graph, iterations=100)
+        for node in list(points):
+            points[node] = [points[node][0] * 500 + 500, points[node][1] * 500 + 500]
+        print(points)
+        draw_frame(1000, 1000, 0, seen, map, points)
+        exit(0)
 
     ret = []
     for pos in pos:
