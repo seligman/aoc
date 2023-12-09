@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en-us">
+<head>
+<meta charset="utf-8"/>
+<title>Advent of Code 2023</title>
+<!--[if lt IE 9]><script src="html5.js"></script><![endif]-->
+<link href='SourceCodePro.css' rel='stylesheet' type='text/css'>
+<link rel="stylesheet" type="text/css" href="style.css"/>
+<link rel="stylesheet alternate" type="text/css" href="highcontrast.css?0" title="High Contrast"/>
+<link rel="shortcut icon" href="favicon.png"/>
+</head><body>
+<main>
+<style>
+.calendar .calendar-color-g { color:#00cc00; }
+.calendar .calendar-color-l { color:#ccccff; }
+.calendar .calendar-color-w { color:#ffffff; }
+.calendar .calendar-color-m { color:#d4dde4; }
+.calendar .calendar-color-k { color:#6b4d3b; }
+.calendar .calendar-color-b { color:#5555bb; }
+.calendar .calendar-color-n { color:#9b715b; }
+.calendar .calendar-color-s { color:#e3b585; }
+.calendar .calendar-color-y { color:#ffff66; text-shadow:0 0 5px #ffff66, 0 0 10px #ffff66; }
+</style>
+<pre class="calendar"><span aria-hidden="true" class="">                                                 </span>
+<span aria-hidden="true" class="">                                                 </span>
+<span aria-hidden="true" class="">                                                 </span>
+<span aria-hidden="true" class="">                                                 </span>
+<span aria-hidden="true" class="">                                                 </span>
+<span aria-hidden="true" class="">                                                 </span>
+<span aria-hidden="true" class="">                                                 </span>
+<span aria-hidden="true" class="">                                                 </span>
+<span aria-hidden="true" class="calendar-day10">            *        <span class="calendar-color-s">'</span> <span class="calendar-color-s">''...</span>                       <span class="calendar-day">10</span><span id="calendar-countdown"></span><script>
+(function(){
+var countdown = document.getElementById("calendar-countdown");
+if (!countdown) return;
+var server_eta = 85895;
+var key = "2023-10-"+server_eta;
+var now = Math.floor(new Date().getTime()/1000);
+var target = server_eta + now;
+if (sessionStorage) {
+  // if you navigate away and hit the back button, this makes sure the countdown doesn't start from the wrong time
+  var prev_target = sessionStorage.getItem("calendar-target");
+  try { prev_target = JSON.parse(prev_target); } catch(e){}
+  if (prev_target && typeof prev_target === 'object' && prev_target.key === key) {
+    target = prev_target.target;
+  } else {
+    sessionStorage.setItem("calendar-target", JSON.stringify({key:key, target:target+1}));
+  }
+}
+
+var interval = null;
+function update_countdown() {
+  var remaining = Math.ceil(target - new Date().getTime()/1000);
+  if (remaining <= 0) {
+    clearInterval(interval);
+    interval = null;
+    countdown.textContent = "";
+
+    var a = document.createElement("a");
+    a[String.fromCharCode(104,114,101,102)] = "/2023" + String.fromCharCode(47,100,97,121,47) + "10";
+    a.className = "calendar-day10 calendar-day-new";
+    var span = countdown.parentNode;
+    while (span.firstChild) {
+      a.appendChild(span.firstChild);
+    }
+    a.appendChild(document.createTextNode("   "));
+    span.parentNode.insertBefore(a, span);
+    span.parentNode.removeChild(span);
+    countdown.parentNode.removeChild(countdown);
+  } else {
+    var hours = Math.floor(remaining/60/60);
+    remaining -= hours * 60 * 60;
+    var minutes = Math.floor(remaining/60);
+    remaining -= minutes * 60;
+    var seconds = remaining;
+    countdown.textContent = (hours < 10 ? "0" : "") + hours + ":" + (minutes < 10 ? "0" : "") + minutes + ":" + (seconds < 10 ? "0" : "") + seconds;
+  }
+}
+})();
+</script></span>
+<span aria-hidden="true" class="">          <span class="calendar-color-s">.</span>   <span class="calendar-color-s">~</span> <span class="calendar-color-s">~</span> <span class="calendar-color-s">~</span> <span class="calendar-color-s">~</span>   <span class="calendar-color-k">###</span> <span class="calendar-color-s">''.</span>                  </span>
+<a aria-label="Day 9, two stars" href="day_09.html" class="calendar-day9 calendar-verycomplete">        <span class="calendar-color-s">.'</span> <span class="calendar-color-s">~</span>  <span class="calendar-color-g">,</span><span class="calendar-color-y">*</span> <span class="calendar-color-s">~</span> <span class="calendar-color-s">~</span> <span class="calendar-color-s">~</span> <span class="calendar-color-s">~</span> <span class="calendar-color-k">#####</span> <span class="calendar-color-s">'.</span>                  <span class="calendar-day"> 9</span> <span class="calendar-mark-complete">*</span><span class="calendar-mark-verycomplete">*</span></a>
+<a aria-label="Day 8, two stars" href="day_08.html" class="calendar-day8 calendar-verycomplete">        <span class="calendar-color-s">:</span> <span class="calendar-color-s">~</span> <span class="calendar-color-g">'</span><span class="calendar-color-b">(~)</span><span class="calendar-color-g">,</span> <span class="calendar-color-s">~</span> <span class="calendar-color-y">*</span> <span class="calendar-color-s">~</span> <span class="calendar-color-s">~</span> <span class="calendar-color-s">~</span> <span class="calendar-color-k">###</span> <span class="calendar-color-s">:</span>                  <span class="calendar-day"> 8</span> <span class="calendar-mark-complete">*</span><span class="calendar-mark-verycomplete">*</span></a>
+<span aria-hidden="true" class="">        <span class="calendar-color-s">'.</span> <span class="calendar-color-s">~</span> <span class="calendar-color-g">&quot;</span> <span class="calendar-color-g">'</span> <span class="calendar-color-s">~</span> <span class="calendar-color-s">~</span> <span class="calendar-color-s">~</span>   <span class="calendar-color-k">#####</span> <span class="calendar-color-s">.'</span>                </span>
+<a aria-label="Day 7, two stars" href="day_07.html" class="calendar-day7 calendar-verycomplete">          <span class="calendar-color-s">'..</span> <span class="calendar-color-s">~</span> <span class="calendar-color-s">~</span> <span class="calendar-color-y">*</span> <span class="calendar-color-s">~</span> <span class="calendar-color-k">#####</span> <span class="calendar-color-s">..'</span><span class="calendar-color-g">.'''''''''...</span>       <span class="calendar-day"> 7</span> <span class="calendar-mark-complete">*</span><span class="calendar-mark-verycomplete">*</span></a>
+<a aria-label="Day 6, two stars" href="day_06.html" class="calendar-day6 calendar-verycomplete">             <span class="calendar-color-s">'''.........'''</span><span class="calendar-color-g">'</span> <span class="calendar-color-b">~</span> <span class="calendar-color-g">.'</span><span class="calendar-color-y">*</span><span class="calendar-color-g">.</span> <span class="calendar-color-b">~</span>  <span class="calendar-color-g">..</span>  <span class="calendar-color-g">''.</span>    <span class="calendar-day"> 6</span> <span class="calendar-mark-complete">*</span><span class="calendar-mark-verycomplete">*</span></a>
+<span aria-hidden="true" class="">                        <span class="calendar-color-g">.'</span> <span class="calendar-color-b">~</span>    <span class="calendar-color-g">'...'</span> <span class="calendar-color-b">~</span><span class="calendar-color-g">'</span>  <span class="calendar-color-g">'.</span><span class="calendar-color-b">~</span>  <span class="calendar-color-g">'.</span></span>
+<a aria-label="Day 5, two stars" href="day_05.html" class="calendar-day5 calendar-verycomplete">                        <span class="calendar-color-g">:</span>         <span class="calendar-color-b">~</span>     <span class="calendar-color-g">'.</span> <span class="calendar-color-y">*</span><span class="calendar-color-g">'.</span><span class="calendar-color-b">~</span> <span class="calendar-color-g">:</span>  <span class="calendar-day"> 5</span> <span class="calendar-mark-complete">*</span><span class="calendar-mark-verycomplete">*</span></a>
+<span aria-hidden="true" class="">                 <span class="calendar-color-w">...''''</span><span class="calendar-color-g">'.</span>         <span class="calendar-color-g">.''.</span><span class="calendar-color-b">~</span>  <span class="calendar-color-g">'..'</span> <span class="calendar-color-g">.'</span></span>
+<a aria-label="Day 4, two stars" href="day_04.html" class="calendar-day4 calendar-verycomplete">              <span class="calendar-color-w">.''</span>         <span class="calendar-color-g">'..</span>  <span class="calendar-color-b">~</span><span class="calendar-color-g">..'</span><span class="calendar-color-y">*</span>   <span class="calendar-color-g">'.</span> <span class="calendar-color-b">~</span> <span class="calendar-color-g">..'</span>    <span class="calendar-day"> 4</span> <span class="calendar-mark-complete">*</span><span class="calendar-mark-verycomplete">*</span></a>
+<span aria-hidden="true" class="">            <span class="calendar-color-w">.'</span>               <span class="calendar-color-g">'''..</span><span class="calendar-color-m">/</span><span class="calendar-color-g">......'''</span>     </span>
+<span aria-hidden="true" class="">            <span class="calendar-color-w">:</span>             <span class="calendar-color-w">/\</span>    <span class="calendar-color-l">-</span><span class="calendar-color-m">/</span>  <span class="calendar-color-w">:</span>            </span>
+<span aria-hidden="true" class="">            <span class="calendar-color-w">'.</span>            <span class="calendar-color-l">-</span>   <span class="calendar-color-l">-</span> <span class="calendar-color-m">/</span>  <span class="calendar-color-w">.'</span>            </span>
+<a aria-label="Day 3, two stars" href="day_03.html" class="calendar-day3 calendar-verycomplete">              <span class="calendar-color-w">'..</span>    <span class="calendar-color-l">-</span>     <span class="calendar-color-l">-</span>   <span class="calendar-color-y">*</span><span class="calendar-color-w">..'</span>                <span class="calendar-day"> 3</span> <span class="calendar-mark-complete">*</span><span class="calendar-mark-verycomplete">*</span></a>
+<a aria-label="Day 2, two stars" href="day_02.html" class="calendar-day2 calendar-verycomplete">    <span class="calendar-color-n">----@</span>        <span class="calendar-color-w">'''..</span><span class="calendar-color-y">*</span><span class="calendar-color-w">......'''</span>                   <span class="calendar-day"> 2</span> <span class="calendar-mark-complete">*</span><span class="calendar-mark-verycomplete">*</span></a>
+<a aria-label="Day 1, two stars" href="day_01.html" class="calendar-day1 calendar-verycomplete">  <span class="calendar-color-y">*</span> <span class="calendar-color-n">!</span> <span class="calendar-color-n">/^\</span>                                          <span class="calendar-day"> 1</span> <span class="calendar-mark-complete">*</span><span class="calendar-mark-verycomplete">*</span></a>
+</pre>
+</main></body></html>
