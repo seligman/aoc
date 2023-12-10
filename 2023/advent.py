@@ -585,15 +585,18 @@ def run_helper(helper_day, save):
     passed = 0
     failed = []
     summary = []
-    cached_runs = {"year": YEAR_NUMBER}
+    cached_runs = {
+        "ver": 2,
+        "year": YEAR_NUMBER,
+    }
     if os.path.isfile(os.path.join(tempfile.gettempdir(), "aoc_run_cache.json")):
         try:
             with open(os.path.join(tempfile.gettempdir(), "aoc_run_cache.json")) as f:
-                cached_runs = json.load(f)
-            if cached_runs["year"] != YEAR_NUMBER:
-                cached_runs = {"year": YEAR_NUMBER}
+                temp = json.load(f)
+            if temp.get("ver", -1) == cached_runs["ver"] and temp.get("year", "--") == cached_runs["year"]:
+                cached_runs = temp
         except:
-            cached_runs = {"year": YEAR_NUMBER}
+            pass
     cached_runs['changed'] = False
 
     max_len = 0
@@ -609,14 +612,15 @@ def run_helper(helper_day, save):
         log = Logger()
         start = datetime.now(UTC).replace(tzinfo=None)
         real_run = True
-        if save and cached_runs.get(str(helper.DAY_NUM), {}).get("hash", "--") == helper.hash:
-            log.rows = cached_runs[str(helper.DAY_NUM)]["rows"]
+        key = f"{helper.DAY_NUM}-{ALT_DATA_FILE}"
+        if save and cached_runs.get(key, {}).get("hash", "--") == helper.hash:
+            log.rows = cached_runs[key]["rows"]
             for row in log.rows:
                 print(row.rstrip("\r\n"))
             real_run = False
         else:
             helper.run(log, values)
-            cached_runs[str(helper.DAY_NUM)] = {"hash": helper.hash, "rows": log.rows}
+            cached_runs[key] = {"hash": helper.hash, "rows": log.rows}
             cached_runs["changed"] = True
         finish = datetime.now(UTC).replace(tzinfo=None)
         secs = (finish - start).total_seconds()
