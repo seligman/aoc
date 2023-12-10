@@ -6,21 +6,22 @@ DAY_DESC = 'Day 9: Mirage Maintenance'
 def calc(log, values, mode):
     ret = 0
 
+    if mode == 1: next_value = lambda a, b: a + b
+    else: next_value = lambda a, b: b - a
+
     for row in values:
         row = [[int(x) for x in row.split(" ")]]
         while tuple(row[-1]) != tuple(0 for _ in row[-1]):
             last = row[-1]
             row.append([last[x+1] - last[x] for x in range(len(last)-1)])
-        if mode == 1:
-            row[-1].append(0)
-            for i in range(len(row)-2, -1, -1):
-                row[i].append(row[i+1][-1] + row[i][-1])
-            ret += row[0][-1]
-        else:
-            row[-1].insert(0, 0)
-            for i in range(len(row)-2, -1, -1):
-                row[i].insert(0, row[i][0] - row[i+1][0])
-            ret += row[0][0]
+
+        if mode == 2:
+            row = [x[::-1] for x in row]
+
+        row[-1].append(0)
+        for i in range(len(row)-2, -1, -1):
+            row[i].append(next_value(row[i+1][-1], row[i][-1]))
+        ret += row[0][-1]
 
     return ret
 
