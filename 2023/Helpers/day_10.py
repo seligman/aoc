@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-# Animation: https://youtu.be/DYrIH225wHs
+# Animation: 
 
 DAY_NUM = 10
 DAY_DESC = 'Day 10: Pipe Maze'
@@ -45,7 +45,7 @@ def calc(log, values, mode, draw=False):
     else:
         to_check = deque(
             [
-                (start, set([start]), [start])
+                (start, {start: None})
             ]
         )
         x, y = start
@@ -56,22 +56,22 @@ def calc(log, values, mode, draw=False):
         if grid[x, y + 1] in {"|", "L", "J"}: ends.add((x, y + 1))
 
         while len(to_check) > 0:
-            (x, y), loop, in_order = to_check.pop()
+            (x, y), loop = to_check.pop()
             if (x, y) in ends and len(loop) > 3:
                 break
 
-            if grid[x - 1, y] in {"-", "L", "F"}: 
-                if (x - 1, y) not in loop: to_check.append(((x - 1, y), loop | set([(x - 1, y)]), in_order + [(x - 1, y)]))
-            if grid[x + 1, y] in {"-", "J", "7"}: 
-                if (x + 1, y) not in loop: to_check.append(((x + 1, y), loop | set([(x + 1, y)]), in_order + [(x + 1, y)]))
-            if grid[x, y - 1] in {"|", "F", "7"}: 
-                if (x, y - 1) not in loop: to_check.append(((x, y - 1), loop | set([(x, y - 1)]), in_order + [(x, y - 1)]))
-            if grid[x, y + 1] in {"|", "L", "J"}: 
-                if (x, y + 1) not in loop: to_check.append(((x, y + 1), loop | set([(x, y + 1)]), in_order + [(x, y + 1)]))
+            if (x - 1, y) not in loop and grid[x - 1, y] in {"-", "L", "F"}: 
+                to_check.append(((x - 1, y), loop | {(x - 1, y): None}))
+            if (x + 1, y) not in loop and grid[x + 1, y] in {"-", "J", "7"}: 
+                to_check.append(((x + 1, y), loop | {(x + 1, y): None}))
+            if (x, y - 1) not in loop and grid[x, y - 1] in {"|", "F", "7"}: 
+                to_check.append(((x, y - 1), loop | {(x, y - 1): None}))
+            if (x, y + 1) not in loop and grid[x, y + 1] in {"|", "L", "J"}: 
+                to_check.append(((x, y + 1), loop | {(x, y + 1): None}))
     
         if draw:
             shadow.save_frame()
-            for i, pt in enumerate(in_order):
+            for i, pt in enumerate(loop):
                 shadow[pt] = [shadow[pt], (128, 128, 0)]
                 if i % 100 == 0:
                     log(f"Saving pipe {i}...")
