@@ -13,6 +13,8 @@ DESC = """
 ### The suggested dail routine looks like this:
 advent.py launch        # This launches some useful links, and waits to make the next day
 advent.py test cur      # This tests the current day, keep going till it works!
+                        # Or, use "retest cur" to test over and over again whenever 
+                        # the file changes
 advent.py run cur       # This runs on the same day with the clue's data
 ### And finally, when everything's done, some clean up, and make a comment to post
 advent.py finish_day    # This runs the following commands:
@@ -439,8 +441,49 @@ def get_helpers_id(helper_day):
             if helper.DAY_NUM in valid:
                 yield helper
 
+@opt("Test helper over and over again", group="Advent of Code")
+def retest(helper_day):
+    sys.path.insert(0, 'Helpers')
+
+    history = []
+    for helper in get_helpers_id(helper_day):
+        fn = helper.__file__
+        history.append({
+            "fn": helper.__file__,
+            "last": b'',
+            "num": str(helper.DAY_NUM),
+        })
+    
+    while True:
+        changed = False
+        for cur in history:
+            with open(cur['fn'], "rb") as f:
+                data = f.read()
+            if cur['last'] != data:
+                cur['last'] = data
+                changed = True
+        
+        if changed:
+            all_good = True
+            for cur in history:
+                try:
+                    subprocess.check_call(["python3", "advent.py", "test", cur["num"], "yes"])
+                except:
+                    all_good = False
+
+                subprocess.call(["python3", "advent.py", "run", cur["num"]])
+
+            if all_good:
+                print("Everything worked!")
+                break
+            else:
+                print("# Failures detected, waiting to try again...")
+                print("-" * 80)
+
+        time.sleep(0.1)
+
 @opt("Test helper", group="Advent of Code")
-def test(helper_day):
+def test(helper_day, return_failure=False):
     good, bad = 0, 0
 
     sys.path.insert(0, 'Helpers')
@@ -469,6 +512,8 @@ def test(helper_day):
     print(f"Done, {good} worked, {bad} failed")
     if bad != 0:
         print(error_msg("  THERE WERE PROBLEMS  "))
+        if return_failure:
+            exit(1)
 
 _print_catcher = None
 class PrintCatcher:
@@ -540,15 +585,18 @@ def run_helper(helper_day, save):
     passed = 0
     failed = []
     summary = []
-    cached_runs = {"year": YEAR_NUMBER}
+    cached_runs = {
+        "ver": 2,
+        "year": YEAR_NUMBER,
+    }
     if os.path.isfile(os.path.join(tempfile.gettempdir(), "aoc_run_cache.json")):
         try:
             with open(os.path.join(tempfile.gettempdir(), "aoc_run_cache.json")) as f:
-                cached_runs = json.load(f)
-            if cached_runs["year"] != YEAR_NUMBER:
-                cached_runs = {"year": YEAR_NUMBER}
+                temp = json.load(f)
+            if temp.get("ver", -1) == cached_runs["ver"] and temp.get("year", "--") == cached_runs["year"]:
+                cached_runs = temp
         except:
-            cached_runs = {"year": YEAR_NUMBER}
+            pass
     cached_runs['changed'] = False
 
     max_len = 0
@@ -564,14 +612,15 @@ def run_helper(helper_day, save):
         log = Logger()
         start = datetime.now(UTC).replace(tzinfo=None)
         real_run = True
-        if save and cached_runs.get(str(helper.DAY_NUM), {}).get("hash", "--") == helper.hash:
-            log.rows = cached_runs[str(helper.DAY_NUM)]["rows"]
+        key = f"{helper.DAY_NUM}-{ALT_DATA_FILE}"
+        if save and cached_runs.get(key, {}).get("hash", "--") == helper.hash:
+            log.rows = cached_runs[key]["rows"]
             for row in log.rows:
                 print(row.rstrip("\r\n"))
             real_run = False
         else:
             helper.run(log, values)
-            cached_runs[str(helper.DAY_NUM)] = {"hash": helper.hash, "rows": log.rows}
+            cached_runs[key] = {"hash": helper.hash, "rows": log.rows}
             cached_runs["changed"] = True
         finish = datetime.now(UTC).replace(tzinfo=None)
         secs = (finish - start).total_seconds()
