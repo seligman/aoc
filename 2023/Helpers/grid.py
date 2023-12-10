@@ -780,7 +780,8 @@ class Grid:
                     )
                     if text is not None:
                         for part in text.split("\b"):
-                            w, h = d.textsize(part, font=self.fonts[0])
+                            w = d.textlength(part, font=self.fonts[0])
+                            h = self.fonts[0].size
                             d.text((
                                 border + x * (cell_size[0] + 1) + 1 + (cell_size[0] - w) / 2, 
                                 border + y * (cell_size[1] + 1) + 1 + (cell_size[1] - h) / 2), 
