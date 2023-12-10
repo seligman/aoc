@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-# Animation: 
+# Animation: https://youtu.be/DYrIH225wHs
 
 DAY_NUM = 10
 DAY_DESC = 'Day 10: Pipe Maze'
@@ -87,13 +87,13 @@ def calc(log, values, mode, draw=False):
             x *= 2
             y *= 2
             temp[x + 1, y] = "."
-            temp[x, y+ 1] = "."
-            temp[x+1, y+ 1] = "."
+            temp[x, y + 1] = "."
+            temp[x + 1, y + 1] = "."
             temp[x, y] = val
-            if val in {"-", "L", "F", "S"} and grid[x // 2+ 1, y//2] in {"-", "7", "J"}:
-                temp[x+1, y] = "X"
-            if val in {"|", "7", "F", "S"} and grid[x //2, (y // 2) + 1] in {"|", "J", "L"}:
-                temp[x, y+1] = "X"
+            if val in {"-", "L", "F", "S"} and grid[x // 2 + 1, y // 2] in {"-", "7", "J"}:
+                temp[x + 1, y] = "X"
+            if val in {"|", "7", "F", "S"} and grid[x // 2, (y // 2) + 1] in {"|", "J", "L"}:
+                temp[x, y + 1] = "X"
         
         grid = temp
         max_x = grid.axis_max(0) + 1
