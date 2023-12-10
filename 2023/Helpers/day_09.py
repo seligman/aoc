@@ -11,7 +11,7 @@ def calc(log, values, mode):
 
     for row in values:
         row = [[int(x) for x in row.split(" ")]]
-        while tuple(row[-1]) != tuple(0 for _ in row[-1]):
+        while any(row[-1]):
             last = row[-1]
             row.append([last[x+1] - last[x] for x in range(len(last)-1)])
 
