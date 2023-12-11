@@ -6,17 +6,15 @@ DAY_DESC = 'Day 11: Cosmic Expansion'
 def calc(log, values, mode):
     from grid import Grid, Point
     grid = Grid.from_text(values)
-
-    temp = Grid()
-    empty_col = []
-    empty_row = []
+    empty_col = set()
+    empty_row = set()
 
     for x in grid.x_range():
         if sum(0 if grid[x, y] == "." else 1 for y in grid.y_range()) == 0:
-            empty_col.append(x)
+            empty_col.add(x)
     for y in grid.y_range():
         if sum(0 if grid[x, y] == "." else 1 for x in grid.x_range()) == 0:
-            empty_row.append(y)
+            empty_row.add(y)
     
     stars = []
     for (x, y), val in grid.grid.items():
@@ -32,17 +30,9 @@ def calc(log, values, mode):
             ax, bx = min(ax, bx), max(ax, bx)
             ay, by = min(ay, by), max(ay, by)
 
-            count = 0
-            count -= 1
-            for x in range(ax, bx + 1):
-                if x in empty_col:
-                    count += 1 if mode == 1 else (1000000 - 1)
-                count += 1
-            count -= 1
-            for y in range(ay, by + 1):
-                if y in empty_row:
-                    count += 1 if mode == 1 else (1000000 - 1)
-                count += 1
+            count = (bx - ax) + len(empty_col & set(range(ax, bx + 1))) * (1 if mode == 1 else (1000000 - 1))
+            count += (by - ay) + len(empty_row & set(range(ay, by + 1))) * (1 if mode == 1 else (1000000 - 1))
+
             ret += count
 
     return ret
@@ -61,8 +51,8 @@ def test(log):
 #...#.....
     """)
 
-    log.test(calc(log, values, 1), 'TODO')
-    log.test(calc(log, values, 2), 'TODO')
+    log.test(calc(log, values, 1), '374')
+    log.test(calc(log, values, 2), '82000210')
 
 def run(log, values):
     log(calc(log, values, 1))
