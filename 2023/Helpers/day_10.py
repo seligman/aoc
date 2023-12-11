@@ -43,31 +43,41 @@ def calc(log, values, mode, draw=False):
                 if grid[x, y - 1] in {"|", "F", "7"}: to_check.append(((x, y - 1), dist + 1))
                 if grid[x, y + 1] in {"|", "L", "J"}: to_check.append(((x, y + 1), dist + 1))
     else:
-        to_check = deque(
-            [
-                (start, {start: None})
-            ]
-        )
-        x, y = start
-        ends = set()
-        if grid[x - 1, y] in {"-", "L", "F"}: ends.add((x - 1, y))
-        if grid[x + 1, y] in {"-", "J", "7"}: ends.add((x + 1, y))
-        if grid[x, y - 1] in {"|", "F", "7"}: ends.add((x, y - 1))
-        if grid[x, y + 1] in {"|", "L", "J"}: ends.add((x, y + 1))
-
-        while len(to_check) > 0:
-            (x, y), loop = to_check.pop()
-            if (x, y) in ends and len(loop) > 3:
+        if grid[start[0], start[1] - 1] in {"|", "F", "7"} and grid[start[0], start[1] + 1] in {"|", "L", "J"}:
+            grid[start] = "|"
+        elif grid[start[0] - 1, start[1]] in {"-", "F", "L"} and grid[start[0] + 1, start[1]] in {"-", "7", "J"}:
+            grid[start] = "-"
+        elif grid[start[0], start[1] - 1] in {"|", "F", "7"} and grid[start[0] - 1, start[1]] in {"-", "F", "L"}:
+            grid[start] = "J"
+        elif grid[start[0], start[1] - 1] in {"|", "F", "7"} and grid[start[0] + 1, start[1]] in {"-", "7", "J"}:
+            grid[start] = "7"
+        elif grid[start[0], start[1] + 1] in {"|", "L", "J"} and grid[start[0] - 1, start[1]] in {"-", "F", "L"}:
+            grid[start] = "L"
+        elif grid[start[0], start[1] + 1] in {"|", "L", "J"} and grid[start[0] + 1, start[1]] in {"-", "7", "J"}:
+            grid[start] = "F"
+        else:
+            raise Exception()
+        
+        loop = {start: None}
+        pos = start
+        while True:
+            if grid[pos] == "-": opts = [(-1, 0), (1, 0)]
+            elif grid[pos] == "|": opts = [(0, -1), (0, 1)]
+            elif grid[pos] == "L": opts = [(0, -1), (1, 0)]
+            elif grid[pos] == "F": opts = [(0, 1), (1, 0)]
+            elif grid[pos] == "7": opts = [(0, 1), (-1, 0)]
+            elif grid[pos] == "J": opts = [(0, -1), (-1, 0)]
+            else:
+                raise Exception()
+            opts = [(x[0] + pos[0], x[1] + pos[1]) for x in opts]
+            if opts[0] not in loop:
+                loop[opts[0]] = None
+                pos = opts[0]
+            elif opts[1] not in loop:
+                loop[opts[1]] = None
+                pos = opts[1]
+            else:
                 break
-
-            if (x - 1, y) not in loop and grid[x - 1, y] in {"-", "L", "F"}: 
-                to_check.append(((x - 1, y), loop | {(x - 1, y): None}))
-            if (x + 1, y) not in loop and grid[x + 1, y] in {"-", "J", "7"}: 
-                to_check.append(((x + 1, y), loop | {(x + 1, y): None}))
-            if (x, y - 1) not in loop and grid[x, y - 1] in {"|", "F", "7"}: 
-                to_check.append(((x, y - 1), loop | {(x, y - 1): None}))
-            if (x, y + 1) not in loop and grid[x, y + 1] in {"|", "L", "J"}: 
-                to_check.append(((x, y + 1), loop | {(x, y + 1): None}))
     
         if draw:
             shadow.save_frame()
