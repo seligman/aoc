@@ -3,7 +3,6 @@
 DAY_NUM = 11
 DAY_DESC = 'Day 11: Cosmic Expansion'
 
-
 def calc(log, values, mode):
     import itertools
     from grid import Grid
@@ -14,15 +13,23 @@ def calc(log, values, mode):
     empty_row = set(y for y in grid.y_range() if set(grid.row(y)) == {"."})
     
     stars = [pt for pt, val in grid.grid.items() if val == "#"]
+    range_sets = {}
+
+    def get_range_set(a, b):
+        ret = range_sets.get((a, b), None)
+        if ret is None:
+            ret = set(range(a, b))
+            range_sets[(a, b)] = ret
+        return ret
 
     ret = 0
-
+    mult = 1 if mode == 1 else (1000000 - 1)
     for (ax, ay), (bx, by) in itertools.combinations(stars, 2):
         ax, bx = min(ax, bx), max(ax, bx)
         ay, by = min(ay, by), max(ay, by)
 
-        ret += (bx - ax) + len(empty_col & set(range(ax, bx + 1))) * (1 if mode == 1 else (1000000 - 1))
-        ret += (by - ay) + len(empty_row & set(range(ay, by + 1))) * (1 if mode == 1 else (1000000 - 1))
+        ret += (bx - ax) + len(empty_col & get_range_set(ax, bx + 1)) * mult
+        ret += (by - ay) + len(empty_row & get_range_set(ay, by + 1)) * mult
 
     return ret
 
