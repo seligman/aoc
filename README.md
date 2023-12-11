@@ -2,7 +2,7 @@
 
 These are my solutions to the [Advent of Code](https://adventofcode.com/) puzzles.
 
-The solutions are written in Python 3.  For the most part, code is designed to be quick to write rather than maintainable or easy to read.  I'm not quite playing code golf with this code, but I'm also not avoiding copy-n-paste and short variable names if it speeds up writing code.  I don't often make it to the leaderboards, but when I do, I'll show up as `seligman99` there.
+The solutions are written in Python 3.12.  For the most part, code is designed to be quick to write rather than maintainable or easy to read.  I'm not quite playing code golf with this code, but I'm also not avoiding copy-n-paste and short variable names if it speeds up writing code.  I don't often make it to the leaderboards, but when I do, I'll show up as `seligman99` there.
 
 In each year you can run `./advent.py run ##` to run a day's helper and see its output:
 
@@ -11,7 +11,7 @@ $ ./advent.py run 1
 ## Day 1: Not Quite Lisp
 Entered basement on 1795
 74
-# That took 0.0005 seconds to complete
+# That took no time to complete.
 # Got expected output!
 ```
 
