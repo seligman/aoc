@@ -763,8 +763,12 @@ class Grid:
                         use = False
                 if use:
                     text = None
+                    text_color = (255, 255, 255)
                     if isinstance(color, list):
-                        text, color = color
+                        if len(color) == 2:
+                            text, color = color
+                        else:
+                            text, color, text_color = color
                     else:
                         if color in color_map:
                             color = color_map[color]
@@ -785,7 +789,7 @@ class Grid:
                             d.text((
                                 border + x * (cell_size[0] + 1) + 1 + (cell_size[0] - w) / 2, 
                                 border + y * (cell_size[1] + 1) + 1 + (cell_size[1] - h) / 2), 
-                                part, fill=(255, 255, 255), font=self.fonts[0])
+                                part, fill=text_color, font=self.fonts[0])
 
         if extra_text is not None:
             y = offset if text_xy is None else text_xy[1]

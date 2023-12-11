@@ -1,11 +1,10 @@
 #!/usr/bin/env python3
 
 # Animation: https://youtu.be/DYrIH225wHs
+# Fix up version: https://youtu.be/-vaIkRA1w9k
 
 DAY_NUM = 10
 DAY_DESC = 'Day 10: Pipe Maze'
-
-from collections import deque
 
 def calc(log, values, mode, draw=False):
     from grid import Grid, Point
@@ -15,140 +14,99 @@ def calc(log, values, mode, draw=False):
         shadow = Grid.from_text(values)
 
         for pt, val in shadow.grid.items():
-            if val == "S": shadow[pt] = "Star"
-            elif val == "|": shadow[pt] = "\u2503"
-            elif val == "-": shadow[pt] = "\u2501"
-            elif val == "L": shadow[pt] = "\u2517"
-            elif val == "F": shadow[pt] = "\u250F"
-            elif val == "7": shadow[pt] = "\u2513"
-            elif val == "J": shadow[pt] = "\u251B"
+            if val == "S": val = "Star"
+            elif val == "|": val = "\u2503"
+            elif val == "-": val = "\u2501"
+            elif val == "L": val = "\u2517"
+            elif val == "F": val = "\u250F"
+            elif val == "7": val = "\u2513"
+            elif val == "J": val = "\u251B"
+            else: val = " "
+            shadow[pt] = [val, (0, 0, 0), (0, 0, 128)]
 
     start = None
     for (x, y), val in grid.grid.items():
         if val == "S":
             start = (x, y)
 
-    ret = 0
-    if mode == 1:
-        to_check = [(start, 0)]
-        seen = set()
-        while len(to_check) > 0:
-            (x, y), dist = to_check.pop(0)
-            if (x, y) not in seen:
-                seen.add((x, y))
-                ret = max(ret, dist)
-
-                if grid[x - 1, y] in {"-", "L", "F"}: to_check.append(((x - 1, y), dist + 1))
-                if grid[x + 1, y] in {"-", "J", "7"}: to_check.append(((x + 1, y), dist + 1))
-                if grid[x, y - 1] in {"|", "F", "7"}: to_check.append(((x, y - 1), dist + 1))
-                if grid[x, y + 1] in {"|", "L", "J"}: to_check.append(((x, y + 1), dist + 1))
+    # Change the start cell from "S" to it's proper pipe
+    if grid[start[0], start[1] - 1] in {"|", "F", "7"} and grid[start[0], start[1] + 1] in {"|", "L", "J"}:
+        grid[start] = "|"
+    elif grid[start[0] - 1, start[1]] in {"-", "F", "L"} and grid[start[0] + 1, start[1]] in {"-", "7", "J"}:
+        grid[start] = "-"
+    elif grid[start[0], start[1] - 1] in {"|", "F", "7"} and grid[start[0] - 1, start[1]] in {"-", "F", "L"}:
+        grid[start] = "J"
+    elif grid[start[0], start[1] - 1] in {"|", "F", "7"} and grid[start[0] + 1, start[1]] in {"-", "7", "J"}:
+        grid[start] = "7"
+    elif grid[start[0], start[1] + 1] in {"|", "L", "J"} and grid[start[0] - 1, start[1]] in {"-", "F", "L"}:
+        grid[start] = "L"
+    elif grid[start[0], start[1] + 1] in {"|", "L", "J"} and grid[start[0] + 1, start[1]] in {"-", "7", "J"}:
+        grid[start] = "F"
     else:
-        if grid[start[0], start[1] - 1] in {"|", "F", "7"} and grid[start[0], start[1] + 1] in {"|", "L", "J"}:
-            grid[start] = "|"
-        elif grid[start[0] - 1, start[1]] in {"-", "F", "L"} and grid[start[0] + 1, start[1]] in {"-", "7", "J"}:
-            grid[start] = "-"
-        elif grid[start[0], start[1] - 1] in {"|", "F", "7"} and grid[start[0] - 1, start[1]] in {"-", "F", "L"}:
-            grid[start] = "J"
-        elif grid[start[0], start[1] - 1] in {"|", "F", "7"} and grid[start[0] + 1, start[1]] in {"-", "7", "J"}:
-            grid[start] = "7"
-        elif grid[start[0], start[1] + 1] in {"|", "L", "J"} and grid[start[0] - 1, start[1]] in {"-", "F", "L"}:
-            grid[start] = "L"
-        elif grid[start[0], start[1] + 1] in {"|", "L", "J"} and grid[start[0] + 1, start[1]] in {"-", "7", "J"}:
-            grid[start] = "F"
+        raise Exception()
+    
+    # Find the loop so we can ignore other pipe parts
+    loop = {start: None}
+    pos = start
+    while True:
+        if grid[pos] == "-": opts = [(-1, 0), (1, 0)]
+        elif grid[pos] == "|": opts = [(0, -1), (0, 1)]
+        elif grid[pos] == "L": opts = [(0, -1), (1, 0)]
+        elif grid[pos] == "F": opts = [(0, 1), (1, 0)]
+        elif grid[pos] == "7": opts = [(0, 1), (-1, 0)]
+        elif grid[pos] == "J": opts = [(0, -1), (-1, 0)]
         else:
             raise Exception()
-        
-        loop = {start: None}
-        pos = start
-        while True:
-            if grid[pos] == "-": opts = [(-1, 0), (1, 0)]
-            elif grid[pos] == "|": opts = [(0, -1), (0, 1)]
-            elif grid[pos] == "L": opts = [(0, -1), (1, 0)]
-            elif grid[pos] == "F": opts = [(0, 1), (1, 0)]
-            elif grid[pos] == "7": opts = [(0, 1), (-1, 0)]
-            elif grid[pos] == "J": opts = [(0, -1), (-1, 0)]
-            else:
-                raise Exception()
-            opts = [(x[0] + pos[0], x[1] + pos[1]) for x in opts]
-            if opts[0] not in loop:
-                loop[opts[0]] = None
-                pos = opts[0]
-            elif opts[1] not in loop:
-                loop[opts[1]] = None
-                pos = opts[1]
-            else:
-                break
-    
+        opts = [(x[0] + pos[0], x[1] + pos[1]) for x in opts]
+        if opts[0] not in loop:
+            loop[opts[0]] = None
+            pos = opts[0]
+        elif opts[1] not in loop:
+            loop[opts[1]] = None
+            pos = opts[1]
+        else:
+            break
+
+    ret = 0
+    if mode == 1:
+        ret = len(loop) // 2
+    else:
         if draw:
+            # Highlight the loop itself
             shadow.save_frame()
             for i, pt in enumerate(loop):
-                shadow[pt] = [shadow[pt], (128, 128, 0)]
-                if i % 100 == 0:
-                    log(f"Saving pipe {i}...")
+                shadow[pt][2] = (128, 128, 0)
+                if i % 94 == 0:
+                    log(f"Saving pipe {i}, frame #{len(shadow.frames)}...")
                     shadow.save_frame()
             shadow.save_frame()
 
-        for (x, y), val in grid.grid.items():
-            if (x, y) not in loop:
-                grid[x, y] = "."
-
-        temp = Grid()
-        for (x, y), val in grid.grid.items():
-            x *= 2
-            y *= 2
-            temp[x + 1, y] = "."
-            temp[x, y + 1] = "."
-            temp[x + 1, y + 1] = "."
-            temp[x, y] = val
-            if val in {"-", "L", "F", "S"} and grid[x // 2 + 1, y // 2] in {"-", "7", "J"}:
-                temp[x + 1, y] = "X"
-            if val in {"|", "7", "F", "S"} and grid[x // 2, (y // 2) + 1] in {"|", "J", "L"}:
-                temp[x, y + 1] = "X"
-        
-        grid = temp
-        max_x = grid.axis_max(0) + 1
-        max_y = grid.axis_max(1) + 1
-        todo = [(-1, -1)]
-        seen = set()
+        # Scan through and note any inside cells
         step = 0
-        while len(todo):
-            x, y = todo.pop(0)
-            if (x, y) not in seen:
-                seen.add((x, y))
+        for y in grid.y_range():
+            inside = False
+            for x in grid.x_range():
+                val = grid[x, y]
+                if (x, y) in loop:
+                    if val in {"|", "7", "F"}:
+                        inside = not inside
+                else:
+                    if inside:
+                        if draw:
+                            shadow[(x, y)][1] = (255, 255, 0)
+                        ret += 1
+                    else:
+                        if draw:
+                            shadow[(x, y)][1] = (0, 0, 128)
                 if draw:
-                    if x % 2 == 0 and y % 2 == 0:
-                        if isinstance(shadow[x // 2, y // 2], list):
-                            shadow[x // 2, y // 2] = [shadow[x // 2, y // 2][0], (128, 128, 128)]
-                        else:
-                            shadow[x // 2, y // 2] = ["" if shadow[x // 2, y // 2] in {0, "."} else shadow[x // 2, y // 2], (128, 128, 128)]
-                        step += 1
-                        if step % 25 == 0:
-                            log(f"Saving flood {step}...")
-                            shadow.save_frame()
-                grid[x, y] = "#"
-                for x, y in grid.get_dirs(2, (x, y)):
-                    if x >= -1 and y >= -1 and x <= max_x and y <= max_y:
-                        if grid[x, y] in {".", 0}:
-                            todo.append((x, y))
-
-        step = 0
-        for (x, y), val in grid.grid.items():
-            if x % 2 == 0 and y % 2 == 0:
-                if val == ".":
-                    if draw:
-                        if isinstance(shadow[x // 2, y // 2], list):
-                            shadow[x // 2, y // 2] = [shadow[x // 2, y // 2][0], (255, 255, 0)]
-                        else:
-                            shadow[x // 2, y // 2] = ["" if shadow[x // 2, y // 2] in {0, "."} else shadow[x // 2, y // 2], (255, 255, 0)]
-                        step += 1
-                        if step % 5 == 0:
-                            log(f"Saving find {step}...")
-                            shadow.save_frame()
-                    ret += 1
+                    if step % 130 == 0:
+                        log(f"Saving find {step}, frame #{len(shadow.frames)}...")
+                        shadow.save_frame()
+                    step += 1
 
         if draw:
             shadow.save_frame()
-            shadow.draw_frames()
+            shadow.draw_frames(show_lines=False)
 
     return ret
 
