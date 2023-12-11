@@ -3,37 +3,26 @@
 DAY_NUM = 11
 DAY_DESC = 'Day 11: Cosmic Expansion'
 
-def calc(log, values, mode):
-    from grid import Grid, Point
-    grid = Grid.from_text(values)
-    empty_col = set()
-    empty_row = set()
 
-    for x in grid.x_range():
-        if sum(0 if grid[x, y] == "." else 1 for y in grid.y_range()) == 0:
-            empty_col.add(x)
-    for y in grid.y_range():
-        if sum(0 if grid[x, y] == "." else 1 for x in grid.x_range()) == 0:
-            empty_row.add(y)
+def calc(log, values, mode):
+    import itertools
+    from grid import Grid
+
+    grid = Grid.from_text(values)
+
+    empty_col = set(x for x in grid.x_range() if set(grid.column(x)) == {"."})
+    empty_row = set(y for y in grid.y_range() if set(grid.row(y)) == {"."})
     
-    stars = []
-    for (x, y), val in grid.grid.items():
-        if val == "#":
-            stars.append((x, y))
+    stars = [pt for pt, val in grid.grid.items() if val == "#"]
 
     ret = 0
-    for i in range(len(stars)):
-        for j in range(i + 1, len(stars)):
-            ax, ay = stars[i]
-            bx, by = stars[j]
 
-            ax, bx = min(ax, bx), max(ax, bx)
-            ay, by = min(ay, by), max(ay, by)
+    for (ax, ay), (bx, by) in itertools.combinations(stars, 2):
+        ax, bx = min(ax, bx), max(ax, bx)
+        ay, by = min(ay, by), max(ay, by)
 
-            count = (bx - ax) + len(empty_col & set(range(ax, bx + 1))) * (1 if mode == 1 else (1000000 - 1))
-            count += (by - ay) + len(empty_row & set(range(ay, by + 1))) * (1 if mode == 1 else (1000000 - 1))
-
-            ret += count
+        ret += (bx - ax) + len(empty_col & set(range(ax, bx + 1))) * (1 if mode == 1 else (1000000 - 1))
+        ret += (by - ay) + len(empty_row & set(range(ay, by + 1))) * (1 if mode == 1 else (1000000 - 1))
 
     return ret
 
