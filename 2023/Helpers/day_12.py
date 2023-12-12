@@ -3,11 +3,10 @@
 DAY_NUM = 12
 DAY_DESC = 'Day 12: Hot Springs'
 
-def calc_clue(history, clue, vals, current_run):
-    key = (clue, vals, current_run)
-    ret = history.get(key, None)
-    if ret is not None:
-        return ret
+from functools import cache
+
+@cache
+def calc_clue(clue, vals, current_run):
     ret = 0
 
     if clue == ".":
@@ -16,30 +15,29 @@ def calc_clue(history, clue, vals, current_run):
     else:
         if clue[0] == "?":
             if current_run == 0 or len(vals) > 0 and vals[0] == current_run:
-                ret += calc_clue(history, "." + clue[1:], vals, current_run)
+                ret += calc_clue("." + clue[1:], vals, current_run)
             if len(vals) > 0:
-                ret += calc_clue(history, "#" + clue[1:], vals, current_run)
+                ret += calc_clue("#" + clue[1:], vals, current_run)
         elif clue[0] == "#":
             if len(vals) > 0:
                 if vals[0] == current_run + 1:
                     if clue[1] == ".":
-                        ret += calc_clue(history, clue[1:], vals[1:], 0)
+                        ret += calc_clue(clue[1:], vals[1:], 0)
                     elif clue[1] == "?":
-                        ret += calc_clue(history, "." + clue[2:], vals[1:], 0)
+                        ret += calc_clue("." + clue[2:], vals[1:], 0)
                 elif current_run < vals[0]:
                     if clue[1] == "#":
-                        ret += calc_clue(history, clue[1:], vals, current_run + 1)
+                        ret += calc_clue(clue[1:], vals, current_run + 1)
                     elif clue[1] == "?":
-                        ret += calc_clue(history, "#" + clue[2:], vals, current_run + 1)
+                        ret += calc_clue("#" + clue[2:], vals, current_run + 1)
         elif clue[0] == "." and current_run == 0:
-            ret += calc_clue(history, clue[1:], vals, 0)
+            ret += calc_clue(clue[1:], vals, 0)
     
-    history[key] = ret
     return ret
 
 def calc(log, values, mode):
     ret = 0
-    history = {}
+
     for row in values:
         clue, vals = row.split(" ")
         if mode == 2:
@@ -47,7 +45,7 @@ def calc(log, values, mode):
             vals = ",".join([vals] * 5)
         vals = tuple(int(x) for x in vals.split(","))
         clue += "."
-        ret += calc_clue(history, clue, vals, 0)
+        ret += calc_clue(clue, vals, 0)
 
     return ret
 
