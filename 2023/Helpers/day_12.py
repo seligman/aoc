@@ -5,38 +5,33 @@ DAY_DESC = 'Day 12: Hot Springs'
 
 from functools import cache
 
-@cache
-def calc_clue(clue, vals, current_run):
-    ret = 0
+clue, vals = None, None
 
-    if clue == ".":
-        if len(vals) == 0 and current_run == 0:
-            ret += 1
+@cache
+def calc_clue(clue_off, dig, val_off, current_run):
+    if dig == "E":
+        if len(vals) == val_off and current_run == 0:
+            return 1
     else:
-        if clue[0] == "?":
-            if current_run == 0 or len(vals) > 0 and vals[0] == current_run:
-                ret += calc_clue("." + clue[1:], vals, current_run)
-            if len(vals) > 0:
-                ret += calc_clue("#" + clue[1:], vals, current_run)
-        elif clue[0] == "#":
-            if len(vals) > 0:
-                if vals[0] == current_run + 1:
-                    if clue[1] == ".":
-                        ret += calc_clue(clue[1:], vals[1:], 0)
-                    elif clue[1] == "?":
-                        ret += calc_clue("." + clue[2:], vals[1:], 0)
-                elif current_run < vals[0]:
-                    if clue[1] == "#":
-                        ret += calc_clue(clue[1:], vals, current_run + 1)
-                    elif clue[1] == "?":
-                        ret += calc_clue("#" + clue[2:], vals, current_run + 1)
-        elif clue[0] == "." and current_run == 0:
-            ret += calc_clue(clue[1:], vals, 0)
+        if dig == "?":
+            return (
+                calc_clue(clue_off, ".", val_off, current_run) + 
+                calc_clue(clue_off, "#", val_off, current_run)
+            )
+        elif dig == ".":
+            if current_run == 0:
+                return calc_clue(clue_off + 1, clue[clue_off + 1], val_off, 0)
+            elif current_run == vals[val_off]:
+                return calc_clue(clue_off + 1, clue[clue_off + 1], val_off + 1, 0)
+        else:
+            if val_off < len(vals) and current_run < vals[val_off]:
+                return calc_clue(clue_off + 1, clue[clue_off + 1], val_off, current_run + 1)
     
-    return ret
+    return 0
 
 def calc(log, values, mode):
     ret = 0
+    global clue, vals
 
     for row in values:
         clue, vals = row.split(" ")
@@ -44,8 +39,9 @@ def calc(log, values, mode):
             clue = "?".join([clue] * 5)
             vals = ",".join([vals] * 5)
         vals = tuple(int(x) for x in vals.split(","))
-        clue += "."
-        ret += calc_clue(clue, vals, 0)
+        clue += ".E"
+        calc_clue.cache_clear()
+        ret += calc_clue(0, clue[0], 0, 0)
 
     return ret
 
