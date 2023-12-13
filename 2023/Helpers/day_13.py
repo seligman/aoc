@@ -13,41 +13,27 @@ def calc(log, values, mode):
             grid = Grid.from_text(temp)
 
             hit = False
-            for x in range(1, grid.axis_max(0)+1):
-                a = tuple(grid.column(i) for i in range(x - 1, -1, -1))
-                b = tuple(grid.column(i) for i in range(x, grid.axis_max(0) + 1))
-                target = min(len(a), len(b))
-                a = "".join(a[:target])
-                b = "".join(b[:target])
-                diffs = sum(0 if a == b else 1 for a, b in zip(a, b))
-                if diffs == (0 if mode == 1 else 1):
-                    ret += x
-                    hit = True
+            for side in [0, 1]:
+                for off in range(1, grid.axis_max(side)+1):
+                    target = min(off, grid.axis_max(side) - off + 1)
+                    a = "".join(grid.side(side, i) for i in range(off - 1, -1, -1))
+                    b = "".join(grid.side(side, i) for i in range(off, off + target))
+                    diffs = sum(0 if a == b else 1 for a, b in zip(a, b))
+                    if diffs == (0 if mode == 1 else 1):
+                        ret += off * (1 if side == 0 else 100)
+                        hit = True
+                        break
+                if hit:
                     break
 
             if not hit:
-                for y in range(1, grid.axis_max(1)+1):
-                    a = tuple(grid.row(i) for i in range(y - 1, -1, -1))
-                    b = tuple(grid.row(i) for i in range(y, grid.axis_max(1) + 1))
-                    target = min(len(a), len(b))
-                    a = "".join(a[:target])
-                    b = "".join(b[:target])
-                    diffs = sum(0 if a == b else 1 for a, b in zip(a, b))
-                    if diffs == (0 if mode == 1 else 1):
-                        ret += y * 100
-                        hit = True
-                        break
-
-            if not hit:
-                print(temp)
+                log(str(temp))
                 raise Exception()
 
             temp = []
         else:
             temp.append(row)
 
-
-    # TODO
     return ret
 
 def test(log):

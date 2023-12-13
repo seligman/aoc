@@ -195,9 +195,9 @@ class Grid:
         self._ranges = {}
 
     def side(self, side_type, i):
-        if side_type == 'column':
+        if side_type in {'column', 0}:
             return self.column(i)
-        elif side_type == 'row':
+        elif side_type in {'row', 1}:
             return self.row(i)
         else:
             raise Exception()
