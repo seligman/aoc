@@ -1,71 +1,75 @@
 #!/usr/bin/env python3
 
+# Animation: https://youtu.be/5EWSnlYrt_0
+
 DAY_NUM = 14
 DAY_DESC = 'Day 14: Parabolic Reflector Dish'
 
-def calc(log, values, mode):
-    # TODO: Delete or use these
-    # from parsers import get_ints, get_floats
+def calc(log, values, mode, draw=False):
     from grid import Grid, Point
     grid = Grid.from_text(values)
-    # from program import Program
-    # program = Program(values)
-    from collections import Counter
 
-    if mode == 1:
-        start = grid.axis_max(1)
-        for x in grid.x_range():
-            y = start
+    def get_score():
+        ret = 0
+        for (x, y), val in grid.grid.items():
+            if val == "O":
+                ret += grid.axis_max(1) - y + 1
+        return ret
+
+    shakes = [
+        (0, -1, [(x, 0) for x in grid.x_range()], [(0, y) for y in grid.y_range()]),
+        (-1, 0, [(0, y) for y in grid.y_range()], [(x, 0) for x in grid.x_range()]),
+        (0, 1, [(x, 0) for x in grid.x_range()], [(0, y) for y in grid.y_range()][::-1]),
+        (1, 0, [(0, y) for y in grid.y_range()], [(x, 0) for x in grid.x_range()][::-1]),
+    ]
+
+    if draw:
+        grid.save_frame()
+    step = 0
+    seen = {}
+    skip_frame = 0
+    while True:
+        for ox, oy, range1, range2 in shakes:
             while True:
-                change = False
-                for y in range(start, 0, -1):
-                    if grid[x, y] == "O" and grid[x, y - 1] == ".":
-                        grid[x, y] = "."
-                        grid[x, y - 1] = "O"
-                        change = True
-                if not change:
+                run_again = False
+                for val1 in range1:
+                    for val2 in range2:
+                        x, y = val1[0] + val2[0], val1[1] + val2[1]
+                        while grid[x, y] == "O" and grid[x + ox, y + oy] == ".":
+                            grid[x, y], grid[x + ox, y + oy] = ".", "O"
+                            if draw and step < 3:
+                                run_again = True
+                                break
+                            x, y = x + ox, y + oy
+                if draw and step < 3:
+                    grid.save_frame()
+                if not run_again:
                     break
-    else:
-        step = 0
-        step_skip = 0
-        seen = {}
-        while True:
-            for rot in range(4):
-                while True:
-                    change = False
-                    for (x, y), val in list(grid.grid.items()):
-                        if val == "O":
-                            if rot == 0: pt = (x, y - 1)
-                            elif rot == 1: pt = (x - 1, y)
-                            elif rot == 2: pt = (x, y + 1)
-                            elif rot == 3: pt = (x + 1, y)
-                            if grid[pt] == ".":
-                                grid[x, y], grid[pt] = ".", "O"
-                                change = True
-                    if not change:
-                        break
+            if mode == 1:
+                return get_score()
+        val = grid.dump_grid()
+        score = get_score()
+        if val in seen:
+            for other_step, score in seen.values():
+                if other_step == ((1000000000 - step) % (seen[val][0] - step)) + step - 1:
+                    if draw:
+                        grid.draw_frames(color_map={
+                            '.': (0, 0, 0),
+                            '#': (255, 255, 255),
+                            'O': (192, 192, 255),
+                        })
+                    return score
+        seen[val] = (step, score)
+        step += 1
 
-            ret = 0
-            for (x, y), val in grid.grid.items():
-                if val == "O":
-                    ret += grid.axis_max(1) - y + 1
-            
-            val = grid.dump_grid()
-            if val in seen:
-                rule = (step, seen[val][0])
-                x = ((1000000000 - rule[0]) % (rule[1] - rule[0])) + rule[0] - 1
-                for a, b in seen.items():
-                    if b[0] == x:
-                        return b[1]
-
-            seen[val] = (step, ret)
-            step += 1
-
-    ret = 0
-    for (x, y), val in grid.grid.items():
-        if val == "O":
-            ret += start - y + 1
-    return ret
+def other_draw(describe, values):
+    if describe:
+        return "Draw this"
+    from dummylog import DummyLog
+    import animate
+    animate.prep()
+    calc(DummyLog(), values, 2, draw=True)
+    animate.create_mp4(DAY_NUM, rate=15, final_secs=5)
 
 def test(log):
     values = log.decode_values("""
