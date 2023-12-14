@@ -7,4 +7,4 @@ The Solutions themselves are in the `Puzzles` folder.  They're meant to be run w
 Some visualizations for your viewing pleasure:
 
 * Day 10: [Finding the space inside the pipes](https://youtu.be/DYrIH225wHs), and [updated version](https://youtu.be/-vaIkRA1w9k)
-* Day 14: [Animating the sand](https://youtu.be/5EWSnlYrt_0)
+* Day 14: [Animating the sand](https://youtu.be/5EWSnlYrt_0), and a [smoothed version](https://youtu.be/qvfBEnJZfsU)

@@ -193,6 +193,7 @@ class Grid:
         self.values = None
         self.extra = {}
         self._ranges = {}
+        self.pass_to_quick = False
 
     def side(self, side_type, i):
         if side_type in {'column', 0}:
@@ -586,19 +587,36 @@ class Grid:
                         dr.polygon(temp, fill=color, outline=outline)
 
         if scale != 0.0:
-            im = im.resize((int(image_width * scale), int(image_height * scale)), resample=Image.ANTIALIAS)
+            im = im.resize((int(image_width * scale), int(image_height * scale)), resample=Image.LANCZOS)
 
         for _ in range(image_copies):
             im.save("frame_%05d.png" % (self.frame,))
             self.frame += 1
 
-    def save_frame(self, extra_text=None, extra=None):
-        temp = {}
-        for key, value in self.grid.items():
-            if isinstance(value, list):
-                value = value[:]
-            temp[key] = value
-        self.frames.append((temp, extra_text, extra))
+    def save_frame(self, extra_text=None, extra=None, final_frame=False):
+        temp = {k: (v[:] if isinstance(v, list) else v) for k, v in self.grid.items()}
+        if self.pass_to_quick:
+            self.quick_frame += 1
+            self.queue.put({
+                "grid": temp,
+                "ranges": self._ranges,
+                "msg": "Working, on frame %5d of %5d" % (self.quick_frame, 0),
+                "frame": self.quick_frame - 1,
+                "args": {
+                    "color_map": self.quick_args['color_map'], 
+                    "cell_size": self.quick_args['cell_size'], 
+                    "extra_text": extra_text, 
+                    "extra_text_rows": self.quick_args['max_rows'], 
+                    "image_copies": 1 + self.quick_args['repeat_final'] if final_frame else 1,
+                    "extra": extra,
+                    "extra_callback": self.quick_args['extra_callback'],
+                    "show_lines": self.quick_args['show_lines'],
+                    "font_size": self.quick_args['font_size'],
+                    "scale": self.quick_args['scale'],
+                }
+            })
+        else:
+            self.frames.append((temp, extra_text, extra))
 
     def neighbors(self, *args, diagonals=False, valid_only=False):
         if isinstance(args[0], tuple):
@@ -623,7 +641,37 @@ class Grid:
             if re.search("frame_[0-9]{5}\\.png", cur):
                 os.unlink(cur)
 
-    def draw_frames(self, color_map=DEFAULT_COLOR_MAP, cell_size=(10, 10), repeat_final=0, font_size=10, extra_callback=None, show_lines=True, use_multiproc=True):
+    def draw_frames_quickly(self, color_map=DEFAULT_COLOR_MAP, cell_size=(10, 10), repeat_final=0, font_size=10, extra_callback=None, show_lines=True, use_multiproc=True, scale=None):
+        import multiprocessing
+        queue = multiprocessing.Queue(multiprocessing.cpu_count() * 2)
+        procs = [multiprocessing.Process(target=draw_frames_worker, args=(i, queue,)) for i in range(multiprocessing.cpu_count())]
+        [x.start() for x in procs]
+        self.pass_to_quick = True
+        self.quick_frame = 0
+        self.procs = procs
+        self.queue = queue
+        max_rows = 0
+        for _grid, extra_text, _extra in self.frames:
+            if extra_text is not None:
+                max_rows = max(max_rows, len(extra_text))
+        self.quick_args = {
+            "color_map": color_map, 
+            "cell_size": cell_size, 
+            "repeat_final": repeat_final, 
+            "font_size": font_size, 
+            "extra_callback": extra_callback, 
+            "show_lines": show_lines, 
+            "use_multiproc": use_multiproc, 
+            "scale": scale,
+            "max_rows": max_rows,
+        }
+
+    def finish_quick_draw(self):
+        for _ in self.procs:
+            self.queue.put(None)
+        [x.join() for x in self.procs]
+
+    def draw_frames(self, color_map=DEFAULT_COLOR_MAP, cell_size=(10, 10), repeat_final=0, font_size=10, extra_callback=None, show_lines=True, use_multiproc=True, scale=None):
         from datetime import datetime, timedelta
         import multiprocessing
         import sys
@@ -660,7 +708,8 @@ class Grid:
                     "extra": extra,
                     "extra_callback": extra_callback,
                     "show_lines": show_lines,
-                    "font_size": font_size
+                    "font_size": font_size,
+                    "scale": scale,
                 }
             })
 
@@ -705,7 +754,7 @@ class Grid:
         return w, h
 
     def draw_grid(self, color_map=DEFAULT_COLOR_MAP, cell_size=(10, 10), extra_text=None, extra_text_rows=0, 
-        font_size=14, image_copies=1, extra=None, extra_callback=None, text_xy=None, show_lines=True, default_color=(64, 64, 64), return_image=False):
+        font_size=14, image_copies=1, extra=None, extra_callback=None, text_xy=None, show_lines=True, default_color=(64, 64, 64), return_image=False, scale=None):
         from PIL import Image, ImageDraw, ImageFont
         import os
         width = self.width()
@@ -812,12 +861,24 @@ class Grid:
             extra_callback(d, extra)
         del d
 
+        if scale is not None:
+            im = im.resize((int(im.width * scale), int(im.height * scale)), resample=Image.LANCZOS)
+
         if return_image:
             return im
 
         for _ in range(image_copies):
             im.save("frame_%05d.png" % (self.frame,))
             self.frame += 1
+
+def draw_frames_worker(worker_id, queue):
+    while True:
+        job = queue.get()
+        if job is None:
+            break
+        msg = draw_frames_helper(job)
+        if worker_id == 0:
+            print(msg)
 
 def draw_frames_helper(cur):
     grid = Grid()
