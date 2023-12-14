@@ -27,7 +27,7 @@ def calc(log, values, mode, draw=False):
         grid.save_frame()
     step = 0
     seen = {}
-    skip_frame = 0
+
     while True:
         for ox, oy, range1, range2 in shakes:
             while True:
@@ -35,12 +35,17 @@ def calc(log, values, mode, draw=False):
                 for val1 in range1:
                     for val2 in range2:
                         x, y = val1[0] + val2[0], val1[1] + val2[1]
-                        while grid[x, y] == "O" and grid[x + ox, y + oy] == ".":
-                            grid[x, y], grid[x + ox, y + oy] = ".", "O"
-                            if draw and step < 3:
-                                run_again = True
-                                break
-                            x, y = x + ox, y + oy
+                        if draw and step < 3:
+                            if grid[x, y] == "O" and grid[x + ox, y + oy] == ".":
+                                grid[x, y], grid[x + ox, y + oy] = ".", "O"
+                        else:
+                            if grid[x, y] == "O":
+                                total_x, total_y, moved = 0, 0, False
+                                while grid[x + total_x + ox, y + total_y + oy] == ".":
+                                    total_x, total_y = total_x + ox, total_y + oy
+                                    moved = True
+                                if moved:
+                                    grid[x, y], grid[x + total_x, y + total_y] = ".", "O"
                 if draw and step < 3:
                     grid.save_frame()
                 if not run_again:
