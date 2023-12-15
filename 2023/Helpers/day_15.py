@@ -3,17 +3,12 @@
 DAY_NUM = 15
 DAY_DESC = 'Day 15: Lens Library'
 
-def calc(log, values, mode):
-    # TODO: Delete or use these
-    # from parsers import get_ints, get_floats
-    # from grid import Grid, Point
-    # grid = Grid.from_text(values)
-    # from program import Program
-    # program = Program(values)
+from collections import defaultdict
 
+def calc(log, values, mode):
     ret = 0
 
-    boxes = {}
+    boxes = defaultdict(dict)
 
     for cur in values[0].split(","):
         x = 0
@@ -26,19 +21,18 @@ def calc(log, values, mode):
         ret += x
 
         if cur.endswith("-"):
-            boxes[target] = [x for x in boxes.get(target, []) if x.split("=")[0] != cur[:-1]]
+            label = cur[:-1]
+            if label in boxes[target]:
+                del boxes[target][label]
         else:
-            temp = boxes.get(target, [])
-            if cur.split("=")[0] in [x.split("=")[0] for x in temp]:
-                boxes[target] = [cur if x.split("=")[0] == cur.split("=")[0] else x for x in temp]
-            else:
-                boxes[target] = temp + [cur]
+            label, focus = cur.split("=")
+            boxes[target][label] = int(focus)
 
     if mode == 2:
         ret = 0
-        for i, box in boxes.items():
-            for j, cur in enumerate(box):
-                ret += (i + 1) * (j + 1) * int(cur.split("=")[1])
+        for box_num, box in boxes.items():
+            for lens_num, (label, focus) in enumerate(box.items()):
+                ret += (box_num + 1) * (lens_num + 1) * focus
 
     return ret
 
