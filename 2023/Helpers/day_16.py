@@ -3,6 +3,16 @@
 DAY_NUM = 16
 DAY_DESC = 'Day 16: The Floor Will Be Lava'
 
+def add_if_new(node, todo, ox ,oy):
+    key = (node["x"], node["y"], ox, oy)
+    if key not in node["seen"]:
+        node = node.copy()
+        node["step"] += 1
+        node["seen"].add(key)
+        node['ox'] = ox
+        node['oy'] = oy
+        todo.append(node)
+
 def calc(log, values, mode):
     from grid import Grid, Point
     from collections import deque
@@ -10,23 +20,22 @@ def calc(log, values, mode):
 
     def get_starts():
         for y in grid.y_range():
-            yield deque([(0, y, 1, 0)])
+            yield {"x": 0, "y": y, "ox": 1, "oy": 0}
             if mode == 1: return
-            yield deque([(grid.axis_max(0), y, -1, 0)])
+            yield {"x": grid.axis_max(0), "y": y, "ox": -1, "oy": 0}
         for x in grid.x_range():
-            yield deque([(x, 0, 0, 1)])
-            yield deque([(x, grid.axis_max(1), 0, -1)])
+            yield {"x": x, "y": 0, "ox": 0, "oy": 1}
+            yield {"x": x, "y": grid.axis_max(1), "ox": 0, "oy": -1}
 
     best = 0
+    history = {}
 
-    for todo in get_starts():
+    for first_node in get_starts():
+        first_node["seen"] = set()
+        first_node["energy"] = set()
+        first_node["step"] = 0
+
         energy = set()
-        seen = set()
-
-        def add_if_new(*key):
-            if key not in seen:
-                seen.add(key)
-                todo.append(key)
 
         max_x = grid.axis_max(0)
         max_y = grid.axis_max(1)
@@ -35,28 +44,51 @@ def calc(log, values, mode):
             if val in "-|\\/":
                 mirrors[pt] = val
 
+        todo = deque()
+        todo.append(first_node)
+        add_history = {}
+
         while len(todo) > 0:
-            x, y, ox, oy = todo.pop()
-            energy.add((x, y))
+            node = todo.popleft()
+            # print(node['step'])
+            if node['step'] == 50 and add_history is not None:
+                if (node['x'], node['y'], node['ox'], node['oy']) not in add_history:
+                    node['seen'] = set()
+                    node['energy'] = set()
+                    add_history[(node['x'], node['y'], node['ox'], node['oy'])] = (node['energy'], node['seen'])
+
+            energy.add((node['x'], node['y']))
+            node['energy'].add((node['x'], node['y']))
             while True:
-                x, y = x + ox, y + oy
-                if 0 <= x <= max_x and 0 <= y <= max_y:
-                    val = mirrors.get((x, y), "")
-                    if (val == "|" and oy == 0) or (val == "-" and ox == 0):
-                        add_if_new(x, y, abs(oy), abs(ox))
-                        add_if_new(x, y, -abs(oy), -abs(ox))
+                node['x'], node['y'] = node['x'] + node['ox'], node['y'] + node['oy']
+                temp = history.get((node['x'], node['y'], node['ox'], node['oy']), None)
+                if temp is not None:
+                    energy.update(temp[0])
+                    node['energy'].update(temp[0])
+                    node['seen'].update(temp[1])
+                    break
+
+                if 0 <= node['x'] <= max_x and 0 <= node['y'] <= max_y:
+                    val = mirrors.get((node['x'], node['y']), "")
+                    if (val == "|" and node['oy'] == 0) or (val == "-" and node['ox'] == 0):
+                        add_if_new(node, todo, abs(node['oy']), abs(node['ox']))
+                        add_if_new(node, todo, -abs(node['oy']), -abs(node['ox']))
                         break
                     else:
                         if val == "/":
-                            add_if_new(x, y, -oy, -ox)
+                            add_if_new(node, todo, -node['oy'], -node['ox'])
                             break
                         elif val == "\\":
-                            add_if_new(x, y, oy, ox)
+                            add_if_new(node, todo, node['oy'], node['ox'])
                             break
                         else:
-                            energy.add((x, y))
+                            add_if_new(node, todo, node['ox'], node['oy'])
+                            break
                 else:
                     break 
+
+        if add_history is not None:
+            history |= add_history
         best = max(best, len(energy))
 
     return best
