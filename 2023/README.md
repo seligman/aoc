@@ -8,3 +8,4 @@ Some visualizations for your viewing pleasure:
 
 * Day 10: [Finding the space inside the pipes](https://youtu.be/DYrIH225wHs), and [updated version](https://youtu.be/-vaIkRA1w9k)
 * Day 14: [Animating the sand](https://youtu.be/5EWSnlYrt_0), and a [smoothed version](https://youtu.be/qvfBEnJZfsU)
+* Day 16: [Watching the lasers](https://youtu.be/1KsEUjXK9_s)

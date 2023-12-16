@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 
+# Animation: https://youtu.be/1KsEUjXK9_s
+
 DAY_NUM = 16
 DAY_DESC = 'Day 16: The Floor Will Be Lava'
 
