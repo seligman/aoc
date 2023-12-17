@@ -8,30 +8,35 @@ from heapq import heappop, heappush
 def calc(log, values, mode):
     from grid import Grid, Point
     grid = Grid.from_text(values)
+    grid.grid = {k: int(v) for k, v in grid.grid.items()}
 
     dirs = [(0, 1), (1, 0), (0, -1), (-1, 0)]
-
     min_dist, max_dist = (1, 3) if mode == 1 else (4, 10)
 
     todo = [(0, 0, 0, -1)]
     costs = {}
+    max_x, max_y = grid.axis_max(0), grid.axis_max(1)
+
     while len(todo) > 0:
         cost, x, y, cur_dir = heappop(todo)
-        if (x, y) == (grid.axis_max(0), grid.axis_max(1)):
+        if (x, y) == (max_x, max_y):
             return cost
+
         for new_dir in range(4) if cur_dir == -1 else [(cur_dir + 1) % 4, (cur_dir + 3) % 4]:
             ox, oy = dirs[new_dir]
-            added_cost = 0
+            reset = (x, y, cost)
             for steps in range(1, max_dist + 1):
-                nx, ny = x + ox * steps, y + oy * steps
-                if (nx, ny) in grid.grid:
-                    added_cost += int(grid[nx, ny])
+                x, y = x + ox, y + oy
+                if 0 <= x <= max_x and 0 <= y <= max_y:
+                    cost += grid[x, y]
                     if steps >= min_dist:
-                        if (nx, ny, new_dir) not in costs or costs[(nx, ny, new_dir)] > cost + added_cost:
-                            costs[(nx, ny, new_dir)] = cost + added_cost
-                            heappush(todo, (cost + added_cost, nx, ny, new_dir))
+                        key = (x, y, new_dir)
+                        if key not in costs or costs[key] > cost:
+                            costs[key] = cost
+                            heappush(todo, (cost, x, y, new_dir))
                 else:
                     break
+            (x, y, cost) = reset
 
     return 0
 
