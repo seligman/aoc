@@ -54,27 +54,14 @@ def calc(log, values, mode, draw=False):
         line_len += l
     if draw:
         inside = set()
-        seen = set()
         for y in grid.y_range():
+            is_inside = False
             for x in grid.x_range():
                 if grid[x, y] == 0:
-                    if (x, y) not in seen:
-                        temp = set()
-                        todo = [(x, y)]
-                        while len(todo) > 0:
-                            x, y = todo.pop(0)
-                            for x, y in grid.get_dirs(2, (x, y), False):
-                                if grid[x, y] == 0:
-                                    if grid.axis_min(0) <= x <= grid.axis_max(0) and grid.axis_min(1) <= y <= grid.axis_max(1):
-                                        if (x, y) not in seen:
-                                            seen.add((x, y))
-                                            todo.append((x, y))
-                                            if temp is not None:
-                                                temp.add((x, y))
-                                    else:
-                                        temp = None
-                        if temp is not None:
-                            inside |= temp
+                    if is_inside: inside.add((x, y))
+                else:
+                    if grid[x, y+1] != 0:
+                        is_inside = not is_inside
 
         print(f"Draw step {grid.frame}")
         grid.draw_grid()
