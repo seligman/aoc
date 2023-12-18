@@ -1,7 +1,11 @@
 #!/usr/bin/env python3
 
+# Animation: https://youtu.be/3eFCQ2M4xf0
+
 DAY_NUM = 18
 DAY_DESC = 'Day 18: Lavaduct Lagoon'
+
+from collections import defaultdict
 
 def poly_area(poly):
     area = 0.0
@@ -12,10 +16,15 @@ def poly_area(poly):
     area = abs(area) / 2.0
     return area
 
-def calc(log, values, mode):
+def calc(log, values, mode, draw=False):
     lines = [(0, 0)]
     x, y = 0, 0
     line_len = 0
+    if draw:
+        from grid import Grid
+        grid = Grid()
+        colors = []
+
     for row in values:
         row = row.split(' ')
         if mode == 1:
@@ -34,11 +43,88 @@ def calc(log, values, mode):
                 "3": (0, -1),
             }[row[2][-2]]
             l = int(row[2][2:7], 16)
+        if draw:
+            r, g, b = int(row[2][2:4], 16), int(row[2][4:6], 16), int(row[2][6:8], 16)
+            r, g, b = int((r / 255) * 191 + 64), int((g / 255) * 191 + 64), int((b / 255) * 191 + 64)
+            for i in range(l):
+                grid[x + ox * i, y + oy * i] = (None, (r, g, b))
+                colors.append((x + ox * i, y + oy * i))
         x, y = x + ox * l, y + oy * l
         lines.append((x, y))
         line_len += l
+    if draw:
+        inside = set()
+        seen = set()
+        for y in grid.y_range():
+            for x in grid.x_range():
+                if grid[x, y] == 0:
+                    if (x, y) not in seen:
+                        temp = set()
+                        todo = [(x, y)]
+                        while len(todo) > 0:
+                            x, y = todo.pop(0)
+                            for x, y in grid.get_dirs(2, (x, y), False):
+                                if grid[x, y] == 0:
+                                    if grid.axis_min(0) <= x <= grid.axis_max(0) and grid.axis_min(1) <= y <= grid.axis_max(1):
+                                        if (x, y) not in seen:
+                                            seen.add((x, y))
+                                            todo.append((x, y))
+                                            if temp is not None:
+                                                temp.add((x, y))
+                                    else:
+                                        temp = None
+                        if temp is not None:
+                            inside |= temp
+
+        print(f"Draw step {grid.frame}")
+        grid.draw_grid()
+
+        step = 0
+        while True:
+            print(f"Step at {step}")
+            seen_points = set()
+            color_to_color = defaultdict(list)
+            next_colors = []
+            for x, y in colors:
+                for ox, oy in grid.get_dirs(2, (x, y), True):
+                    if (ox, oy) in inside:
+                        if (ox, oy) not in seen_points:
+                            next_colors.append((ox, oy))
+                            seen_points.add((ox, oy))
+                        color_to_color[(ox, oy)].append((x, y))
+            if len(next_colors) == 0:
+                break
+            for x, y in next_colors:
+                inside.remove((x, y))
+            for x, y in next_colors:
+                merge = color_to_color[(x, y)]
+                r, g, b, count = 0, 0, 0, 0
+                for pt in merge:
+                    count += 1
+                    rgb = grid[pt][1]
+                    r, g, b = r + rgb[0], g + rgb[1], b + rgb[2]
+                r = r // count
+                g = g // count
+                b = b // count
+                grid[x, y] = (None, (r, g, b))
+                step += 1
+                if step % 100 == 0:
+                    print(f"Draw step {grid.frame}")
+                    grid.draw_grid()
+            colors = next_colors
+        print(f"Draw step {grid.frame}")
+        grid.draw_grid()
 
     return int(poly_area(lines) + line_len // 2 + 1)
+
+def other_draw(describe, values):
+    if describe:
+        return "Draw this"
+    from dummylog import DummyLog
+    import animate
+    animate.prep()
+    calc(DummyLog(), values, 1, draw=True)
+    animate.create_mp4(DAY_NUM, rate=30, final_secs=5)
 
 def test(log):
     values = log.decode_values("""

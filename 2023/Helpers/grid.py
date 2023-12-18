@@ -813,7 +813,7 @@ class Grid:
                 if use:
                     text = None
                     text_color = (255, 255, 255)
-                    if isinstance(color, list):
+                    if isinstance(color, list) or isinstance(color, tuple):
                         if len(color) == 2:
                             text, color = color
                         else:
