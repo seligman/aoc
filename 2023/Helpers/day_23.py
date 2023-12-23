@@ -3,7 +3,7 @@
 DAY_NUM = 23
 DAY_DESC = 'Day 23: A Long Walk'
 
-from collections import deque
+from collections import defaultdict, deque
 
 def calc(log, values, mode):
     from grid import Grid, Point
@@ -15,78 +15,61 @@ def calc(log, values, mode):
         if grid[x, 0] == ".":
             start = (x, 0)
 
-    if mode == 1:
-        todo = [start + (set(),)]
-        best = 0
+    # Find all the points in the maze where a choice needs to be made
+    to_check = deque([(start, (0, 1))])
+    trails = defaultdict(list)
+    while len(to_check) > 0:
+        cur_cell, cur_dir = to_check.popleft()
+        todo = deque([(cur_cell[0] + cur_dir[0], cur_cell[1] + cur_dir[1], 1)])
+        seen = set([cur_cell])
         while len(todo) > 0:
-            x, y, steps = todo.pop(0)
-            if (x, y) == final:
-                best = max(best, len(steps))
-            for ox, oy, od in [(1, 0, ">"), (-1, 0, "<"), (0, -1, "^"), (0, 1, "v")]:
-                if grid[x+ox, y+oy] != 0:
-                    if grid[x+ox, y+oy] in {".", od}:
-                        if (x+ox, y+oy) not in steps:
-                            todo.append((x+ox, y+oy, steps | set([(x, y)])))
-        return best
+            x, y, steps = todo.popleft()
+            if (x, y) not in seen:
+                seen.add((x, y))
+                possible = []
+                for ox, oy, od in [(1, 0, ">"), (-1, 0, "<"), (0, -1, "^"), (0, 1, "v")]:
+                    if (x+ox, y+oy) not in seen:
+                        if (mode == 1 and grid[x+ox, y+oy] in {".", od}) or (mode == 2 and grid[x+ox, y+oy] in {".", "<", ">", "^", "v"}):
+                            possible.append((ox, oy))
+                if len(possible) > 1:
+                    for ox, oy in possible:
+                        if (x, y, steps) not in trails[cur_cell]:
+                            trails[cur_cell].append((x, y, steps))
+                        if (x, y) not in trails:
+                            to_check.append(((x, y), (ox, oy)))
+                elif len(possible) == 1:
+                    todo.append((possible[0][0] + x, possible[0][1] + y, steps + 1))
+                else:
+                    if (x, y, steps) not in trails[cur_cell]:
+                        trails[cur_cell].append((x, y, steps))
 
-    V = set()
-    R = grid.height() 
-    C = grid.width() 
-    for r in range(R):
-        for c in range(C):
-            nbr = 0
-            for ch,dr,dc in [['^',-1,0],['v', 1,0],['<', 0,-1],['>',0,1]]:
-                if (0<=r+dr<R and 0<=c+dc<C and grid[c+dc,r+dr]!='#'):
-                    nbr += 1
-            if nbr > 2 and grid[c, r] != '#':
-                V.add((r, c))
+    # Flatten all the points to a unique ID to remove any hashmap lookups
+    to_id = {}
+    for xy in trails:
+        to_id[xy] = len(to_id)
+    if final not in to_id:
+        to_id[final] = len(to_id)
+    start_id, final_id = to_id[start], to_id[final]
+    trails_id = {}
+    for xy, trail in trails.items():
+        temp = []
+        for x, y, steps in trail:
+            temp.append((to_id[(x, y)], steps))
+        trails_id[to_id[xy]] = temp
+    trails_id = [trails_id[key] for key in sorted(trails_id)]
 
-    for c in range(C):
-        if grid[c,0] == '.':
-            V.add((0, c))
-            start = (0, c)
-        if grid[c, R-1] == '.':
-            V.add((R-1, c))
-            end = (R-1, c)
+    seen = [False for _ in to_id]
+    def dfs(cur_id, steps):
+        if seen[cur_id]: return 0
+        if cur_id == final_id: return steps
+        seen[cur_id] = True
+        ret = 0
+        for other_id, to_add in trails_id[cur_id]:
+            ret = max(ret, dfs(other_id, steps + to_add))
+        seen[cur_id] = False
+        return ret
 
-    E = {}
-    for (rv, cv) in V:
-        E[(rv, cv)] = []
-        Q = deque([(rv, cv, 0)])
-        SEEN = set()
-        while Q:
-            r, c, d = Q.popleft()
-            if (r, c) in SEEN:
-                continue
-            SEEN.add((r, c))
-            if (r, c) in V and (r, c) != (rv, cv):
-                E[(rv, cv)].append(((r, c), d))
-                continue
-            for ch, dr, dc in [['^', -1, 0], ['v', 1, 0], ['<', 0, -1], ['>', 0, 1]]:
-                if (0 <= r+dr < R and 0 <= c+dc < C and grid[c+dc, r+dr] != '#'):
-                    Q.append((r+dr, c+dc, d+1))
-
-    count = 0
-    ans = 0
-    SEEN = [[False for _ in range(C)] for _ in range(R)]
-    seen = set()
-
-    def dfs(v, d):
-        nonlocal count
-        nonlocal ans
-        count += 1
-        r, c = v
-        if SEEN[r][c]:
-            return
-        SEEN[r][c] = True
-        if r == R-1:
-            ans = max(ans, d)
-        for (y, yd) in E[v]:
-            dfs(y, d+yd)
-        SEEN[r][c] = False
-    dfs(start, 0)
-
-    return ans
+    return dfs(start_id, 0)
 
 def test(log):
     values = log.decode_values("""
