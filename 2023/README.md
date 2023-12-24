@@ -10,3 +10,4 @@ Some visualizations for your viewing pleasure:
 * Day 14: [Animating the sand](https://youtu.be/5EWSnlYrt_0), and a [smoothed version](https://youtu.be/qvfBEnJZfsU)
 * Day 16: [Watching the lasers](https://youtu.be/1KsEUjXK9_s)
 * Day 18: [Painting the Maze](https://youtu.be/3eFCQ2M4xf0)
+* Day 23: [Watching all the possibilities](https://youtu.be/bcK-ThfHx9o)
