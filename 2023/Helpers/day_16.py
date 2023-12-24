@@ -82,12 +82,12 @@ def calc(log, values, mode, draw=False):
 
     def get_starts():
         for y in grid.y_range():
-            yield {"x": 0, "y": y, "ox": 1, "oy": 0}
+            yield {"x": -1, "y": y, "ox": 1, "oy": 0}
             if mode == 1: return
-            yield {"x": grid.axis_max(0), "y": y, "ox": -1, "oy": 0}
+            yield {"x": grid.axis_max(0) + 1, "y": y, "ox": -1, "oy": 0}
         for x in grid.x_range():
-            yield {"x": x, "y": 0, "ox": 0, "oy": 1}
-            yield {"x": x, "y": grid.axis_max(1), "ox": 0, "oy": -1}
+            yield {"x": x, "y": -1, "ox": 0, "oy": 1}
+            yield {"x": x, "y": grid.axis_max(1) + 1, "ox": 0, "oy": -1}
 
     best = 0
     history = {}
@@ -99,7 +99,8 @@ def calc(log, values, mode, draw=False):
     for first_node in get_starts():
         first_node["seen"] = set()
         first_node["energy"] = set()
-        first_node["step"] = 0
+        first_node["step"] = -1
+        first_node["first"] = True
 
         energy = set()
 
@@ -123,14 +124,18 @@ def calc(log, values, mode, draw=False):
                 frame += 1
         while len(todo) > 0:
             node = todo.popleft()
+
             if node['step'] == 50 and add_history is not None:
                 if (node['x'], node['y'], node['ox'], node['oy']) not in add_history:
                     node['seen'] = set()
                     node['energy'] = set()
                     add_history[(node['x'], node['y'], node['ox'], node['oy'])] = (node['energy'], node['seen'])
 
-            energy.add((node['x'], node['y']))
-            node['energy'].add((node['x'], node['y']))
+            if node['first']:
+                node['first'] = False
+            else:
+                energy.add((node['x'], node['y']))
+                node['energy'].add((node['x'], node['y']))
 
             if draw:
                 if node['step'] != last_step:
