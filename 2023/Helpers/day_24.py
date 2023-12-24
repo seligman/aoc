@@ -3,47 +3,119 @@
 DAY_NUM = 24
 DAY_DESC = 'Day 24: Never Tell Me The Odds'
 
-def calc(log, values, mode, lower, upper):
-    import itertools
+import itertools
+import numpy as np
+from decimal import Decimal as D
 
+class Hail:
+    def __init__(self, inp):
+        inp = inp.split(" @ ")
+        pos = tuple(D(x.strip()) for x in inp[0].split(","))
+        vel = tuple(D(x.strip()) for x in inp[1].split(","))
+        self.px, self.py, self.pz = pos
+        self.vx, self.vy, self.vz = vel
+        self.XYslope = D('inf') if self.vx==0 else self.vy/self.vx
+        self.ax, self.ay, self.az = 0,0,0
+        
+    def __repr__(self):
+        return str(self)
+    def __str__(self):
+        return f'<{self.px}, {self.py}, {self.pz} @ {self.vx}, {self.vy}, {self.vz}>'
+    
+    def intersectXY(self, other):
+        if self.XYslope==other.XYslope:
+            return None
+        if self.XYslope == float('inf'):
+            intX = self.px
+            intY = other.XYslope * (intX - other.px) + other.py
+        elif other.XYslope == float('inf'):
+            intX = other.px
+            intY = self.XYslope * (intX - self.px) + self.py
+        else:
+            intX = (self.py-other.py  - self.px*self.XYslope + other.px*other.XYslope)/(other.XYslope-self.XYslope)
+            intY = self.py + self.XYslope*(intX-self.px)
+        intX, intY = intX.quantize(D(".1")), intY.quantize(D(".1"))
+
+        selfFuture = np.sign(intX-self.px) == np.sign(self.vx)
+        otherFuture = np.sign(intX-other.px) == np.sign(other.vx)
+        if not (selfFuture and otherFuture):
+            return None
+        return (intX,intY)
+    
+    def adjust(self, ax, ay, az):
+        self.vx -= ax - self.ax
+        self.vy -= ay - self.ay
+        self.vz -= az - self.az
+        assert type(self.vx) is D
+        self.XYslope = D('inf') if self.vx==0 else self.vy/self.vx
+        self.ax, self.ay, self.az = ax, ay, az
+        
+    def getT(self, p):
+        if self.vx==0:
+            return (p[1]-self.py)/self.vy
+        return (p[0]-self.px)/self.vx
+        
+    def getZ(self, other, inter):
+        tS = self.getT(inter)
+        tO = other.getT(inter)
+        if tS==tO:
+            assert self.pz + tS*self.vz == other.pz + tO*other.vz
+            return None
+        return (self.pz - other.pz + tS*self.vz - tO*other.vz)/(tS - tO)
+
+def calc(log, values, mode, lower, upper):
     hail = []
     for row in values:
-        row = row.split(" @ ")
-        pos = [int(x.strip()) for x in row[0].split(",")]
-        vel = [int(x.strip()) for x in row[1].split(",")]
-        hail.append(pos + vel)
+        hail.append(Hail(row))
 
     if mode == 1:
         ret = 0
-        import numpy as np
-        for (x1, y1, z1, vx1, vy1, vz1), (x2, y2, z2, vx2, vy2, vz2) in itertools.combinations(hail, 2):
-            m1, m2 = vy1 / vx1, vy2 / vx2
-            if m1 == m2:
-                continue
-            A = np.array([[m1, -1], [m2, -1]])
-            b = np.array([m1 * x1 - y1, m2 * x2 - y2])
-            x, y = np.linalg.solve(A, b)
-            if not (lower <= x <= upper and lower <= y <= upper):
-                continue
-            t1 = (x - x1) / vx1
-            t2 = (x - x2) / vx2
-            if t1 > 0 and t2 > 0:
+        for H1, H2 in itertools.combinations(hail, 2):
+            p = H1.intersectXY(H2)
+            if p is None:
+                pass
+            elif lower <= p[0] <= upper and lower <= p[1] <= upper:
                 ret += 1
         return ret
     else:
-        from z3 import BitVec, Solver, sat
-        solver = Solver()
-        x, y, z, vx, vy, vz = (BitVec(name, 64) for name in ('x', 'y', 'z', 'vx', 'vy', 'vz'))
-        for i, (a, b, c, va, vb, vc) in enumerate(hail[:10]):
-            t = BitVec(f"t{i}", 64)
-            solver.add(t > 0)
-            solver.add(x + vx * t == a + va * t)
-            solver.add(y + vy * t == b + vb * t)
-            solver.add(z + vz * t == c + vc * t)
-        if solver.check() == sat:
-            m = solver.model()
-            return sum(m.eval(var).as_long() for var in (x, y, z))
-
+        N = 0
+        while True:
+            for X in range(N+1):
+                Y = N-X
+                for negX in (-1,1):
+                    for negY in (-1,1):
+                        aX = X*negX
+                        aY = Y*negY
+                        H1 = hail[0]
+                        H1.adjust(aX, aY, 0)
+                        inter = None
+                        for H2 in hail[1:]:
+                            H2.adjust(aX, aY, 0)
+                            p = H1.intersectXY(H2)
+                            if p is None:
+                                break
+                            if inter is None:
+                                inter = p
+                                continue
+                            if p != inter:
+                                break
+                        if p is None or p != inter:
+                            continue
+                        aZ = None
+                        H1 = hail[0]
+                        for H2 in hail[1:]:
+                            nZ = H1.getZ(H2, inter)
+                            if aZ is None:
+                                aZ = nZ
+                                continue
+                            elif nZ != aZ:
+                                return
+                        if aZ == nZ:
+                            H = hail[0]
+                            Z = H.pz + H.getT(inter)*(H.vz-aZ)
+                            return int(Z+inter[0]+inter[1])
+                            
+            N += 1
 def test(log):
     values = log.decode_values("""
 19, 13, 30 @ -2,  1, -2
