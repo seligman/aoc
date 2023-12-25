@@ -135,45 +135,53 @@ def make_animation_worker(single_frame):
         todo = todo[-1:]
         todo[0]['single'] = True
 
+    day = 1
     for cur in todo:
         print(f"Working on {cur['fn']}")
 
         if cur['single']: 
             steps = [
-                {"dupes": 1, "frames": 1, "extra": "", "hide_stars": None},
+                {"dupes": 1, "frames": 1, "extra": "", "hide_stars": []},
             ]
         elif cur['first']:
             steps = [
-                {"dupes": 10, "frames": 1, "extra": "00:00:05", "hide_stars": None},
-                {"dupes": 10, "frames": 1, "extra": "00:00:04", "hide_stars": None},
-                {"dupes": 10, "frames": 1, "extra": "00:00:03", "hide_stars": None},
-                {"dupes": 10, "frames": 1, "extra": "00:00:02", "hide_stars": None},
-                {"dupes": 10, "frames": 1, "extra": "00:00:01", "hide_stars": None},
+                {"dupes": 10, "frames": 1, "extra": "00:00:05", "hide_stars": []},
+                {"dupes": 10, "frames": 1, "extra": "00:00:04", "hide_stars": []},
+                {"dupes": 10, "frames": 1, "extra": "00:00:03", "hide_stars": []},
+                {"dupes": 10, "frames": 1, "extra": "00:00:02", "hide_stars": []},
+                {"dupes": 10, "frames": 1, "extra": "00:00:01", "hide_stars": []},
             ]
         elif cur['last']:
             steps = [
-                {"dupes": 3, "frames": 1, "extra": "", "hide_stars": (1, 2)},
-                {"dupes": 3, "frames": 1, "extra": "", "hide_stars": (2, )},
-                {"dupes": 3, "frames": 1, "extra": "", "hide_stars": None},
-                {"dupes": 1, "frames": 600, "extra": "", "hide_stars": None},
+                {"dupes": 3, "frames": 1, "extra": "", "hide_stars": [(day, 1), (day, 2)]},
+                {"dupes": 3, "frames": 1, "extra": "", "hide_stars": [(day, 2)]},
+                {"dupes": 3, "frames": 1, "extra": "", "hide_stars": []},
+                {"dupes": 1, "frames": 600, "extra": "", "hide_stars": []},
             ]
+            day += 1
         else:
             steps = [
-                {"dupes": 3, "frames": 1, "extra": "", "hide_stars": (1, 2)},
-                {"dupes": 3, "frames": 1, "extra": "", "hide_stars": (2, )},
-                {"dupes": 3, "frames": 1, "extra": "", "hide_stars": None},
+                {"dupes": 3, "frames": 1, "extra": "", "hide_stars": [(day, 1), (day, 2)]},
+                {"dupes": 3, "frames": 1, "extra": "", "hide_stars": [(day, 2)]},
+                {"dupes": 3, "frames": 1, "extra": "", "hide_stars": []},
             ]
+            day += 1
 
         for step in steps:
             files = []
             driver.get("about:blank")
             with open(os.path.join(os.path.split(__file__)[0], "aoc", cur['fn']), "rt") as f:
                 html = f.read()
-            if step['hide_stars'] is not None:
-                if 1 in step['hide_stars']:
-                    html = html.replace('<span class="calendar-mark-complete">*</span>', '', 1)
-                if 2 in step['hide_stars']:
-                    html = html.replace('<span class="calendar-mark-verycomplete">*</span>', '', 1)
+            for hide_day, hide_star in step['hide_stars']:
+                html = html.split("\n")
+                for i in range(len(html)):
+                    if re.search('<span class="calendar-day"> *' + str(hide_day) + ' *</span>', html[i]) is not None:
+                        if hide_star == 1:
+                            html[i] = html[i].replace('<span class="calendar-mark-complete">*</span>', '', 1)
+                        if hide_star == 2:
+                            html[i] = html[i].replace('<span class="calendar-mark-complete">*</span>', '', 1)
+                html = "\n".join(html)
+
             html = re.sub('<p>.*?AI.*?</p>', '', html)
             with open(os.path.join(os.path.split(__file__)[0], "aoc", "_temp_.html"), "wt") as f:
                 f.write(html)
