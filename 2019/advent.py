@@ -172,7 +172,12 @@ def get_input_file(helper, file_type="input"):
         fn = f"day_{helper.DAY_NUM:02d}_{file_type}.txt"
     else:
         fn = f"day_{helper.DAY_NUM:02d}_{file_type}_alt_{ALT_DATA_FILE:02d}.txt"
-    return os.path.join("Puzzles", fn)
+
+    private_dir = os.path.join("..", "private", "inputs", YEAR_NUMBER, "Puzzles")
+    if not os.path.isdir(private_dir):
+        os.makedirs(private_dir, exist_ok=True)
+
+    return os.path.join(private_dir, fn)
 
 @opt("Generate a comment based off scores", group="Advent of Code")
 def gen_comment(for_sharing=False):
