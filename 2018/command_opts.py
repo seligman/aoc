@@ -5,7 +5,7 @@ import os
 import sys
 import textwrap
 
-VERSION = 26
+__version__ = 26
 SAMPLE_CODE = """
 # --------------------------------------------------------------------------
 # This module is not meant to be run directly.  To use it, add code like
