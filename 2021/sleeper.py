@@ -9,10 +9,11 @@ import math
 if sys.version_info >= (3, 11): from datetime import UTC
 else: import datetime as datetime_fix; UTC=datetime_fix.timezone.utc
 
+__version__ = 3
+
 ENABLE_SERVER = False
 def _make_server_call(**kargs):
     raise Exception()
-
 
 def _input_thread(sentinel):
     try:
@@ -22,7 +23,6 @@ def _input_thread(sentinel):
     except KeyboardInterrupt:
         pass
     sentinel.append(None)
-
 
 def parse_duration(val):
     sleep_amount = None
@@ -137,12 +137,12 @@ def parse_duration(val):
 
     return sleep_amount
 
-
 def time_command(cmd):
     import subprocess
     start = datetime.now(UTC).replace(tzinfo=None)
     print(f" Started: {start.strftime('%Y-%m-%d %H:%M:%S')}.{start.microsecond // 1000:03d}")
-    print(f" Running: '{cmd}'")
+    temp = " ".join(f'"{x}"' if ' ' in x else x for x in cmd)
+    print(f" Running: '{temp}'")
     ret = subprocess.call(cmd, shell=True)
     if ret != 0:
         print(f"  Command returned {ret}")
@@ -150,7 +150,6 @@ def time_command(cmd):
     print(f" Started: {start.strftime('%Y-%m-%d %H:%M:%S')}.{start.microsecond // 1000:03d}")
     _show_total(start, stop, "")
     return ret
-
 
 def _show_total(start, stop, extra):
     print(f"{extra} Stopped: {stop.strftime('%Y-%m-%d %H:%M:%S')}.{stop.microsecond // 1000:03d}")
@@ -165,7 +164,6 @@ def _show_total(start, stop, extra):
     else:
         print(f"{extra}   Total: {hours}:{minutes:02d}:{seconds:02d}.{milliseconds:03d}")
     print(f"{extra}          {dur // 1000}.{milliseconds:03d} seconds")
-
 
 def run_timer():
     global _enter_waiter, _sentinel
@@ -221,7 +219,6 @@ def run_timer():
     _sentinel.clear()
     return 0
 
-
 def main():
     sleep_amount = None
     keep_going = False
@@ -229,16 +226,16 @@ def main():
 
     if ENABLE_SERVER and len(val) > 2 and (val[0], val[1]) in {("server", "run"), ("run", "server")}:
         _launch_server()
-        time_command(" ".join(val[2:]))
+        time_command(val[2:])
         val = [str(_get_time(_server_id)[1])]
     elif ENABLE_SERVER and len(val) >= 2 and (val[0], val[1]) in {("server", "timer"), ("timer", "server")}:
         _launch_server()
         run_timer()
         val = [str(_get_time(_server_id)[1])]
     elif len(val) > 1 and val[0] == "run":
-        exit(time_command(" ".join(val[1:])))
+        exit(time_command(val[1:]))
     elif len(val) > 2 and val[0] in {"run_loop", "run-loop"}:
-        cmd = " ".join(val[2:])
+        cmd = val[2:]
         sleep_amount = parse_duration(val[1])
         while True:
             ret = time_command(cmd)
@@ -297,7 +294,6 @@ def main():
             now = datetime.now(UTC).replace(tzinfo=None)
             print(now.strftime("%d %H:%M:%S") + ": Nothing to do!")
 
-
 def _temp_msg(value, old_len):
     now = datetime.now(UTC).replace(tzinfo=None)
     if value is None:
@@ -313,11 +309,9 @@ def _temp_msg(value, old_len):
     else:
         return 0
 
-
 def temp_nl():
     sys.stdout.write("\n")
     sys.stdout.flush()
-
 
 _local_server = None
 _local_running = None
@@ -349,7 +343,6 @@ def _server_thread():
             if last_end is not None:
                 break
 
-
 _server_id = None
 def _get_time(server_id=None):
     global _server_id
@@ -363,7 +356,6 @@ def _get_time(server_id=None):
         raise Exception(f"Unable to load server with key '{server_id}'")
     return data["alive"], data["secs"]
 
-
 def _launch_server():
     global _local_server, _local_running
 
@@ -372,7 +364,6 @@ def _launch_server():
     _local_server.daemon = True
     _local_server.start()
     _local_running.wait()
-
 
 _enter_waiter = None
 _sentinel = []
@@ -447,7 +438,6 @@ def sleep(to_sleep, exit_at_end=True, extra_msg=""):
             exit(0)
         else:
             return True
-
 
 if __name__ == "__main__":
     main()
