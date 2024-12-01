@@ -372,8 +372,12 @@ def make_day_helper(offline, force_day=None):
     else:
         helper_day = int(force_day)
 
+    private_dir = os.path.join("..", "private", "inputs", YEAR_NUMBER, "Puzzles")
+    if not os.path.isdir(private_dir):
+        os.makedirs(private_dir, exist_ok=True)
+
     files = [
-        os.path.join("Puzzles", f"day_{helper_day:02d}_input.txt"),
+        os.path.join(private_dir, f"day_{helper_day:02d}_input.txt"),
         os.path.join("Helpers", f"day_{helper_day:02d}.py"),
         os.path.join("Puzzles", f"day_{helper_day:02d}.html"),
         os.path.join("Puzzles", f"day_{helper_day:02d}.html.DO_NOT_CHECK_THIS_FILE_IN"),
@@ -813,10 +817,14 @@ def dl_day(helper_day, input_only="no"):
                 os.unlink(bad_file)
                 revert_file(bad_file)
 
+        private_dir = os.path.join("..", "private", "inputs", YEAR_NUMBER, "Puzzles")
+        if not os.path.isdir(private_dir):
+            os.makedirs(private_dir, exist_ok=True)
+
         if ALT_DATA_FILE is None or ALT_DATA_FILE == 0:
-            filename = os.path.join("Puzzles", f"day_{helper_day:02d}_input.txt")
+            filename = os.path.join(private_dir, f"day_{helper_day:02d}_input.txt")
         else:
-            filename = os.path.join("Puzzles", f"day_{helper_day:02d}_input_alt_{ALT_DATA_FILE:02d}.txt")
+            filename = os.path.join(private_dir, f"day_{helper_day:02d}_input_alt_{ALT_DATA_FILE:02d}.txt")
 
         if not os.path.isfile(filename):
             resp = get_page(f"https://adventofcode.com/{YEAR_NUMBER}/day/{helper_day}/input")
