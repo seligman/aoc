@@ -3,47 +3,30 @@
 DAY_NUM = 2
 DAY_DESC = 'Day 2: Red-Nosed Reports'
 
+def is_valid(row):
+    good_pos, good_neg, bad = 0, 0, 0
+
+    for i in range(1, len(row)):
+        diff = row[i] - row[i-1]
+        if good_neg == 0 and diff in {1, 2, 3}:
+            good_pos += 1
+        elif good_pos == 0 and diff in {-1, -2, -3}:
+            good_neg += 1
+        else:
+            bad += 1
+            break
+    
+    return bad == 0
+
 def calc(log, values, mode):
     values = [list(map(int, x.split())) for x in values]
-
     ret = 0
 
     for row in values:
-        last = row[0]
-        is_neg = None
-        fail = 0
-        temp = row
-        for i in range(-1, 0 if mode == 1 else len(temp)):
-            if i == -1:
-                row = temp
-            else:
-                row = temp[:]
-                row.pop(i)
-            fail = 0
-            is_neg = None
-            last = row[0]
-            for x in row[1:]:
-                diff = x - last
-                if diff < 0:
-                    diff = -diff
-                    if is_neg is None:
-                        is_neg = True
-                    else:
-                        if not is_neg:
-                            fail += 1
-                else:
-                    if is_neg is None:
-                        is_neg = False
-                    else:
-                        if is_neg:
-                            fail += 1
-                if diff not in {1, 2, 3}:
-                    fail += 1
-                last = x
-            if fail == 0:
-                break
-        if fail <= 0:
+        if is_valid(row):
             ret += 1
+        elif mode == 2:
+            ret += 1 if any(is_valid(row[:i] + row[i+1:]) for i in range(len(row))) else 0
 
     return ret
 
