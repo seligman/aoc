@@ -7,31 +7,34 @@ import re
 
 def calc(log, values, mode):
     ret = 0
+
     is_enabled = True
+    instructions = {
+        ("do", ""),
+        ("don't", ""),
+        ("mul", "(?P<mul1>[0-9]{1,3}),(?P<mul2>[0-9]{1,3})"),
+    }
+    r = "|".join(f"{re.escape(ins)}\\({args}\\)" for ins, args in instructions)
+    r = re.compile("(?P<ins>" + r +")")
 
     for row in values:
-        for m in re.finditer("(?P<ins>do\\(\\)|don't\\(\\)|mul\\((?P<v1>[0-9]{1,3}),(?P<v2>[0-9]{1,3})\\))", row):
-            if m.group("ins").startswith("mul("):
-                if is_enabled:
-                    ret += int(m.group('v1')) * int(m.group('v2'))
-            elif m.group("ins").startswith("don't(") and mode == 2:
-                is_enabled = False
-            elif m.group("ins").startswith("do(") and mode == 2:
+        for m in r.finditer(row):
+            ins = m.group("ins").split("(")[0]
+            if ins == "do" and mode == 2:
                 is_enabled = True
+            elif ins == "don't" and mode == 2:
+                is_enabled = False
+            elif ins == "mul":
+                if is_enabled:
+                    ret += int(m.group("mul1")) * int(m.group("mul2"))
                 
     return ret
 
 def test(log):
-    values = log.decode_values("""
-        xmul(2,4)%&mul[3,7]!@^do_not_mul(5,5)+mul(32,64]then(mul(11,8)mul(8,5))
-    """)
-
+    values = log.decode_values("xmul(2,4)%&mul[3,7]!@^do_not_mul(5,5)+mul(32,64]then(mul(11,8)mul(8,5))")
     log.test(calc(log, values, 1), '161')
 
-    values = log.decode_values("""
-        xmul(2,4)&mul[3,7]!^don't()_mul(5,5)+mul(32,64](mul(11,8)undo()?mul(8,5))
-    """)
-
+    values = log.decode_values("xmul(2,4)&mul[3,7]!^don't()_mul(5,5)+mul(32,64](mul(11,8)undo()?mul(8,5))")
     log.test(calc(log, values, 2), '48')
 
 def run(log, values):
