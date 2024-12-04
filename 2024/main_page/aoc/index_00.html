@@ -10,7 +10,7 @@
 <link rel="shortcut icon" href="favicon.png"/>
 </head><body>
 <main>
-<p>The first puzzles will unlock on December 1st at midnight EST (UTC-5).  See you then!</p>
+<!-- <p>The first puzzles will unlock on December 1st at midnight EST (UTC-5).  See you then!</p> -->
 <pre class="calendar"><span aria-hidden="true" class="calendar-day1">       .--'     |        .-'                  '-.  <span class="calendar-day"> 1</span><span id="calendar-countdown"></span><script>
 (function(){
 var countdown = document.getElementById("calendar-countdown");
@@ -85,4 +85,9 @@ function update_countdown() {
 <span aria-hidden="true" class="calendar-day24">                                                   <span class="calendar-day">24</span></span>
 <span aria-hidden="true" class="calendar-day25">                                                   <span class="calendar-day">25</span></span>
 </pre>
-</main></body></html>
+</main>
+<script>
+  var countdown = document.getElementById("calendar-countdown");
+  countdown.textContent = window.location.hash.substr(1);
+</script>
+</body></html>

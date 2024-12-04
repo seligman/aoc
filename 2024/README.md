@@ -1,4 +1,4 @@
-<img align="right" width="362" height="306" src="https://raw.githubusercontent.com/seligman/aoc/master/2024/Puzzles/main_page_small.png">
+<img align="right" width="350" height="310" src="https://raw.githubusercontent.com/seligman/aoc/master/2024/Puzzles/main_page_small.png">
 
 These are my solutions to the [Advent of Code for 2024](https://adventofcode.com/2024).
 
