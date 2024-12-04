@@ -843,8 +843,11 @@ def dl_day(helper_day, input_only="no"):
 
             header, footer = get_header_footer()
 
-            with open(os.path.join("Puzzles", f"day_{helper_day:02d}.html"), "wt", encoding="utf-8") as f:
-                f.write(header + resp + footer)
+            try:
+                with open(os.path.join("Puzzles", f"day_{helper_day:02d}.html"), "wt", encoding="utf-8") as f:
+                    f.write(header + resp + footer)
+            except:
+                print("Warning, unable to write out HTML file")
 
             print(f"Wrote out puzzle for day #{helper_day}")
 
