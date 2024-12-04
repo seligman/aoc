@@ -353,8 +353,8 @@ class Grid:
                 self[x + xo, y + yo] = value
 
     @staticmethod
-    def from_text(values, axis=2):
-        grid = Grid()
+    def from_text(values, axis=2, default=0):
+        grid = Grid(default=default)
         if isinstance(values, str):
             if "\n" in values:
                 values = values.split("\n")
