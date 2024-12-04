@@ -4,28 +4,27 @@ DAY_NUM = 4
 DAY_DESC = 'Day 4: Ceres Search'
 
 def calc(log, values, mode):
-    from grid import Grid, Point
+    from grid import Grid
     grid = Grid.from_text(values, default=".")
 
     ret = 0
     if mode == 1:
-        for x in grid.x_range():
-            for y in grid.y_range():
-                if grid[x, y] == "X":
-                    for ox, oy in Grid.get_dirs(2, diagonal=True):
-                        good = True
-                        for i in range(4):
-                            if grid[x + ox * i, y + oy * i] != "XMAS"[i]:
-                                good = False
-                        if good:
-                            ret += 1
+        for x, y in grid.xy_range():
+            if grid[x, y] == "X":
+                for ox, oy in Grid.get_dirs(2, diagonal=True):
+                    good = True
+                    for i in range(4):
+                        if grid[x + ox * i, y + oy * i] != "XMAS"[i]:
+                            good = False
+                            break
+                    if good:
+                        ret += 1
     else:
-        for x in grid.x_range():
-            for y in grid.y_range():
-                if grid[x, y] == "A":
-                    if grid[x-1,y-1] + grid[x+1,y+1] in {"MS", "SM"}:
-                        if grid[x-1,y+1] + grid[x+1,y-1] in {"MS", "SM"}:
-                            ret += 1
+        for x, y in grid.xy_range():
+            if grid[x,y] == "A":
+                if grid[x-1,y-1] + grid[x+1,y+1] in {"MS", "SM"}:
+                    if grid[x-1,y+1] + grid[x+1,y-1] in {"MS", "SM"}:
+                        ret += 1
 
     return ret
 
@@ -41,7 +40,7 @@ def test(log):
         SAXAMASAAA
         MAMMMXMMMM
         MXMXAXMASX
-        """)
+    """)
 
     log.test(calc(log, values, 1), '18')
     log.test(calc(log, values, 2), '9')

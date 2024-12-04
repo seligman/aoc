@@ -465,6 +465,20 @@ class Grid:
         else:
             return [x for x in self.x_range(pad=pad) if x % 2 == 1]
 
+    def xy_range(self, pad=0):
+        for x in self.axis_range(0, pad=pad):
+            for y in self.axis_range(1, pad=pad):
+                yield x, y
+
+    def axises_range(self, axis_count, axis_start=0, pad=0):
+        if axis_count == 1:
+            for x in self.axis_range(axis_start, pad=pad):
+                yield (x,)
+        else:
+            for x in self.axis_range(axis_start, pad=pad):
+                for y in self.axises_range(axis_count-1, axis_start+1, pad=pad):
+                    yield (x,) + y
+
     def x_range(self, pad=0):
         return self.axis_range(0, pad=pad)
 
