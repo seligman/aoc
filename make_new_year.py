@@ -38,7 +38,7 @@ def main():
 
     for cur in list_files(year):
         fix_year = False
-        if "/".join(cur) in {"advent_year.py", "README.md", "URL.txt"}:
+        if "/".join(cur) in {"advent_year.py", "README.md", "URL.txt", "example.txt"}:
             fix_year = True
         print(f"Copy: {year} -> {next_year}: " + "/".join(cur))
         source_fn = os.path.join(*([year] + cur))
