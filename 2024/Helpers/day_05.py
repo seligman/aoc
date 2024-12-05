@@ -10,27 +10,24 @@ def calc(log, values, mode):
         if "|" in row:
             rules.append(list(map(int, row.split("|"))))
         elif "," in row:
-            row = list(map(int, row.split(",")))
+            row = {x: i for i, x in enumerate(map(int, row.split(",")))}
             first = True
             while True:
                 problems = []
                 for a, b in rules:
-                    if len(set([a, b]) & set(row)) == 2:
-                        if row.index(a) > row.index(b):
-                            problems.append((row.index(a), row.index(b)))
+                    if a in row and b in row:
+                        if row[a] > row[b]:
+                            problems.append((a, b))
                             break
                 
-                if mode == 1:
+                if mode == 1 or (mode == 2 and not first and len(problems) == 0):
                     if len(problems) == 0:
-                        ret += row[(len(row) - 1) // 2 ]
+                        ret += sum(k for k, v in row.items() if v == (len(row) - 1) // 2)
                     break
                 else:
                     if first and len(problems) == 0:
                         break
                     first = False
-                    if len(problems) == 0:
-                        ret += row[(len(row) - 1) // 2 ]
-                        break
                     a, b = problems[0]
                     row[a], row[b] = row[b], row[a]
 
