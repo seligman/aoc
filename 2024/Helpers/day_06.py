@@ -3,11 +3,16 @@
 DAY_NUM = 6
 DAY_DESC = 'Day 6: Guard Gallivant'
 
-def calc(log, values, mode, draw=False):
+def calc(log, values, mode, draw=False, speed_up=False):
     from grid import Grid
     grid = Grid.from_text(values, default="X")
     if draw:
         shadow = Grid.from_text(values, default="X")
+        # Force 16:9
+        if shadow.width() / shadow.height() < 16 / 9:
+            target = (int((16/9*shadow.height())+0.5) - shadow.width()) // 2
+            shadow[target + shadow.width(), 0] = "."
+            shadow[-target, 0] = "."
         trail = []
         skip = 0
 
@@ -39,14 +44,18 @@ def calc(log, values, mode, draw=False):
                     perc = (i / (len(trail) - 1)) * 0.5 + 0.5
                     shadow[xy] = [" ", (int(255 * perc), int(215 * perc), 0)]
                 skip += 1
-                if skip % 4 == 0:
+                if speed_up or skip % 4 == 0:
                     shadow.save_frame()
+                if skip % 250 == 0:
+                    log(f"Saved frame {skip:,}")
         elif grid[nx, ny] == "X":
             break
 
     if mode == 1:
         if draw:
             shadow.save_frame()
+            if speed_up:
+                shadow.ease_frames(rate=15, secs=15)
             shadow.draw_frames(show_lines=False)
         return len(seen)
     
@@ -82,6 +91,15 @@ def other_draw(describe, values):
     animate.prep()
     calc(DummyLog(), values, 1, draw=True)
     animate.create_mp4(DAY_NUM, rate=15, final_secs=5)
+
+def other_draw_fast(describe, values):
+    if describe:
+        return "Draw this, quickly"
+    from dummylog import DummyLog
+    import animate
+    animate.prep()
+    calc(DummyLog(), values, 1, draw=True, speed_up=True)
+    animate.create_mp4(DAY_NUM, rate=15, final_secs=5, extra="_fast")
 
 def test(log):
     values = log.decode_values("""

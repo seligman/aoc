@@ -689,6 +689,19 @@ class Grid:
             self.queue.put(None)
         [x.join() for x in self.procs]
 
+    def ease_frames(self, rate=10, secs=5):
+        import math
+
+        target_count = rate * secs
+
+        def ease(x):
+            x = min(1, max(0, x))
+            return -(math.cos(math.pi * x) - 1) / 2 # sine
+            # return (8 * x * x * x * x) if (x < 0.5) else (1 - ((-2 * x + 2) ** 4) / 2) # cubic
+
+        hits = [int((ease(x / target_count) * (len(self.frames) - 1)) + 0.5) for x in range(target_count + 1)]
+        self.frames = [self.frames[x] for x in hits]
+
     def draw_frames(self, color_map=DEFAULT_COLOR_MAP, cell_size=(10, 10), repeat_final=0, font_size=10, extra_callback=None, show_lines=True, use_multiproc=True, scale=None):
         from datetime import datetime, timedelta
         import multiprocessing
