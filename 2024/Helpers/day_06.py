@@ -4,7 +4,7 @@ DAY_NUM = 6
 DAY_DESC = 'Day 6: Guard Gallivant'
 
 def calc(log, values, mode, draw=False):
-    from grid import Grid, Point
+    from grid import Grid
     grid = Grid.from_text(values, default="X")
     if draw:
         shadow = Grid.from_text(values, default="X")
@@ -16,8 +16,8 @@ def calc(log, values, mode, draw=False):
 
     for x, y in grid.xy_range():
         if grid[x, y] == "^":
-            pos_x, pos_y = x, y
             start_x, start_y = x, y
+            pos_x, pos_y = x, y
             if draw:
                 shadow[x, y] = "*"
                 trail.append((x, y))
@@ -25,9 +25,9 @@ def calc(log, values, mode, draw=False):
     
     seen = set()
     while True:
-        nx, ny = pos_x + rots[rot % 4][0], pos_y + rots[rot % 4][1]
+        nx, ny = pos_x + rots[rot][0], pos_y + rots[rot][1]
         if grid[nx, ny] == "#":
-            rot += 1
+            rot = (rot + 1) % 4
         elif grid[nx, ny] in {".", "^"}:
             seen.add((nx, ny))
             pos_x, pos_y = nx, ny
@@ -35,7 +35,6 @@ def calc(log, values, mode, draw=False):
                 trail.append((nx, ny))
                 while len(trail) > 25:
                     trail.pop(0)
-                    # shadow[trail.pop(0)] = "."
                 for i, xy in enumerate(trail):
                     perc = (i / (len(trail) - 1)) * 0.5 + 0.5
                     shadow[xy] = [" ", (int(255 * perc), int(215 * perc), 0)]
@@ -52,20 +51,18 @@ def calc(log, values, mode, draw=False):
         return len(seen)
     
     ret = 0
-    for test_x, test_y in seen:
-        grid[test_x, test_y] = "#"
+    for block_x, block_y in seen:
+        grid[block_x, block_y] = "#"
         rot = 0
-
         pos_x, pos_y = start_x, start_y
 
         loop = set()
-
         while True:
-            nx, ny = pos_x + rots[rot % 4][0], pos_y + rots[rot % 4][1]
+            nx, ny = pos_x + rots[rot][0], pos_y + rots[rot][1]
             if grid[nx, ny] == "#":
-                rot += 1
+                rot = (rot + 1) % 4
             elif grid[nx, ny] in {".", "^"}:
-                key = (nx, ny, rots[rot % 4][0], rots[rot % 4][1])
+                key = (nx, ny, rot)
                 if key in loop:
                     ret += 1
                     break
@@ -73,7 +70,8 @@ def calc(log, values, mode, draw=False):
                 pos_x, pos_y = nx, ny
             elif grid[nx, ny] == "X":
                 break
-        grid[test_x, test_y] = "."
+
+        grid[block_x, block_y] = "."
     return ret
 
 def other_draw(describe, values):
