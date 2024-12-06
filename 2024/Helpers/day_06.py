@@ -21,7 +21,6 @@ def calc(log, values, mode, draw=False, speed_up=False):
 
     for x, y in grid.xy_range():
         if grid[x, y] == "^":
-            start_x, start_y = x, y
             pos_x, pos_y = x, y
             if draw:
                 shadow[x, y] = "*"
@@ -29,12 +28,15 @@ def calc(log, values, mode, draw=False, speed_up=False):
             break
     
     seen = set()
+    tests = {}
     while True:
         nx, ny = pos_x + rots[rot][0], pos_y + rots[rot][1]
         if grid[nx, ny] == "#":
             rot = (rot + 1) % 4
         elif grid[nx, ny] in {".", "^"}:
             seen.add((nx, ny))
+            if (nx, ny) not in tests:
+                tests[(nx, ny)] = (pos_x, pos_y, rot)
             pos_x, pos_y = nx, ny
             if draw:
                 trail.append((nx, ny))
@@ -59,28 +61,34 @@ def calc(log, values, mode, draw=False, speed_up=False):
             shadow.draw_frames(show_lines=False)
         return len(seen)
     
+    blocks = set()
+    for xy in grid.xy_range():
+        if grid[xy] == "#":
+            blocks.add(xy)
+
     ret = 0
-    for block_x, block_y in seen:
-        grid[block_x, block_y] = "#"
-        rot = 0
-        pos_x, pos_y = start_x, start_y
+    width, height = grid.width(), grid.height()
+    for (block_x, block_y), (pos_x, pos_y, rot) in tests.items():
+        blocks.add((block_x, block_y))
+        dx, dy = rots[rot]
 
         loop = set()
         while True:
-            nx, ny = pos_x + rots[rot][0], pos_y + rots[rot][1]
-            if grid[nx, ny] == "#":
+            nx, ny = pos_x + dx, pos_y + dy
+            if (nx, ny) in blocks:
                 rot = (rot + 1) % 4
-            elif grid[nx, ny] in {".", "^"}:
+                dx, dy = rots[rot]
+            elif nx < 0 or ny < 0 or nx >= width or ny >= height:
+                break
+            else:
                 key = (nx, ny, rot)
                 if key in loop:
                     ret += 1
                     break
                 loop.add(key)
                 pos_x, pos_y = nx, ny
-            elif grid[nx, ny] == "X":
-                break
 
-        grid[block_x, block_y] = "."
+        blocks.remove((block_x, block_y))
     return ret
 
 def other_draw(describe, values):
