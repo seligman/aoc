@@ -8,11 +8,8 @@ def calc(log, values, mode, draw=False, speed_up=False):
     grid = Grid.from_text(values, default="X")
     if draw:
         shadow = Grid.from_text(values, default="X")
-        # Force 16:9
-        if shadow.width() / shadow.height() < 16 / 9:
-            target = (int((16/9*shadow.height())+0.5) - shadow.width()) // 2
-            shadow[target + shadow.width(), 0] = "."
-            shadow[-target, 0] = "."
+        shadow.pad(2, value=".")
+        shadow.ensure_ratio(16/9, value=".")
         trail = []
         skip = 0
 

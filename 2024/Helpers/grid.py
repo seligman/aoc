@@ -431,6 +431,28 @@ class Grid:
         else:
             return (key,) in self.grid
 
+    def pad(self, num_to_pad, value=None):
+        if value is None:
+            value = self.default
+        min_x, max_x = self.axis_min(0), self.axis_max(0)
+        min_y, max_y = self.axis_min(1), self.axis_max(1)
+        self[min_x - num_to_pad, min_y - num_to_pad] = value
+        self[max_x + num_to_pad, max_y + num_to_pad] = value
+
+    def ensure_ratio(self, ratio, value=None):
+        if value is None:
+            value = self.default
+        if self.width() / self.height() < ratio:
+            target = (int((ratio * self.height()) + 0.5) - self.width()) // 2
+            min_x, max_x = self.axis_min(0), self.axis_max(0)
+            self[max_x + target, 0] = value
+            self[min_x - target, 0] = value
+        elif self.width() / self.height() > ratio:
+            target = (int((self.width() / ratio) + 0.5) - self.height()) // 2
+            min_y, max_y = self.axis_min(1), self.axis_max(1)
+            self[0, max_y + target] = value
+            self[0, min_y - target] = value
+
     def set_text(self, x, y, text, color=None):
         for xo in range(len(text)):
             if color is None:
