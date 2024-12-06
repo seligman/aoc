@@ -4,15 +4,12 @@ DAY_NUM = 6
 DAY_DESC = 'Day 6: Guard Gallivant'
 
 def calc(log, values, mode):
-    # TODO: Delete or use these
-    # from parsers import get_ints, get_floats
     from grid import Grid, Point
     grid = Grid.from_text(values, default="X")
 
     rots = [(0, -1), (1, 0), (0, 1), (-1, 0)]
-    temp = rots.pop(0)
-    dir_x, dir_y = temp
-    rots.append(temp)
+    rot = 0
+
     for x, y in grid.xy_range():
         if grid[x, y] == "^":
             pos_x, pos_y = x, y
@@ -21,79 +18,61 @@ def calc(log, values, mode):
     
     seen = set()
     while True:
-        nx, ny = pos_x + dir_x, pos_y + dir_y
+        nx, ny = pos_x + rots[rot % 4][0], pos_y + rots[rot % 4][1]
         if grid[nx, ny] == "#":
-            temp = rots.pop(0)
-            dir_x, dir_y = temp
-            rots.append(temp)
+            rot += 1
         elif grid[nx, ny] in {".", "^"}:
             seen.add((nx, ny))
             pos_x, pos_y = nx, ny
         elif grid[nx, ny] == "X":
             break
-        # grid.show_grid(log, {".": ".", "^": "^", "#": "#"})
 
     if mode == 1:
         return len(seen)
     
     ret = 0
     for test_x, test_y in seen:
-        # test_x, test_y = start_x - 1, start_y
         grid[test_x, test_y] = "#"
-        rots = [(0, -1), (1, 0), (0, 1), (-1, 0)]
-
-        temp = rots.pop(0)
-        dir_x, dir_y = temp
-        rots.append(temp)
+        rot = 0
 
         pos_x, pos_y = start_x, start_y
-
 
         loop = set()
 
         while True:
-            nx, ny = pos_x + dir_x, pos_y + dir_y
-            # grid[pos_x, pos_y] = "^"
-            # grid.show_grid(log, {".": ".", "^": "^", "#": "#"})
+            nx, ny = pos_x + rots[rot % 4][0], pos_y + rots[rot % 4][1]
             if grid[nx, ny] == "#":
-                temp = rots.pop(0)
-                dir_x, dir_y = temp
-                rots.append(temp)
+                rot += 1
             elif grid[nx, ny] in {".", "^"}:
-                if (nx, ny, dir_x, dir_y) in loop:
+                key = (nx, ny, rots[rot % 4][0], rots[rot % 4][1])
+                if key in loop:
                     ret += 1
                     break
-                loop.add((nx, ny, dir_x, dir_y))
+                loop.add(key)
                 pos_x, pos_y = nx, ny
             elif grid[nx, ny] == "X":
                 break
-        # print(len(loop))
         grid[test_x, test_y] = "."
-        # break
     return ret
 
-    # from program import Program
-    # program = Program(values)
-
-    # TODO
     return 0
 
 def test(log):
     values = log.decode_values("""
-....#.....
-.........#
-..........
-..#.......
-.......#..
-..........
-.#..^.....
-........#.
-#.........
-......#...
+        ....#.....
+        .........#
+        ..........
+        ..#.......
+        .......#..
+        ..........
+        .#..^.....
+        ........#.
+        #.........
+        ......#...
     """)
 
     log.test(calc(log, values, 1), '41')
-    log.test(calc(log, values, 2), 'TODO')
+    log.test(calc(log, values, 2), '6')
 
 def run(log, values):
     log(calc(log, values, 1))
