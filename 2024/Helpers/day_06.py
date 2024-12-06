@@ -3,9 +3,13 @@
 DAY_NUM = 6
 DAY_DESC = 'Day 6: Guard Gallivant'
 
-def calc(log, values, mode):
+def calc(log, values, mode, draw=False):
     from grid import Grid, Point
     grid = Grid.from_text(values, default="X")
+    if draw:
+        shadow = Grid.from_text(values, default="X")
+        trail = []
+        skip = 0
 
     rots = [(0, -1), (1, 0), (0, 1), (-1, 0)]
     rot = 0
@@ -14,6 +18,9 @@ def calc(log, values, mode):
         if grid[x, y] == "^":
             pos_x, pos_y = x, y
             start_x, start_y = x, y
+            if draw:
+                shadow[x, y] = "*"
+                trail.append((x, y))
             break
     
     seen = set()
@@ -24,10 +31,24 @@ def calc(log, values, mode):
         elif grid[nx, ny] in {".", "^"}:
             seen.add((nx, ny))
             pos_x, pos_y = nx, ny
+            if draw:
+                trail.append((nx, ny))
+                while len(trail) > 25:
+                    trail.pop(0)
+                    # shadow[trail.pop(0)] = "."
+                for i, xy in enumerate(trail):
+                    perc = (i / (len(trail) - 1)) * 0.5 + 0.5
+                    shadow[xy] = [" ", (int(255 * perc), int(215 * perc), 0)]
+                skip += 1
+                if skip % 4 == 0:
+                    shadow.save_frame()
         elif grid[nx, ny] == "X":
             break
 
     if mode == 1:
+        if draw:
+            shadow.save_frame()
+            shadow.draw_frames(show_lines=False)
         return len(seen)
     
     ret = 0
@@ -55,7 +76,14 @@ def calc(log, values, mode):
         grid[test_x, test_y] = "."
     return ret
 
-    return 0
+def other_draw(describe, values):
+    if describe:
+        return "Draw this"
+    from dummylog import DummyLog
+    import animate
+    animate.prep()
+    calc(DummyLog(), values, 1, draw=True)
+    animate.create_mp4(DAY_NUM, rate=15, final_secs=5)
 
 def test(log):
     values = log.decode_values("""
