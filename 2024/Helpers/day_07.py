@@ -8,15 +8,15 @@ import math
 
 def calc(log, values, mode):
     ret = 0
+    todo = deque()
     for row in values:
         row = list(map(int, row.replace(":", "").split()))
         target, args = row[0], row[1:]
-        if mode == 2:
-            mul = [10 ** int(math.log10(x)+1) for x in args]
-
-        todo = deque()
-        todo.append((args[0], 1))
+        args = [(x, 10 ** int(math.log10(x)+1)) for x in args]
         finish = len(args)
+
+        todo.clear()
+        todo.append((args[0][0], 1))
         
         while len(todo) > 0:
             val, pos = todo.pop()
@@ -24,12 +24,17 @@ def calc(log, values, mode):
                 if val == target:
                     ret += target
                     break
-            elif val <= target:
-                x = args[pos]
-                todo.append((val + x, pos + 1))
-                todo.append((val * x, pos + 1))
+            else:
+                x, mul = args[pos]
+                next_pos = pos + 1
+
+                temp = val + x
+                if temp <= target: todo.append((temp, next_pos))
+                temp = val * x
+                if temp <= target: todo.append((temp, next_pos))
                 if mode == 2:
-                    todo.append((val * mul[pos] + x, pos + 1))
+                    temp = val * mul + x
+                    if temp <= target: todo.append((temp, next_pos))
 
     return ret
 
