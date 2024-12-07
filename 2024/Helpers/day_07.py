@@ -6,40 +6,38 @@ DAY_DESC = 'Day 7: Bridge Repair'
 from collections import deque
 
 def calc(log, values, mode):
-    if mode == 1:
-        possible = ["+", "*"]
-    else:
-        possible = ["+", "*", "||"]
+    possible = []
+    if mode in {1, 2}:
+        possible.append(lambda x, y: x + y)
+        possible.append(lambda x, y: x * y)
+    if mode == 2:
+        possible.append(lambda x, y: int(str(x) + str(y)))
 
     ret = 0
     for row in values:
         target, args = row.split(": ")
         target = int(target)
-        args = [{"oper": 0, "val": int(x)} for x in args.split()]
+        args = [int(x) for x in args.split()]
+        if mode == 2:
+            mul = [10 ** len(str(x)) for x in args]
 
         todo = deque()
-        todo.append((args[0]['val'], 1))
-        
+        todo.append((args[0], 1))
         finish = len(args)
+        
         while len(todo) > 0:
             val, pos = todo.pop()
-            if pos == finish:
-                if val == target:
-                    ret += target
-                    break
-            else:
-                next_val = args[pos]['val']
-                for oper in possible:
-                    if oper == "*":
-                        temp = next_val * val
-                    elif oper == "+":
-                        temp = next_val + val
-                    elif oper == "||":
-                        temp = int(str(val) + str(next_val))
-                    else:
-                        raise Exception()
-                    if temp <= target:
-                        todo.append((temp, pos + 1))
+            if val <= target:
+                if pos == finish:
+                    if val == target:
+                        ret += target
+                        break
+                else:
+                    x = args[pos]
+                    todo.append((val + x, pos + 1))
+                    todo.append((val * x, pos + 1))
+                    if mode == 2:
+                        todo.append((val * mul[pos] + x, pos + 1))
 
     return ret
 
