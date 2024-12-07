@@ -26,14 +26,21 @@ def calc(log, values, mode, draw=False, speed_up=False):
     
     seen = set()
     tests = {}
+    blocks = set((x, y) for (x, y), v in grid.grid.items() if v == "#")
+    width, height = grid.width(), grid.height()
+    dx, dy = rots[rot]
+
     while True:
-        nx, ny = pos_x + rots[rot][0], pos_y + rots[rot][1]
-        if grid[nx, ny] == "#":
+        nx, ny = pos_x + dx, pos_y + dy
+        if (nx, ny) in blocks:
             rot = (rot + 1) % 4
-        elif grid[nx, ny] in {".", "^"}:
+            dx, dy = rots[rot]
+        elif nx < 0 or ny < 0 or nx >= width or ny >= height:
+            break
+        else:
             seen.add((nx, ny))
             if (nx, ny) not in tests:
-                tests[(nx, ny)] = (pos_x, pos_y, rot)
+                tests[(nx, ny)] = (nx, ny, pos_x, pos_y, rot)
             pos_x, pos_y = nx, ny
             if draw:
                 trail.append((nx, ny))
@@ -47,8 +54,6 @@ def calc(log, values, mode, draw=False, speed_up=False):
                     shadow.save_frame()
                 if skip % 250 == 0:
                     log(f"Saved frame {skip:,}")
-        elif grid[nx, ny] == "X":
-            break
 
     if mode == 1:
         if draw:
@@ -57,15 +62,10 @@ def calc(log, values, mode, draw=False, speed_up=False):
                 shadow.ease_frames(rate=15, secs=15)
             shadow.draw_frames(show_lines=False)
         return len(seen)
-    
-    blocks = set()
-    for xy in grid.xy_range():
-        if grid[xy] == "#":
-            blocks.add(xy)
 
     ret = 0
-    width, height = grid.width(), grid.height()
-    for (block_x, block_y), (pos_x, pos_y, rot) in tests.items():
+
+    for block_x, block_y, pos_x, pos_y, rot in tests.values():
         blocks.add((block_x, block_y))
         dx, dy = rots[rot]
 
@@ -73,16 +73,16 @@ def calc(log, values, mode, draw=False, speed_up=False):
         while True:
             nx, ny = pos_x + dx, pos_y + dy
             if (nx, ny) in blocks:
-                rot = (rot + 1) % 4
-                dx, dy = rots[rot]
-            elif nx < 0 or ny < 0 or nx >= width or ny >= height:
-                break
-            else:
                 key = (nx, ny, rot)
                 if key in loop:
                     ret += 1
                     break
                 loop.add(key)
+                rot = (rot + 1) % 4
+                dx, dy = rots[rot]
+            elif nx < 0 or ny < 0 or nx >= width or ny >= height:
+                break
+            else:
                 pos_x, pos_y = nx, ny
 
         blocks.remove((block_x, block_y))
