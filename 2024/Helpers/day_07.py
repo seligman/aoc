@@ -4,22 +4,15 @@ DAY_NUM = 7
 DAY_DESC = 'Day 7: Bridge Repair'
 
 from collections import deque
+import math
 
 def calc(log, values, mode):
-    possible = []
-    if mode in {1, 2}:
-        possible.append(lambda x, y: x + y)
-        possible.append(lambda x, y: x * y)
-    if mode == 2:
-        possible.append(lambda x, y: int(str(x) + str(y)))
-
     ret = 0
     for row in values:
-        target, args = row.split(": ")
-        target = int(target)
-        args = [int(x) for x in args.split()]
+        row = list(map(int, row.replace(":", "").split()))
+        target, args = row[0], row[1:]
         if mode == 2:
-            mul = [10 ** len(str(x)) for x in args]
+            mul = [10 ** int(math.log10(x)+1) for x in args]
 
         todo = deque()
         todo.append((args[0], 1))
@@ -27,17 +20,16 @@ def calc(log, values, mode):
         
         while len(todo) > 0:
             val, pos = todo.pop()
-            if val <= target:
-                if pos == finish:
-                    if val == target:
-                        ret += target
-                        break
-                else:
-                    x = args[pos]
-                    todo.append((val + x, pos + 1))
-                    todo.append((val * x, pos + 1))
-                    if mode == 2:
-                        todo.append((val * mul[pos] + x, pos + 1))
+            if pos == finish:
+                if val == target:
+                    ret += target
+                    break
+            elif val <= target:
+                x = args[pos]
+                todo.append((val + x, pos + 1))
+                todo.append((val * x, pos + 1))
+                if mode == 2:
+                    todo.append((val * mul[pos] + x, pos + 1))
 
     return ret
 
