@@ -3,60 +3,57 @@
 DAY_NUM = 7
 DAY_DESC = 'Day 7: Bridge Repair'
 
+from collections import deque
+
 def calc(log, values, mode):
+    if mode == 1:
+        possible = ["+", "*"]
+    else:
+        possible = ["+", "*", "||"]
+
     ret = 0
     for row in values:
-        res, args = row.split(": ")
-        args = list(map(int, args.split()))
-        res = int(res)
+        target, args = row.split(": ")
+        target = int(target)
+        args = [{"oper": 0, "val": int(x)} for x in args.split()]
 
-        pos = ["+" for _ in range(len(args)-1)]
-        while True:
-            val = args[0]
-            for func, x in zip(pos, args[1:]):
-                if func == "+":
-                    val += x
-                elif func == "*":
-                    val *= x
-                elif func == "||":
-                    val = int(str(val) + str(x))
-            # print("test", res, "".join(args))
-            # print(val)
-            if val == res:
-                # ret += eval("".join(args))
-                ret += res
-                # print(res, "".join(args))
-                break
-            i = 0
-            ended = False
-            possible = ["+", "*"] + ([] if mode == 1 else ["||"])
-            while True:
-                if i >= len(pos):
-                    ended = True
+        todo = deque()
+        todo.append((args[0]['val'], 1))
+        
+        finish = len(args)
+        while len(todo) > 0:
+            val, pos = todo.pop()
+            if pos == finish:
+                if val == target:
+                    ret += target
                     break
-
-                if pos[i] == possible[-1]:
-                    pos[i] = possible[0]
-                    i += 1
-                else:
-                    pos[i] = possible[possible.index(pos[i]) + 1]
-                    break
-            if ended:
-                break
+            else:
+                next_val = args[pos]['val']
+                for oper in possible:
+                    if oper == "*":
+                        temp = next_val * val
+                    elif oper == "+":
+                        temp = next_val + val
+                    elif oper == "||":
+                        temp = int(str(val) + str(next_val))
+                    else:
+                        raise Exception()
+                    if temp <= target:
+                        todo.append((temp, pos + 1))
 
     return ret
 
 def test(log):
     values = log.decode_values("""
-190: 10 19
-3267: 81 40 27
-83: 17 5
-156: 15 6
-7290: 6 8 6 15
-161011: 16 10 13
-192: 17 8 14
-21037: 9 7 18 13
-292: 11 6 16 20
+        190: 10 19
+        3267: 81 40 27
+        83: 17 5
+        156: 15 6
+        7290: 6 8 6 15
+        161011: 16 10 13
+        192: 17 8 14
+        21037: 9 7 18 13
+        292: 11 6 16 20
     """)
 
     log.test(calc(log, values, 1), '3749')
