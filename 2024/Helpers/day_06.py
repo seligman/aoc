@@ -24,7 +24,7 @@ def calc(log, values, mode, draw=False, speed_up=False):
                 trail.append((x, y))
             break
     
-    seen = set()
+    seen = set([(pos_x, pos_y)])
     tests = {}
     blocks = set((x, y) for (x, y), v in grid.grid.items() if v == "#")
     width, height = grid.width(), grid.height()
