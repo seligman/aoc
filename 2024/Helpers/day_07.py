@@ -3,38 +3,31 @@
 DAY_NUM = 7
 DAY_DESC = 'Day 7: Bridge Repair'
 
-from collections import deque
+from collections import deque, namedtuple
 import math
 
 def calc(log, values, mode):
     ret = 0
-    todo = deque()
+    test = namedtuple('test', ['val', 'pos'])
     for row in values:
         row = list(map(int, row.replace(":", "").split()))
-        target, args = row[0], row[1:]
-        args = [(x, 10 ** int(math.log10(x)+1)) for x in args]
-        finish = len(args)
-
-        todo.clear()
-        todo.append((args[0][0], 1))
-        
+        todo = deque()
+        todo.append(test(row[0], len(row) - 1))
         while len(todo) > 0:
-            val, pos = todo.pop()
-            if pos == finish:
-                if val == target:
-                    ret += target
+            cur = todo.pop()
+            if cur.pos == 1:
+                if cur.val == row[1]:
+                    ret += row[0]
                     break
             else:
-                x, mul = args[pos]
-                next_pos = pos + 1
-
-                temp = val + x
-                if temp <= target: todo.append((temp, next_pos))
-                temp = val * x
-                if temp <= target: todo.append((temp, next_pos))
+                if cur.val % row[cur.pos] == 0:
+                    todo.append(test(cur.val // row[cur.pos], cur.pos - 1))
+                if cur.val > row[cur.pos]:
+                    todo.append(test(cur.val - row[cur.pos], cur.pos - 1))
                 if mode == 2:
-                    temp = val * mul + x
-                    if temp <= target: todo.append((temp, next_pos))
+                    mul = 10 ** int(math.log10(row[cur.pos])+1)
+                    if cur.val % mul == row[cur.pos]:
+                        todo.append(test(cur.val // mul, cur.pos - 1))
 
     return ret
 
@@ -51,8 +44,17 @@ def test(log):
         292: 11 6 16 20
     """)
 
-    log.test(calc(log, values, 1), '3749')
-    log.test(calc(log, values, 2), '11387')
+    # log.test(calc(log, values, 1), '3749')
+    # log.test(calc(log, values, 2), '11387')
+
+    values = log.decode_values("""
+        20: 2 3 4
+        2012: 2 3 4 12
+    """)
+
+    log.test(calc(log, values, 1), '20')
+    log.test(calc(log, values, 2), '2032')
+
 
 def run(log, values):
     log(calc(log, values, 1))
