@@ -633,6 +633,9 @@ class Grid:
             im.save("frame_%05d.png" % (self.frame,))
             self.frame += 1
 
+    def remove_last_frame(self):
+        self.frames.pop(-1)
+
     def save_frame(self, extra_text=None, extra=None, final_frame=False):
         temp = {k: (v[:] if isinstance(v, list) else v) for k, v in self.grid.items()}
         if self.pass_to_quick:

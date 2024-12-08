@@ -3,9 +3,16 @@
 DAY_NUM = 8
 DAY_DESC = 'Day 8: Resonant Collinearity'
 
-def calc(log, values, mode):
+def calc(log, values, mode, draw=False):
     from grid import Grid, Point
     grid = Grid.from_text(values, default="-")
+
+    if draw:
+        shadow = grid.copy()
+        shadow.default = None
+        for xy in grid.xy_range():
+            if grid[xy] != ".":
+                shadow[xy] = "#"
 
     nodes = {}
     anti = set()
@@ -23,16 +30,42 @@ def calc(log, values, mode):
         for a in items:
             for b in items:
                 if a != b:
+                    if draw:
+                        shadow[a] = "Star"
+                        shadow[b] = "Star"
+                        before = len(anti)
+                        shadow.save_frame()
                     for xy, to_add in (b, (b - a)), (a, (a - b)):
                         xy += to_add
                         while grid[xy] != "-":
                             if grid[xy] != val:
                                 anti.add(xy)
+                                if draw:
+                                    shadow[xy] = "target"
                             if mode == 1:
                                 break
                             xy += to_add
+                    if draw:
+                        shadow[a] = "#"
+                        shadow[b] = "#"
+                        if len(anti) > before:
+                            shadow.save_frame()
+                        else:
+                            shadow.remove_last_frame()
     
+    if draw:
+        shadow.save_frame()
+        shadow.draw_frames(show_lines=False)
     return len(anti)
+
+def other_draw(describe, values):
+    if describe:
+        return "Draw this"
+    from dummylog import DummyLog
+    import animate
+    animate.prep()
+    calc(DummyLog(), values, 2, draw=True)
+    animate.create_mp4(DAY_NUM, rate=15, final_secs=5)
 
 def test(log):
     values = log.decode_values("""
