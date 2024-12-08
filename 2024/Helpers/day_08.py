@@ -8,54 +8,46 @@ def calc(log, values, mode):
     grid = Grid.from_text(values, default="-")
 
     nodes = {}
+    anti = set()
+
     for xy in grid.xy_range():
         if grid[xy] != ".":
             if grid[xy] not in nodes:
                 nodes[grid[xy]] = []
-            nodes[grid[xy]].append(xy)
+            temp = Point(xy)
+            nodes[grid[xy]].append(temp)
+            if mode == 2:
+                anti.add(temp)
     
-    anti = set()
-    if mode == 2:
-        anti = set(xy for xy in grid.xy_range() if grid[xy] != ".")
     for val, items in nodes.items():
         for a in items:
             for b in items:
                 if a != b:
-                    xy = b[0] + b[0] - a[0], b[1] + b[1] - a[1]
-                    while True:
-                        if grid[xy] != "-":
-                            anti.add(xy)
+                    for xy, to_add in (b, (b - a)), (a, (a - b)):
+                        xy += to_add
+                        while grid[xy] != "-":
+                            if grid[xy] != val:
+                                anti.add(xy)
                             if mode == 1:
                                 break
-                            xy = xy[0] + b[0] - a[0], xy[1] + b[1] - a[1]
-                        else:
-                            break
-                    xy = a[0] + a[0] - b[0], a[1] + a[1] - b[1]
-                    while True:
-                        if grid[xy] != "-":
-                            anti.add(xy)
-                            if mode == 1:
-                                break
-                            xy = xy[0] + a[0] - b[0], xy[1] + a[1] - b[1]
-                        else:
-                            break
+                            xy += to_add
     
     return len(anti)
 
 def test(log):
     values = log.decode_values("""
-............
-........0...
-.....0......
-.......0....
-....0.......
-......A.....
-............
-............
-........A...
-.........A..
-............
-............
+        ............
+        ........0...
+        .....0......
+        .......0....
+        ....0.......
+        ......A.....
+        ............
+        ............
+        ........A...
+        .........A..
+        ............
+        ............
     """)
 
     log.test(calc(log, values, 1), '14')
