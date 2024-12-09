@@ -714,7 +714,12 @@ class Grid:
             self.queue.put(None)
         [x.join() for x in self.procs]
 
-    def ease_frames(self, rate=10, secs=5):
+    def ease_frames(self, rate=10, secs=5, frames=None):
+        if frames is None:
+            target = self.frames
+        else:
+            target = frames
+
         import math
 
         target_count = rate * secs
@@ -724,8 +729,14 @@ class Grid:
             return -(math.cos(math.pi * x) - 1) / 2 # sine
             # return (8 * x * x * x * x) if (x < 0.5) else (1 - ((-2 * x + 2) ** 4) / 2) # cubic
 
-        hits = [int((ease(x / target_count) * (len(self.frames) - 1)) + 0.5) for x in range(target_count + 1)]
-        self.frames = [self.frames[x] for x in hits]
+        hits = [int((ease(x / target_count) * (len(target) - 1)) + 0.5) for x in range(target_count + 1)]
+
+        if frames is None:
+            self.frames = [self.frames[x] for x in hits]
+        else:
+            temp = [target[x] for x in hits]
+            frames.clear()
+            frames.extend(temp)
 
     def draw_frames(self, color_map=DEFAULT_COLOR_MAP, cell_size=(10, 10), repeat_final=0, font_size=10, extra_callback=None, show_lines=True, use_multiproc=True, scale=None):
         from datetime import datetime, timedelta

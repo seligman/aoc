@@ -7,6 +7,7 @@ The Solutions themselves are in the `Puzzles` folder.  They're meant to be run w
 Some visualizations for your viewing pleasure:
 
 * Day 6: [A path through the maze](https://youtu.be/W6JOXBWYImM), or [speed up](https://youtu.be/bwfEUFMFh8I)
+* Day 9: [Defragging the hard drive](https://youtu.be/5rqbzYtGzwI)
 
 <!--
 * [The calendar itself](https://youtu.be/EYtkMaH6xQY)

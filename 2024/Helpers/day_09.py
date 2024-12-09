@@ -3,7 +3,10 @@
 DAY_NUM = 9
 DAY_DESC = 'Day 9: Disk Fragmenter'
 
-def calc(log, values, mode):
+def calc(log, values, mode, draw=False):
+    from grid import Grid, Point
+    import random
+
     disk = []
 
     is_free = False
@@ -17,6 +20,19 @@ def calc(log, values, mode):
                 disk.append({"id": val, "size": x})
                 val += 1
         is_free = not is_free
+
+    if draw:
+        length = 0
+        for x in disk:
+            length += x.get('free', 0) + x.get('size', 0)
+        height = int(5 + ((3 * (length ** (1/2))) / 4))
+        width = int(height * (16 / 9))
+        grid = Grid(default=".")
+        frames = []
+        random.seed(42)
+        colors = []
+        for _ in range(32):
+            colors.append((random.randint(128, 255), random.randint(128, 255), random.randint(128, 255)))
 
     head = None
     tail = None
@@ -56,6 +72,7 @@ def calc(log, values, mode):
 
             x = min(to_move['size'], free['free'])
             to_move['size'] -= x
+            move_id = to_move['id']
             if 'id' not in free:
                 free['id'] = to_move['id']
                 free['free'] -= x
@@ -128,11 +145,46 @@ def calc(log, values, mode):
                     free['size'] = size
                     free['free'] = 0
 
+                if draw:
+                    frame = []
+                    temp = head
+                    pos = 0
+                    while temp is not None:
+                        if temp.get('size', 0) > 0:
+                            frame.append({"size": temp['size'], "pos": pos, "is_hit": temp['id'] == val, "id": temp['id']})
+                            pos += temp['size']
+                        if temp.get('free', 0) > 0:
+                            frame.append({"free": temp['free'], "pos": pos})
+                            pos += temp['free']
+                        temp = temp['next']
+                    frames.append(frame)
+                    if len(frames) % 500 == 0:
+                        log(f"Saved {len(frames):,} frames")
 
         temp = head
         while temp is not None:
             temp = temp['next']
 
+    if draw:
+        grid.ease_frames(rate=15, secs=30, frames=frames)
+        for frame in frames:
+            pos = 0
+            grid.grid.clear()
+            grid[width - 1, height - 1] = "."
+            for cur in frame:
+                if 'free' in cur:
+                    for _ in range(cur['free']):
+                        grid[pos % width, pos // width] = "."
+                        pos += 1
+                else:
+                    for _ in range(cur['size']):
+                        grid[pos % width, pos // width] = "Star" if cur['is_hit'] else ("#", colors[cur['id'] % len(colors)])
+                        pos += 1
+            grid.save_frame()
+            if len(grid.frames) % 25 == 0:
+                print(f"Saved frame {len(grid.frames)} of {len(frames)}")
+
+        grid.draw_frames(show_lines=False)
 
     temp = head
     ret = 0
@@ -148,6 +200,15 @@ def calc(log, values, mode):
         temp = temp['next']
 
     return ret
+
+def other_draw(describe, values):
+    if describe:
+        return "Draw this"
+    from dummylog import DummyLog
+    import animate
+    animate.prep()
+    calc(DummyLog(), values, 2, draw=True)
+    animate.create_mp4(DAY_NUM, rate=15, final_secs=5)
 
 def test(log):
     values = log.decode_values("""
