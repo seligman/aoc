@@ -3,20 +3,24 @@
 DAY_NUM = 9
 DAY_DESC = 'Day 9: Disk Fragmenter'
 
-def calc(log, values, mode, draw=False):
-    from grid import Grid, Point
-    import random
+from grid import Grid
+import random, dataclasses
 
+@dataclasses.dataclass(slots=True)
+class Entry:
+    size: int
+    val: int = -1
+    skip: bool = False
+
+def calc(log, values, mode, draw=False):
     disk = []
     is_free = False
     val = 0
     for x in values[0]:
         x = int(x)
         if x > 0:
-            if is_free:
-                disk.append({"val": -1, "size": x, "skip": False})
-            else:
-                disk.append({"val": val, "size": x, "skip": False})
+            disk.append(Entry(x, -1 if is_free else val))
+            if not is_free:
                 val += 1
         is_free = not is_free
 
@@ -25,7 +29,7 @@ def calc(log, values, mode, draw=False):
 
     if draw:
         random.seed(42)
-        length = sum(x['size'] for x in disk)
+        length = sum(x.size for x in disk)
         height = int(5 + ((3 * (length ** (1/2))) / 4))
         width = int(height * (16 / 9))
         grid = Grid(default=".")
@@ -36,74 +40,88 @@ def calc(log, values, mode, draw=False):
 
     if mode == 1:
         while True:
-            while disk[free_at]["val"] >= 0 or disk[free_at]["size"] == 0:
+            while disk[free_at].val >= 0 or disk[free_at].size == 0:
                 free_at += 1
-            while disk[scan_at]["val"] < 0 or disk[scan_at]["size"] == 0:
+            while disk[scan_at].val < 0 or disk[scan_at].size == 0:
                 scan_at -= 1
             if scan_at <= free_at:
                 break
             
-            if disk[free_at]["size"] == disk[scan_at]["size"]:
-                disk[free_at]["val"] = disk[scan_at]["val"]
-                disk[scan_at]["size"] = 0
-            elif disk[free_at]["size"] < disk[scan_at]["size"]:
-                disk[free_at]["val"] = disk[scan_at]["val"]
-                disk[scan_at]["size"] -= disk[free_at]["size"]
+            # Note: This drops blocks as we work through them, since we don't need them
+            if disk[free_at].size == disk[scan_at].size:
+                # Free block is exactly the right size, fill it
+                disk[free_at].val = disk[scan_at].val
+                disk[scan_at].size = 0
+            elif disk[free_at].size < disk[scan_at].size:
+                # Free block is too small, fill out what we can, shrink the rest
+                disk[free_at].val = disk[scan_at].val
+                disk[scan_at].size -= disk[free_at].size
             else:
-                left = disk[free_at]["size"] - disk[scan_at]["size"]
-                disk[free_at]["val"] = disk[scan_at]["val"]
-                disk[free_at]["size"] = disk[scan_at]["size"]
-                disk[scan_at]["size"] = 0
-                disk.insert(free_at + 1, {"size": left, "val": -1})
+                # Free block is too big, fill it and add a free block after it
+                # for the left over space
+                left = disk[free_at].size - disk[scan_at].size
+                disk[free_at].val = disk[scan_at].val
+                disk[free_at].size = disk[scan_at].size
+                disk[scan_at].size = 0
+                disk.insert(free_at + 1, Entry(left))
                 scan_at += 1
     else:
         free_list = []
+        # Build a list of all free blocks
         for i, cur in enumerate(disk):
-            if cur['val'] == -1:
+            if cur.val == -1:
                 free_list.append(i)
 
         while True:
-            while (disk[scan_at]["val"] < 0 or disk[scan_at]["size"] == 0) or disk[scan_at]["skip"]:
+            # Find block to move
+            while (disk[scan_at].val < 0 or disk[scan_at].size == 0) or disk[scan_at].skip:
                 scan_at -= 1
                 if scan_at < 0:
                     break
             
             if scan_at < 0:
+                # We ran out of work to do
                 break
+
+            # Find first free block we can use
             free_at = None
             for test in free_list:
-                if disk[test]["size"] >= disk[scan_at]["size"]:
+                if disk[test].size >= disk[scan_at].size:
                     free_at = test
                     break
 
             if free_at is not None and free_at < scan_at:
-                target = disk[scan_at]["val"]
-                if disk[free_at]["size"] == disk[scan_at]["size"]:
-                    disk[free_at]["val"] = disk[scan_at]["val"]
-                    disk[scan_at]["val"] = -1
+                target = disk[scan_at].val
+                if disk[free_at].size == disk[scan_at].size:
+                    # Free block is the exact size, just swap things
+                    disk[free_at].val = disk[scan_at].val
+                    disk[scan_at].val = -1
                     free_list.remove(free_at)
                 else:
-                    left = disk[free_at]["size"] - disk[scan_at]["size"]
-                    disk[free_at]["val"] = disk[scan_at]["val"]
-                    disk[free_at]["size"] = disk[scan_at]["size"]
-                    disk[scan_at]["val"] = -1
-                    disk.insert(free_at + 1, {"size": left, "val": -1, "skip": False})
+                    # Free block is too big, replace it and add
+                    # a free block for the extra space
+                    left = disk[free_at].size - disk[scan_at].size
+                    disk[free_at].val = disk[scan_at].val
+                    disk[free_at].size = disk[scan_at].size
+                    disk[scan_at].val = -1
+                    disk.insert(free_at + 1, Entry(left))
                     scan_at += 1
+                    # Move all the free blocks down one in the list from this block on
                     free_list = [x+1 if x >= free_at else x for x in free_list]
                 
                 if draw:
                     frame = []
                     for cur in disk:
-                        if cur["size"] > 0:
-                            if cur["val"] == -1:
-                                frame.append({"free": cur["size"]})
-                            else:
-                                frame.append({"size": cur["size"], "is_hit": cur["val"] == target, "id": cur["val"]})
+                        if cur.size > 0:
+                            frame.append(Entry(cur.size, cur.val))
+                            if cur.val == target:
+                                frame[-1].skip = True
                     frames.append(frame)
                     if len(frames) % 500 == 0:
                         log(f"Prep for {len(frames):,} frames")
             else:
-                disk[scan_at]["skip"] = True
+                # Nowhere to fit block, skip this one
+                disk[scan_at].skip = True
 
     if draw:
         grid.ease_frames(rate=15, secs=30, frames=frames)
@@ -112,27 +130,28 @@ def calc(log, values, mode, draw=False):
             grid.grid.clear()
             grid[width - 1, height - 1] = "."
             for cur in frame:
-                if 'free' in cur:
-                    for _ in range(cur['free']):
-                        grid[pos % width, pos // width] = "."
-                        pos += 1
-                else:
-                    for _ in range(cur['size']):
-                        grid[pos % width, pos // width] = "Star" if cur['is_hit'] else ("#", colors[cur['id'] % len(colors)])
-                        pos += 1
+                for _ in range(cur.size):
+                    xy = pos % width, pos // width
+                    if cur.val == -1:
+                        grid[xy] = "."
+                    elif cur.skip:
+                        grid[xy] = "Star"
+                    else:
+                        grid[xy] = ("#", colors[cur.val % len(colors)])
+                    pos += 1
             grid.save_frame()
             if len(grid.frames) % 25 == 0:
                 print(f"Saved frame {len(grid.frames)} of {len(frames)}")
 
         grid.draw_frames(show_lines=False)
 
+    # Calculate the CRC
     pos = 0
     ret = 0
     for cur in disk:
-        if cur["val"] > 0 and cur["size"] > 0:
-            for i in range(cur["size"]):
-                ret += (pos + i) * cur["val"]
-        pos += cur["size"]
+        if cur.val > 0:
+            ret += ((pos * cur.size) + int(cur.size * (cur.size - 1) / 2)) * cur.val
+        pos += cur.size
 
     return ret
 
