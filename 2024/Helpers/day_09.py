@@ -8,162 +8,102 @@ def calc(log, values, mode, draw=False):
     import random
 
     disk = []
-
     is_free = False
     val = 0
     for x in values[0]:
         x = int(x)
         if x > 0:
             if is_free:
-                disk.append({"free": x})
+                disk.append({"val": -1, "size": x, "skip": False})
             else:
-                disk.append({"id": val, "size": x})
+                disk.append({"val": val, "size": x, "skip": False})
                 val += 1
         is_free = not is_free
 
+    free_at = 0
+    scan_at = len(disk) - 1
+
     if draw:
-        length = 0
-        for x in disk:
-            length += x.get('free', 0) + x.get('size', 0)
+        random.seed(42)
+        length = sum(x['size'] for x in disk)
         height = int(5 + ((3 * (length ** (1/2))) / 4))
         width = int(height * (16 / 9))
         grid = Grid(default=".")
         frames = []
-        random.seed(42)
         colors = []
         for _ in range(32):
             colors.append((random.randint(128, 255), random.randint(128, 255), random.randint(128, 255)))
 
-    head = None
-    tail = None
-    last = None
-    for cur in disk:
-        if head is None:
-            head = cur
-        if last is not None:
-            last['next'] = cur
-        cur['prev'] = last
-        cur['next'] = None
-        last = cur
-        tail = cur
-
     if mode == 1:
         while True:
-            temp = head
-            free = None
-            while temp is not None:
-                if temp.get("free", 0) > 0:
-                    free = temp
-                    break
-                temp = temp['next']
-            
-            temp = tail
-            to_move = None
-            while temp is not None:
-                if temp.get("size", 0) > 0:
-                    to_move = temp
-                    break
-                temp = temp['prev']
-                if temp == free:
-                    break
-            
-            if to_move is None or free is None:
+            while disk[free_at]["val"] >= 0 or disk[free_at]["size"] == 0:
+                free_at += 1
+            while disk[scan_at]["val"] < 0 or disk[scan_at]["size"] == 0:
+                scan_at -= 1
+            if scan_at <= free_at:
                 break
-
-            x = min(to_move['size'], free['free'])
-            to_move['size'] -= x
-            move_id = to_move['id']
-            if 'id' not in free:
-                free['id'] = to_move['id']
-                free['free'] -= x
-                free['size'] = x
-            elif free['id'] == to_move['id']:
-                free['size'] += x
-                free['free'] -= x
+            
+            if disk[free_at]["size"] == disk[scan_at]["size"]:
+                disk[free_at]["val"] = disk[scan_at]["val"]
+                disk[scan_at]["size"] = 0
+            elif disk[free_at]["size"] < disk[scan_at]["size"]:
+                disk[free_at]["val"] = disk[scan_at]["val"]
+                disk[scan_at]["size"] -= disk[free_at]["size"]
             else:
-                temp = {
-                    "free": free['free'] - x,
-                    "id": to_move['id'],
-                    "size": x,
-                }
-                free['free'] = 0
-                cur_next = free['next']
-                free['next'] = temp
-                temp['next'] = cur_next
-                cur_next['prev'] = temp
-                temp['prev'] = free
+                left = disk[free_at]["size"] - disk[scan_at]["size"]
+                disk[free_at]["val"] = disk[scan_at]["val"]
+                disk[free_at]["size"] = disk[scan_at]["size"]
+                disk[scan_at]["size"] = 0
+                disk.insert(free_at + 1, {"size": left, "val": -1})
+                scan_at += 1
     else:
+        free_list = []
+        for i, cur in enumerate(disk):
+            if cur['val'] == -1:
+                free_list.append(i)
+
         while True:
-            temp = tail
-            to_move = None
-            while temp is not None:
-                temp['not_free'] = True
-                if temp.get("size", 0) > 0 and not temp.get('skip', False):
-                    to_move = temp
-                    to_move['skip'] = True
+            while (disk[scan_at]["val"] < 0 or disk[scan_at]["size"] == 0) or disk[scan_at]["skip"]:
+                scan_at -= 1
+                if scan_at < 0:
                     break
-                temp = temp['prev']
-            while temp is not None:
-                temp['not_free'] = False
-                temp = temp['prev']
-
-            if to_move is None:
+            
+            if scan_at < 0:
                 break
-
-            free = None
-            temp = head
-            while temp is not None:
-                if not temp['not_free'] and temp.get('free', 0) >= to_move['size']:
-                    free = temp
-                    break
-                temp = temp['next']
-                if temp == to_move:
+            free_at = None
+            for test in free_list:
+                if disk[test]["size"] >= disk[scan_at]["size"]:
+                    free_at = test
                     break
 
-            if free is not None:
-                val = to_move['id']
-                size = to_move['size']
-                to_move['free'] = to_move['size']
-                del to_move['size']
-                del to_move['id']
-
-                if free['free'] > size:
-                    left = free['free'] - size
-                    free['id'] = val
-                    free['size'] = size
-                    free['free'] = 0
-
-                    temp = {"free": left}
-                    cur_next = free['next']
-                    free['next'] = temp
-                    temp['next'] = cur_next
-                    cur_next['prev'] = temp
-                    temp['prev'] = free
-
+            if free_at is not None and free_at < scan_at:
+                target = disk[scan_at]["val"]
+                if disk[free_at]["size"] == disk[scan_at]["size"]:
+                    disk[free_at]["val"] = disk[scan_at]["val"]
+                    disk[scan_at]["val"] = -1
+                    free_list.remove(free_at)
                 else:
-                    free['id'] = val
-                    free['size'] = size
-                    free['free'] = 0
-
+                    left = disk[free_at]["size"] - disk[scan_at]["size"]
+                    disk[free_at]["val"] = disk[scan_at]["val"]
+                    disk[free_at]["size"] = disk[scan_at]["size"]
+                    disk[scan_at]["val"] = -1
+                    disk.insert(free_at + 1, {"size": left, "val": -1, "skip": False})
+                    scan_at += 1
+                    free_list = [x+1 if x >= free_at else x for x in free_list]
+                
                 if draw:
                     frame = []
-                    temp = head
-                    pos = 0
-                    while temp is not None:
-                        if temp.get('size', 0) > 0:
-                            frame.append({"size": temp['size'], "pos": pos, "is_hit": temp['id'] == val, "id": temp['id']})
-                            pos += temp['size']
-                        if temp.get('free', 0) > 0:
-                            frame.append({"free": temp['free'], "pos": pos})
-                            pos += temp['free']
-                        temp = temp['next']
+                    for cur in disk:
+                        if cur["size"] > 0:
+                            if cur["val"] == -1:
+                                frame.append({"free": cur["size"]})
+                            else:
+                                frame.append({"size": cur["size"], "is_hit": cur["val"] == target, "id": cur["val"]})
                     frames.append(frame)
                     if len(frames) % 500 == 0:
-                        log(f"Saved {len(frames):,} frames")
-
-        temp = head
-        while temp is not None:
-            temp = temp['next']
+                        log(f"Prep for {len(frames):,} frames")
+            else:
+                disk[scan_at]["skip"] = True
 
     if draw:
         grid.ease_frames(rate=15, secs=30, frames=frames)
@@ -186,18 +126,13 @@ def calc(log, values, mode, draw=False):
 
         grid.draw_frames(show_lines=False)
 
-    temp = head
-    ret = 0
     pos = 0
-    while temp != None:
-        if 'id' in temp:
-            val = temp['id']
-            for i in range(temp.get('size', 0)):
-                ret += pos * val
-                pos += 1
-        else:
-            pos += temp['free']
-        temp = temp['next']
+    ret = 0
+    for cur in disk:
+        if cur["val"] > 0 and cur["size"] > 0:
+            for i in range(cur["size"]):
+                ret += (pos + i) * cur["val"]
+        pos += cur["size"]
 
     return ret
 
