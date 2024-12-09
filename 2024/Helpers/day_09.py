@@ -1,0 +1,176 @@
+#!/usr/bin/env python3
+
+DAY_NUM = 9
+DAY_DESC = 'Day 9: Disk Fragmenter'
+
+def calc(log, values, mode):
+    disk = []
+
+    is_free = False
+    val = 0
+    for x in values[0]:
+        x = int(x)
+        if x > 0:
+            if is_free:
+                disk.append({"free": x})
+            else:
+                disk.append({"id": val, "size": x})
+                val += 1
+        is_free = not is_free
+
+    head = None
+    tail = None
+    last = None
+    for cur in disk:
+        if head is None:
+            head = cur
+        if last is not None:
+            last['next'] = cur
+        cur['prev'] = last
+        cur['next'] = None
+        last = cur
+        tail = cur
+
+    if mode == 1:
+        while True:
+            temp = head
+            free = None
+            while temp is not None:
+                if temp.get("free", 0) > 0:
+                    free = temp
+                    break
+                temp = temp['next']
+            
+            temp = tail
+            to_move = None
+            while temp is not None:
+                if temp.get("size", 0) > 0:
+                    to_move = temp
+                    break
+                temp = temp['prev']
+                if temp == free:
+                    break
+            
+            if to_move is None or free is None:
+                break
+
+            x = min(to_move['size'], free['free'])
+            to_move['size'] -= x
+            if 'id' not in free:
+                free['id'] = to_move['id']
+                free['free'] -= x
+                free['size'] = x
+            elif free['id'] == to_move['id']:
+                free['size'] += x
+                free['free'] -= x
+            else:
+                temp = {
+                    "free": free['free'] - x,
+                    "id": to_move['id'],
+                    "size": x,
+                }
+                free['free'] = 0
+                cur_next = free['next']
+                free['next'] = temp
+                temp['next'] = cur_next
+                cur_next['prev'] = temp
+                temp['prev'] = free
+    else:
+        while True:
+            temp = tail
+            to_move = None
+            while temp is not None:
+                temp['not_free'] = True
+                if temp.get("size", 0) > 0 and not temp.get('skip', False):
+                    to_move = temp
+                    to_move['skip'] = True
+                    break
+                temp = temp['prev']
+            while temp is not None:
+                temp['not_free'] = False
+                temp = temp['prev']
+
+            if to_move is None:
+                break
+
+            free = None
+            temp = head
+            while temp is not None:
+                if not temp['not_free'] and temp.get('free', 0) >= to_move['size']:
+                    free = temp
+                    break
+                temp = temp['next']
+                if temp == to_move:
+                    break
+
+            if free is not None:
+                val = to_move['id']
+                size = to_move['size']
+                to_move['free'] = to_move['size']
+                del to_move['size']
+                del to_move['id']
+
+                if free['free'] > size:
+                    left = free['free'] - size
+                    free['id'] = val
+                    free['size'] = size
+                    free['free'] = 0
+
+                    temp = {"free": left}
+                    cur_next = free['next']
+                    free['next'] = temp
+                    temp['next'] = cur_next
+                    cur_next['prev'] = temp
+                    temp['prev'] = free
+
+                else:
+                    free['id'] = val
+                    free['size'] = size
+                    free['free'] = 0
+
+
+        temp = head
+        while temp is not None:
+            temp = temp['next']
+
+
+    temp = head
+    ret = 0
+    pos = 0
+    while temp != None:
+        if 'id' in temp:
+            val = temp['id']
+            for i in range(temp.get('size', 0)):
+                ret += pos * val
+                pos += 1
+        else:
+            pos += temp['free']
+        temp = temp['next']
+
+    return ret
+
+def test(log):
+    values = log.decode_values("""
+        2333133121414131402
+    """)
+
+    log.test(calc(log, values, 1), '1928')
+    log.test(calc(log, values, 2), '2858')
+
+def run(log, values):
+    log(calc(log, values, 1))
+    log(calc(log, values, 2))
+
+if __name__ == "__main__":
+    import sys, os
+    def find_input_file():
+        for fn in sys.argv[1:] + ["input.txt", f"day_{DAY_NUM:0d}_input.txt", f"day_{DAY_NUM:02d}_input.txt"]:
+            for dn in ["", "Puzzles", "../Puzzles", "../../private/inputs/2024/Puzzles"]:
+                cur = os.path.join(*(dn.split("/") + [fn]))
+                if os.path.isfile(cur): return cur
+    fn = find_input_file()
+    if fn is None: print("Unable to find input file!\nSpecify filename on command line"); exit(1)
+    print(f"Using '{fn}' as input file:")
+    with open(fn) as f: values = [x.strip("\r\n") for x in f.readlines()]
+    print(f"Running day {DAY_DESC}:")
+    run(print, values)
