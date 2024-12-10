@@ -816,8 +816,8 @@ class Grid:
         source_code = ImageFont.truetype(source_code, int(float(font_size) * 1.5))
         w, h = 0, 0
         for x in range(32, 126):
-            test = source_code.getsize(chr(x))
-            w, h = max(w, test[0]), max(h, test[1])
+            test = source_code.getbbox(chr(x))
+            w, h = max(w, test[2]), max(h, test[3])
         return w, h
 
     def draw_grid(self, color_map=DEFAULT_COLOR_MAP, cell_size=(10, 10), extra_text=None, extra_text_rows=0, 
@@ -841,8 +841,8 @@ class Grid:
             fnt_source = self.fonts[0]
             fnt_segment = self.fonts[1]
 
-            fnt_height = max(fnt_source.getsize("0")[1], fnt_segment.getsize("0")[1])
-            fnt_diff = fnt_source.getsize("0")[1] - fnt_segment.getsize("0")[1]
+            fnt_height = max(fnt_source.getbbox("0")[3], fnt_segment.getbbox("0")[3])
+            fnt_diff = fnt_source.getbbox("0")[3] - fnt_segment.getbbox("0")[3]
             if text_xy is None:
                 if extra_text_rows is None:
                     for_text = fnt_height * (len(extra_text) + 1)
@@ -915,7 +915,7 @@ class Grid:
                 for part in row.split("|"):
                     swap = not swap
                     d.text((x, y + (fnt_diff if swap else 0)), part, (255, 255, 255), font=fnt_segment if swap else fnt_source)
-                    x += (fnt_segment if swap else fnt_source).getsize(part)[0]
+                    x += (fnt_segment if swap else fnt_source).getbbox(part)[2]
                 y += fnt_height
 
         if extra_callback is not None:
