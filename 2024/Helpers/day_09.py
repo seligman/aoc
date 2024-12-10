@@ -3,7 +3,6 @@
 DAY_NUM = 9
 DAY_DESC = 'Day 9: Disk Fragmenter'
 
-from grid import Grid
 import random, dataclasses
 
 @dataclasses.dataclass(slots=True)
@@ -13,6 +12,7 @@ class Entry:
     skip: bool = False
 
 def calc(log, values, mode, draw=False):
+    from grid import Grid
     disk = []
     is_free = False
     val = 0
