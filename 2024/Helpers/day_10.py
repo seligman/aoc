@@ -10,27 +10,26 @@ def calc(log, values, mode):
     starts = set()
     for xy in grid.xy_range():
         if grid[xy] == "0":
-            starts.add(xy)
+            starts.add(Point(xy))
     
     ret = 0
     for start in starts:
         todo = [(start, 1)]
         scores = set()
-        scores2 = 0
+        scores_all = 0
         while len(todo) > 0:
-            (x, y), height = todo.pop(0)
+            xy, height = todo.pop(0)
             if height == 10:
-                scores.add((x, y))
-                scores2 += 1
-            for ox, oy in Grid.get_dirs(2, diagonal=False):
-                xy = x + ox, y + oy
-                if grid[xy] == str(height):
-                    # print(xy)
-                    todo.append((xy, height + 1))
+                scores.add(xy)
+                scores_all += 1
+            for oxy in Grid.get_dirs(2, diagonal=False):
+                temp = xy + Point(oxy)
+                if grid[temp] == str(height):
+                    todo.append((temp, height + 1))
         if mode == 1:
             ret += len(scores)
         else:
-            ret += scores2
+            ret += scores_all
     return ret
 
 def test(log):
