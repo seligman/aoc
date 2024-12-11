@@ -6,22 +6,21 @@ DAY_DESC = 'Day 11: Plutonian Pebbles'
 import functools
 
 @functools.cache
-def runner(x, dist):
+def count_stone(x, dist):
     if dist == 0:
         return 1
 
     if x == 0:
-        return runner(1, dist - 1)
+        return count_stone(1, dist - 1)
     elif len(str(x)) % 2 == 0:
         x = str(x)
-        return runner(int(x[:len(x)//2]), dist - 1) + runner(int(x[len(x)//2:]), dist - 1)
+        return count_stone(int(x[:len(x)//2]), dist - 1) + count_stone(int(x[len(x)//2:]), dist - 1)
     else:
-        return runner(x * 2024, dist - 1)
+        return count_stone(x * 2024, dist - 1)
 
 
 def calc(log, values, mode):
-    row = [int(x) for x in values[0].split()]
-    return sum(runner(x, 25 if mode == 1 else 75) for x in row)
+    return sum(count_stone(int(x), 25 if mode == 1 else 75) for x in values[0].split())
 
 def test(log):
     values = log.decode_values("""
