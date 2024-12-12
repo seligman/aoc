@@ -102,30 +102,30 @@ def calc(log, values, mode, draw=False):
 
     ret =  0
     for area in areas:
-        border_count = 0
-        side_count = 0
-        for xy in area:
-            for oxy in grid.get_dirs(axis_count=2, diagonal=False, offset=xy):
-                if oxy not in area:
-                    border_count += 1
-
-        for oxy in (0, 1), (0, -1), (1, 0), (-1, 0):
-            side = set()
-            for xy in area:
-                temp = xy[0] + oxy[0], xy[1] + oxy[1]
-                if temp not in area:
-                    side.add(temp)
-            to_remove = set()
-            for xy in side:
-                temp = xy[0] + oxy[1], xy[1] + oxy[0]
-                while temp in side:
-                    to_remove.add(temp)
-                    temp = temp[0] + oxy[1], temp[1] + oxy[0]
-            side_count += len(side) - len(to_remove)
-
         if mode == 1:
+            border_count = 0
+            for xy in area:
+                for oxy in grid.get_dirs(axis_count=2, diagonal=False, offset=xy):
+                    if oxy not in area:
+                        border_count += 1
             ret += len(area) * border_count
         else:
+            side_count = 0
+            for oxy in [Point(x) for x in grid.get_dirs(axis_count=2, diagonal=False)]:
+                side = set()
+                for xy in area:
+                    temp = oxy + xy
+                    side.add(temp.tuple)
+                side -= area
+                to_remove = set()
+
+                oxy = Point(oxy.y, oxy.x)
+                for xy in side:
+                    temp = oxy + xy
+                    while temp.tuple in side:
+                        to_remove.add(temp.tuple)
+                        temp += oxy
+                side_count += len(side) - len(to_remove)
             ret += len(area) * side_count
     return ret
 
