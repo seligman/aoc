@@ -3,11 +3,32 @@
 DAY_NUM = 12
 DAY_DESC = 'Day 12: Garden Groups'
 
-def calc(log, values, mode):
+import random
+
+def other_draw(describe, values):
+    if describe:
+        return "Draw this"
+    from dummylog import DummyLog
+    import animate
+    animate.prep()
+    calc(DummyLog(), values, 1, draw=True)
+    animate.create_mp4(DAY_NUM, rate=15, final_secs=5)
+
+def calc(log, values, mode, draw=False):
     from grid import Grid, Point
     grid = Grid.from_text(values)
 
     areas = []
+
+    if draw:
+        colors = []
+        for _ in range(32):
+            colors.append((random.randint(128, 255), random.randint(128, 255), random.randint(128, 255)))
+        shadow = Grid.from_text(values, default=".")
+        shadow.ensure_ratio(16/9)
+        shadow.pad(2)
+        for xy in grid.xy_range():
+            shadow[xy] = [" ", colors[ord(grid[xy]) % len(colors)]]
 
     for xy in grid.xy_range():
         if grid[xy] != "#":
@@ -22,6 +43,63 @@ def calc(log, values, mode):
                         grid[oxy] = "#"
                         todo.append(oxy)
                         areas[-1].add(oxy)
+
+    if draw:
+        msg = [""]
+        hit = 0
+        cur_points = 0
+        for area in areas:
+            hit += 1
+            if hit % 15 == 1:
+                log(f"Working on {hit} of {len(areas)}")
+            border = set()
+            border_count = 0
+            for xy in area:
+                for oxy in grid.get_dirs(axis_count=2, diagonal=False, offset=xy):
+                    if oxy not in area:
+                        border_count += 1
+            for xy in area:
+                for oxy in grid.get_dirs(axis_count=2, diagonal=True, offset=xy):
+                    if oxy not in area:
+                        border.add(oxy)
+
+            start = list(border)[0]
+            seen = set([start])
+            path = [start]
+            todo = [start]
+            while len(todo) > 0:
+                xy = todo.pop(0)
+                for oxy in grid.get_dirs(axis_count=2, diagonal=False, offset=xy):
+                    if oxy in border and oxy not in seen:
+                        todo.append(oxy)
+                        path.append(oxy)
+                        seen.add(oxy)
+                if len(todo) == 0 and len(border) - len(seen) != 0:
+                    x = list(border - seen)[0]
+                    todo.append(x)
+                    path.append(x)
+                    seen.add(x)
+            old = []
+            for xy in path:
+                old.append([xy, shadow[xy]])
+                shadow[xy] = [" ", (255, 255, 255)]
+                shadow.save_frame(msg)
+            
+            cur_points += len(area) * border_count
+            msg = [f"Found {hit:,} garden plots, for a total of {cur_points:,} points."]
+            for xy, val in old:
+                shadow[xy] = val
+            temp = None
+            for xy in area:
+                if temp is None:
+                    temp = shadow[xy][1]
+                    temp = [" ", (temp[0] - 128, temp[1] - 128, temp[2] - 128)]
+                shadow[xy] = temp
+            shadow.save_frame(msg)
+        
+        shadow.ease_frames(15, 60)
+        shadow.draw_frames(show_lines=False)
+
     ret =  0
     for area in areas:
         border_count = 0
@@ -30,7 +108,6 @@ def calc(log, values, mode):
             for oxy in grid.get_dirs(axis_count=2, diagonal=False, offset=xy):
                 if oxy not in area:
                     border_count += 1
-
 
         for oxy in (0, 1), (0, -1), (1, 0), (-1, 0):
             side = set()
