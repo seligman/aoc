@@ -9,7 +9,7 @@ import math
 if sys.version_info >= (3, 11): from datetime import UTC
 else: import datetime as datetime_fix; UTC=datetime_fix.timezone.utc
 
-__version__ = 3
+__version__ = 4
 
 ENABLE_SERVER = False
 def _make_server_call(**kargs):
@@ -368,8 +368,11 @@ def _launch_server():
 _enter_waiter = None
 _sentinel = []
 _end_at = None
-def sleep(to_sleep, exit_at_end=True, extra_msg=""):
+def sleep(to_sleep, exit_at_end=True, extra_msg="", note_time=None):
     global _enter_waiter, _sentinel, _end_at
+
+    if note_time is not None:
+        note_time = note_time.replace(tzinfo=None)
 
     if isinstance(to_sleep, str):
         temp = to_sleep
@@ -388,6 +391,25 @@ def sleep(to_sleep, exit_at_end=True, extra_msg=""):
         _enter_waiter.daemon = True
         _enter_waiter.start()
 
+    def pretty_seconds(seconds):
+        if seconds > 90000:
+            msg = f"{float(seconds) / 86400.0:.1f} days"
+            max_sleep = seconds - ((math.floor(seconds) // 8640) * 8640)
+        elif seconds > 3900:
+            msg = f"{float(seconds) / 3600.0:.1f} hours"
+            max_sleep = seconds - ((math.floor(seconds) // 360) * 360)
+        elif seconds > 180:
+            msg = f"{float(seconds) / 60.0:.1f} minutes"
+            max_sleep = seconds - ((math.floor(seconds) // 6) * 6)
+        else:
+            val = int(math.ceil(seconds))
+            max_sleep = seconds - math.floor(seconds)
+            if val == 1:
+                msg = f"{val:d} second"
+            else:
+                msg = f"{val:d} seconds"
+        return msg, max_sleep
+
     while True:
         if len(_sentinel) != 0:
             break
@@ -399,22 +421,13 @@ def sleep(to_sleep, exit_at_end=True, extra_msg=""):
         sleep = target - now
         max_sleep = 5.0
 
-        if sleep.total_seconds() > 90000:
-            last_len = _temp_msg(f"{extra_msg}Sleeping for {float(sleep.total_seconds()) / 86400.0:.1f} days...", last_len)
-            max_sleep = sleep.total_seconds() - ((math.floor(sleep.total_seconds()) // 8640) * 8640)
-        elif sleep.total_seconds() > 3900:
-            last_len = _temp_msg(f"{extra_msg}Sleeping for {float(sleep.total_seconds()) / 3600.0:.1f} hours...", last_len)
-            max_sleep = sleep.total_seconds() - ((math.floor(sleep.total_seconds()) // 360) * 360)
-        elif sleep.total_seconds() > 180:
-            last_len = _temp_msg(f"{extra_msg}Sleeping for {float(sleep.total_seconds()) / 60.0:.1f} minutes...", last_len)
-            max_sleep = sleep.total_seconds() - ((math.floor(sleep.total_seconds()) // 6) * 6)
-        else:
-            val = int(math.ceil(sleep.total_seconds()))
-            max_sleep = sleep.total_seconds() - math.floor(sleep.total_seconds())
-            if val == 1:
-                last_len = _temp_msg(f"Sleeping for {val:d} second...", last_len)
-            else:
-                last_len = _temp_msg(f"Sleeping for {val:d} seconds...", last_len)
+        dur, max_sleep = pretty_seconds(sleep.total_seconds())
+        noted = ""
+        if note_time is not None:
+            if now < note_time:
+                noted, _ = pretty_seconds((note_time - now).total_seconds())
+                noted = f", {noted} till event"
+        last_len = _temp_msg(f"{extra_msg}Sleeping for {dur}{noted}...", last_len)
 
         if sleep.total_seconds() < max_sleep:
             max_sleep = sleep.total_seconds()

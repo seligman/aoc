@@ -286,8 +286,11 @@ def make_day_wait(target_day="cur"):
     import random
     resp = get_page(f"https://adventofcode.com/{YEAR_NUMBER}")
     m = re.search(r"var server_eta *= *(?P<eta>\d+);", resp)
+    eta = int(m.group("eta"))
+    at = datetime.now(UTC) + timedelta(seconds=eta)
+    at = datetime.fromtimestamp(int((at.timestamp() / 3600) + 0.5) * 3600, UTC)
     eta = int(m.group("eta")) + random.randint(5, 10)
-    if sleeper.sleep(str(eta), exit_at_end=False):
+    if sleeper.sleep(str(eta), exit_at_end=False, note_time=at):
         make_day_helper(False, force_day=target_day)
 
 @opt("Load cookie from browser to cache", group="Session Management")
