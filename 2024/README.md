@@ -8,7 +8,7 @@ Some visualizations for your viewing pleasure:
 
 * Day 6: [A path through the maze](https://youtu.be/W6JOXBWYImM), or [speed up](https://youtu.be/bwfEUFMFh8I)
 * Day 9: [Defragging the hard drive](https://youtu.be/5rqbzYtGzwI)
-* Day 12: [Plotting the Gardens](https://youtu.be/eiDZ9k8RDb4)
+* Day 12: [Plotting the Gardens](https://youtu.be/I-IwJxR9xQk)
 <!--
 * [The calendar itself](https://youtu.be/EYtkMaH6xQY)
 -->

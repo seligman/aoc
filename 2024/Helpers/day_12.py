@@ -4,6 +4,7 @@ DAY_NUM = 12
 DAY_DESC = 'Day 12: Garden Groups'
 
 import random
+from collections import deque
 
 def other_draw(describe, values):
     if describe:
@@ -30,75 +31,91 @@ def calc(log, values, mode, draw=False):
         for xy in grid.xy_range():
             shadow[xy] = [" ", colors[ord(grid[xy]) % len(colors)]]
 
-    for xy in grid.xy_range():
-        if grid[xy] != "#":
-            temp = grid[xy]
-            grid[xy] = "#"
-            areas.append(set([xy]))
-            todo = [xy]
+    seen = set()
+    for xy, key in grid.grid.items():
+        if xy not in seen:
+            seen.add(xy)
+            cur = set([xy])
+            areas.append(cur)
+            todo = deque(cur)
             while len(todo) > 0:
-                xy = todo.pop(0)
+                xy = todo.popleft()
                 for oxy in grid.get_dirs(axis_count=2, diagonal=False, offset=xy):
-                    if grid[oxy] == temp:
-                        grid[oxy] = "#"
+                    if oxy not in seen and grid[oxy] == key:
+                        seen.add(oxy)
                         todo.append(oxy)
-                        areas[-1].add(oxy)
+                        cur.add(oxy)
 
     if draw:
-        msg = [""]
-        hit = 0
-        cur_points = 0
+        to_paint = {}
         for area in areas:
-            hit += 1
-            if hit % 15 == 1:
-                log(f"Working on {hit} of {len(areas)}")
-            border = set()
             border_count = 0
-            for xy in area:
-                for oxy in grid.get_dirs(axis_count=2, diagonal=False, offset=xy):
-                    if oxy not in area:
-                        border_count += 1
+            border = set()
+
             for xy in area:
                 for oxy in grid.get_dirs(axis_count=2, diagonal=True, offset=xy):
                     if oxy not in area:
                         border.add(oxy)
+                        border_count += 1
 
             start = list(border)[0]
-            seen = set([start])
             path = [start]
-            todo = [start]
+            todo = deque(path)
             while len(todo) > 0:
-                xy = todo.pop(0)
+                xy = todo.popleft()
                 for oxy in grid.get_dirs(axis_count=2, diagonal=False, offset=xy):
-                    if oxy in border and oxy not in seen:
-                        todo.append(oxy)
+                    if oxy in border and oxy not in path:
                         path.append(oxy)
-                        seen.add(oxy)
-                if len(todo) == 0 and len(border) - len(seen) != 0:
-                    x = list(border - seen)[0]
-                    todo.append(x)
-                    path.append(x)
-                    seen.add(x)
+                        todo.append(oxy)
+                if len(todo) == 0 and len(border) - len(path) != 0:
+                    path.append(list(border - set(path))[0])
+                    todo.append(path[-1])
+            temp = {
+                "len": len(path), 
+                "path": path, 
+                "area": area, 
+                "border_count": border_count,
+            }
+            if temp['len'] not in to_paint:
+                to_paint[temp['len']] = []
+            to_paint[temp['len']].append(temp)
+
+        msg = ["Gardens: 0", "Score: 0"]
+        shadow.save_frame(msg)
+
+        gardens = 0
+        cur_score = 0
+
+        for i, cur in enumerate(sorted(to_paint, reverse=True)):
+            batch = to_paint[cur]
+            log(f"Working on #{i+1} of {len(to_paint)}, size of {batch[0]['len']}, with {len(batch)} areas")
             old = []
-            for xy in path:
-                old.append([xy, shadow[xy]])
-                shadow[xy] = [" ", (255, 255, 255)]
+            for i in range(batch[0]['len']):
+                for cur in batch:
+                    xy = cur['path'][i]
+                    if xy not in set(x[0] for x in old):
+                        old.append([xy, shadow[xy]])
+                        shadow[xy] = [" ", (255, 255, 255)]
                 shadow.save_frame(msg)
             
-            cur_points += len(area) * border_count
-            msg = [f"Found {hit:,} garden plots, for a total of {cur_points:,} points."]
+            for cur in batch:
+                gardens += 1
+                cur_score += len(cur['area']) * cur['border_count']
+
             for xy, val in old:
                 shadow[xy] = val
-            temp = None
-            for xy in area:
-                if temp is None:
-                    temp = shadow[xy][1]
-                    temp = [" ", (temp[0] - 128, temp[1] - 128, temp[2] - 128)]
-                shadow[xy] = temp
+            for cur in batch:
+                temp = None
+                for xy in cur['area']:
+                    if temp is None:
+                        temp = shadow[xy][1]
+                        temp = [" ", (int((temp[0] * 0.3 + 64 * 0.7)), int((temp[1] * 0.3 + 64 * 0.7)), int((temp[2] * 0.3 + 64 * 0.7)))]
+                    shadow[xy] = temp
+            msg = [f"Gardens: {gardens:,}", f"Score: {cur_score:,}"]
             shadow.save_frame(msg)
         
         shadow.ease_frames(15, 60)
-        shadow.draw_frames(show_lines=False)
+        shadow.draw_frames(show_lines=False, text_xy=(40, 20), font_size=20)
 
     ret =  0
     for area in areas:
@@ -110,23 +127,25 @@ def calc(log, values, mode, draw=False):
                         border_count += 1
             ret += len(area) * border_count
         else:
-            side_count = 0
-            for oxy in [Point(x) for x in grid.get_dirs(axis_count=2, diagonal=False)]:
-                side = set()
-                for xy in area:
-                    temp = oxy + xy
-                    side.add(temp.tuple)
-                side -= area
-                to_remove = set()
-
-                oxy = Point(oxy.y, oxy.x)
-                for xy in side:
-                    temp = oxy + xy
-                    while temp.tuple in side:
-                        to_remove.add(temp.tuple)
-                        temp += oxy
-                side_count += len(side) - len(to_remove)
-            ret += len(area) * side_count
+            border = set()
+            for x, y in area:
+                for ox, oy in grid.get_dirs(axis_count=2, diagonal=False):
+                    if (x + ox, y + oy) not in area:
+                        border.add((x * 3 + ox, y * 3 + oy))
+            start = set()
+            seen = set()
+            for xy in border:
+                if xy not in seen:
+                    start.add(xy)
+                    todo = deque([xy])
+                    while len(todo):
+                        x, y = todo.popleft()
+                        seen.add((x, y))
+                        for ox, oy in grid.get_dirs(axis_count=2, diagonal=False):
+                            oxy = x + ox * 3, y + oy * 3
+                            if oxy in border and oxy not in seen:
+                                todo.append(oxy)
+            ret += len(area) * len(start)
     return ret
 
 def test(log):

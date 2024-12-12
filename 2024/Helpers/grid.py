@@ -738,7 +738,7 @@ class Grid:
             frames.clear()
             frames.extend(temp)
 
-    def draw_frames(self, color_map=DEFAULT_COLOR_MAP, cell_size=(10, 10), repeat_final=0, font_size=10, extra_callback=None, show_lines=True, use_multiproc=True, scale=None):
+    def draw_frames(self, color_map=DEFAULT_COLOR_MAP, cell_size=(10, 10), repeat_final=0, font_size=10, text_xy=None, extra_callback=None, show_lines=True, use_multiproc=True, scale=None):
         from datetime import datetime, timedelta
         import multiprocessing
         import sys
@@ -777,6 +777,7 @@ class Grid:
                     "show_lines": show_lines,
                     "font_size": font_size,
                     "scale": scale,
+                    "text_xy": text_xy,
                 }
             })
 
