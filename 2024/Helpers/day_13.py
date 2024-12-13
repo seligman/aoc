@@ -5,24 +5,24 @@ DAY_DESC = 'Day 13: Claw Contraption'
 
 def calc(log, values, mode):
     import re
+    r = re.compile("X[\\+=](?P<x>[0-9]+), Y[\\+=](?P<y>[0-9]+)")
     ret = 0
     for i in range(0, len(values), 4):
-        m = re.search("X\\+(?P<x>[0-9]+), Y\\+(?P<y>[0-9]+)", values[i])
-        ax, ay = int(m["x"]), int(m["y"])
-        m = re.search("X\\+(?P<x>[0-9]+), Y\\+(?P<y>[0-9]+)", values[i+1])
-        bx, by = int(m["x"]), int(m["y"])
-        m = re.search("X\\=(?P<x>[0-9]+), Y\\=(?P<y>[0-9]+)", values[i+2])
-        px, py = int(m["x"]), int(m["y"])
+        m = r.search(values[i])
+        x_a, y_a = int(m["x"]), int(m["y"])
+        m = r.search(values[i+1])
+        x_b, y_b = int(m["x"]), int(m["y"])
+        m = r.search(values[i+2])
+        x_prize, y_prize = int(m["x"]), int(m["y"])
 
         if mode == 2:
-            px += 10000000000000
-            py += 10000000000000
+            x_prize += 10000000000000
+            y_prize += 10000000000000
 
-        press_b = (px * by - py * bx) // (ax * by - ay * bx)
-        if press_b * (ax * by - ay * bx) == (px * by - py * bx):
-            press_a = (py - ay * press_b) // by
-            if press_a * by == (py - ay * press_b):
-                ret += 3 * press_b + press_a
+        press_b = (x_prize * y_a - y_prize * x_a) // (x_b * y_a - y_b * x_a)
+        press_a = (y_prize - y_b * press_b) // y_a
+        if press_a * x_a + press_b * x_b == x_prize and press_a * y_a + press_b * y_b == y_prize:
+            ret += 3 * press_a + press_b
 
     return ret
 
