@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 DAY_NUM = 10
-DAY_DESC = 'Hoof It'
+DAY_DESC = 'Day 10: Hoof It'
 
 def other_draw(describe, values):
     if describe:
