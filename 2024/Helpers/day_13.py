@@ -18,22 +18,11 @@ def calc(log, values, mode):
             px += 10000000000000
             py += 10000000000000
 
-
         press_b = (px * by - py * bx) // (ax * by - ay * bx)
-        if press_b * (ax * by - ay * bx) != (px * by - py * bx):
-            continue
-        press_a = (py - ay * press_b) // by
-        if press_a * by != (py - ay * press_b):
-            continue
-
-        press_b = (px * by - py * bx) // (ax * by - ay * bx)
-        if press_b * (ax * by - ay * bx) != (px * by - py * bx):
-            continue
-        press_a = (py - ay * press_b) // by
-        if press_a * by != (py - ay * press_b):
-            continue
-
-        ret += 3 * press_b + press_a
+        if press_b * (ax * by - ay * bx) == (px * by - py * bx):
+            press_a = (py - ay * press_b) // by
+            if press_a * by == (py - ay * press_b):
+                ret += 3 * press_b + press_a
 
     return ret
 
