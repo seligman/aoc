@@ -180,28 +180,20 @@ class Point:
         return hash(self.x) ^ hash(self.y)
 
     def line_to(self, other, include_perc=False):
-        if self.x == other.x:
-            target = min(self.y, other.y), max(self.y, other.y) + 1
-            for y in range(target):
-                if include_perc:
-                    yield Point(self.x, y), y / target
-                else:
-                    yield Point(self.x, y)
-        elif self.y == other.y:
-            target = min(self.x, other.x), max(self.x, other.x) + 1
-            for x in range(target):
-                if include_perc:
-                    yield Point(x, self.y), x / target
-                else:
-                    yield Point(x, self.y)
+        if self.x == other.x and not include_perc:
+            for y in range(min(self.y, other.y), max(self.y, other.y) + 1):
+                yield Point(self.x, y)
+        elif self.y == other.y and not include_perc:
+            for x in range(min(self.x, other.x), max(self.x, other.x) + 1):
+                yield Point(x, self.y)
         else:
-            points = max(abs(self.x - other.x), abs(self.y - other.y))
+            points = max(abs(self.x - other.x), abs(self.y - other.y)) + 1
             for i in range(points):
                 perc = i / (points - 1)
                 if include_perc:
-                    yield Point(int((1 - perc) * self.x + perc * other.x), int((1 - perc) * self.y + perc * other.y)), perc
+                    yield Point(round((1 - perc) * self.x + perc * other.x), round((1 - perc) * self.y + perc * other.y)), perc
                 else:
-                    yield Point(int((1 - perc) * self.x + perc * other.x), int((1 - perc) * self.y + perc * other.y))
+                    yield Point(round((1 - perc) * self.x + perc * other.x), round((1 - perc) * self.y + perc * other.y))
 
 class Grid:
     def __init__(self, default=0):

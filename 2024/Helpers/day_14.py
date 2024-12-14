@@ -6,7 +6,7 @@ DAY_DESC = 'Day 14: Restroom Redoubt'
 import re
 
 class Robot:
-    def __init__(self, robot_id, row, size):
+    def __init__(self, robot_id, row):
         m = re.search("p=(?P<x>[0-9-]+),(?P<y>[0-9-]+) v=(?P<vx>[0-9-]+),(?P<vy>[0-9-]+)", row)
         self.robot_id = robot_id
         self.x = int(m["x"])
@@ -30,44 +30,35 @@ def calc(log, values, mode, size=(101, 103), draw=False, return_robots=False):
         start_animation, final_pos = calc(log, values, mode, size=size, return_robots=True)
         start_animation -= 3
 
-    robots = [Robot(i, row, size) for i, row in enumerate(values)]
+    robots = [Robot(i, row) for i, row in enumerate(values)]
 
     if draw:
         colors = {}
-        for x in range(size[0]):
-            for y in range(size[1]):
-                for cur in final_pos:
+        for cur in final_pos:
+            for x in range(size[0]):
+                for y in range(size[1]):
                     if cur.x == x and cur.y == y:
                         if (((x % 2) + (y % 2)) % 2) == 0:
                             colors[cur.robot_id] = (128, 255, 128)
                         else:
                             colors[cur.robot_id] = (255, 128, 128)
 
-    for y in range(size[1]):
-        row = ""
-        for x in range(size[0]):
-            z = 0
-            for cur in robots:
-                if cur.x == x and cur.y == y:
-                    z += 1
-            row += "." if z == 0 else str(z)
-
     if mode == 2:
         if draw:
             chunks = []
             grid = Grid(default=".")
             for cur in robots:
-                grid[cur.x, cur.y] = "#"
+                grid[cur.x, cur.y] = "."
             grid.ensure_ratio(16/9)
             grid.pad(2)
-            grid.save_frame()
 
         i = 0
         chunks = []
         while True:
             i += 1
-            seen = set()
             if draw and i > start_animation:
+                if len(grid.frames):
+                    grid.frames.pop(-1)
                 log(f"Frame {i}")
                 for cur in robots:
                     cur.at = Point(cur.x, cur.y)
@@ -80,13 +71,10 @@ def calc(log, values, mode, size=(101, 103), draw=False, return_robots=False):
                     for cur in robots:
                         chunks[-1].append([])
                         while len(cur.line) > 0 and cur.line[0][1] <= perc:
-                            chunks[-1][-1].append((cur.line[0][0].x % size[0], cur.line[0][0].y % size[1]))
-                            cur.line.pop(0)
+                            cur.at, _ = cur.line.pop(0)
+                            chunks[-1][-1].append((cur.at.x % size[0], cur.at.y % size[1]))
                         if len(chunks[-1][-1]) == 0:
-                            if len(chunks[-1]) == 1:
-                                chunks[-1][-1].append(cur.at)
-                            else:
-                                chunks[-1][-1].append(chunks[-1][-2][-1])
+                            chunks[-1][-1].append((cur.at.x % size[0], cur.at.y % size[1]))
                     for xy in grid.xy_range():
                         grid[xy] = "."
                     while len(chunks) > 20:
@@ -101,6 +89,7 @@ def calc(log, values, mode, size=(101, 103), draw=False, return_robots=False):
                         grid[line[-1]] = (" ", colors[robot_id])
                     grid.save_frame()
 
+            seen = set()
             for cur in robots:
                 cur.x = (cur.x + cur.vx) % size[0]
                 cur.y = (cur.y + cur.vy) % size[1]
@@ -117,7 +106,7 @@ def calc(log, values, mode, size=(101, 103), draw=False, return_robots=False):
                         for xy in grid.xy_range():
                             grid[xy] = "."
                         for perc, chunk in enumerate(chunks):
-                            perc = 1 if target else perc / (target - 1)
+                            perc = 1 if target == 1 else perc / (target - 1)
                             c = (" ", (int(perc * 128), int(perc * 128), int(perc * 128)))
                             for line in chunk:
                                 for cur in line:
