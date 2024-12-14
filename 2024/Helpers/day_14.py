@@ -6,6 +6,7 @@ DAY_DESC = 'Day 14: Restroom Redoubt'
 import re
 
 class Robot:
+    __slots__ = ['x', 'y', 'vx', 'vy', 'robot_id', 'at', 'to', 'line']
     def __init__(self, robot_id, row):
         m = re.search("p=(?P<x>[0-9-]+),(?P<y>[0-9-]+) v=(?P<vx>[0-9-]+),(?P<vy>[0-9-]+)", row)
         self.robot_id = robot_id
@@ -23,8 +24,37 @@ def other_draw(describe, values):
     calc(DummyLog(), values, 2, draw=True)
     animate.create_mp4(DAY_NUM, rate=15, final_secs=5)
 
-def calc(log, values, mode, size=(101, 103), draw=False, return_robots=False):
+def other_frames(describe, values):
+    if describe:
+        return "Draw each step"
+    from dummylog import DummyLog
+    import animate
+    animate.prep()
+    calc(DummyLog(), values, 2, show_frames=True)
+
+def frame_worker(queue, queue_done):
+    while True:
+        job = queue.get()
+        if job is None:
+            queue_done.put(None)
+            break
+        grid, i = job
+        im = grid.draw_grid(return_image=True)
+        im.save("frame_%05d.png" % (i,))
+        im.close()
+        queue_done.put(f"Done with grid {i:,}")
+
+def calc(log, values, mode, size=(101, 103), draw=False, return_robots=False, show_frames=False):
     from grid import Grid, Point
+    if show_frames:
+        import multiprocessing
+        import time
+        msg_at = time.time()
+        queue = multiprocessing.Queue()
+        queue_done = multiprocessing.Queue()
+        workers = multiprocessing.cpu_count()
+        procs = [multiprocessing.Process(target=frame_worker, args=(queue, queue_done)) for _ in range(workers)]
+        [x.start() for x in procs]
 
     if draw:
         start_animation, final_pos = calc(log, values, mode, size=size, return_robots=True)
@@ -54,6 +84,8 @@ def calc(log, values, mode, size=(101, 103), draw=False, return_robots=False):
 
         i = 0
         chunks = []
+        start_variance = None
+
         while True:
             i += 1
             if draw and i > start_animation:
@@ -89,13 +121,44 @@ def calc(log, values, mode, size=(101, 103), draw=False, return_robots=False):
                         grid[line[-1]] = (" ", colors[robot_id])
                     grid.save_frame()
 
-            seen = set()
+            tx, ty = 0, 0
             for cur in robots:
                 cur.x = (cur.x + cur.vx) % size[0]
                 cur.y = (cur.y + cur.vy) % size[1]
-                seen.add((cur.x, cur.y))
-            
-            if len(seen) == len(robots):
+                tx += cur.x
+                ty += cur.y
+            mx, my = tx / len(robots), ty / len(robots)
+            total = 0
+            for cur in robots:
+                total += ((cur.x - mx) ** 2 + (cur.y - my) ** 2) ** .5
+            variance = total / len(robots)
+
+            found_easter_egg = False
+            if start_variance is None:
+                start_variance = variance
+            else:
+                if variance / start_variance < 0.6:
+                    found_easter_egg = True
+                if show_frames:
+                    with open("frame_info.txt", "at") as f:
+                        f.write(
+                            f"var = {variance:7.2f}, " + 
+                            f"start_var = {start_variance:7.2f}, " + 
+                            f"perc: {variance / start_variance * 100:6.2f}, " + 
+                            f"frame: {i:5d}, " + 
+                            f"found: {found_easter_egg}\n"
+                        )
+
+            if show_frames:
+                if time.time() >= msg_at:
+                    msg_at += 5
+                    log(f"Starting grid {i:,}")
+                grid = Grid()
+                for cur in robots:
+                    grid[cur.x, cur.y] = "#"
+                queue.put((grid, i))
+
+            if found_easter_egg:
                 if draw:
                     final = set()
                     for robot_id, line in enumerate(chunks[-1]):
@@ -116,6 +179,20 @@ def calc(log, values, mode, size=(101, 103), draw=False, return_robots=False):
                         grid.save_frame()
 
                     grid.draw_frames(show_lines=False)
+
+                if show_frames:
+                    [queue.put(None) for _ in range(workers)]
+                    while workers > 0:
+                        temp = queue_done.get()
+                        if temp is None:
+                            workers -= 1
+                        else:
+                            if time.time() >= msg_at:
+                                msg_at += 5
+                                log(temp)
+                    [x.join() for x in procs]
+                    log("Done with all grids")
+
                 if return_robots:
                     return i, robots
                 else:
