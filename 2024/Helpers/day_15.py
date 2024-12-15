@@ -14,25 +14,34 @@ def other_draw(describe, values):
 
 def calc(log, values, mode, draw=False):
     from grid import Grid, Point
+
+    directions = {
+        "^": (Point(0, -1), True), 
+        "v": (Point(0, 1), True), 
+        "<": (Point(-1, 0), False), 
+        ">": (Point(1, 0), False),
+    }
+
     grid = []
     moves = None
-    for cur in values:
-        if len(cur) == 0:
+
+    for push in values:
+        if len(push) == 0:
             moves = []
         elif moves is None:
-            grid.append(cur)
+            grid.append(push)
         else:
-            moves.append(cur)
+            moves.extend(directions[x] for x in push)
     
     if mode == 2:
         for i in range(len(grid)):
             temp = ""
-            for cur in grid[i]:
-                if cur in {"#", "."}:
-                    temp += cur + cur
-                elif cur == "O":
+            for push in grid[i]:
+                if push in {"#", "."}:
+                    temp += push + push
+                elif push == "O":
                     temp += "[]"
-                elif cur == "@":
+                elif push == "@":
                     temp += "@."
                 else:
                     raise Exception()
@@ -50,53 +59,46 @@ def calc(log, values, mode, draw=False):
             robot = Point(xy)
             grid[xy] = "."
             break
-    
-    for row in moves:
-        for cur in row:
-            d, up_down = {
-                "^": (Point(0, -1), True), 
-                "v": (Point(0, 1), True), 
-                "<": (Point(-1, 0), False), 
-                ">": (Point(1, 0), False),
-            }[cur]
-            to_move = []
-            to_push = [robot]
-            while True:
-                if all(grid[cur + d] == "." for cur in to_push):
-                    break
-                if any(grid[cur + d] == "#" for cur in to_push):
-                    to_move = None
-                    break
 
-                hit = set()
-                for cur in to_push:
-                    if up_down and grid[cur + d] == "[":
-                        hit.add(cur + d)
-                        hit.add(cur + d + Point(1, 0))
-                    elif up_down and grid[cur + d] == "]":
-                        hit.add(cur + d)
-                        hit.add(cur + d - Point(1, 0))
-                    elif grid[cur + d] in {"O", "[", "]"}:
-                        hit.add(cur + d)
+    for cur_dir, up_down in moves:
+        to_move = []
+        to_push = [robot]
+        while True:
+            if all(grid[x + cur_dir] == "." for x in to_push):
+                break
+            if any(grid[x + cur_dir] == "#" for x in to_push):
+                to_move = None
+                break
 
-                to_push = hit
-                to_move.extend((cur, grid[cur]) for cur in hit)
+            hit = set()
+            for push in to_push:
+                if up_down and grid[push + cur_dir] == "[":
+                    hit.add(push + cur_dir)
+                    hit.add(push + cur_dir + Point(1, 0))
+                elif up_down and grid[push + cur_dir] == "]":
+                    hit.add(push + cur_dir)
+                    hit.add(push + cur_dir - Point(1, 0))
+                elif grid[push + cur_dir] in {"O", "[", "]"}:
+                    hit.add(push + cur_dir)
 
-            if to_move is not None:
-                if draw:
-                    shadow[robot] = "."
-                robot += d
-                for cur, _ in to_move:
-                    grid[cur] = "."
-                for cur, val in to_move:
-                    grid[cur + d] = val
-                if draw:
-                    for cur, _ in to_move:
-                        shadow[cur] = "."
-                    for cur, val in to_move:
-                        shadow[cur + d] = val
-                    shadow[robot] = "star"
-                    shadow.save_frame()
+            to_push = hit
+            to_move.extend((cur, grid[cur]) for cur in hit)
+
+        if to_move is not None:
+            if draw:
+                shadow[robot] = "."
+            robot += cur_dir
+            for push, _ in to_move:
+                grid[push] = "."
+            for push, val in to_move:
+                grid[push + cur_dir] = val
+            if draw:
+                for push, _ in to_move:
+                    shadow[push] = "."
+                for push, val in to_move:
+                    shadow[push + cur_dir] = val
+                shadow[robot] = "star"
+                shadow.save_frame()
 
     ret = 0
     for xy in grid.xy_range():
