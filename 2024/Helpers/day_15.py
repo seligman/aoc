@@ -3,7 +3,16 @@
 DAY_NUM = 15
 DAY_DESC = 'Day 15: Warehouse Woes'
 
-def calc(log, values, mode):
+def other_draw(describe, values):
+    if describe:
+        return "Draw this"
+    from dummylog import DummyLog
+    import animate
+    animate.prep()
+    calc(DummyLog(), values, 2, draw=True)
+    animate.create_mp4(DAY_NUM, rate=15, final_secs=5)
+
+def calc(log, values, mode, draw=False):
     from grid import Grid, Point
     grid = []
     moves = None
@@ -28,6 +37,12 @@ def calc(log, values, mode):
                 else:
                     raise Exception()
             grid[i] = temp
+
+    if draw:
+        shadow = Grid.from_text(grid)
+        shadow.ensure_ratio(16/4.5)
+        shadow.pad(2)
+        shadow.save_frame()
 
     grid = Grid.from_text(grid)
     for xy in grid.xy_range():
@@ -90,16 +105,30 @@ def calc(log, values, mode):
                     temp += d
 
             if empty > 0:
+                if draw:
+                    shadow[robot] = "."
                 robot += d
                 for cur, _ in to_move:
                     grid[cur] = "."
                 for cur, val in to_move:
                     grid[cur + d] = val
+                if draw:
+                    for cur, _ in to_move:
+                        shadow[cur] = "."
+                    for cur, val in to_move:
+                        shadow[cur + d] = val
+                    shadow[robot] = "star"
+                    shadow.save_frame()
 
     ret = 0
     for xy in grid.xy_range():
         if grid[xy] in {"O", "["}:
             ret += xy[1] * 100 + xy[0]
+
+    if draw:
+        shadow.ease_frames(rate=15, secs=60)
+        shadow.draw_frames(show_lines=False, cell_size=(10, 20))
+
     return ret
 
 def test(log):
