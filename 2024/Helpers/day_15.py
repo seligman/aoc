@@ -53,58 +53,36 @@ def calc(log, values, mode, draw=False):
     
     for row in moves:
         for cur in row:
-            x, y, up_down = {"^": (0, -1, True), "v": (0, 1, True), "<": (-1, 0, False), ">": (1, 0, False)}[cur]
-            d = Point(x, y)
+            d, up_down = {
+                "^": (Point(0, -1), True), 
+                "v": (Point(0, 1), True), 
+                "<": (Point(-1, 0), False), 
+                ">": (Point(1, 0), False),
+            }[cur]
             to_move = []
-            empty = 0
-            if mode == 2 and up_down:
-                temp = robot + Point(0, 0)
-                row = [temp]
-                while True:
-                    all_empty = True
-                    for cur in row:
-                        if grid[cur + d] != ".":
-                            all_empty = False
-                    if all_empty:
-                        empty += 1
-                        break
+            to_push = [robot]
+            while True:
+                if all(grid[cur + d] == "." for cur in to_push):
+                    break
+                if any(grid[cur + d] == "#" for cur in to_push):
+                    to_move = None
+                    break
 
-                    any_wall = False
-                    for cur in row:
-                        if grid[cur + d] == "#":
-                            any_wall = True
-                    if any_wall:
-                        break
+                hit = set()
+                for cur in to_push:
+                    if up_down and grid[cur + d] == "[":
+                        hit.add(cur + d)
+                        hit.add(cur + d + Point(1, 0))
+                    elif up_down and grid[cur + d] == "]":
+                        hit.add(cur + d)
+                        hit.add(cur + d - Point(1, 0))
+                    elif grid[cur + d] in {"O", "[", "]"}:
+                        hit.add(cur + d)
 
-                    hit = set()
-                    for cur in row:
-                        if grid[cur + d] == "[":
-                            hit.add(cur + d)
-                            hit.add(cur + d + Point(1, 0))
-                        elif grid[cur + d] == "]":
-                            hit.add(cur + d)
-                            hit.add(cur + d - Point(1, 0))
-                    row = []
-                    for cur in hit:
-                        row.append(cur)
-                        to_move.append((cur, grid[cur]))
-                    temp += d
+                to_push = hit
+                to_move.extend((cur, grid[cur]) for cur in hit)
 
-            else:
-                temp = robot + d
-                while True:
-                    if grid[temp] == ".":
-                        empty += 1
-                        break
-                    elif grid[temp] == "O":
-                        to_move.append((temp, grid[temp]))
-                    elif grid[temp] in {"[", "]"}:
-                        to_move.append((temp, grid[temp]))
-                    else:
-                        break
-                    temp += d
-
-            if empty > 0:
+            if to_move is not None:
                 if draw:
                     shadow[robot] = "."
                 robot += d
