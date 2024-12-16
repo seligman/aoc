@@ -3,13 +3,18 @@
 DAY_NUM = 16
 DAY_DESC = 'Day 16: Reindeer Maze'
 
-def calc(log, values, mode):
-    # TODO: Delete or use these
-    # from parsers import get_ints, get_floats
+def other_draw(describe, values):
+    if describe:
+        return "Draw this"
+    from dummylog import DummyLog
+    import animate
+    animate.prep()
+    calc(DummyLog(), values, 2, draw=True)
+    animate.create_mp4(DAY_NUM, rate=15, final_secs=5)
+
+def calc(log, values, mode, draw=False):
     from grid import Grid, Point
     grid = Grid.from_text(values)
-    # from program import Program
-    # program = Program(values)
 
     for xy in grid.xy_range():
         if grid[xy] == "S":
@@ -49,19 +54,47 @@ def calc(log, values, mode):
                 todo.append((xy + dirs[(d+3) % 4], d+3, score + 1001, path))
 
 
-    todo = [(start, 0, 0, set())]
 
-    seen = set()
+    if draw:
+        all_paths = []
+
+    todo = [(start, 0, 0, [])]
     while len(todo) > 0:
         xy, d, score, path = todo.pop(best_i)
         if grid[xy] == "." and score <= scores[xy] + 1001:
-                path = path | set([xy])
+                path = path[:] + [xy]
                 if xy == stop:
-                    to_show |= path
+                    to_show |= set(path)
+                    if draw:
+                        all_paths.append(path)
                 else:
                     todo.append((xy + dirs[d % 4], d, score + 1, path))
                     todo.append((xy + dirs[(d+1) % 4], d+1, score + 1001, path))
                     todo.append((xy + dirs[(d+3) % 4], d+3, score + 1001, path))
+
+    if draw:
+        grid[start] = "star"
+        grid[stop] = "star"
+        grid.ensure_ratio(16/9)
+        grid.pad(2)
+        grid.save_frame()
+
+        all_paths = [list(x) for x in all_paths]
+        last = []
+        while len(all_paths[0]):
+            for xy in last:
+                grid[xy] = (" ", (90, 90, 200))
+
+            for cur in all_paths:
+                xy = cur.pop(0)
+                grid[xy] = "star"
+                last.append(xy)
+            
+            grid.save_frame()
+
+        if draw:
+            grid.ease_frames(rate=15, secs=10)
+            grid.draw_frames(show_lines=False)
 
     return len(to_show) 
 

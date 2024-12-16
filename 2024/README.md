@@ -11,6 +11,7 @@ Some visualizations for your viewing pleasure:
 * Day 12: [Plotting the gardens](https://youtu.be/I-IwJxR9xQk)
 * Day 14: [Watching the robots](https://youtu.be/m_RdkV7UyRA)
 * Day 15: [Pushing the boxes](https://youtu.be/SrSfrzS0xow)
+* Day 16: [The best seats in the house](https://youtu.be/kkxgGfU30Os)
 
 <!--
 * [The calendar itself](https://youtu.be/EYtkMaH6xQY)
