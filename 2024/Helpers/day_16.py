@@ -33,6 +33,7 @@ def calc(log, values, mode, draw=False):
     to_show = set()
 
     scores = {}
+    target_score = None
 
     while len(todo) > 0:
         best = None
@@ -47,13 +48,12 @@ def calc(log, values, mode, draw=False):
             if grid[xy] == "." and xy not in path:
                 path = path | set([xy])
                 if xy == stop:
+                    target_score = score
                     if mode == 1:
                         return score
                 todo.append((xy + dirs[d % 4], d, score + 1, path))
                 todo.append((xy + dirs[(d+1) % 4], d+1, score + 1001, path))
                 todo.append((xy + dirs[(d+3) % 4], d+3, score + 1001, path))
-
-
 
     if draw:
         all_paths = []
@@ -61,16 +61,18 @@ def calc(log, values, mode, draw=False):
     todo = [(start, 0, 0, [])]
     while len(todo) > 0:
         xy, d, score, path = todo.pop(best_i)
+        target = None
         if grid[xy] == "." and score <= scores[xy] + 1001:
-                path = path[:] + [xy]
-                if xy == stop:
+            path = path[:] + [xy]
+            if xy == stop:
+                if score == target_score:
                     to_show |= set(path)
                     if draw:
                         all_paths.append(path)
-                else:
-                    todo.append((xy + dirs[d % 4], d, score + 1, path))
-                    todo.append((xy + dirs[(d+1) % 4], d+1, score + 1001, path))
-                    todo.append((xy + dirs[(d+3) % 4], d+3, score + 1001, path))
+            else:
+                todo.append((xy + dirs[d % 4], d, score + 1, path))
+                todo.append((xy + dirs[(d+1) % 4], d+1, score + 1001, path))
+                todo.append((xy + dirs[(d+3) % 4], d+3, score + 1001, path))
 
     if draw:
         grid[start] = "star"
@@ -119,6 +121,29 @@ def test(log):
 
     log.test(calc(log, values, 1), '7036')
     log.test(calc(log, values, 2), '45')
+
+    values = log.decode_values("""
+        #################
+        #...#...#...#..E#
+        #.#.#.#.#.#.#.#.#
+        #.#.#.#...#...#.#
+        #.#.#.#.###.#.#.#
+        #...#.#.#.....#.#
+        #.#.#.#.#.#####.#
+        #.#...#.#.#.....#
+        #.#.#####.#.###.#
+        #.#.#.......#...#
+        #.#.###.#####.###
+        #.#.#...#.....#.#
+        #.#.#.#####.###.#
+        #.#.#.........#.#
+        #.#.#.#########.#
+        #S#.............#
+        #################
+    """)
+
+    log.test(calc(log, values, 1), '11048')
+    log.test(calc(log, values, 2), '64')
 
 def run(log, values):
     log(calc(log, values, 1))
