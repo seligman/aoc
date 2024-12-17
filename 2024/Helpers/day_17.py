@@ -13,8 +13,6 @@ def other_draw(describe, values):
     animate.create_mp4(DAY_NUM, rate=15, final_secs=5)
 
 def calc(log, values, mode, draw=False):
-    from grid import Grid
-
     a = int(values[0].split(": ")[1])
     b = int(values[1].split(": ")[1])
     c = int(values[2].split(": ")[1])
@@ -61,6 +59,7 @@ def calc(log, values, mode, draw=False):
         return ret
 
     if draw:
+        from grid import Grid
         grid = Grid()
         grid[0, 0] = "."
         grid[100, 0] = "."
@@ -98,7 +97,7 @@ def calc(log, values, mode, draw=False):
                         if off == 0:
                             if draw:
                                 grid.ease_frames(rate=15, secs=30)
-                                grid.draw_frames()
+                                grid.draw_frames(show_lines=False)
                             return next_val
                         todo.append((prog, off - 1, next_val, True, added + [cur]))
                     else:

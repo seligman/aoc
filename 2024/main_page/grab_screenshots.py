@@ -73,8 +73,20 @@ def make_animation_runner(single_frame):
         subprocess.check_call(["p4", "edit", dest])
         subprocess.check_call(["p4", "edit", dest2])
         im.save(dest, "PNG")
+        print(f"Wrote {im.width}x{im.height} to {dest}")
         im = im.resize((im.width // 2, im.height // 2), Image.Resampling.BICUBIC)
         im.save(dest2, "PNG")
+        print(f"Wrote {im.width}x{im.height} to {dest2}")
+
+        with open(os.path.join("..", "README.md")) as f:
+            for row in f:
+                m = re.search('width="(?P<width>[0-9]+)" height="(?P<height>[0-9]+)"', row)
+                if m is not None:
+                    if int(m["width"]) != im.width or int(m["height"]) != im.height:
+                        print("Warning: Need to change README.md size!")
+                    else:
+                        print("README.md has the correct size in it")
+                    break
 
 def update_preview():
     make_animation_runner(True)
@@ -91,8 +103,6 @@ def clean_up():
 
 def make_animation_worker(single_frame):
     from selenium import webdriver # type: ignore
-    import chromedriver_binary # type: ignore
-    import undetected_chromedriver as uc # type: ignore
     from PIL import Image, ImageDraw # type: ignore
 
     files = [
@@ -112,7 +122,7 @@ def make_animation_worker(single_frame):
     print("Loading main page...")
     options = webdriver.ChromeOptions()
     options.headless = True
-    driver = uc.Chrome(options=options)
+    driver = webdriver.Chrome(options=options)
     driver.set_window_size(1000, 1000)
     now = datetime.now(UTC).replace(tzinfo=None)
 
@@ -186,7 +196,8 @@ def make_animation_worker(single_frame):
             with open(os.path.join(os.path.split(__file__)[0], "aoc", "_temp_.html"), "wt") as f:
                 f.write(html)
 
-            driver.get(os.path.join(os.path.split(__file__)[0], "aoc", "_temp_.html#" + step['extra']))
+            driver.get("file://" + os.path.join(os.path.split(__file__)[0], "aoc", "_temp_.html#" + step['extra']))
+            # driver.get("https://www.google.com/")
 
             save_screenshot(f"{cur['fn']} {step['extra']} {step['hide_stars']}", driver, "screenshots", step['frames'], files)
             
