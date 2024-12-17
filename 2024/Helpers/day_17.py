@@ -3,6 +3,8 @@
 DAY_NUM = 17
 DAY_DESC = 'Day 17: Chronospatial Computer'
 
+from collections import deque
+
 def other_draw(describe, values):
     if describe:
         return "Draw this"
@@ -38,23 +40,24 @@ def calc(log, values, mode, draw=False):
             if history is not None:
                 op_name = ["adv", "bxl", "bst", "jnz", "bxc", "out", "bdv", "cdv"]
                 history.append(f"#{step:03d} IP={i:04d}, Op={opcode} {op_name[opcode]}, Operand={operand}, A={a:15d}, B={b:15d}, C={c:15d}")
-            if opcode == 0:
-                a = int(a / (2 ** decode(a, b, c, operand)))
-            elif opcode == 1:
+
+            if opcode == 0: # adv
+                a = a // (1 << decode(a, b, c, operand))
+            elif opcode == 1: # bxl
                 b = b ^ operand
-            elif opcode == 2:
+            elif opcode == 2: # bst
                 b = decode(a, b, c, operand) % 8
-            elif opcode == 3:
+            elif opcode == 3: # jnz
                 if a != 0:
                     next_i = operand
-            elif opcode == 4:
+            elif opcode == 4: # bxc
                 b = b ^ c
-            elif opcode == 5:
+            elif opcode == 5: # out
                 ret.append(decode(a, b, c, operand) % 8)
-            elif opcode == 6:
-                b = int(a / (2 ** decode(a, b, c, operand)))
-            elif opcode == 7:
-                c = int(a / (2 ** decode(a, b, c, operand)))
+            elif opcode == 6: # bdv
+                b = a // (1 << decode(a, b, c, operand))
+            elif opcode == 7: # cdv
+                c = a // (1 << decode(a, b, c, operand))
             i = next_i
         return ret
 
@@ -72,9 +75,9 @@ def calc(log, values, mode, draw=False):
         ret = run_program(a, b, c, prog)
         return ",".join(str(x) for x in ret)
     else:
-        todo = [(prog, len(prog) - 1, 0, True, [])]
+        todo = deque([(prog, len(prog) - 1, 0, True, [])])
         while len(todo) > 0:
-            prog, off, val, calc, added = todo.pop(0)
+            prog, off, val, calc, added = todo.popleft()
             if calc:
                 for cur in range(8):
                     next_val = (val << 3) + cur
