@@ -12,6 +12,7 @@ Some visualizations for your viewing pleasure:
 * Day 14: [Watching the robots](https://youtu.be/m_RdkV7UyRA)
 * Day 15: [Pushing the boxes](https://youtu.be/SrSfrzS0xow)
 * Day 16: [The best seats in the house](https://youtu.be/kkxgGfU30Os)
+* Day 17: [Cracking the quine](https://youtu.be/Y82JC7JFbvU)
 
 <!--
 * [The calendar itself](https://youtu.be/EYtkMaH6xQY)

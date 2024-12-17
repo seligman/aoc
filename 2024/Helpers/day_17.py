@@ -3,7 +3,18 @@
 DAY_NUM = 17
 DAY_DESC = 'Day 17: Chronospatial Computer'
 
-def calc(log, values, mode):
+def other_draw(describe, values):
+    if describe:
+        return "Draw this"
+    from dummylog import DummyLog
+    import animate
+    animate.prep()
+    calc(DummyLog(), values, 2, draw=True)
+    animate.create_mp4(DAY_NUM, rate=15, final_secs=5)
+
+def calc(log, values, mode, draw=False):
+    from grid import Grid
+
     a = int(values[0].split(": ")[1])
     b = int(values[1].split(": ")[1])
     c = int(values[2].split(": ")[1])
@@ -16,14 +27,19 @@ def calc(log, values, mode):
         elif val == 6: return c
         else: raise Exception()
 
-    def run_program(a, b, c, prog):
+    def run_program(a, b, c, prog, history=None):
         ret = []
         i = 0
+        step = 0
         while i < len(prog):
+            step += 1
             next_i = i + 2
             opcode = prog[i]
             operand = prog[i+1]
 
+            if history is not None:
+                op_name = ["adv", "bxl", "bst", "jnz", "bxc", "out", "bdv", "cdv"]
+                history.append(f"#{step:03d} IP={i:04d}, Op={opcode} {op_name[opcode]}, Operand={operand}, A={a:15d}, B={b:15d}, C={c:15d}")
             if opcode == 0:
                 a = int(a / (2 ** decode(a, b, c, operand)))
             elif opcode == 1:
@@ -44,19 +60,52 @@ def calc(log, values, mode):
             i = next_i
         return ret
 
+    if draw:
+        grid = Grid()
+        grid[0, 0] = "."
+        grid[100, 0] = "."
+        def dump_grid(rows):
+            if len(rows) > 30:
+                rows = rows[:25] + [" . . . . ."] + rows[-4:]
+            grid.save_frame(rows)
+
     if mode == 1:
         ret = run_program(a, b, c, prog)
         return ",".join(str(x) for x in ret)
     else:
-        todo = [(prog, len(prog) - 1, 0)]
+        todo = [(prog, len(prog) - 1, 0, True, [])]
         while len(todo) > 0:
-            prog, off, val = todo.pop(0)
-            for cur in range(8):
-                next_val = (val << 3) + cur
-                if run_program(next_val, 0, 0, prog) == prog[off:]:
-                    if off == 0:
-                        return next_val
-                    todo.append((prog, off - 1, next_val))
+            prog, off, val, calc, added = todo.pop(0)
+            if calc:
+                for cur in range(8):
+                    next_val = (val << 3) + cur
+                    if draw:
+                        history = ["Program: " + ", ".join(str(x) for x in prog)]
+                        temp = '.'.join(f"{x}" for x in (added + [cur])[::-1])
+                        history.append(f"Initial A = {temp}  <- or ->  {next_val}")
+                    else:
+                        history = None
+                    result = run_program(next_val, 0, 0, prog, history=history)
+                    if draw:
+                        temp = [str(x) for x in result]
+                        while len(temp) < len(prog):
+                            temp.insert(0, " ")
+                        history.append(" Result: " + ", ".join(temp))
+                    if result == prog[off:]:
+                        if draw:
+                            history.append("Found quine!" if off == 0 else "Partial match of quine!")
+                            dump_grid(history)
+                        if off == 0:
+                            if draw:
+                                grid.ease_frames(rate=15, secs=30)
+                                grid.draw_frames()
+                            return next_val
+                        todo.append((prog, off - 1, next_val, True, added + [cur]))
+                    else:
+                        if draw:
+                            history.append("ERROR: Mismatch")
+                            dump_grid(history)
+                        todo.append((prog, off - 1, next_val, False, added + [cur]))
 
     return None
 
