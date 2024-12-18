@@ -13,6 +13,7 @@ Some visualizations for your viewing pleasure:
 * Day 15: [Pushing the boxes](https://youtu.be/SrSfrzS0xow)
 * Day 16: [The best seats in the house](https://youtu.be/kkxgGfU30Os)
 * Day 17: [Cracking the quine](https://youtu.be/Y82JC7JFbvU)
+* Day 18: [A path in the falling bytes](https://youtu.be/7cY8mSFMmJ8)
 
 <!--
 * [The calendar itself](https://youtu.be/EYtkMaH6xQY)

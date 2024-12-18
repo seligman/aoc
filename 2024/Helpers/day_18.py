@@ -6,33 +6,77 @@ DAY_DESC = 'Day 18: RAM Run'
 from collections import deque
 from functools import cache
 from grid import Grid, Point
+from multiprocessing import Pool
+
+def other_draw(describe, values):
+    if describe:
+        return "Draw this"
+    from dummylog import DummyLog
+    import animate
+    animate.prep()
+    calc(DummyLog(), values, 2, 1024, 70, draw=True)
+    animate.create_mp4(DAY_NUM, rate=15, final_secs=5)
 
 _values = None
 @cache
-def get_steps(i, size):
+def get_steps(i, size, return_path=False):
     grid = Grid()
     for row in _values[:i]:
         row = row.split(",")
         grid[int(row[0]), int(row[1])] = "#"
 
-    todo = deque([(Point(0,0), 0)])
+    todo = deque([(Point(0,0), 0, [(0, 0)])])
     end = Point(size - 1, size - 1)
     seen = set()
-    found = False
     while len(todo) > 0:
-        xy, steps = todo.popleft()
+        xy, steps, path = todo.popleft()
         if xy == end:
-            return steps
+            if return_path:
+                return path
+            else:
+                return steps
         for o in grid.get_dirs(2, diagonal=False):
             o = xy + Point(o)
             if o.x >= 0 and o.y >= 0 and o.x < size and o.y < size:
                 if o not in seen:
                     seen.add(o)
                     if grid[o] != "#":
-                        todo.append((o, steps + 1))
+                        todo.append((o, steps + 1, path + [o.tuple]))
     return None
 
-def calc(log, values, mode, limit, size):
+_size = None
+def init_worker(values, size):
+    global _values, _size
+    _values = values
+    _size = size
+
+def worker(i):
+    grid = Grid()
+    for x in range(_size):
+        for y in range(_size):
+            grid[x, y] = "."
+    for i in range(0, i + 1):
+        grid[int(_values[i].split(",")[0]), int(_values[i].split(",")[1])] = "#"
+    grid.ensure_ratio(16/9)
+    grid.pad(4)
+
+    for x in range(-1, _size + 1):
+        grid[x, -1] = [" ", (128, 128, 128)]
+        grid[x, _size] = [" ", (128, 128, 128)]
+    for y in range(-1, _size + 1):
+        grid[-1, y] = [" ", (128, 128, 128)]
+        grid[_size, y] = [" ", (128, 128, 128)]
+
+    path = get_steps(i, _size, return_path=True)
+    if path is None:
+        return i, grid, None
+    else:
+        for xy in path:
+            grid[xy] = [" ", (128, 128, 255)]
+        grid.save_frame()
+        return i, grid.frames[0], path
+
+def calc(log, values, mode, limit, size, draw=False):
     global _values
     _values = values
     size += 1
@@ -49,12 +93,42 @@ def calc(log, values, mode, limit, size):
                     break
                 else:
                     start_at = i
+
             if target[2] == 1:
-                return values[start_at]
+                ret = start_at
+                break
             elif start_at is not None and stop_at is not None:
                 target = (start_at, stop_at + 1, target[2] // 2)
             else:
                 target = (target[0], target[1], target[2] // 2)
+
+    if draw:
+        grid = Grid()
+        grid[0, 0] = "."
+        grid[size-1, size-1] = "."
+        grid.ensure_ratio(16/9)
+        grid.pad(4)
+        with Pool(initializer=init_worker, initargs=(_values, size)) as pool:
+            last_path = None
+            for i, frame, path in pool.imap(worker, range(ret + 2)):
+                if path is None:
+                    for xy in last_path:
+                        if frame[xy] == ".":
+                            frame[xy] = [" ", (128, 128, 255)]
+                        else:
+                            break
+                    frame.save_frame()
+                    grid.frames.append(frame.frames[0])
+                else:
+                    last_path = path
+                    grid.frames.append(frame)
+                    if i % 150 == 0:
+                        print(f"Got frame {i} of {ret + 2}")
+            
+        grid.ease_frames(rate=15, secs=30)
+        grid.draw_frames()
+
+    return values[ret]
 
 def test(log):
     values = log.decode_values("""
