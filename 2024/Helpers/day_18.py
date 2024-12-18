@@ -3,59 +3,58 @@
 DAY_NUM = 18
 DAY_DESC = 'Day 18: RAM Run'
 
+from collections import deque
+from functools import cache
+from grid import Grid, Point
+
+_values = None
+@cache
+def get_steps(i, size):
+    grid = Grid()
+    for row in _values[:i]:
+        row = row.split(",")
+        grid[int(row[0]), int(row[1])] = "#"
+
+    todo = deque([(Point(0,0), 0)])
+    end = Point(size - 1, size - 1)
+    seen = set()
+    found = False
+    while len(todo) > 0:
+        xy, steps = todo.popleft()
+        if xy == end:
+            return steps
+        for o in grid.get_dirs(2, diagonal=False):
+            o = xy + Point(o)
+            if o.x >= 0 and o.y >= 0 and o.x < size and o.y < size:
+                if o not in seen:
+                    seen.add(o)
+                    if grid[o] != "#":
+                        todo.append((o, steps + 1))
+    return None
+
 def calc(log, values, mode, limit, size):
-    from grid import Grid, Point
+    global _values
+    _values = values
     size += 1
 
     if mode == 1:
-        target = (limit, limit + 1, 1)
+        return get_steps(limit, size)
     else:
         target = (0, len(values) + 1, 1024)
-
-    while True:
-        last_true = None
-        not_true = None
-        for i in range(*target):
-            grid = Grid()
-            for row in values[:i]:
-                row = row.split(",")
-                grid[int(row[0]), int(row[1])] = "#"
-
-            todo = [(Point(0,0), 0)]
-            end = Point(size - 1, size - 1)
-            seen = set()
-            found = False
-            while len(todo) > 0:
-                xy, steps = todo.pop(0)
-                if xy == end:
-                    if mode == 1:
-                        return steps
-                    else:
-                        found = True
-                        todo = []
-                        break
-                for o in grid.get_dirs(2, diagonal=False):
-                    o = xy + Point(o)
-                    if o.x >= 0 and o.y >= 0 and o.x < size and o.y < size:
-                        if o not in seen:
-                            seen.add(o)
-                            if grid[o] != "#":
-                                todo.append((o, steps + 1))
-
-            if found:
-                last_true = i
-            else:
-                not_true = i
-                break
-        
-        if last_true is not None and not_true is not None:
+        while True:
+            start_at, stop_at = None, None
+            for i in range(*target):
+                if get_steps(i, size) is None:
+                    stop_at = i
+                    break
+                else:
+                    start_at = i
             if target[2] == 1:
-                return values[last_true]
-            target = (last_true, not_true + 1, target[2] // 2)
-        else:
-            target = (target[0], target[1], target[2] // 2)
-
-    return 0
+                return values[start_at]
+            elif start_at is not None and stop_at is not None:
+                target = (start_at, stop_at + 1, target[2] // 2)
+            else:
+                target = (target[0], target[1], target[2] // 2)
 
 def test(log):
     values = log.decode_values("""
