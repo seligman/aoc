@@ -42,7 +42,7 @@ def calc(log, values, mode, draw=False):
                 history.append(f"#{step:03d} IP={i:04d}, Op={opcode} {op_name[opcode]}, Operand={operand}, A={a:15d}, B={b:15d}, C={c:15d}")
 
             if opcode == 0: # adv
-                a = a // (1 << decode(a, b, c, operand))
+                a = a >> decode(a, b, c, operand)
             elif opcode == 1: # bxl
                 b = b ^ operand
             elif opcode == 2: # bst
@@ -55,9 +55,9 @@ def calc(log, values, mode, draw=False):
             elif opcode == 5: # out
                 ret.append(decode(a, b, c, operand) % 8)
             elif opcode == 6: # bdv
-                b = a // (1 << decode(a, b, c, operand))
+                b = a >> decode(a, b, c, operand)
             elif opcode == 7: # cdv
-                c = a // (1 << decode(a, b, c, operand))
+                c = a >> decode(a, b, c, operand)
             i = next_i
         return ret
 
