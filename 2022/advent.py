@@ -150,8 +150,27 @@ def update_selfs():
                     with open(dest, "wb") as f:
                         f.write(source_data)
 
+def validate_modules_load():
+    day_num = 1
+    try:
+        while True:
+            filename = os.path.join("Helpers", f"day_{day_num:02d}.py")
+            if os.path.isfile(filename):
+                cur = f"day_{day_num:02d}"
+                helper = utils.load_source(cur, filename)
+                for method in utils.required_methods:
+                    if not hasattr(helper, method):
+                        raise Exception(f"ERROR: {cur} doesn't implement '{method}'!")
+                day_num += 1
+            else:
+                break
+    except Exception as e:
+        print(f"ERROR: Day {day_num} failed to load with '{e}'!")
+        exit(1)
+        
 @opt("Finish off all items for a day", group="Advent of Code")
 def finish_day():
+    validate_modules_load()
     print("$ advent.py run_save cur")
     run_save("cur")
     print("$ advent.py dl_day cur")

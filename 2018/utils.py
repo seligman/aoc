@@ -9,6 +9,13 @@ else:
     import imp
 import hashlib
 
+required_methods = [
+    "run",
+    "test",
+    "DAY_NUM",
+    "DAY_DESC",
+]
+
 def load_source(modname, filename):
     if sys.version_info >= (3, 11): 
         loader = importlib.machinery.SourceFileLoader(modname, filename)
@@ -21,13 +28,6 @@ def load_source(modname, filename):
         return imp.load_source(modname, filename)
 
 def get_helpers():
-    required_methods = [
-        "run",
-        "test",
-        "DAY_NUM",
-        "DAY_DESC",
-    ]
-
     for cur in sorted(os.listdir("Helpers")):
         if cur.startswith("day_") and cur.endswith(".py"):
             name = ".".join(cur.split(".")[:-1])
