@@ -5,7 +5,6 @@ DAY_DESC = 'Day 18: RAM Run'
 
 from collections import deque
 from functools import cache
-from grid import Grid, Point
 from multiprocessing import Pool
 
 def other_draw(describe, values):
@@ -20,6 +19,7 @@ def other_draw(describe, values):
 _values = None
 @cache
 def get_steps(i, size, return_path=False):
+    from grid import Grid, Point
     grid = Grid()
     for row in _values[:i]:
         row = row.split(",")
@@ -51,6 +51,7 @@ def init_worker(values, size):
     _size = size
 
 def worker(i):
+    from grid import Grid, Point
     grid = Grid()
     for x in range(_size):
         for y in range(_size):
@@ -77,6 +78,7 @@ def worker(i):
         return i, grid.frames[0], path
 
 def calc(log, values, mode, limit, size, draw=False):
+    from grid import Grid, Point
     global _values
     _values = values
     size += 1
