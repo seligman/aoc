@@ -33,7 +33,9 @@ def calc(log, values, mode, savings, cheats):
     ret = 0
     path = [(i, x, y) for i, (x, y) in enumerate(path)]
     for i, x, y in path:
-        for j, ox, oy in path[i + 2 + savings:]:
+        min_x, max_x = x - cheats, x + cheats
+        min_y, max_y = y - cheats, y + cheats
+        for j, ox, oy in [(j, ox, oy) for j, ox, oy in path[i + 2 + savings:] if min_x <= ox <= max_x and min_y <= oy <= max_y]:
             dist = abs(x - ox) + abs(y - oy)
             if dist <= cheats and (j - i) - dist >= savings:
                 ret += 1
