@@ -8,7 +8,7 @@ DAY_DESC = 'Day 5: Hydrothermal Venture'
 def calc(log, values, mode, draw=False):
     from grid import Grid
     grid = Grid()
-    r = re.compile("(\d+),(\d+) -> (\d+),(\d+)")
+    r = re.compile(r"(\d+),(\d+) -> (\d+),(\d+)")
     frame = 0
     for cur in values:
         m = r.search(cur)
