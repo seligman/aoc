@@ -3,6 +3,8 @@
 DAY_NUM = 22
 DAY_DESC = 'Day 22: Monkey Market'
 
+from collections import defaultdict
+
 def calc(log, values, mode):
     ret = 0
     if mode == 1:
@@ -14,28 +16,27 @@ def calc(log, values, mode):
                 x = ((x * 2048) ^ x) % 16777216
             ret += x
     else:
-        total = {}
+        total = defaultdict(int)
         for row in values:
             x = int(row)
             last = x % 10
-            pattern = []
+            changes = [0]
+            prices = []
             for _ in range(2000):
                 x = ((x * 64) ^ x) % 16777216
                 x = ((x // 32) ^ x) % 16777216
                 x = ((x * 2048) ^ x) % 16777216
                 temp = x % 10
-                pattern.append((temp - last, temp))
+                changes.append((temp - last) + 9)
+                prices.append(temp)
                 last = temp
             seen = set()
-            for i in range(len(pattern)-4):
-                pat = tuple(x[0] for x in pattern[i:i+4])
-                val = pattern[i+3][1]
+            pat = changes[1] * 400 + changes[2] * 20 + changes[3]
+            for to_remove, to_add, val in zip(changes, changes[4:], prices[3:]):
+                pat = ((pat - (to_remove * 8000)) * 20) + to_add
                 if pat not in seen:
                     seen.add(pat)
-                    if pat not in total:
-                        total[pat] = val
-                    else:
-                        total[pat] += val
+                    total[pat] += val
         ret = max(total.values())
 
     return ret
