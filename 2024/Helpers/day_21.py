@@ -88,6 +88,12 @@ def draw_helper(job):
         x, y = (x + 0.5) * size, (y + 0.5) * size
         dr.text((x, y), job["text"], fill=(255, 255, 255), font=_fnt)
 
+    x, y = ended
+    x = 3
+    y += 2
+    x, y = (x + 0.5) * size, (y + 0.5) * size
+    dr.text((x, y), f'Steps: {job["step"]:,}', fill=(255, 255, 255), font=_fnt)
+
     fn = f"frame_{job['frame_no']:05d}.png"
     im.save(fn)
     return fn
@@ -95,6 +101,14 @@ def draw_helper(job):
 def other_draw(describe, values):
     if describe:
         return "Draw this"
+    draw_internal(values, 60, 30, "")
+
+def other_draw_long(describe, values):
+    if describe:
+        return "Draw this, long animation"
+    draw_internal(values, 1200, 60, "_long")
+
+def draw_internal(values, secs, frame_rate, extra):
     from dummylog import DummyLog
 
     global _return_path, _target_robots
@@ -141,7 +155,16 @@ def other_draw(describe, values):
             if "text" in cur:
                 text += cur["text"]
         for step in range(10):
-            todo.append({"pad": i, "perc": step / 10, "frame_no": frame_no, "pads": pads, "pos": pos[:], "frame": frames[i], "text": text})
+            todo.append({
+                "pad": i, 
+                "perc": step / 10, 
+                "frame_no": frame_no, 
+                "pads": pads, 
+                "pos": pos[:], 
+                "frame": frames[i], 
+                "text": text, 
+                "step": i,
+            })
             frame_no += 1
         for cur in frames[i]:
             if "pad" in cur:
@@ -149,9 +172,10 @@ def other_draw(describe, values):
 
     from grid import Grid
     grid = Grid()
-    grid.ease_frames(rate=30, secs=60, frames=todo)
-    for i, frame in enumerate(todo):
-        frame["frame_no"] = i
+    grid.ease_frames(rate=frame_rate, secs=secs, frames=todo)
+    for i in range(len(todo)):
+        todo[i] = todo[i].copy()
+        todo[i]['frame_no'] = i
 
     left = len(todo)
     msg_at = time.time()
@@ -163,10 +187,10 @@ def other_draw(describe, values):
         for msg in pool.imap(draw_helper, todo):
             left -= 1
             if time.time() >= msg_at:
-                msg_at += 0.1
+                msg_at += 1
                 print(f"Saved {msg}, {left} left")
 
-    animate.create_mp4(DAY_NUM, rate=30, final_secs=5)
+    animate.create_mp4(DAY_NUM, rate=frame_rate, final_secs=5, extra=extra)
 
 def best_dirpad(x, y, dx, dy, robots, invalid):
     ret = None
