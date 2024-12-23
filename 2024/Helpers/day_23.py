@@ -4,13 +4,6 @@ DAY_NUM = 23
 DAY_DESC = 'Day 23: LAN Party'
 
 def calc(log, values, mode):
-    # TODO: Delete or use these
-    # from parsers import get_ints, get_floats
-    # from grid import Grid, Point
-    # grid = Grid.from_text(values)
-    # from program import Program
-    # program = Program(values)
-
     connected = set()
     computers = set()
     for row in values:
@@ -24,26 +17,25 @@ def calc(log, values, mode):
 
     if mode == 1:
         ret = 0
-        for ai, a in enumerate(computers):
-            for bi, b in enumerate(computers):
-                if bi > ai:
-                    for ci, c in enumerate(computers):
-                        if ci > bi:
-                            if (a, b) in connected and (a, c) in connected and (b, c) in connected:
-                                if a.startswith("t") or b.startswith("t") or c.startswith("t"):
-                                    ret += 1
+        for a in computers:
+            for b in computers:
+                if b > a and (a, b) in connected:
+                    for c in computers:
+                        if c > b and (a, c) in connected and (b, c) in connected:
+                            if "t" in a[0] + b[0] + c[0]:
+                                ret += 1
         return ret
     else:
-        import itertools
         from collections import deque
-        todo = deque([x for x in itertools.combinations(computers, 2) if x in connected])
+        todo = deque([(x,) for x in computers])
         best = tuple()
         while len(todo) > 0:
-            cur = todo.popleft()
+            cur = todo.pop()
             if len(cur) > len(best):
                 best = cur
+            last = cur[-1]
             for x in computers:
-                if x > cur[-1]:
+                if x > last:
                     good = True
                     for y in cur:
                         if (x, y) not in connected:
@@ -54,45 +46,40 @@ def calc(log, values, mode):
         return ",".join(sorted(best))
         
 
-
-
-
-    # TODO
-
 def test(log):
     values = log.decode_values("""
-kh-tc
-qp-kh
-de-cg
-ka-co
-yn-aq
-qp-ub
-cg-tb
-vc-aq
-tb-ka
-wh-tc
-yn-cg
-kh-ub
-ta-co
-de-co
-tc-td
-tb-wq
-wh-td
-ta-ka
-td-qp
-aq-cg
-wq-ub
-ub-vc
-de-ta
-wq-aq
-wq-vc
-wh-yn
-ka-de
-kh-ta
-co-tc
-wh-qp
-tb-vc
-td-yn
+        kh-tc
+        qp-kh
+        de-cg
+        ka-co
+        yn-aq
+        qp-ub
+        cg-tb
+        vc-aq
+        tb-ka
+        wh-tc
+        yn-cg
+        kh-ub
+        ta-co
+        de-co
+        tc-td
+        tb-wq
+        wh-td
+        ta-ka
+        td-qp
+        aq-cg
+        wq-ub
+        ub-vc
+        de-ta
+        wq-aq
+        wq-vc
+        wh-yn
+        ka-de
+        kh-ta
+        co-tc
+        wh-qp
+        tb-vc
+        td-yn
     """)
 
     log.test(calc(log, values, 1), '7')
