@@ -3,6 +3,12 @@
 DAY_NUM = 23
 DAY_DESC = 'Day 23: LAN Party'
 
+def other_draw(describe, values):
+    if describe:
+        return "Draw this"
+    from dummylog import DummyLog
+    calc(DummyLog(), values, 3)
+
 def calc(log, values, mode):
     connected = set()
     computers = set()
@@ -14,6 +20,21 @@ def calc(log, values, mode):
         computers.add(row[1])
     
     computers = list(sorted(computers))
+
+    if mode == 3:
+        import networkx as nx
+        import os
+        graph = nx.Graph()
+        for x in computers:
+            graph.add_node(x)
+        for x, y in connected:
+            graph.add_edge(x, y)
+        import matplotlib.pyplot as plt
+        layout = nx.kamada_kawai_layout(graph)
+        fig = plt.figure(1, figsize=(1920/100, 1080/100), dpi=100)
+        nx.draw(graph, with_labels=False, node_size=500, pos=layout)
+        plt.savefig(os.path.join("animations", f"image_{DAY_NUM}.png"))
+        return
 
     if mode == 1:
         ret = 0
