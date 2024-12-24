@@ -66,7 +66,7 @@ def test(log):
     """)
 
     log.test(calc(log, values, 1), '143')
-    log.test(calc(log, values, 2), 'TODO')
+    log.test(calc(log, values, 2), '123')
 
 def run(log, values):
     log(calc(log, values, 1))
