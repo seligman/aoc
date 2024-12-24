@@ -3,7 +3,23 @@
 DAY_NUM = 24
 DAY_DESC = 'Day 24: Crossed Wires'
 
-def calc(log, values, mode):
+def other_draw(describe, values):
+    import os
+    if describe:
+        return "Draw this, original input"
+    from dummylog import DummyLog
+    swaps = calc(DummyLog(), values, 2, return_swaps=True)
+    calc(DummyLog(), values, 1, draw=True, fn=os.path.join("animations", f"image_{DAY_NUM}_p1.png"))
+
+def other_draw2(describe, values):
+    import os
+    if describe:
+        return "Draw this, original input"
+    from dummylog import DummyLog
+    swaps = calc(DummyLog(), values, 2, return_swaps=True)
+    calc(DummyLog(), values, 1, draw=True, perform_swaps=swaps, fn=os.path.join("animations", f"image_{DAY_NUM}_p2.png"))
+
+def calc(log, values, mode, draw=False, return_swaps=False, perform_swaps=None, fn=None):
     bits = {}
     wires = []
     for row in values:
@@ -12,13 +28,38 @@ def calc(log, values, mode):
             bits[row[0]] = int(row[1])
         elif "->" in row:
             row = row.split(' ')
+            if perform_swaps is not None:
+                for i in range(0, len(perform_swaps), 2):
+                    a, b = perform_swaps[i:i+2]
+                    if row[-1] == a:
+                        row[-1] = b
+                    elif row[-1] == b:
+                        row[-1] = a
             wires.append((row[0], row[1], row[2], row[4]))
 
     if mode == 1:
+        if draw:
+            from collections import defaultdict
+            pass_number = 0
+            locs = defaultdict(dict)
+        ll = set()
         while len(wires) > 0:
             temp = []
+            good_bits = set(bits)
+            ll = good_bits
             for a, op, b, dest in wires:
-                if a in bits and b in bits:
+                if a in good_bits and b in good_bits:
+                    if draw:
+                        locs[a]["name"] = a
+                        if "pass" not in locs[a]:
+                            locs[a]["pass"] = pass_number
+                        locs[b]["name"] = b
+                        if "pass" not in locs[b]:
+                            locs[b]["pass"] = pass_number
+                        locs[dest]["op"] = op
+                        locs[dest]["name"] = dest
+                        locs[dest]["source"] = (a, b)
+                        # locs[dest]["pass"] = pass_number + 1
                     if op == "XOR":
                         bits[dest] = bits[a] ^ bits[b]
                     elif op == "OR":
@@ -29,7 +70,56 @@ def calc(log, values, mode):
                         raise Exception()
                 else:
                     temp.append((a, op, b, dest))
+            if draw:
+                pass_number += 1
             wires = temp
+
+        if draw:
+            for cur in locs.values():
+                if "pass" not in cur:
+                    cur["pass"] = pass_number
+
+            for x in range(pass_number + 1):
+                temp = [cur for cur in locs.values() if cur["pass"] == x]
+                x *= 2
+                temp.sort(key=lambda cur: cur["name"])
+                y = 0
+                for cur in temp:
+                    cur["x"] = x
+                    if "source" in cur:
+                        cur["y"] = sum(locs[sub]["y"] for sub in cur["source"]) / len(cur["source"])
+                    else:
+                        cur["y"] = y
+                    y += 2
+
+            width = int(max(x["x"] for x in locs.values()) + 1.5)
+            height = int(max(x["y"] for x in locs.values()) + 1.5)
+            scale = 4
+            size = 10 * scale
+            from PIL import Image, ImageDraw
+            im = Image.new('RGB', (width * size, height * size), (0, 0, 0))
+            dr = ImageDraw.Draw(im)
+
+            for cur in locs.values():
+                if "source" in cur:
+                    for source in cur["source"]:
+                        src = locs[source]
+                        dr.line(((src["x"] * size) + (size // 2), (src["y"] * size) + (size // 2), (cur["x"] * size) + (size // 2), (cur["y"] * size) + (size // 2)), (255, 255, 255), width=scale)
+            for cur in locs.values():
+                if "op" not in cur:
+                    dr.circle(((cur["x"] * size) + (size // 2), (cur["y"] * size) + (size // 2)), size // 2, (255, 255, 255))
+                elif cur["op"] == "AND":
+                    dr.circle(((cur["x"] * size) + (size // 2), (cur["y"] * size) + (size // 2)), size // 2, (128, 128, 255))
+                elif cur["op"] == "XOR":
+                    dr.circle(((cur["x"] * size) + (size // 2), (cur["y"] * size) + (size // 2)), size // 2, (128, 255, 128))
+                elif cur["op"] == "OR":
+                    dr.circle(((cur["x"] * size) + (size // 2), (cur["y"] * size) + (size // 2)), size // 2, (128, 128, 128))
+                else:
+                    raise Exception(cur["op"])
+
+            im.thumbnail((im.width / scale, im.height // scale), Image.Resampling.LANCZOS)
+            im.save(fn)
+            exit(0)
 
         shift = 0
         ret = 0
@@ -84,6 +174,9 @@ def calc(log, values, mode):
                 carry = new_carry
             else:
                 carry = carry_1
+
+        if return_swaps:
+            return swapped
 
         return ",".join(sorted(swapped))
 

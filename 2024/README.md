@@ -15,7 +15,8 @@ Some visualizations for your viewing pleasure:
 * Day 17: [Cracking the quine](https://youtu.be/Y82JC7JFbvU)
 * Day 18: [A path in the falling bytes](https://youtu.be/7cY8mSFMmJ8)
 * Day 21: [Wearing out the keypad](https://youtu.be/3V2eF49Hq-k), [long version](https://youtu.be/87l8AQGM2GQ)
-* Day 23: [The LAN party graph](https://imgur.com/a/RgN4YP0)
+* Day 23: [The LAN party graph](animations/image_23.png)
+* Day 24: [The circuit before bug fixes](animations/image_24_p1.png), [and after](animations/image_24_p2.png)
 
 <!--
 * [The calendar itself](https://youtu.be/EYtkMaH6xQY)
