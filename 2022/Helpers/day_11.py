@@ -33,19 +33,30 @@ def build_helper(func_input):
 def calc(log, values, mode):
     monkey = []
 
-    temp = values[:]
-    while len(temp) > 0:
-        monkey.append({})
-        if len(temp.pop(0).strip()) == 0:
-            temp.pop(0)
-        monkey[-1]['start'] = list(map(int, temp.pop(0).split(": ")[-1].split(", ")))
-        monkey[-1]['op'] = build_helper(temp.pop(0).split(": ")[-1][5:])
-        monkey[-1]['test'] = int(temp.pop(0).split(": ")[-1][13:])
-        monkey[-1]['true'] = int(temp.pop(0).split(" ")[-1])
-        monkey[-1]['false'] = int(temp.pop(0).split(" ")[-1])
-        monkey[-1]['inspected'] = 0
+    for row in values:
+        m = re.search("Monkey (?P<val>[0-9]+):", row)
+        if m is not None:
+            monkey.append({"inspected": 0})
+        m = re.search("Starting items: (?P<val>.+)", row)
+        if m is not None:
+            monkey[-1]['start'] = list(map(int, m['val'].split(", ")))
+        m = re.search("Operation: (?P<val>.+)", row)
+        if m is not None:
+            monkey[-1]['op'] = build_helper(m['val'])
+        m = re.search("Test: divisible by (?P<val>[0-9]+)", row)
+        if m is not None:
+            monkey[-1]['test'] = int(m['val'])
+        m = re.search("If true: throw to monkey (?P<val>[0-9]+)", row)
+        if m is not None:
+            monkey[-1]['true'] = int(m['val'])
+        m = re.search("If false: throw to monkey (?P<val>[0-9]+)", row)
+        if m is not None:
+            monkey[-1]['false'] = int(m['val'])
 
-    limit = math.lcm(*[x['test'] for x in monkey])
+    limit = [x['test'] for x in monkey]
+    limit.append(3)
+    limit.append(4)
+    limit = math.prod(limit)
 
     for _ in range(20 if mode == 1 else 10000):
         for cur in monkey:
