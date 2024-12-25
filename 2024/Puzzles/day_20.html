@@ -10,7 +10,7 @@
 <link rel="shortcut icon" href="favicon.png"/>
 </head><body>
 <main>
-<article class="day-desc"><h2>--- Day 20: Race Condition ---</h2><p>The Historians are quite pixelated again. This time, a massive, black building looms over you - you're <a href="/2017/day/24">right outside</a> the CPU!</p>
+<style>article *[title]{border-bottom:1px dotted #ffff66;}</style><article class="day-desc"><h2>--- Day 20: Race Condition ---</h2><p>The Historians are quite pixelated again. This time, a massive, black building looms over you - you're <a href="/2017/day/24">right outside</a> the CPU!</p>
 <p>While The Historians get to work, a nearby program sees that you're idle and challenges you to a <em>race</em>. Apparently, you've arrived just in time for the frequently-held <em>race condition</em> festival!</p>
 <p>The race takes place on a particularly long and twisting code path; programs compete to see who can finish in the <em>fewest picoseconds</em>. The <span title="If we give away enough mutexes, maybe someone will use one of them to fix the race condition!">winner</span> even gets their very own <a href="https://en.wikipedia.org/wiki/Lock_(computer_science)" target="_blank">mutex</a>!</p>
 <p>They hand you a <em>map of the racetrack</em> (your puzzle input). For example:</p>
@@ -154,7 +154,7 @@
 #...#...#...###
 ###############
 </code></pre>
-<p>Cheats don't need to use all 20 picoseconds; cheats can last any amount of time up to and including 20 picoseconds (but can still only end when the program is on normal track). Any cheat time not used is lost; it can't be saved for another cheat later. If cheat mode is active when the end position is reached, cheat mode ends automatically.</p>
+<p>Cheats don't need to use all 20 picoseconds; cheats can last any amount of time up to and including 20 picoseconds (but can still only end when the program is on normal track). Any cheat time not used is lost; it can't be saved for another cheat later.</p>
 <p>You'll still need a list of the best cheats, but now there are even more to choose between. Here are the quantities of cheats in this example that save <em>50 picoseconds or more</em>:</p>
 <ul>
 <li>There are 32 cheats that save 50 picoseconds.</li>
@@ -175,7 +175,7 @@
 <p>Find the best cheats using the updated cheating rules. <em>How many cheats would save you at least 100 picoseconds?</em></p>
 </article>
 <p>Your puzzle answer was <code>1015092</code>.</p><p class="day-success">Both parts of this puzzle are complete! They provide two gold stars: **</p>
-<p>At this point, you should <a href="/2024">return to your Advent calendar</a> and try another puzzle.</p>
+<p>At this point, all that is left is for you to <a href="/2024">admire your Advent calendar</a>.</p>
 <p>If you still want to see it, you can <a href="20/input" target="_blank">get your puzzle input</a>.</p>
 <p>You can also <span class="share">[Share<span class="share-content">on
   <a href="https://bsky.app/intent/compose?text=I%27ve+completed+%22Race+Condition%22+%2D+Day+20+%2D+Advent+of+Code+2024+%23AdventOfCode+https%3A%2F%2Fadventofcode%2Ecom%2F2024%2Fday%2F20" target="_blank">Bluesky</a>
