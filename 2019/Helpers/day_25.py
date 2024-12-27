@@ -3,80 +3,149 @@
 DAY_NUM = 25
 DAY_DESC = 'Day 25: Cryostasis'
 
+from collections import deque, defaultdict
+from hashlib import sha256
+import textwrap
+
+def get_out(prog):
+    l = ""
+    while len(prog.output) > 0:
+        l += chr(prog.get_output())
+    return l
+
+def add_in(prog, val):
+    for cur in val + "\n":
+        prog.add_to_input(ord(cur))
+
+def create_id(value):
+    return sha256(value.encode("utf-8")).hexdigest()[:10]
+
+def get_path(cur_room, dest_room, paths):
+    todo = deque()
+    seen = set([])
+    todo.append([cur_room, []])
+
+    while len(todo) > 0:
+        room, path = todo.pop()
+        if room not in seen:
+            seen.add(room)
+            if room == dest_room:
+                return path
+            else:
+                for direction, other_room in paths[room]:
+                    todo.append((other_room, path + [direction]))
+
+def wrap_line(log, val):
+    for row in textwrap.wrap(val, 78, subsequent_indent=" " * 5):
+        log(row)
 
 def calc(log, values):
     from program import Program
     prog = Program.from_values(values, log)
 
-    def get_out(prog):
-        l = ""
-        while len(prog.output) > 0:
-            l += chr(prog.get_output())
-        return l
-
-    def add_in(prog, val):
-        for cur in val + "\n":
-            prog.add_to_input(ord(cur))
-
-    from collections import deque
     todo = deque()
     prog.tick_till_end()
-    todo.appendleft((prog.make_copy(), [], ""))
+    todo.appendleft((prog.make_copy(), [], None, ""))
     start_prog = prog.make_copy()
+    start_room = None
     final_room = None
     seen = set()
     rooms = {}
+    paths = defaultdict(list)
     while len(todo) > 0:
-        prog, path, in_data = todo.pop()
+        prog, path, source_room, in_direction = todo.pop()
         room = get_out(prog)
         room = "\n".join(x for x in room.split("\n") if len(x.strip()))
 
-        if room not in seen:
-            seen.add(room)
+        if create_id(room) not in seen:
+            if source_room is not None:
+                rooms[source_room]["targets"][in_direction] = create_id(room)
+            seen.add(create_id(room))
+            info = {
+                "name": None,
+                "exits": [],
+                "targets": {},
+                "items": [],
+                "room": room,
+                "path": path,
+                "start": source_room is None,
+                "end": False,
+            }
+            if source_room is None:
+                start_room = create_id(room)
+
+            if source_room is not None:
+                paths[source_room].append((in_direction, create_id(room)))
+                rev = {"north": "south", "south": "north", "west": "east", "east": "west"}[in_direction]
+                paths[create_id(room)].append((rev, source_room))
+
+            rooms[create_id(room)] = info
             skip = 0
             target = None
-            exits = []
-            items = []
-            name = ""
 
             for row in room.split("\n"):
                 if skip > 0:
                     skip -= 1
                 elif row.startswith("="):
-                    name = row.strip("= ")
+                    info["name"] = row.strip("= ")
                     skip += 1
                 elif row.startswith("Doors here lead"):
-                    target = exits
+                    target = info['exits']
                 elif row.startswith("Items here"):
-                    target = items
+                    target = info['items']
                 elif row.startswith("- "):
                     target.append(row[2:])
                 elif row == "Command?":
                     pass
                 elif row.startswith("A loud, robotic voice"):
-                    final_room = room
-                    exits = []
+                    final_room = create_id(room)
+                    info['exits'] = []
+                    info['end'] = True
                     break
                 else:
                     raise Exception(row)
 
-            rooms[room] = {
-                "name": name,
-                "exits": exits,
-                "path": path,
-                "items": items,
-                "room": room,
-            }
-            log("Found room: " + name + ", with " + str(len(items)) + " items")
-
             temp = prog.make_copy()
-            for cur in exits:
+            for cur in info['exits']:
                 prog = temp.make_copy()
                 add_in(prog, cur)
                 prog.tick_till_end()
-                todo.append((prog.make_copy(), path + [cur], cur))
+                todo.append((prog.make_copy(), path + [cur], create_id(room), cur))
+
+    log("-- Map of rooms --")
+    from grid import Grid
+    grid = Grid(default=" ")
+    todo = deque([(start_room, 0, 0)])
+    seen = set()
+    while len(todo) > 0:
+        room, x, y = todo.pop()
+        if room not in seen:
+            if room == start_room:
+                grid.set("S", x, y)
+            elif room == final_room:
+                grid.set("E", x, y)
+            else:
+                grid.set("#", x, y)
+
+            seen.add(room)
+            for direction, dest_room in paths[room]:
+                ox, oy, size, disp = {
+                    "north": (0, -1, 2, "|"),
+                    "south": (0, 1, 2, "|"),
+                    "west": (-1, 0, 5, "-"),
+                    "east": (1, 0, 5, "-"),
+                }[direction]
+                for i in range(1, size):
+                    grid.set(disp, x + ox * i, y + oy * i)
+                todo.append((dest_room, x + ox * size, y + oy * size))
+
+    grid.show_grid(log, disp_map={x: x for x in "- #|SE"})
+
+    log("")
+    log("-- Items --")
 
     valid = set()
+    invalid = set()
     for room in rooms:
         for item in rooms[room]['items']:
             prog = start_prog.make_copy()
@@ -87,50 +156,63 @@ def calc(log, values):
             prog.tick_till_end(bail=100000)
             test = get_out(prog)
             if f"Items in your inventory:\n- {item}\n" in test:
-                log(item + " in room " + rooms[room]['name'] + " is valid")
                 valid.add((room, item))
+            else:
+                invalid.add((room, item))
 
-    tried = set()
-    todo = deque([([], start_prog.make_copy())])
-    valid = list(valid)
-    try_number = 0
+    for desc, target in (("Valid", valid), ("Invalid", invalid)):
+        wrap_line(log, desc + " items: " + ", ".join(sorted(x[1] for x in target)))
+
+    log("")
+    log("-- Final Path --")
+
+    todo = deque()
+    for room, item in valid:
+        todo.append([(room, item)])
+
+    used_groups = set()
     while len(todo) > 0:
-        items, cur_prog = todo.popleft()
-        try_number += 1
-        if try_number % 5 == 0:
-            print("Trying " + ", ".join(items))
-        prog = cur_prog.make_copy()
-        for cur in rooms[final_room]['path'][:-1]:
-            add_in(prog, cur)
-        prog.tick_till_end()
-        get_out(prog)
-        add_in(prog, rooms[final_room]['path'][-1])
-        prog.tick_till_end()
-        final_text = get_out(prog)
+        source_items = todo.popleft()
+        just_items = list(x[1] for x in source_items)
+        if tuple(sorted(just_items)) not in used_groups:
+            used_groups.add(tuple(sorted(just_items)))
+            steps = []
+            cur_room = start_room
+            left = [x for x in source_items]
+            while len(left) > 0:
+                left = [(x[0], x[1], get_path(cur_room, x[0], paths)) for x in left]
+                left.sort(key=lambda x: (len(x[2]), x[0]))
+                room, item, path = left.pop(0)
+                steps += path
+                steps.append("take " + item)
+                cur_room = room
+            temp = get_path(cur_room, final_room, paths)
+            steps += temp[:-1]
+            final_step = temp[-1]
 
-        if "Droids on this ship are heavier" in final_text:
-            for room, item in valid:
-                if item not in items:
-                    key = tuple(sorted(items + [item]))
-                    if key not in tried:
-                        tried.add(key)
-                        prog = cur_prog.make_copy()
-                        for cur in rooms[room]['path']:
-                            add_in(prog, cur)
-                        add_in(prog, "take " + item)
-                        for cur in rooms[room]['path'][::-1]:
-                            add_in(prog, {"west": "east", "east": "west", "north": "south", "south": "north"}[cur])
-                        prog.tick_till_end()
-                        get_out(prog)
-                        todo.append((items + [item], prog))
-        elif "Alert! Droids on this ship are lighter" in final_text:
-            pass
-        elif "Analysis complete! You may proceed" in final_text:
-            log(final_text)
-            return ""
-        else:
-            raise Exception(final_text)
+            prog = start_prog.make_copy()
+            for step in steps:
+                add_in(prog, step)
+                prog.tick_till_end()
+                prog.output.clear()
 
+            add_in(prog, "inv")
+            add_in(prog, final_step)
+            prog.tick_till_end()
+            final_text = get_out(prog)
+            if "Droids on this ship are heavier" in final_text:
+                already_used = set(x[1] for x in source_items)
+                for room, item in valid:
+                    if item not in already_used:
+                        todo.append(source_items + [(room, item)])
+            elif "Alert! Droids on this ship are lighter" in final_text:
+                pass
+            elif "Analysis complete! You may proceed" in final_text:
+                wrap_line(log, "Items: " + ", ".join(sorted(just_items)))
+                wrap_line(log, "Path: " + ", ".join(steps + [final_step]))
+                temp = [x for x in final_text.split("\n") if len(x)][-1]
+                wrap_line(log, "Final Message: " + temp)
+                return ""
 
 def test(log):
     return True
