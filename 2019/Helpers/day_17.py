@@ -16,13 +16,16 @@ def calc(log, values, animate=False):
     while len(prog.output) > 0:
         val = prog.get_output()
         if val in {60, 94, 62, 118}:
-            start_x, start_y, cur_dir = x, y, {60: 3, 94: 0, 62: 1, 118: 2}[val]
-        if val == 10:
+            start_x, start_y, cur_dir = x, y, {ord("^"): 0, ord(">"): 1, ord("v"): 2, ord("<"): 3}[val]
+        if val == ord("\n"):
             x = 0
             y += 1
         else:
             grid.set(val, x, y)
             x += 1
+
+    # grid.show_grid(log, {47: "/", 46: ".", 35: "#", 94: "^"})
+    # exit(0)
 
     ret = 0
     for x in grid.x_range():
@@ -40,72 +43,67 @@ def calc(log, values, animate=False):
     # Find a path through
     x, y = start_x, start_y
     rotates = 0
-    steps = [""]
+    steps = []
     dirs = [(0, -1), (1, 0), (0, 1), (-1, 0)]
+    grid.set("o", x, y)
     while True:
-        valid = {35}
-        if rotates == 0:
-            valid = {35, "o"}
-        if grid.get(x + dirs[cur_dir][0], y + dirs[cur_dir][1]) in valid:
+        if grid.get(x + dirs[cur_dir][0], y + dirs[cur_dir][1]) in {ord("#"), "o"}:
             x += dirs[cur_dir][0]
             y += dirs[cur_dir][1]
             grid.set("o", x, y)
-            rotates = 0
-            if steps[-1].startswith("F"):
-                steps[-1] += "F"
+            if len(steps) == 0 or isinstance(steps[-1], str):
+                steps.append(1)
             else:
-                steps.append("F")
+                steps[-1] += 1
         else:
-            if steps[-1].startswith("R"):
-                steps[-1] += "R"
-            else:
+            if grid.get(x + dirs[(cur_dir + 1) % 4][0], y + dirs[(cur_dir + 1) % 4][1]) == ord("#"):
+                cur_dir = (cur_dir + 1) % 4
                 steps.append("R")
-            cur_dir = (cur_dir + 1) % 4
-            rotates += 1
-            if rotates == 4:
+            elif grid.get(x + dirs[(cur_dir - 1) % 4][0], y + dirs[(cur_dir - 1) % 4][1]) == ord("#"):
+                cur_dir = (cur_dir - 1) % 4
+                steps.append("L")
+            elif grid.get(x + dirs[(cur_dir + 2) % 4][0], y + dirs[(cur_dir + 2) % 4][1]) == ord("#"):
+                cur_dir = (cur_dir + 2) % 4
+                steps.append("RR")
+            else:
                 break
-        
-    # Normalize the path
-    temp = []
-    for cur in steps[1:]:
-        if cur.startswith("F"):
-            temp.append(str(len(cur)))
-        elif cur == "R":
-            temp.append("R")
-        elif cur == "RR":
-            temp.append("R")
-            temp.append("R")
-        elif cur == "RRR":
-            temp.append("L")
-        elif cur == "RRRR":
-            pass
-        else:
-            raise Exception()
-    steps = temp
+
+    steps = [str(x) for x in steps]
 
     # Shorten it
-    vars = []
-    for var in ["A", "B", "C"]:
-        best = None
-        start = 0
-        while steps[start] in {"A", "B", "C"}:
-            start += 1
-        for x in range(2, len(steps)):
-            temp = ",".join(steps[start:start+x])
-            if len(temp) > 20 or "A" in temp or "B" in temp or "C" in temp:
-                break
-            if ",".join(steps).count(temp) > 1 and temp[-1] in "0123456789":
-                best = temp
-        steps = ",".join(steps)
-        steps = steps.replace(best, var)
-        vars.append(best)
-        steps = steps.split(",")
+    def find_repeat(path, registers=[], sequence=[]):
+        cleared = False
+        while not cleared:
+            cleared = True
 
-    steps = ",".join(steps)
+            for i, prev in enumerate(registers):
+                if len(prev) <= len(path) and path[:len(prev)] == prev:
+                    path = path[len(prev):]
+                    sequence.append(i)
+                    cleared = False
+                    break
 
-    input_steps = steps + "\n"
-    for cur in vars:
-        input_steps += cur + "\n"
+        if len(registers) == 3:
+            return (True, registers, sequence) if len(path) == 0 else (False, None, None)
+
+        register_len = min(len(path), 20 // 2)
+
+        while len(",".join(path[:register_len])) > 20 or path[register_len - 1] in {'R', 'L'}:
+            register_len -= 1
+
+        while register_len > 0:
+            res, matches, seq = find_repeat(path, registers + [path[:register_len]], sequence.copy())
+            if res:
+                return res, matches, seq
+            register_len -= 2
+
+        return False, [], []
+
+    valid, funcs, prog = find_repeat(steps)
+
+    input_steps = ",".join(chr(ord('A') + x) for x in prog) + "\n"
+    for cur in funcs:
+        input_steps += ",".join(cur) + "\n"
 
     prog = Program.from_values(values, log)
     prog.ticker[0] = 2

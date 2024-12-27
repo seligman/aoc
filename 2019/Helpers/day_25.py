@@ -18,116 +18,122 @@ def calc(log, values):
         for cur in val + "\n":
             prog.add_to_input(ord(cur))
 
-    prog.tick_till_end()
-    seen = set()
-    final = None
-    items = []
-    seen.add(get_out(prog))
-
     from collections import deque
     todo = deque()
-    todo.appendleft((prog.ticker.copy(), []))
+    prog.tick_till_end()
+    todo.appendleft((prog.make_copy(), [], ""))
+    start_prog = prog.make_copy()
+    final_room = None
+    seen = set()
+    rooms = {}
     while len(todo) > 0:
-        ticker, trail = todo.pop()
-        for d in ["east", "west", "north", "south"]:
-            prog.ticker = ticker.copy()
-            add_in(prog, d)
-            prog.tick_till_end()
-            room = get_out(prog)
-            if room not in seen:
-                seen.add(room)
-                if "Items here:" in room:
-                    item_name = None
-                    for cur in room.split("\n"):
-                        if cur == "Items here:":
-                            item_name = "--"
-                        elif item_name == "--":
-                            item_name = cur[2:]
-                    items.append([False, item_name, trail + [d]])
-                elif "next" in room:
-                    if final is None:
-                        final = [trail + [d], room]
-                todo.appendleft((prog.ticker.copy(), trail + [d]))
+        prog, path, in_data = todo.pop()
+        room = get_out(prog)
+        room = "\n".join(x for x in room.split("\n") if len(x.strip()))
 
-    for i in range(len(items)):
-        prog = Program.from_values(values, log)
-        for cur in items[i][2]:
+        if room not in seen:
+            seen.add(room)
+            skip = 0
+            target = None
+            exits = []
+            items = []
+            name = ""
+
+            for row in room.split("\n"):
+                if skip > 0:
+                    skip -= 1
+                elif row.startswith("="):
+                    name = row.strip("= ")
+                    skip += 1
+                elif row.startswith("Doors here lead"):
+                    target = exits
+                elif row.startswith("Items here"):
+                    target = items
+                elif row.startswith("- "):
+                    target.append(row[2:])
+                elif row == "Command?":
+                    pass
+                elif row.startswith("A loud, robotic voice"):
+                    final_room = room
+                    exits = []
+                    break
+                else:
+                    raise Exception(row)
+
+            rooms[room] = {
+                "name": name,
+                "exits": exits,
+                "path": path,
+                "items": items,
+                "room": room,
+            }
+            log("Found room: " + name + ", with " + str(len(items)) + " items")
+
+            temp = prog.make_copy()
+            for cur in exits:
+                prog = temp.make_copy()
+                add_in(prog, cur)
+                prog.tick_till_end()
+                todo.append((prog.make_copy(), path + [cur], cur))
+
+    valid = set()
+    for room in rooms:
+        for item in rooms[room]['items']:
+            prog = start_prog.make_copy()
+            for step in rooms[room]['path']:
+                add_in(prog, step)
+            add_in(prog, "take " + item)
+            add_in(prog, "inv")
+            prog.tick_till_end(bail=100000)
+            test = get_out(prog)
+            if f"Items in your inventory:\n- {item}\n" in test:
+                log(item + " in room " + rooms[room]['name'] + " is valid")
+                valid.add((room, item))
+
+    tried = set()
+    todo = deque([([], start_prog.make_copy())])
+    valid = list(valid)
+    try_number = 0
+    while len(todo) > 0:
+        items, cur_prog = todo.popleft()
+        try_number += 1
+        if try_number % 5 == 0:
+            print("Trying " + ", ".join(items))
+        prog = cur_prog.make_copy()
+        for cur in rooms[final_room]['path'][:-1]:
             add_in(prog, cur)
         prog.tick_till_end()
         get_out(prog)
-        add_in(prog, "take " + items[i][1])
-        add_in(prog, "inv")
-        bail = 10000
-        while prog.flag_running and bail > 0:
-            bail -= 1
-            prog.tick()
-        if "Items in your inventory:\n- " + items[i][1] in get_out(prog):
-            items[i][0] = True
-        log("Item: %s is %s" % (items[i][1], "valid" if items[i][0] else "invalid"))
+        add_in(prog, rooms[final_room]['path'][-1])
+        prog.tick_till_end()
+        final_text = get_out(prog)
 
-    items = [x for x in items if x[0]]
-
-    found_doors = False
-    for cur in final[1].split("\n"):
-        if cur == "Doors here lead:":
-            found_doors = True
-        elif found_doors:
-            if cur[2:] != final[0][-1]:
-                final[0].append(cur[2:])
-                break
-
-    import itertools
-    rev = {
-        "west": "east",
-        "east": "west",
-        "north": "south",
-        "south": "north",
-    }
-
-    prog = Program.from_values(values, log)
-    for item in items:
-        for path in item[2]:
-            add_in(prog, path)
-        add_in(prog, "take " + item[1])
-        for path in item[2][::-1]:
-            add_in(prog, rev[path])
-    for path in final[0][:-1]:
-        add_in(prog, path)
-    for item in items:
-        add_in(prog, "drop " + item[1])
-    prog.tick_till_end()
-    get_out(prog)
-
-    ticker = prog.ticker.copy()
-    results = None
-
-    for test_len in range(1, len(items)):
-        for cur in itertools.combinations(items, test_len):
-            prog.ticker = ticker.copy()
-            for item in cur:
-                add_in(prog, "take " + item[1])
-            prog.tick_till_end()
-            get_out(prog)
-            add_in(prog, final[0][-1])
-            prog.tick_till_end()
-            results = get_out(prog)
-
-            if "keypad" in results:
-                log("-- Items --")
-                for item in cur:
-                    log(item[1])
-                log("-- Room --")
-                log(results)
-                break
-            else:
-                results = None
-        if results is not None:
-            break
+        if "Droids on this ship are heavier" in final_text:
+            for room, item in valid:
+                if item not in items:
+                    key = tuple(sorted(items + [item]))
+                    if key not in tried:
+                        tried.add(key)
+                        prog = cur_prog.make_copy()
+                        for cur in rooms[room]['path']:
+                            add_in(prog, cur)
+                        add_in(prog, "take " + item)
+                        for cur in rooms[room]['path'][::-1]:
+                            add_in(prog, {"west": "east", "east": "west", "north": "south", "south": "north"}[cur])
+                        prog.tick_till_end()
+                        get_out(prog)
+                        todo.append((items + [item], prog))
+        elif "Alert! Droids on this ship are lighter" in final_text:
+            pass
+        elif "Analysis complete! You may proceed" in final_text:
+            log(final_text)
+            return ""
+        else:
+            raise Exception(final_text)
 
 
 def test(log):
     return True
-
 
 def run(log, values):
     calc(log, values)

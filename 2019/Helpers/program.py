@@ -153,14 +153,17 @@ class Program:
         else:
             return [self.output.pop() for _ in range(to_get)]
 
-    def tick_till_end(self, allowed_reads=None):
+    def tick_till_end(self, allowed_reads=None, bail=None):
         if allowed_reads is not None:
             from collections import deque
             temp = deque()
             while len(self.input) > allowed_reads:
                 temp.append(self.input.popleft())
         while self.tick():
-            pass
+            if bail is not None:
+                bail -= 1
+                if bail <= 0:
+                    break
         if allowed_reads is not None:
             while len(temp) > 0:
                 self.input.appendleft(temp.pop())
