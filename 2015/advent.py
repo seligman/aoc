@@ -301,7 +301,7 @@ def make_day(target_day="cur"):
 
 @opt("Make new day, after sleeping till midnight", group="Utilities")
 def make_day_wait(target_day="cur"):
-    import sleeper
+    import sleeper # type: ignore
     import random
     resp = get_page(f"https://adventofcode.com/{YEAR_NUMBER}")
     m = re.search(r"var server_eta *= *(?P<eta>\d+);", resp)
@@ -855,6 +855,9 @@ def dl_day(helper_day, input_only="no"):
                 f.write(resp)
 
             print(f"Wrote out puzzle input for day #{helper_day}")
+        else:
+            print(f"Unable to write file {filename}!")
+            exit(1)
 
         if not input_only:
             resp = get_page(f"https://adventofcode.com/{YEAR_NUMBER}/day/{helper_day}")
