@@ -3,6 +3,8 @@
 DAY_NUM = 22
 DAY_DESC = 'Day 22: Monkey Map'
 
+import re
+
 # I give up
 def paper_box_coords(pt, cur_dir):
     if cur_dir == (1, 0):
@@ -36,23 +38,20 @@ def calc(log, values, mode, is_test=False):
     for x in grid.x_range():
         if grid[(x, 0)] == ".":
             pt = Point(x, 0)
+            break
     
     dirs = [(1, 0), (0, 1), (-1, 0), (0, -1)]
+    dir_lookup = {x: i for i, x in enumerate(dirs)}
     cur_dir = 0
-
-    pattern = pattern.replace("L", " L ")
-    pattern = pattern.replace("R", " R ")
-    pattern = pattern.strip().split(" ")
-
     extra = 0
-    for cur in pattern:
+
+    for cur in [m["val"] for m in re.finditer("(?P<val>[0-9]+|L|R)", pattern)]:
         if cur == "R":
             cur_dir = (cur_dir + 1) % 4
         elif cur == "L":
             cur_dir = (cur_dir - 1) % 4
         else:
-            cur = int(cur)
-            for _ in range(cur):
+            for _ in range(int(cur)):
                 if mode == 1:
                     next_pt = pt + dirs[(cur_dir + extra) % 4]
                     next_extra = extra
@@ -62,8 +61,7 @@ def calc(log, values, mode, is_test=False):
                         next_pt = pt + dirs[(cur_dir + extra) % 4]
                         if grid[next_pt] not in {".", "#"}:
                             temp_pt, temp_dir = paper_box_coords(pt, dirs[(cur_dir + extra) % 4])
-                            while dirs[(cur_dir + next_extra) % 4] != temp_dir:
-                                next_extra += 1
+                            next_extra = dir_lookup[temp_dir] - cur_dir
                             next_pt = Point(*temp_pt)
                 if mode == 1:
                     while grid[next_pt] not in {".", "#"}:
