@@ -7,10 +7,12 @@ from collections import deque, defaultdict
 from hashlib import sha256
 import textwrap
 
-def get_out(prog):
+def get_out(prog, end_at_nl=False):
     l = ""
     while len(prog.output) > 0:
         l += chr(prog.get_output())
+        if end_at_nl and l[-1] == "\n":
+            break
     return l
 
 def add_in(prog, val):
@@ -220,6 +222,35 @@ def test(log):
 def run(log, values):
     calc(log, values)
 
+def other_interactive(describe, values):
+    if describe:
+        return "Interactive version"
+    class DummyLog:
+        def show(self, value):
+            print(value)
+        def __call__(self, value):
+            print(value)
+    log = DummyLog()
+
+    from program import Program
+    prog = Program.from_values(values, log)
+    while True:
+        while True:
+            hit_end = prog.tick_till_end(bail=1000)
+            while True:
+                row = get_out(prog, end_at_nl=True)
+                if len(row) == 0:
+                    break
+                print(row, end="", flush=True)
+            if hit_end:
+                break
+        val = input("> ")
+        if len(val) == 0:
+            exit(0)
+        for cur in val.split(","):
+            print(cur.strip())
+            add_in(prog, cur.strip())
+
 if __name__ == "__main__":
     import sys, os
     def find_input_file():
@@ -232,4 +263,7 @@ if __name__ == "__main__":
     print(f"Using '{fn}' as input file:")
     with open(fn) as f: values = [x.strip("\r\n") for x in f.readlines()]
     print(f"Running day {DAY_DESC}:")
-    run(print, values)
+    if "interactive" in sys.argv[1:]:
+        other_interactive(False, values)
+    else:
+        run(print, values)

@@ -163,10 +163,11 @@ class Program:
             if bail is not None:
                 bail -= 1
                 if bail <= 0:
-                    break
+                    return False
         if allowed_reads is not None:
             while len(temp) > 0:
                 self.input.appendleft(temp.pop())
+        return True
 
     def tick(self):
         if self.flag_running:
