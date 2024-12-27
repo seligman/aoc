@@ -5,31 +5,35 @@ DAY_DESC = 'Day 9: Encoding Error'
 
 def calc(log, values, mode, preamble):
     values = [int(x) for x in values]
-    orig = values[:]
-    temp = values[:preamble]
-    values = values[preamble:]
-    while True:
+
+    ret = -1    
+    
+    for off in range(preamble, len(values)):
         found = False
-        for i in range(preamble):
+        for i in range(off - preamble, off):
             if found:
                 break
-            for j in range(i, preamble):
-                if temp[i] + temp[j] == values[0]:
+            for j in range(i+1, off):
+                if values[i] + values[j] == values[off]:
                     found = True
-                    temp = temp[1:] + values[0:1]
-                    values = values[1:]
                     break
         if not found:
-            if mode == 1:
-                return values[0]
-            else:
-                for i in range(len(orig)):
-                    for j in range(len(orig) - (i + 1)):
-                        temp = sum(orig[i:j])
-                        if temp == values[0]:
-                            return min(orig[i:j]) + max(orig[i:j])
-                        if temp > values[0]:
-                            break
+            ret = values[off]
+            break
+
+    if mode == 1:
+        return ret
+
+    temp = []
+    for x in values:
+        temp.append(x)
+        if sum(temp) == ret:
+            return  min(temp) + max(temp)
+        while len(temp) > 1 and sum(temp) > ret:
+            temp.pop(0)
+            if sum(temp) == ret:
+                return min(temp) + max(temp)
+
 
     return -1
 
