@@ -5,6 +5,8 @@ import re
 DAY_NUM = 21
 DAY_DESC = 'Day 21: Chronal Conversion'
 
+MONKEY_PATCH_CODE = True
+DEBUG_CODE = False
 
 def make_op(op):
     def make_op_internal(r, a, b, c):
@@ -78,8 +80,14 @@ def make_fast_op(op, a, b, c):
         def helper(r):
             r[c] = 1 if (r[a] == r[b]) else 0
         return helper
+    elif op == "divi":
+        def helper(r):
+            r[c] = r[a] // b
+        return helper
+    elif op == "noop":
+        return lambda r: None
     else:
-        raise Exception()
+        raise Exception(op)
 
 
 op_addr = make_op(lambda r, a, b: r[a] + r[b])
@@ -88,6 +96,7 @@ op_mulr = make_op(lambda r, a, b: r[a] * r[b])
 op_muli = make_op(lambda r, a, b: r[a] * b)
 op_banr = make_op(lambda r, a, b: r[a] & r[b])
 op_bani = make_op(lambda r, a, b: r[a] & b)
+op_divi = make_op(lambda r, a, b: r[a] // b)
 op_borr = make_op(lambda r, a, b: r[a] | r[b])
 op_bori = make_op(lambda r, a, b: r[a] | b)
 op_setr = make_op(lambda r, a, b: r[a])
@@ -98,7 +107,7 @@ op_gtrr = make_op(lambda r, a, b: 1 if (r[a] > r[b]) else 0)
 op_eqir = make_op(lambda r, a, b: 1 if (a == r[b]) else 0)
 op_eqri = make_op(lambda r, a, b: 1 if (r[a] == b) else 0)
 op_eqrr = make_op(lambda r, a, b: 1 if (r[a] == r[b]) else 0)
-
+op_noop = make_op(lambda r, a, b: None)
 
 def get_ops():
     return {
@@ -109,9 +118,40 @@ def get_ops():
         "setr": op_setr, "seti": op_seti,
         "gtir": op_gtir, "gtri": op_gtri, "gtrr": op_gtrr,
         "eqir": op_eqir, "eqri": op_eqri, "eqrr": op_eqrr,
+        "divi": op_divi, "noop": op_noop,
     }
 
-def calc(values, start_r1, test):
+def monkey_patch_code(values):
+    if MONKEY_PATCH_CODE:
+        # Turn the exploded version of x //= 256 into a more compact instruction
+        start_i, end_i = None, None
+        for i in range(len(values)):
+            if values[i].startswith("addi") and values[i+1].startswith("muli"):
+                start_i = i
+                break
+        if start_i is not None:
+            for i in range(start_i, len(values)):
+                if values[i].startswith("setr"):
+                    end_i = i
+                    break
+        if start_i is not None and end_i is not None:
+            target_r = values[end_i].split(" ")[3]
+            monkey_patch = [
+                "addi %s -256 %s" % (target_r, target_r),
+                "divi %s 256 %s" % (target_r, target_r),
+                "addi %s 1 %s" % (target_r, target_r),
+            ]
+            for i in range(start_i, end_i+1):
+                if len(monkey_patch) > 0:
+                    values[i] = monkey_patch.pop(0)
+                else:
+                    values[i] = "noop 0 0 0"
+
+def calc(log, values, start_r1, test):
+    monkey_patch_code(values)
+    if DEBUG_CODE:
+        debug = [[x, 0] for x in other_decompile(False, values, True)]
+
     ops = get_ops()
     r = [start_r1, 0, 0, 0, 0, 0]
     ip_register = None
@@ -131,46 +171,57 @@ def calc(values, start_r1, test):
 
     max_ip = len(values)
     seen = set()
+    history = []
+
     while True:
         if ip >= max_ip:
             break
-        if target[0] == ip:
-            print(len(seen), r[target[1]] in seen, r[2])
-            if r[2] == 3007673:
-                break
-            seen.add(r[2])
         if ip_register is not None:
             r[ip_register] = ip
 
         values[ip](r)
+        if ip == target[0]:
+            if len(history) == 0:
+                log("Shortest path to target: %d" % (r[target[1]],))
+            if r[target[1]] in seen:
+                log("Longest path to target: %d" % (history[-1],))
+                break
+            seen.add(r[target[1]])
+            history.append(r[target[1]])
+        if DEBUG_CODE:
+            debug[ip][1] += 1
 
         if ip_register is not None:
             ip = r[ip_register]
         ip += 1
 
-    return r[0]
+    if DEBUG_CODE:
+        for row, hit in debug:
+            print("%6d %s" % (hit, row))
 
+    return r[0]
 
 def test(log):
     return True
 
-
 def run(log, values):
-    import hashlib
-    code = hashlib.sha256(("\n".join(values)).encode("utf-8")).hexdigest()[:10]
-    if code == "ad8b6d8391":
-        log("Shortest path to target: 8797248")
-        log("Longest path to target: 3007673")
-    elif code == "0e53c210d3":
-        log("Shortest path to target: 2792537")
-        log("Longest path to target: 10721810")
-    else:
-        log("ERROR: This solution uses C, run")
-        log("./advent.py run_other %d decompile_c > temp.c" % (DAY_NUM,))
-        log("gcc -o temp temp.c")
-        log("./temp")
-        log("# And add code '%s' to this file..." % (code,))
-
+    values = [x.split("/")[0].strip() for x in values]
+    calc(log, values, 0, False)
+    # exit(0)
+    # import hashlib
+    # code = hashlib.sha256(("\n".join(values)).encode("utf-8")).hexdigest()[:10]
+    # if code == "ad8b6d8391":
+    #     log("Shortest path to target: 8797248")
+    #     log("Longest path to target: 3007673")
+    # elif code == "0e53c210d3":
+    #     log("Shortest path to target: 2792537")
+    #     log("Longest path to target: 10721810")
+    # else:
+    #     log("ERROR: This solution uses C, run")
+    #     log("./advent.py run_other %d decompile_c > temp.c" % (DAY_NUM,))
+    #     log("gcc -o temp temp.c")
+    #     log("./temp")
+    #     log("# And add code '%s' to this file..." % (code,))
 
 def get_op_to_str():
     return {
@@ -190,8 +241,9 @@ def get_op_to_str():
         "eqir": "r[c] = (a == r[b]) ? 1 : 0", 
         "eqri": "r[c] = (r[a] == b) ? 1 : 0", 
         "eqrr": "r[c] = (r[a] == r[b]) ? 1 : 0", 
+        "divi": "r[c] = r[a] // b",
+        "noop": "--",
     }
-
 
 def decompile(instruction_line, ip_register, line_no, total_lines, to_c_code=False):
     vals = instruction_line.split(' ')
@@ -231,15 +283,25 @@ def decompile(instruction_line, ip_register, line_no, total_lines, to_c_code=Fal
                 break_str = " break;"
         temp = temp.replace("[", "")
         temp = temp.replace("]", "")
+        temp = temp.replace("//", "/")
+        if temp == "--":
+            temp = ""
+        else:
+            temp += ";"
 
-        return "case %3d: /* %-20s */ %-25s (*ip)++; frames++; %s" % (line_no, instruction_line, temp + ";", break_str)
+        return "case %3d: /* %-20s */ %-25s (*ip)++; frames++; %s" % (line_no, instruction_line, temp, break_str)
     else:
         return "%3d: %-20s -- %s" % (line_no, instruction_line, temp)
 
-
-def other_decompile(describe, values):
+def other_decompile(describe, values, return_lines=False):
     if describe:
         return "Decompile the source input"
+
+    monkey_patch_code(values)
+    values = [x.split("/")[0].strip() for x in values]
+
+    if return_lines:
+        ret = []
 
     ip_register = None
     line_no = 0
@@ -253,15 +315,25 @@ def other_decompile(describe, values):
             ip_register = cur[4:]
 
         if cur[0] == "#":
-            print("%3s  %s" % ("", cur))
+            if not return_lines:
+                print("%3s  %s" % ("", cur))
         else:
-            print(decompile(cur, ip_register, line_no, total_lines))
+            row = decompile(cur, ip_register, line_no, total_lines)
+            if return_lines:
+                ret.append(row)
+            else:
+                print(row)
             line_no += 1
 
+    if return_lines:
+        return ret
 
 def other_decompile_c(describe, values):
     if describe:
         return "Decompile the source input to C code"
+
+    monkey_patch_code(values)
+    values = [x.split("/")[0].strip() for x in values]
 
     ip_register = None
     line_no = 0
@@ -325,7 +397,6 @@ def other_decompile_c(describe, values):
     print('    }')
     print('    return 0;')
     print('}')
-
 
 def other_debug(describe, values):
     if describe:
