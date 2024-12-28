@@ -5,7 +5,6 @@ import re
 DAY_NUM = 8
 DAY_DESC = 'Day 8: Two-Factor Authentication'
 
-
 def calc(log, values, width, height, show):
     grid = [["."] * width for _ in range(height)]
     for cur in values:
@@ -41,9 +40,41 @@ def calc(log, values, width, height, show):
     if show:
         for row in grid:
             log("".join(row))
-
+        if len(grid[0]) > 10:
+            from hashlib import sha256
+            import json
+            chars = {
+                "638609db86": ("U", "#..#.\n#..#.\n#..#.\n#..#.\n#..#.\n.##..\n"),
+                "ef1ef34499": ("P", "###..\n#..#.\n#..#.\n###..\n#....\n#....\n"),
+                "b2761e8e9c": ("O", ".##..\n#..#.\n#..#.\n#..#.\n#..#.\n.##..\n"),
+                "857c29d234": ("J", "..##.\n...#.\n...#.\n...#.\n#..#.\n.##..\n"),
+                "2c9b34b8e7": ("F", "####.\n#....\n###..\n#....\n#....\n#....\n"),
+                "f9bec04ba8": ("B", "###..\n#..#.\n###..\n#..#.\n#..#.\n###..\n"),
+                "4ac981b6ad": ("C", ".##..\n#..#.\n#....\n#....\n#..#.\n.##..\n"),
+                "73f1d147de": ("E", "####.\n#....\n###..\n#....\n#....\n####.\n"),
+                "ea1ff1ce86": ("Z", "####.\n...#.\n..#..\n.#...\n#....\n####.\n"),
+                "a596a3c4db": ("L", "#....\n#....\n#....\n#....\n#....\n####.\n"),
+            }
+            decoded = ""
+            problems = 0
+            for off in range(0, len(grid[0]), 5):
+                temp = ""
+                for y in range(len(grid)):
+                    for x in range(off, off + 5):
+                        temp += grid[y][x]
+                    temp += "\n"
+                code = sha256(temp.encode("utf-8")).hexdigest()[:10]
+                if code not in chars:
+                    print("ERROR: Unknown code:")
+                    print(temp)
+                    print('                "%s": ("NEEDED", %s),' % (code, json.dumps(temp)))
+                    problems += 1
+                    chars[code] = [".", ""]
+                decoded += chars[code][0]
+            if problems > 0:
+                exit(1)
+            log("That decodes to %s" % (decoded,))
     return ret
-
 
 def test(log):
     values = [
@@ -57,7 +88,6 @@ def test(log):
         return True
     else:
         return False
-
 
 def run(log, values):
     log(calc(log, values, 50, 6, True))
