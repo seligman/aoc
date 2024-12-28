@@ -7,7 +7,7 @@ DAY_DESC = 'Day 21: RPG Simulator 20XX'
 
 
 def calc(values):
-    boss = [100, 8, 2]
+    boss = [int(x.split(": ")[1]) for x in values]
     player = [100, 0, 0]
 
     weapons = [

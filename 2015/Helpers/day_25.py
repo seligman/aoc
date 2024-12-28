@@ -3,6 +3,7 @@
 DAY_NUM = 25
 DAY_DESC = 'Day 25: Let It Snow'
 
+import re
 
 def calc(target_x, target_y):
     x, y = 1, 1
@@ -26,7 +27,8 @@ def test(log):
 
 
 def run(log, values):
-    log(calc(3029, 2947))
+    m = re.findall("[0-9]+", values[0])
+    log(calc(int(m[1]), int(m[0])))
 
 if __name__ == "__main__":
     import sys, os

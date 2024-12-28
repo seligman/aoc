@@ -100,8 +100,9 @@ def test(log):
 
 
 def run(log, values):
-    log(calc("a", values, None))
-    log(calc("a", values, {"b": 3176}))
+    wire_a = calc("a", values, None)
+    log(wire_a)
+    log(calc("a", values, {"b": wire_a}))
 
 if __name__ == "__main__":
     import sys, os

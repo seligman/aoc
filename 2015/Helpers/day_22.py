@@ -162,7 +162,7 @@ def run_board(history, player, boss, states, game_mode):
 
 
 def calc(log, values, game_mode):
-    boss = Character("boss", 58, 9, None, 0, 0)
+    boss = Character("boss", int(values[0].split(": ")[1]), int(values[1].split(": ")[1]), None, 0, 0)
     player = Character("player", 50, 0, [
         Spell("missle", 53, 0, 4, 0, 0, 0),
         Spell("drain", 73, 0, 2, 2, 0, 0),
