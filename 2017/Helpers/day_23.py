@@ -2,10 +2,8 @@
 
 from collections import defaultdict, deque
 
-
 DAY_NUM = 23
 DAY_DESC = 'Day 23: Coprocessor Conflagration'
-
 
 def deref(r, value):
     if len(value) == 1 and value >= 'a' and value <= 'z':
@@ -13,8 +11,7 @@ def deref(r, value):
     else:
         return int(value)
 
-
-def calc(log, values, show_heat, mode):
+def calc(log, values, show_heat, mode, bail=None):
     values = [x.split(' ') for x in values]
     heat = [0] * len(values)
     ret = 0
@@ -24,7 +21,13 @@ def calc(log, values, show_heat, mode):
     if mode == 1:
         r["a"] = 1
 
+    if show_heat:
+        log("Initial registers:")
+        log(", ".join("%s=%d" % (x, r[x]) for x in sorted(r)))
+
     while ip < len(values):
+        if bail is not None and bail == ip:
+            return r
         cur = values[ip]
         new_ip = ip + 1
         if not cur[0].startswith("#"):
@@ -60,36 +63,37 @@ def calc(log, values, show_heat, mode):
                 raise Exception()
             log("%3d: %5d: %-20s %s" % (i, heat[i], raw, easy))
 
+        log("Final registers:")
+        log(", ".join("%s=%d" % (x, r[x]) for x in sorted(r)))
+
+
     if mode == 0:
         return ret
     else:
         return r["h"]
 
-
 def test(log):
     return True
 
-
 def run(log, values):
     log(calc(log, values, False, 0))
+    r = calc(log, values, False, 1, 9)
 
     h = 0
-    # The initial value of c
-    for x in range(107900, 107900 + 17000 + 1, 17):
+    for x in range(r["b"],r["c"] + 1, 17):
         for i in range(2,x):
             if x % i == 0:
                 h += 1
                 break
     log("Final value of H is %d" % (h,))
 
-
 class DummyLog:
     def __init__(self):
         pass
-
+    def __call__(self, value):
+        self.show(value)
     def show(self, value):
         print(value)
-
 
 def other_heat(describe, values):
     if describe:
