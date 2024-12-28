@@ -41,7 +41,31 @@ def get_ops():
         "eqir": op_eqir, "eqri": op_eqri, "eqrr": op_eqrr,
     }
 
+def find_sum(values):
+    from collections import defaultdict
+
+    a, b = map(int, [re.findall('\\d+', values[i])[1] for i in [22, 24]])
+    number_to_factorize = 10551236 + a * 22 + b
+
+    factors = defaultdict(int)
+    possible_prime_divisor = 2
+    while possible_prime_divisor ** 2 <= number_to_factorize:
+        while number_to_factorize % possible_prime_divisor == 0:
+            number_to_factorize //= possible_prime_divisor
+            factors[possible_prime_divisor] += 1 
+        possible_prime_divisor += 1
+    if number_to_factorize > 1:
+        factors[number_to_factorize] += 1
+
+    sum_of_divisors = 1
+    for prime_factor in factors:
+        sum_of_divisors *= int(prime_factor ** (factors[prime_factor] + 1) - 1) // (prime_factor - 1)
+    return sum_of_divisors
+
 def calc(values, start_r1, test):
+    if start_r1 == 1:
+        return find_sum(values)
+
     ops = get_ops()
     r = [start_r1, 0, 0, 0, 0, 0]
     ip_register = None
@@ -61,17 +85,6 @@ def calc(values, start_r1, test):
             break
         if ip_register is not None:
             r[ip_register] = ip
-
-            if ip == 1 and not test:
-                # Skip to the end, this is just calculating factors
-                target = r[5]
-                factors = set()
-                for cur in range(1, int(target ** 0.5) + 1):
-                    if target % cur == 0:
-                        factors.add(cur)
-                        factors.add(target // cur)
-                r[0] = sum(factors)
-                break
 
         cur = values[ip]
         cur[0](r, cur[1], cur[2], cur[3])

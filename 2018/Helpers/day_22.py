@@ -85,7 +85,7 @@ def calc(log, depth, target_x, target_y):
     log("Risk: " + str(total_risk))
 
     todo = [(0, 0, 0, 1)]
-    todo.append((0, 0, 0, 1))
+    # todo.append((0, 0, 0, 1))
     best = {}
     target = (target_x, target_y, 1)
 
@@ -109,7 +109,7 @@ def calc(log, depth, target_x, target_y):
             new_x, new_y = off_x + x, off_y + y
             if new_x >= 0 and new_y >= 0:
                 if grid.risk(new_x, new_y, depth) != invalid:
-                    heapq.heappush(todo, (time + 1, new_x, new_y, invalid))
+                    todo.append((time + 1, new_x, new_y, invalid))
 
     return total_risk
 
@@ -122,7 +122,9 @@ def test(log):
 
 
 def run(log, values):
-    log(calc(log, 6084, 14, 709))
+    depth = int(values[0].split(' ')[1])
+    x, y = int(values[1].split(' ')[1].split(",")[0]), int(values[1].split(' ')[1].split(",")[1])
+    log(calc(log, depth, x, y))
 
 if __name__ == "__main__":
     import sys, os

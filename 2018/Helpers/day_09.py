@@ -5,7 +5,6 @@ from collections import defaultdict, deque
 DAY_NUM = 9
 DAY_DESC = 'Day 9: Marble Mania'
 
-
 def calc(players, marbles):
     board = deque([0])
     player_scores = defaultdict(int)
@@ -26,17 +25,17 @@ def calc(players, marbles):
 
     return max(player_scores.values())
 
-
 def test(log):
     if calc(9, 25) == 32:
         return True
     else:
         return False
 
-
 def run(log, values):
-    log(calc(473, 70904))
-    log(calc(473, 7090400))
+    import re
+    m = re.search("(?P<a>[0-9]+) players; last marble is worth (?P<b>[0-9]+) points", values[0])
+    log(calc(int(m['a']), int(m['b'])))
+    log(calc(int(m['a']), int(m['b']) * 100))
 
 if __name__ == "__main__":
     import sys, os

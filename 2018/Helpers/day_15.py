@@ -30,18 +30,21 @@ def calc(values, elve_power):
                 if values[y][x] == "E":
                     creature.attack = elve_power
 
-    start_elves = counts['E']
-
     rounds = 0
+    starting_elves = counts['E']
+
     while counts['G'] > 0 and counts['E'] > 0:
+
         rounds += 1
-        units = list(creatures.values())
-        units.sort(key=lambda x: (x.y, x.x))
+        units = list(sorted(creatures.values(), key=lambda x: (x.y, x.x)))
+        # for row in values:
+        #     print("".join(row))
+        # print(str(rounds) + " -- " + ", ".join(f"{x.x}-{x.y}-{x.name}-{x.hp}" for x in units))
         for creature in units:
+            if counts['G'] == 0 or counts['E'] == 0:
+                rounds -= 1
+                break
             if not creature.dead:
-                if counts['G'] == 0 or counts['E'] == 0:
-                    rounds -= 1
-                    break
                 skip_move = False
                 for off in ((0, -1), (-1, 0), (1, 0), (0, 1)):
                     x = creature.x + off[0]
@@ -51,46 +54,45 @@ def calc(values, elve_power):
                         break
 
                 if not skip_move:
-                    paths = [
-                        {
-                            'x': creature.x,
-                            'y': creature.y,
-                            'prev': [],
-                        }
-                    ]
-                    moved = False
-                    used = set()
-                    while len(paths) > 0:
-                        if moved:
-                            break
-                        new_items = []
-                        for path in paths:
-                            if moved:
-                                break
+                    targets = []
+                    for other in creatures.values():
+                        if other.name != creature.name:
                             for off in ((0, -1), (-1, 0), (1, 0), (0, 1)):
-                                x = path['x'] + off[0]
-                                y = path['y'] + off[1]
-                                if ((x, y) not in used) and (values[y][x] == "."):
-                                    new_items.append({
-                                        'x': x,
-                                        'y': y,
-                                        'prev': [z for z in path['prev']] + [(x, y)],
-                                    })
+                                x = other.x + off[0]
+                                y = other.y + off[1]
+                                if values[y][x] == ".":
+                                    targets.append((x, y))
+
+                    paths = []
+                    for target_x, target_y in targets:
+                        todo = [(creature.x, creature.y, [])]
+                        used = set()
+                        while len(todo) > 0:
+                            sx, sy, path = todo.pop(0)
+                            for off in ((0, -1), (-1, 0), (1, 0), (0, 1)):
+                                x = sx + off[0]
+                                y = sy + off[1]
+                                if (x, y) not in used:
                                     used.add((x, y))
-                                elif (values[y][x] in {"E", "G"}) and (values[y][x] != creature.name):
-                                    path['prev'].append((x, y))
-                                    off = path['prev'][0]
+                                    if (x, y) == (target_x, target_y):
+                                        todo = []
+                                        paths.append(path + [(x, y)])
+                                    else:
+                                        if values[y][x] == ".":
+                                            todo.append((x, y, path + [(x, y)]))
 
-                                    values[off[1]][off[0]] = creature.name
-                                    values[creature.y][creature.x] = "."
-                                    del creatures[(creature.x, creature.y)]
-                                    creature.x = off[0]
-                                    creature.y = off[1]
-                                    creatures[(creature.x, creature.y)] = creature
-
-                                    moved = True
-                                    break
-                        paths = new_items
+                    if len(paths) > 0:
+                        paths.sort(key=lambda x: len(x), reverse=False)
+                        paths = [x for x in paths if len(x) == len(paths[0])]
+                        paths.sort(key=lambda x: (x[-1][1], x[-1][0]))
+                        path = paths[0]
+                        x, y = path[0]
+                        values[y][x] = values[creature.y][creature.x]
+                        values[creature.y][creature.x] = "."
+                        del creatures[(creature.x, creature.y)]
+                        creatures[(x, y)] = creature
+                        creature.x = x
+                        creature.y = y
 
                 best_hp = None
                 best_off = None
@@ -110,7 +112,15 @@ def calc(values, elve_power):
                         values[y][x] = "."
                         del creatures[(x, y)]
 
-    return rounds * sum([x.hp for x in creatures.values()]), counts['E'], start_elves
+    # print(counts)
+    # for cur in creatures.values():
+    #     print(cur.name, cur.hp, cur.dead)
+    # print("final")
+    # for y, row in enumerate(values):
+    #     print("".join(row) + " -- " + f" - ".join(f"{x.hp}" for x in creatures.values() if x.y == y))
+    # print(str(rounds) + " -- " + ", ".join(f"{x.x}-{x.y}-{x.name}-{x.hp}" for x in units))
+
+    return rounds * sum([x.hp for x in creatures.values()]), counts['E'], starting_elves
 
 
 def test(log):
@@ -186,23 +196,43 @@ def test(log):
     ]
 
     test_number = 0
+    failures = 0
     for values, expected in tests:
         test_number += 1
-        if calc(values, 3)[0] != expected:
-            log("Test number %d FAILED" % (test_number,))
-            return False
-
+        actual = calc(values, 3)[0]
+        if actual != expected:
+            failures += 1
+            log("Test number %d FAILED, got %d, expected %d" % (test_number, actual, expected))
+            break
+        else:
+            log("Test number %d worked, got %d" % (test_number, actual))
+        # break
+    if failures > 0:
+        raise Exception()
     return True
 
 
 def run(log, values):
+    ret = calc(values[:], 3)
+    log("Part 1: With initial conditions, combat ended at %d" % (ret[0],))
+
     elve_power = 3
+    skip = 32
     while True:
         ret = calc(values[:], elve_power)
-        log("%d == %d of %d" % (ret[0], ret[1], ret[2]))
+        if ret[2] - ret[1] == 1:
+            log("  With elf power of %d, there was %d loss" % (elve_power, ret[2] - ret[1]))
+        else:
+            log("  With elf power of %d, there were %d losses" % (elve_power, ret[2] - ret[1]))
         if ret[1] == ret[2]:
-            break
-        elve_power += 1
+            if skip == 1:
+                log("Part 2: That ended in a score of %d" % (ret[0],))
+                break
+            else:
+                skip //= 2
+                elve_power -= skip
+        else:
+            elve_power += skip
 
 if __name__ == "__main__":
     import sys, os

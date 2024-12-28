@@ -11,6 +11,76 @@ def make_op(op):
         r[c] = op(r, a, b)
     return make_op_internal
 
+def make_fast_op(op, a, b, c):
+    if False:
+        pass
+    elif op == "addr":
+        def helper(r):
+            r[c] = r[a] + r[b]
+        return helper
+    elif op == "addi":
+        def helper(r):
+            r[c] = r[a] + b
+        return helper
+    elif op == "mulr":
+        def helper(r):
+            r[c] = r[a] * r[b]
+        return helper
+    elif op == "muli":
+        def helper(r):
+            r[c] = r[a] * b
+        return helper
+    elif op == "banr":
+        def helper(r):
+            r[c] = r[a] & r[b]
+        return helper
+    elif op == "bani":
+        def helper(r):
+            r[c] = r[a] & b
+        return helper
+    elif op == "borr":
+        def helper(r):
+            r[c] = r[a] | r[b]
+        return helper
+    elif op == "bori":
+        def helper(r):
+            r[c] = r[a] | b
+        return helper
+    elif op == "setr":
+        def helper(r):
+            r[c] = r[a]
+        return helper
+    elif op == "seti":
+        def helper(r):
+            r[c] = a
+        return helper
+    elif op == "gtir":
+        def helper(r):
+            r[c] = 1 if (a > r[b]) else 0
+        return helper
+    elif op == "gtri":
+        def helper(r):
+            r[c] = 1 if (r[a] > b) else 0
+        return helper
+    elif op == "gtrr":
+        def helper(r):
+            r[c] = 1 if (r[a] > r[b]) else 0
+        return helper
+    elif op == "eqir":
+        def helper(r):
+            r[c] = 1 if (a == r[b]) else 0
+        return helper
+    elif op == "eqri":
+        def helper(r):
+            r[c] = 1 if (r[a] == b) else 0
+        return helper
+    elif op == "eqrr":
+        def helper(r):
+            r[c] = 1 if (r[a] == r[b]) else 0
+        return helper
+    else:
+        raise Exception()
+
 
 op_addr = make_op(lambda r, a, b: r[a] + r[b])
 op_addi = make_op(lambda r, a, b: r[a] + b)
@@ -51,30 +121,28 @@ def calc(values, start_r1, test):
         ip_register = int(values[0][4:])
     values = [x for x in values if x[0] != "#"]
 
+    target = None
     for i in range(len(values)):
         temp = values[i].split(' ')
-        values[i] = (ops[temp[0]], int(temp[1]), int(temp[2]), int(temp[3]))
+        op, a, b, c = temp[0], int(temp[1]), int(temp[2]), int(temp[3])
+        if op == "eqrr":
+            target = [i, a]
+        values[i] = make_fast_op(op, a, b, c)
 
     max_ip = len(values)
+    seen = set()
     while True:
         if ip >= max_ip:
             break
+        if target[0] == ip:
+            print(len(seen), r[target[1]] in seen, r[2])
+            if r[2] == 3007673:
+                break
+            seen.add(r[2])
         if ip_register is not None:
             r[ip_register] = ip
 
-            if ip == 1 and not test:
-                # Skip to the end, this is just calculating factors
-                target = r[5]
-                factors = set()
-                for cur in xrange(1, int(target ** 0.5) + 1):
-                    if target % cur == 0:
-                        factors.add(cur)
-                        factors.add(target / cur)
-                r[0] = sum(factors)
-                break
-
-        cur = values[ip]
-        cur[0](r, cur[1], cur[2], cur[3])
+        values[ip](r)
 
         if ip_register is not None:
             ip = r[ip_register]
@@ -88,11 +156,20 @@ def test(log):
 
 
 def run(log, values):
-    log("# Results from C code")
-    log("  Shown:           16622")
-    log("  Frames:     3838894867")
-    log("  First Value:   8797248")
-    log("  Last Value:    3007673")
+    import hashlib
+    code = hashlib.sha256(("\n".join(values)).encode("utf-8")).hexdigest()[:10]
+    if code == "ad8b6d8391":
+        log("Shortest path to target: 8797248")
+        log("Longest path to target: 3007673")
+    elif code == "0e53c210d3":
+        log("Shortest path to target: 2792537")
+        log("Longest path to target: 10721810")
+    else:
+        log("ERROR: This solution uses C, run")
+        log("./advent.py run_other %d decompile_c > temp.c" % (DAY_NUM,))
+        log("gcc -o temp temp.c")
+        log("./temp")
+        log("# And add code '%s' to this file..." % (code,))
 
 
 def get_op_to_str():
@@ -203,15 +280,12 @@ def other_decompile_c(describe, values):
         else:
             if first:
                 first = False
+                max_list = '50000'
                 print('#include <stdio.h>')
                 print('#include <stdlib.h>')
-                print('#ifdef _MSC_VER')
-                print('typedef __int64 int64_t')
-                print('#else')
                 print('#include <stdint.h>')
-                print('#endif')
                 print('')
-                print('void main() {')
+                print('int main() {')
                 print('    int r0 = 0, r1 = 0, r2 = 0, r3 = 0, r4 = 0, r5 = 0;')
                 if ip_register is None:
                     print('    int ip_value = 0;')
@@ -220,18 +294,36 @@ def other_decompile_c(describe, values):
                     print('    int * ip = &r%s;' % (ip_register,))
                 print('    int64_t frames = 0;')
                 print('    int halt = 0;')
+                print('    int list_at = 0;')
+                print('    int list[' + max_list + '];')
                 print('')
                 print('    while (halt == 0) {')
                 print('        switch(*ip) {')
             print('            ' + decompile(cur, ip_register, line_no, total_lines, to_c_code=True))
+            if cur.startswith("eqrr"):
+                temp = cur.split(" ")[1]
+                print('            list[list_at] = r' + temp + ';')
+                print('            if (list_at == 0) {')
+                print('                fprintf(stdout, "Shortest path to target: %d\\n", r' + temp + ');')
+                print('            }')
+                print('            for (int i = 0; i < list_at; i++) {')
+                print('                if (list[i] == r' + temp + ') {')
+                print('                    halt = 1;')
+                print('                    fprintf(stdout, "Longest path to target: %d\\n", list[list_at-1]);')
+                print('                    break;')
+                print('                }')
+                print('            }')
+                print('            list_at = (list_at + 1) % ' + max_list + ';')
+
             line_no += 1
 
     print('            default:                             halt = 1; break;')
     print('        }')
     print('')
-    print('        fprintf(stdout, "IP: %d, Frames: %I64d, r: [%d, %d, %d, %d, %d, %d]\\n", ip, frames, r0, r1, r2, r3, r4, r5);')
+    print('        /* fprintf(stdout, "IP: %d, Frames: %I64d, r: [%d, %d, %d, %d, %d, %d]\\n", ip, frames, r0, r1, r2, r3, r4, r5); */')
     print('')
     print('    }')
+    print('    return 0;')
     print('}')
 
 
@@ -257,7 +349,7 @@ def other_debug(describe, values):
     def step_code(steps, ip):
         ran = 0
         last_code = "<halt>"
-        for _ in xrange(steps):
+        for _ in range(steps):
             if ip >= len(code):
                 break
 
@@ -284,7 +376,7 @@ def other_debug(describe, values):
         print(" Registers: " + "  ".join("<%d>%d" % (i, r[i]) for i in range(len(r))))
         print("     Steps: " + str(number_ran))
 
-        cmd = raw_input("$ ")
+        cmd = input("$ ")
         cmd = cmd.split(' ')
         if cmd[0] in {"x", "exit", "q", "quit"}:
             break

@@ -3,63 +3,51 @@
 DAY_NUM = 11
 DAY_DESC = 'Day 11: Chronal Charge'
 
-
-def get_fuel(x, y, grid):
-    rack_id = x + 10
-    power_level = rack_id * y
-    power_level += grid
-    power_level *= rack_id
-    power_level //= 100
-    power_level %= 10
-    power_level -= 5
-    return power_level
-
-
 def calc(log, values):
-    grid = [[0] * 300 for x in range(300)]
-    for x in range(300):
-        for y in range(300):
-            grid[x][y] = get_fuel(x, y, values)
+    powers = {}
+    for x in range(1, 301):
+        for y in range(1, 301):
+            rack_id = x + 10
+            power = (rack_id * y + values) * rack_id
+            power = ((power // 100) % 10) - 5
+            powers[(x,y)] = power
 
-    overall_best_val = 0
-    overall_best_msg = None
-    ret = 0
 
-    for size in range(1, 301):
-        grid2 = [[0] * 300 for x in range(300)]
-        for x in range(0, 300 - (size - 1)):
-            for y in range(300):
-                for i in range(size):
-                    grid2[x][y] += grid[x+i][y]
+    # cs[(x, y)] is the cumulative sum of d[(i, j)] for all i <= x and j <= y
+    cumulative = {}
+    for x in range(1, 301):
+        for y in range(1, 301):
+            cumulative[(x, y)] = powers[(x, y)] + cumulative.get((x - 1, y), 0) + cumulative.get((x, y - 1), 0) - cumulative.get((x - 1, y - 1), 0)
 
-        grid3 = [[0] * 300 for x in range(300)]
-        for x in range(1, 300 - (size - 1)):
-            for y in range(1, 300 - (size - 1)):
-                for i in range(size):
-                    grid3[x][y] += grid2[x][y+i]
+    best = None
+    best_at = None
+    for x in range(1, 301 - 3):
+        for y in range(1, 301 - 3):
+            size = 3
+            power = cumulative[(x + size, y + size)] + cumulative[(x, y)] - cumulative[(x + size, y)] - cumulative[(x, y + size)]
+            # k = d[(i, j)]
+            if best is None or power > best:
+                best = power
+                best_at = "X,Y coordinates: %d,%d" % (x + 1, y + 1)
+    log(best_at)
 
-        best_loc = None
-        best_val = 0
 
-        for x in range(1, 300 - (size - 1)):
-            for y in range(1, 300 - (size - 1)):
-                if best_loc is None or grid3[x][y] > best_val:
-                    best_val = grid3[x][y]
-                    best_loc = (x, y)
+    best = None
+    best_at = None
+    for x in range(1, 301):
+        for y in range(1, 301):
+            for size in range(1, 301 - max(x, y)):
+            # I figured out after submitting that these indices should all be one
+            # smaller since the bounds of the square are
+            # i <= x < i + s, j <= y < j + s
+                power = cumulative[(x + size, y + size)] + cumulative[(x, y)] - cumulative[(x + size, y)] - cumulative[(x, y + size)]
+                if best is None or power > best:
+                    best = power
+                    best_at = "Largest total power: %d,%d,%d" % (x + 1, y + 1, size)
 
-        msg = "Size: %d, Location: %d x %d, Value: %d" % (size, best_loc[0], best_loc[1], best_val)
-        if size == 3:
-            log(msg)
-            ret = best_val
-        if best_val >= overall_best_val:
-            overall_best_val = best_val
-            overall_best_msg = msg
-        else:
-            log(overall_best_msg)
-            break
+    log(best_at)
 
-    return ret
-
+    return ""
 
 def test(log):
     if calc(log, 18) == 29:
@@ -69,7 +57,7 @@ def test(log):
 
 
 def run(log, values):
-    log(calc(log, 5535))
+    log(calc(log, int(values[0])))
 
 if __name__ == "__main__":
     import sys, os

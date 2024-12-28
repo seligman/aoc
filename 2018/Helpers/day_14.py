@@ -4,44 +4,70 @@ DAY_NUM = 14
 DAY_DESC = 'Day 14: Chocolate Charts'
 
 
-def calc(log, values, test_mode):
-    scores = "37"
+def calc(log, values, target=None):
+    scores = [3, 7]
     elv_0 = 0
     elv_1 = 1
 
-    test = 1000
-    test_start = 0
-
-    while True:
-        if test_mode:
-            if len(scores) >= values + 10:
-                break
-        scores += str(int(scores[elv_0]) + int(scores[elv_1]))
-        elv_0 = (elv_0 + int(scores[elv_0]) + 1) % len(scores)
-        elv_1 = (elv_1 + int(scores[elv_1]) + 1) % len(scores)
-        test -= 1
-        if test == 0:
-            loc = scores.find("920831", test_start)
-            if loc >= 0:
-                log("Found index at %d" % (scores.index("920831"),))
-                break
-            else:
-                log(len(scores))
-            test_start = len(scores) - 50
-            test = 10000000
-
-    return scores[values:values+10]
+    steps = 0
+    if target is not None:
+        target = tuple(int(x) for x in target)
+    while values == 0 or len(scores) < values + 10:
+        # print(scores, elv_0, elv_1)
+        temp = scores[elv_0] + scores[elv_1]
+        if temp >= 10:
+            scores.append(temp // 10)
+            if target is not None:
+                if tuple(scores[-len(target):]) == target:
+                    return str(len(scores) - len(target))
+        scores.append(temp % 10)
+        if target is not None:
+            if tuple(scores[-len(target):]) == target:
+                return str(len(scores) - len(target))
+        elv_0 = (elv_0 + scores[elv_0] + 1) % len(scores)
+        elv_1 = (elv_1 + scores[elv_1] + 1) % len(scores)
+        # if steps % 1000 == 0 and target is not None:
+        #     if target in scores:
+        #         return str(scores.index(target))
+        # if steps > 4000000:
+        #     print("loo")
+        #     for i in range(2, 2000000):
+        #         good = True
+        #         for j in range(i):
+        #             if scores[i] != scores[i+j]:
+        #                 good = False
+        #                 break
+        #         if good:
+        #             print(i)
+        #     print("no")
+    return "".join(str(x) for x in scores[values:values+10])
 
 
 def test(log):
-    if calc(log, 2018, True) == "5941429882":
-        return True
-    else:
-        return False
+    tests = [
+        ((9,), "5158916779",),
+        ((5,), "0124515891",),
+        ((18,), "9251071085",),
+        ((2018,), "5941429882",),
+        ((0, "51589"), "9"),
+        ((0, "01245"), "5"),
+        ((0, "92510"), "18"),
+        ((0, "59414"), "2018"),
+    ]
+    for args, expected in tests:
+        actual = calc(log, *args)
+        if actual != expected:
+            log("With %s, got %s, expected %s" % (str(args), str(actual), str(expected)))
+            raise Exception()
+        else:
+            log("With %s, got %s as expected" % (str(args), str(actual)))
+
+    log("All good")
 
 
 def run(log, values):
-    log(calc(log, 920831, False))
+    log(calc(log, int(values[0])))
+    log(calc(log, 0, values[0]))
 
 if __name__ == "__main__":
     import sys, os
