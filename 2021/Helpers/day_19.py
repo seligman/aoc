@@ -243,8 +243,8 @@ def test(log):
 
 def run(log, values):
     points, dist = calc(log, values, 1)
-    log(points)
-    log(dist)
+    log(f"Part 1: {points}")
+    log(f"Part 2: {dist}")
 
 if __name__ == "__main__":
     import sys, os

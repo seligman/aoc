@@ -109,8 +109,8 @@ def test(log):
 
 def run(log, values):
     overall_best, possible = calc(log, values, 1)
-    log(overall_best)
-    log(possible)
+    log(f"Part 1: {overall_best}")
+    log(f"Part 2: {possible}")
 
 if __name__ == "__main__":
     import sys, os

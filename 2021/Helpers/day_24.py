@@ -353,8 +353,8 @@ def test(log):
 
 def run(log, values):
     a, b = calc(log, values, 1)
-    log(b)
-    log(a)
+    log(f"Part 1: {b}")
+    log(f"Part 2: {a}")
 
 if __name__ == "__main__":
     import sys, os
