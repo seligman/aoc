@@ -5,7 +5,6 @@ import re
 DAY_NUM = 16
 DAY_DESC = 'Day 16: Aunt Sue'
 
-
 def calc(values, mode):
     target = {
         "children": 3,
@@ -54,14 +53,12 @@ def calc(values, mode):
 
     return -1
 
-
 def test(log):
     return True
 
-
 def run(log, values):
-    log(calc(values, 0))
-    log(calc(values, 1))
+    log("Part 1: %d" % (calc(values, 0),))
+    log("Part 2: %d" % (calc(values, 1),))
 
 if __name__ == "__main__":
     import sys, os

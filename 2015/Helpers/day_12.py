@@ -5,7 +5,6 @@ import json
 DAY_NUM = 12
 DAY_DESC = 'Day 12: JSAbacusFramework.io'
 
-
 def summarize(data, red_pass):
     ret = 0
     if isinstance(data, dict):
@@ -25,13 +24,11 @@ def summarize(data, red_pass):
         ret += data
     return ret
 
-
 def calc(values, red_pass):
     data = values[0]
     data = json.loads(data)
 
     return summarize(data, red_pass)
-
 
 def test(log):
     values = [
@@ -43,10 +40,9 @@ def test(log):
     else:
         return False
 
-
 def run(log, values):
-    log(calc(values, False))
-    log(calc(values, True))
+    log("Part 1: %d" % (calc(values, False),))
+    log("Part 2: %d" % (calc(values, True),))
 
 if __name__ == "__main__":
     import sys, os

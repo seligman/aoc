@@ -6,7 +6,6 @@ import itertools
 DAY_NUM = 13
 DAY_DESC = 'Day 13: Knights of the Dinner Table'
 
-
 def calc(values, extra=[]):
     r = re.compile("(.*) would (gain|lose) (.*) happiness units by sitting next to (.*)\\.")
 
@@ -41,7 +40,6 @@ def calc(values, extra=[]):
 
     return best_value
 
-
 def test(log):
     values = [
         "Alice would gain 54 happiness units by sitting next to Bob.",
@@ -63,10 +61,9 @@ def test(log):
     else:
         return False
 
-
 def run(log, values):
-    log(calc(values))
-    log(calc(values, ["<ME>"]))
+    log("Part 1: %d" % (calc(values),))
+    log("Part 2: %d" % (calc(values, ["<ME>"]),))
 
 if __name__ == "__main__":
     import sys, os

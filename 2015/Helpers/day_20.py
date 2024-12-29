@@ -6,7 +6,6 @@ import multiprocessing
 DAY_NUM = 20
 DAY_DESC = 'Day 20: Infinite Elves and Infinite Houses'
 
-
 def internal_worker(queue, work_unit, queue_done, data):
     def internal_found(value):
         queue_done.put((True, value))
@@ -18,7 +17,6 @@ def internal_worker(queue, work_unit, queue_done, data):
             break
         worker(job, work_unit, data, internal_found)
         queue_done.put((False,))
-
 
 def launch_workers(target_count, worker, data=None, work_unit=1000):
     workers = multiprocessing.cpu_count()
@@ -58,12 +56,10 @@ def launch_workers(target_count, worker, data=None, work_unit=1000):
 
     return ret[0:target_count]
 
-
 def get_divisors(n):
     small_divisors = [i for i in range(1, int(math.sqrt(n)) + 1) if n % i == 0]
     large_divisors = [n / d for d in small_divisors if n != d * d]
     return small_divisors + large_divisors
-
 
 def worker(value, work_unit, data, found):
     for house in range(work_unit):
@@ -76,12 +72,10 @@ def worker(value, work_unit, data, found):
             if sum([d for d in values if house / d <= 50]) * 11 >= data['value']:
                 found(house)
 
-
 def calc(values, mode):
     value = int(values[0])
     ret = launch_workers(1, worker, {'value': value, 'mode': mode})
     return ret[0]
-
 
 def test(log):
     values = [
@@ -93,10 +87,9 @@ def test(log):
     else:
         return False
 
-
 def run(log, values):
-    log(calc(values, 0))
-    log(calc(values, 1))
+    log("Part 1: %d" % (calc(values, 0),))
+    log("Part 2: %d" % (calc(values, 1),))
 
 if __name__ == "__main__":
     import sys, os

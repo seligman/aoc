@@ -1,11 +1,9 @@
 #!/usr/bin/env python3
 
 import re
-import json
 
 DAY_NUM = 7
 DAY_DESC = 'Day 7: Some Assembly Required'
-
 
 def calc(target, values, initial):
     final = {}
@@ -80,7 +78,6 @@ def calc(target, values, initial):
 
     return final[target]
 
-
 def test(log):
     values = [
         "123 -> x",
@@ -98,11 +95,10 @@ def test(log):
     else:
         return False
 
-
 def run(log, values):
     wire_a = calc("a", values, None)
-    log(wire_a)
-    log(calc("a", values, {"b": wire_a}))
+    log("Part 1: %d" % (wire_a,))
+    log("Part 2: %d" % (calc("a", values, {"b": wire_a}),))
 
 if __name__ == "__main__":
     import sys, os

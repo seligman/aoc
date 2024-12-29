@@ -5,7 +5,6 @@ import itertools
 DAY_NUM = 21
 DAY_DESC = 'Day 21: RPG Simulator 20XX'
 
-
 def calc(values):
     boss = [int(x.split(": ")[1]) for x in values]
     player = [100, 0, 0]
@@ -63,15 +62,15 @@ def calc(values):
                             worst_cost = cost
                         break
                         
-    return "Best: %d, Worst %d" % (best_cost, worst_cost)
-
+    return best_cost, worst_cost
 
 def test(log):
     return True
 
-
 def run(log, values):
-    log(calc(values))
+    best_cost, worst_cost = calc(values)
+    log("Part 1: %d" % (best_cost,))
+    log("Part 2: %d" % (worst_cost,))
 
 if __name__ == "__main__":
     import sys, os

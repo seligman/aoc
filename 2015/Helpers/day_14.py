@@ -5,7 +5,6 @@ import re
 DAY_NUM = 14
 DAY_DESC = 'Day 14: Reindeer Olympics'
 
-
 class Deer:
     def __init__(self, name, speed, limit, rest):
         self.name = name
@@ -16,7 +15,6 @@ class Deer:
         self.left = self.limit
         self.distance = 0
         self.points = 0
-
 
 def calc(log, values, secs):
     r = re.compile("(.*) can fly (.*) km/s for (.*) seconds, but then must rest for (.*) seconds.")
@@ -44,10 +42,9 @@ def calc(log, values, secs):
             if deer.distance == lead:
                 deer.points += 1
 
-    log("The winning score is %d" % (max([x.points for x in deers]),))
+    log("Part 2: %d" % (max([x.points for x in deers]),))
 
     return max([x.distance for x in deers])
-
 
 def test(log):
     values = [
@@ -60,9 +57,8 @@ def test(log):
     else:
         return False
 
-
 def run(log, values):
-    log(calc(log, values, 2503))
+    log("Part 1: %d" % (calc(log, values, 2503),))
 
 if __name__ == "__main__":
     import sys, os

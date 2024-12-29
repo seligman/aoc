@@ -5,7 +5,6 @@ from collections import deque
 DAY_NUM = 10
 DAY_DESC = 'Day 10: Elves Look, Elves Say'
 
-
 def calc(values, loops):
     look = deque(values[0])
 
@@ -26,7 +25,6 @@ def calc(values, loops):
 
     return len(look)
 
-
 def test(log):
     values = [
         "1",
@@ -37,10 +35,9 @@ def test(log):
     else:
         return False
 
-
 def run(log, values):
-    log(calc(values, 40))
-    log(calc(values, 50))
+    log("Part 1: %d" % (calc(values, 40),))
+    log("Part 2: %d" % (calc(values, 50),))
 
 if __name__ == "__main__":
     import sys, os

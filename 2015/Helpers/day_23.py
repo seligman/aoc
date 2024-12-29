@@ -3,7 +3,6 @@
 DAY_NUM = 23
 DAY_DESC = 'Day 23: Opening the Turing Lock'
 
-
 def calc(values, reg_a):
     offset = 0
     regs = {"a": reg_a, "b": 0}
@@ -37,7 +36,6 @@ def calc(values, reg_a):
         else:
             return regs["b"]
 
-
 def test(log):
     values = [
         "inc b",
@@ -51,10 +49,9 @@ def test(log):
     else:
         return False
 
-
 def run(log, values):
-    log(calc(values, 0))
-    log(calc(values, 1))
+    log("Part 1: %d" % (calc(values, 0),))
+    log("Part 2: %d" % (calc(values, 1),))
 
 if __name__ == "__main__":
     import sys, os

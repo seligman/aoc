@@ -5,7 +5,6 @@ import itertools
 DAY_NUM = 24
 DAY_DESC = 'Day 24: It Hangs in the Balance'
 
-
 def get_all(values, target, invalid):
     values = set(values)
     for cur in invalid:
@@ -14,7 +13,6 @@ def get_all(values, target, invalid):
         for test in itertools.combinations(values, i + 1):
             if sum(test) == target:
                 yield test
-
 
 def calc(values, include_trunk):
     values = [int(x) for x in values]
@@ -64,7 +62,6 @@ def calc(values, include_trunk):
 
     return best_entangle
 
-
 def test(log):
     values = [
         "1",
@@ -85,10 +82,9 @@ def test(log):
     else:
         return False
 
-
 def run(log, values):
-    log("No trunk: " + str(calc(values, False)))
-    log("With trunk: " + str(calc(values, True)))
+    log("Part 1: " + str(calc(values, False)))
+    log("Part 2: " + str(calc(values, True)))
 
 if __name__ == "__main__":
     import sys, os

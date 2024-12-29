@@ -5,7 +5,6 @@ from collections import deque
 DAY_NUM = 22
 DAY_DESC = 'Day 22: Wizard Simulator 20XX'
 
-
 class History:
     def __init__(self, log):
         self.log = log
@@ -41,7 +40,6 @@ class History:
                 len(self.states),
             ))
 
-
 class Character:
     def __init__(self, name, hp, damage, spells, mana, armor):
         self.mana_spent = 0
@@ -64,7 +62,6 @@ class Character:
         ret.mana_spent = self.mana_spent
         return ret
 
-
 class Spell:
     def __init__(self, name, cost, effect, damage, heal, armor, earn_mana):
         self.name = name
@@ -74,7 +71,6 @@ class Spell:
         self.heal = heal
         self.armor = armor
         self.earn_mana = earn_mana
-
 
 def apply_effects(history, player, boss):
     to_del = []
@@ -94,7 +90,6 @@ def apply_effects(history, player, boss):
 
     for key in to_del:
         del player.effects[key]
-
 
 def run_spell(history, spell, player, boss, states, game_mode):
     if spell is not None:
@@ -132,7 +127,6 @@ def run_spell(history, spell, player, boss, states, game_mode):
 
     return
 
-
 def run_board(history, player, boss, states, game_mode):
     if game_mode == 1:
         player.hp -= 1
@@ -160,7 +154,6 @@ def run_board(history, player, boss, states, game_mode):
 
     return
 
-
 def calc(log, values, game_mode):
     boss = Character("boss", int(values[0].split(": ")[1]), int(values[1].split(": ")[1]), None, 0, 0)
     player = Character("player", 50, 0, [
@@ -183,11 +176,10 @@ def calc(log, values, game_mode):
     log("Player Wins: " + str(history.player_wins))
     log("Gave Up: " + str(history.gave_up))
     log(">> Best Mana Spent: " + str(history.best_mana))
-
+    return history.best_mana
 
 def test(log):
     return True
-
 
 def run(log, values):
     for game_mode in range(2):
@@ -196,7 +188,8 @@ def run(log, values):
             "Hard Game Mode",
         ][game_mode]
         log("%s %s %s" % ("#" * 5, temp, "#" * (60 - len(temp)),))
-        calc(log, values[:], game_mode)
+        val = calc(log, values[:], game_mode)
+        log("Part %d: %d" % (game_mode + 1, val))
 
 if __name__ == "__main__":
     import sys, os

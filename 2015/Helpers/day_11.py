@@ -5,7 +5,6 @@ import re
 DAY_NUM = 11
 DAY_DESC = 'Day 11: Corporate Policy'
 
-
 def is_valid(r, value):
     if "i" in value or "o" in value or "l" in value:
         return False
@@ -23,7 +22,6 @@ def is_valid(r, value):
         expected = chr(ord(cur) + 1)
     return False
 
-
 def calc(values):
     r = re.compile("(.)\\1.*?(.)\\2")
     value = list(values[0])
@@ -40,7 +38,6 @@ def calc(values):
         if is_valid(r, "".join(value)):
             return "".join(value)
 
-
 def test(log):
     values = [
         "ghijklmn",
@@ -51,12 +48,11 @@ def test(log):
     else:
         return False
 
-
 def run(log, values):
     ret = calc(values)
-    log(ret)
+    log("Part 1: %s" % (ret,))
     ret = calc([ret])
-    log(ret)
+    log("Part 2: %s" % (ret,))
 
 if __name__ == "__main__":
     import sys, os

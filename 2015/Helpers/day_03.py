@@ -5,7 +5,6 @@ from collections import deque
 DAY_NUM = 3
 DAY_DESC = 'Day 3: Perfectly Spherical Houses in a Vacuum'
 
-
 def calc(values, units):
     dirs = {
         '^': (0, -1),
@@ -33,7 +32,6 @@ def calc(values, units):
 
     return len(seen)
 
-
 def test(log):
     values = [
         "^>v<",
@@ -44,10 +42,9 @@ def test(log):
     else:
         return False
 
-
 def run(log, values):
-    log("With 1 worker: %d" % (calc(values, 1),))
-    log("With 2 workers: %d" % (calc(values, 2),))
+    log("Part 1: %d" % (calc(values, 1),))
+    log("Part 2: %d" % (calc(values, 2),))
 
 if __name__ == "__main__":
     import sys, os

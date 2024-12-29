@@ -5,7 +5,6 @@ import codecs
 DAY_NUM = 8
 DAY_DESC = 'Day 8: Matchsticks'
 
-
 def calc(log, values):
     total_size = 0
     total_decoded = 0
@@ -20,17 +19,15 @@ def calc(log, values):
 
         total_encoded += len(cur) + 2
 
-    log("Increased: %d" % (total_encoded - total_size,))
+    log("Part 2: %d" % (total_encoded - total_size,))
 
     return total_size - total_decoded
-
 
 def test(log):
     return True
 
-
 def run(log, values):
-    log(calc(log, values))
+    log("Part 1: %d" % (calc(log, values),))
 
 if __name__ == "__main__":
     import sys, os

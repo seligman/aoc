@@ -5,7 +5,6 @@ import re
 DAY_NUM = 15
 DAY_DESC = 'Day 15: Science for Hungry People'
 
-
 class Ingredient:
     def __init__(self, name, capacity, durability, flavor, texture, calories):
         self.name = name
@@ -16,7 +15,6 @@ class Ingredient:
         self.calories = int(calories)
         self.teaspoons = 1
 
-
 def enum_all(score, values):
     if len(values) == 1:
         values[0].teaspoons = score
@@ -26,7 +24,6 @@ def enum_all(score, values):
             values[0].teaspoons = i
             for _ in enum_all(score - i, values[1:]):
                 yield True
-
 
 def calc(log, values):
     r = re.compile("(.*): capacity (.*), durability (.*), flavor (.*), texture (.*), calories (.*)")
@@ -52,10 +49,9 @@ def calc(log, values):
             if sum([x.calories * x.teaspoons for x in ingredients]) == 500:
                 best_500 = score
 
-    log("Best 500 calorie: %d" % (best_500,))
+    log("Part 2: %d" % (best_500,))
 
     return best_score
-
 
 def test(log):
     values = [
@@ -68,9 +64,8 @@ def test(log):
     else:
         return False
 
-
 def run(log, values):
-    log(calc(log, values))
+    log("Part 1: %d" % (calc(log, values),))
 
 if __name__ == "__main__":
     import sys, os

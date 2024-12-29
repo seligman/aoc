@@ -5,7 +5,6 @@ import re
 DAY_NUM = 5
 DAY_DESC = 'Day 5: Doesn\'t He Have Intern-Elves For This?'
 
-
 def calc(log, values):
     vowels = {"a", "e", "i", "o", "u"}
     bad = ["ab", "cd", "pq", "xy"]
@@ -43,10 +42,9 @@ def calc(log, values):
         if re.search("(..).*\\1", cur) and re.search("(.).\\1", cur):
             total_good_v2 += 1
 
-    log("Ver 2: " + str(total_good_v2))
+    log("Part 2: " + str(total_good_v2))
 
     return total_good
-
 
 def test(log):
     values = [
@@ -62,9 +60,8 @@ def test(log):
     else:
         return False
 
-
 def run(log, values):
-    log(calc(log, values))
+    log("Part 1: %d" % (calc(log, values),))
 
 if __name__ == "__main__":
     import sys, os

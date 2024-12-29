@@ -5,7 +5,6 @@ import re
 DAY_NUM = 6
 DAY_DESC = 'Day 6: Probably a Fire Hazard'
 
-
 def calc(values, rules):
     r = re.compile("(turn on|turn off|toggle) ([0-9]+),([0-9]+) through ([0-9]+),([0-9]+)")
     grid = [[0] * 1000 for _ in range(1000)]
@@ -49,7 +48,6 @@ def calc(values, rules):
 
     return sum([sum(x) for x in grid])
 
-
 def test(log):
     values = [
         "turn on 499,499 through 500,500",
@@ -60,10 +58,9 @@ def test(log):
     else:
         return False
 
-
 def run(log, values):
-    log(calc(values, 0))
-    log(calc(values, 1))
+    log("Part 1: %d" % (calc(values, 0),))
+    log("Part 2: %d" % (calc(values, 1),))
 
 if __name__ == "__main__":
     import sys, os

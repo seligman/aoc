@@ -6,7 +6,6 @@ from collections import defaultdict
 DAY_NUM = 17
 DAY_DESC = 'Day 17: No Such Thing as Too Much'
 
-
 def calc(log, values, target):
     values = [int(x) for x in values]
     ret = 0
@@ -18,10 +17,9 @@ def calc(log, values, target):
                 used[len(test)] += 1
 
     min_size = min(used)
-    log("%d options with %d buckets" % (used[min_size], min_size))
+    log("Part 2: %d" % (used[min_size],))
 
     return ret
-
 
 def test(log):
     values = [
@@ -37,9 +35,8 @@ def test(log):
     else:
         return False
 
-
 def run(log, values):
-    log(calc(log, values, 150))
+    log("Part 1: %d" % (calc(log, values, 150),))
 
 if __name__ == "__main__":
     import sys, os

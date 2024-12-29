@@ -5,12 +5,10 @@ from collections import deque
 DAY_NUM = 19
 DAY_DESC = 'Day 19: Medicine for Rudolph'
 
-
 class Step:
     def __init__(self, chemical, level):
         self.level = level
         self.chemical = chemical[:]
-
 
 def calc(log, values, mode):
     chemical = []
@@ -32,7 +30,6 @@ def calc(log, values, mode):
             else:
                 test[-1] += sub
         mutations[cur[0]].append(test)
-
 
     if mode == 0:
         seen = set()
@@ -79,7 +76,6 @@ def calc(log, values, mode):
 
         return best_step + 1
 
-
 def test(log):
     values = [
         "Ha => HaO",
@@ -98,10 +94,9 @@ def test(log):
     else:
         return False
 
-
 def run(log, values):
-    log(calc(log, values, 0))
-    log(calc(log, values, 1))
+    log("Part 1: %d" % (calc(log, values, 0),))
+    log("Part 2: %d" % (calc(log, values, 1),))
 
 if __name__ == "__main__":
     import sys, os

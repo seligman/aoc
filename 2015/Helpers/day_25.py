@@ -18,17 +18,15 @@ def calc(target_x, target_y):
 
     return value
 
-
 def test(log):
     if calc(4, 5) == 6899651:
         return True
     else:
         return False
 
-
 def run(log, values):
     m = re.findall("[0-9]+", values[0])
-    log(calc(int(m[1]), int(m[0])))
+    log("Part 1: %d" % (calc(int(m[1]), int(m[0])),))
 
 if __name__ == "__main__":
     import sys, os

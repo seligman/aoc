@@ -6,7 +6,6 @@ import itertools
 DAY_NUM = 9
 DAY_DESC = 'Day 9: All in a Single Night'
 
-
 def calc(log, values):
     r = re.compile("(.*) to (.*) = ([0-9]+)")
 
@@ -37,10 +36,9 @@ def calc(log, values):
         if worst_val is None or value > worst_val:
             worst_val = value
 
-    log("Worst route: %d" % (worst_val,))    
+    log("Part 2: %d" % (worst_val,))    
     
     return best_val
-
 
 def test(log):
     values = [
@@ -54,9 +52,8 @@ def test(log):
     else:
         return False
 
-
 def run(log, values):
-    log(calc(log, values))
+    log("Part 1: %d" % (calc(log, values),))
 
 if __name__ == "__main__":
     import sys, os

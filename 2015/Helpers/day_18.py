@@ -3,7 +3,6 @@
 DAY_NUM = 18
 DAY_DESC = 'Day 18: Like a GIF For Your Yard'
 
-
 def calc(log, values, steps, mode):
     values = ["." * len(values[0])] + values + ["." * len(values[0])]
     values = [list("." + x + ".") for x in values]
@@ -43,9 +42,7 @@ def calc(log, values, steps, mode):
             log("")
             log("\n".join(["".join(x) for x in values]))
 
-
     return sum([sum([states[x] for x in y]) for y in values])
-
 
 def test(log):
     values = [
@@ -62,10 +59,9 @@ def test(log):
     else:
         return False
 
-
 def run(log, values):
-    log(calc(log, values, 100, 0))
-    log(calc(log, values, 100, 1))
+    log("Part 1: %d" % (calc(log, values, 100, 0),))
+    log("Part 2: %d" % (calc(log, values, 100, 1),))
 
 if __name__ == "__main__":
     import sys, os

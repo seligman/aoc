@@ -3,7 +3,6 @@
 DAY_NUM = 1
 DAY_DESC = 'Day 1: Not Quite Lisp'
 
-
 def calc(log, values):
     ret = 0
     pos = 0
@@ -18,11 +17,10 @@ def calc(log, values):
                 pos += 1
             if not shown:
                 if ret < 0:
-                    log("Entered basement on %d" % (pos,))
+                    log("Part 2: %d" % (pos,))
                     shown = True
 
     return ret
-
 
 def test(log):
     values = [
@@ -36,7 +34,7 @@ def test(log):
 
 
 def run(log, values):
-    log(calc(log, values))
+    log("Part 1: %d" % (calc(log, values),))
 
 if __name__ == "__main__":
     import sys, os

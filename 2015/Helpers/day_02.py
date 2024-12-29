@@ -3,7 +3,6 @@
 DAY_NUM = 2
 DAY_DESC = 'Day 2: I Was Told There Would Be No Math'
 
-
 def calc(log, values):
     ret = 0
     ribbon = 0
@@ -13,10 +12,9 @@ def calc(log, values):
         ret += sum((a, b, c)) + min((a, b, c)) // 2
         ribbon += sum(sorted(cur)[0:2])*2 + cur[0] * cur[1] * cur[2]
 
-    log("%d feet of ribbon" % (ribbon,))
+    log("Part 2: %d" % (ribbon,))
 
     return ret
-
 
 def test(log):
     values = [
@@ -28,9 +26,8 @@ def test(log):
     else:
         return False
 
-
 def run(log, values):
-    log(calc(log, values))
+    log("Part 1: %d" % (calc(log, values),))
 
 if __name__ == "__main__":
     import sys, os
