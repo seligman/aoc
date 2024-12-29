@@ -1,4 +1,4 @@
-<img align="right" width="326" height="367" src="https://raw.githubusercontent.com/seligman/aoc/master/other/aoc_tree_small.png">
+![Images](other/all_images.png)
 
 These are my solutions to the [Advent of Code](https://adventofcode.com/) puzzles.
 
