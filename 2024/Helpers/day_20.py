@@ -64,8 +64,8 @@ def test(log):
     log.test(calc(log, values, 2, 50, 20), '285')
 
 def run(log, values):
-    log(calc(log, values, 1, 100, 2))
-    log(calc(log, values, 2, 100, 20))
+    log(f"Part 1: {calc(log, values, 1, 100, 2)}")
+    log(f"Part 2: {calc(log, values, 2, 100, 20)}")
 
 if __name__ == "__main__":
     import sys, os
