@@ -5,7 +5,6 @@ import re
 DAY_NUM = 20
 DAY_DESC = 'Day 20: Particle Swarm'
 
-
 class Particle:
     def __init__(self, m, i):
         vals = [int(x) for x in m.groups()]
@@ -29,7 +28,6 @@ class Particle:
         calc_dist = abs(self.x) + abs(self.y) + abs(self.z)
         self.best = calc_dist
         return calc_dist
-
 
 def calc(log, values):
     r = re.compile("p=<([0-9-]+),([0-9-]+),([0-9-]+)>, v=<([0-9-]+),([0-9-]+),([0-9-]+)>, a=<([0-9-]+),([0-9-]+),([0-9-]+)>")
@@ -63,10 +61,9 @@ def calc(log, values):
 
     particles.sort(key=lambda x: x.best)
 
-    log("Leftover particles: " + str(len(remaining_particles)))
+    log("Part 2: " + str(len(remaining_particles)))
 
     return particles[0].i
-
 
 def test(log):
     values = [
@@ -79,9 +76,8 @@ def test(log):
     else:
         return False
 
-
 def run(log, values):
-    log(calc(log, values))
+    log("Part 1: %d" % (calc(log, values),))
 
 if __name__ == "__main__":
     import sys, os

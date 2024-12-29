@@ -3,7 +3,6 @@
 DAY_NUM = 9
 DAY_DESC = 'Day 9: Stream Processing'
 
-
 def parse_garb(value, i, removed):
     escape = False
     while True:
@@ -18,7 +17,6 @@ def parse_garb(value, i, removed):
             else:
                 removed[0] += 1
 
-
 def parse(value, i, level, removed):
     ret = level
     while i[0] < len(value):
@@ -30,13 +28,11 @@ def parse(value, i, level, removed):
         elif value[i[0]] == "}":
             return ret
 
-
 def calc(log, values):
     removed = [0]
     ret = parse(values[0], [0], 1, removed)
-    log("Removed: " + str(removed[0]))
+    log("Part 2: " + str(removed[0]))
     return ret
-
 
 def test(log):
     values = [
@@ -48,9 +44,8 @@ def test(log):
     else:
         return False
 
-
 def run(log, values):
-    log(calc(log, values))
+    log("Part 1: %d" % (calc(log, values),))
 
 if __name__ == "__main__":
     import sys, os

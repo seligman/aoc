@@ -3,7 +3,6 @@
 DAY_NUM = 24
 DAY_DESC = 'Day 24: Electromagnetic Moat'
 
-
 def longest(values, cur_path, mode):
     ret = []
     for i in range(len(values)):
@@ -31,12 +30,10 @@ def longest(values, cur_path, mode):
             ret.sort(key=lambda x:(len(x), sum(x)), reverse=True)
         return ret[0]
 
-
 def calc(log, values, mode):
     values = [[int(x) for x in y.split("/")] for y in values]
     path = longest(values, [0], mode)
     return sum(path)
-
 
 def test(log):
     values = [
@@ -60,10 +57,9 @@ def test(log):
     else:
         return False
 
-
 def run(log, values):
-    log(calc(log, values, 0))
-    log(calc(log, values, 1))
+    log("Part 1: %d" % (calc(log, values, 0),))
+    log("Part 2: %d" % (calc(log, values, 1),))
 
 if __name__ == "__main__":
     import sys, os

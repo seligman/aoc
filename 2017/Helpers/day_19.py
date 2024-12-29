@@ -3,7 +3,6 @@
 DAY_NUM = 19
 DAY_DESC = 'Day 19: A Series of Tubes'
 
-
 def calc(log, values):
     y = 0
     for x in range(len(values[0])):
@@ -28,10 +27,9 @@ def calc(log, values):
         elif values[y][x] not in {"-", "|"}:
             ret += values[y][x]
 
-    log("Steps: " + str(steps))
+    log("Part 2: " + str(steps))
 
     return ret
-
 
 def test(log):
     values = [
@@ -49,9 +47,8 @@ def test(log):
     else:
         return False
 
-
 def run(log, values):
-    log(calc(log, values))
+    log("Part 1: %s" % (calc(log, values),))
 
 if __name__ == "__main__":
     import sys, os

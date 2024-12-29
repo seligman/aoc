@@ -3,7 +3,6 @@
 DAY_NUM = 6
 DAY_DESC = 'Day 6: Memory Reallocation'
 
-
 def calc(log, values, redo):
     banks = [int(x) for x in values[0].replace("\t", " ").split(" ")]
 
@@ -25,7 +24,6 @@ def calc(log, values, redo):
 
     return len(seen)
 
-
 def test(log):
     values = [
         "0 2 7 0",
@@ -39,10 +37,9 @@ def test(log):
     else:
         return False
 
-
 def run(log, values):
-    log(calc(log, values, 0))
-    log(calc(log, values, 1))
+    log("Part 1: %d" % (calc(log, values, 0),))
+    log("Part 2: %d" % (calc(log, values, 1),))
 
 if __name__ == "__main__":
     import sys, os

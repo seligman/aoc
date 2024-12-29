@@ -3,7 +3,6 @@
 DAY_NUM = 4
 DAY_DESC = 'Day 4: High-Entropy Passphrases'
 
-
 def calc(log, values):
     ret = 0
     ret2 = 0
@@ -15,17 +14,15 @@ def calc(log, values):
         if len(set(cur)) == len(cur):
             ret2 += 1
 
-    log("Anagrams: " + str(ret2))
+    log("Part 2: " + str(ret2))
 
     return ret
-
 
 def test(log):
     return True
 
-
 def run(log, values):
-    log(calc(log, values))
+    log("Part 1: %d" % (calc(log, values),))
 
 if __name__ == "__main__":
     import sys, os

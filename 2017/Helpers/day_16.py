@@ -5,7 +5,6 @@ from collections import deque
 DAY_NUM = 16
 DAY_DESC = 'Day 16: Permutation Promenade'
 
-
 def calc(log, values, dance):
     dance = list(dance)
 
@@ -25,7 +24,6 @@ def calc(log, values, dance):
 
     return "".join(dance)
 
-
 def calc2(log, values, dance):
     seen = {}
     i = 0
@@ -40,7 +38,6 @@ def calc2(log, values, dance):
             seen = {}
     return dance
 
-
 def test(log):
     values = [
         "s1,x3/4,pe/b",
@@ -51,10 +48,9 @@ def test(log):
     else:
         return False
 
-
 def run(log, values):
-    log(calc(log, values, 'abcdefghijklmnop'))
-    log(calc2(log, values, 'abcdefghijklmnop'))
+    log("Part 1: %s" % (calc(log, values, 'abcdefghijklmnop'),))
+    log("Part 2: %s" % (calc2(log, values, 'abcdefghijklmnop'),))
 
 if __name__ == "__main__":
     import sys, os

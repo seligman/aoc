@@ -3,7 +3,6 @@
 DAY_NUM = 22
 DAY_DESC = 'Day 22: Sporifica Virus'
 
-
 class Infinity:
     def __init__(self, default="."):
         self.default = default
@@ -51,7 +50,6 @@ class Infinity:
             ret.append("".join(row))
         return ret
 
-
 def calc(log, values, iters, mode):
     grid = Infinity()
     ox = (len(values[0]) - 1) // 2
@@ -88,7 +86,6 @@ def calc(log, values, iters, mode):
 
     return ret
 
-
 def test(log):
     values = [
         "..#",
@@ -106,10 +103,9 @@ def test(log):
     else:
         return False
 
-
 def run(log, values):
-    log(calc(log, values, 10000, 0))
-    log(calc(log, values, 10000000, 1))
+    log("Part 1: %d" % (calc(log, values, 10000, 0),))
+    log("Part 2: %d" % (calc(log, values, 10000000, 1),))
 
 if __name__ == "__main__":
     import sys, os

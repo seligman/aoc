@@ -3,7 +3,6 @@
 DAY_NUM = 1
 DAY_DESC = 'Day 1: Inverse Captcha'
 
-
 def calc(log, values):
     value = list(values[0])
     ret = 0
@@ -15,10 +14,9 @@ def calc(log, values):
         if value[i] == value[(i+(len(value)//2))%len(value)]:
             ret2 += int(value[i])
 
-    log("Half around: " + str(ret2))
+    log("Part 2: " + str(ret2))
 
     return ret
-
 
 def test(log):
     values = [
@@ -30,9 +28,8 @@ def test(log):
     else:
         return False
 
-
 def run(log, values):
-    log(calc(log, values))
+    log("Part 1: %d" % (calc(log, values),))
 
 if __name__ == "__main__":
     import sys, os

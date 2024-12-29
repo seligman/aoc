@@ -5,13 +5,11 @@ from collections import defaultdict, deque
 DAY_NUM = 18
 DAY_DESC = 'Day 18: Duet'
 
-
 def deref(r, value):
     if len(value) == 1 and value >= 'a' and value <= 'z':
         return r[value]
     else:
         return int(value)
-
 
 class Machine:
     def __init__(self, values, p):
@@ -61,7 +59,6 @@ class Machine:
         self.queue.clear()
         self.state = "eop"
 
-
 def calc2(log, values):
     m0 = Machine(values, 0)
     m1 = Machine(values, 1)
@@ -75,7 +72,6 @@ def calc2(log, values):
             break
 
     return m1.sent
-
 
 def calc(log, values):
     sound = None
@@ -107,7 +103,6 @@ def calc(log, values):
         ip = new_ip
 
     return None
-
 
 def test(log):
     values = [
@@ -144,10 +139,9 @@ def test(log):
     else:
         return False
 
-
 def run(log, values):
-    log(calc(log, values))
-    log(calc2(log, values))
+    log("Part 1: %d" % (calc(log, values),))
+    log("Part 2: %d" % (calc2(log, values),))
 
 if __name__ == "__main__":
     import sys, os

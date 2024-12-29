@@ -3,7 +3,6 @@
 DAY_NUM = 15
 DAY_DESC = 'Day 15: Dueling Generators'
 
-
 def calc(log, values):
     a = int(values[0][24:])
     b = int(values[1][24:])
@@ -18,7 +17,6 @@ def calc(log, values):
             ret += 1
 
     return ret
-
 
 def calc2(log, values):
     a = int(values[0][24:])
@@ -41,7 +39,6 @@ def calc2(log, values):
 
     return ret
 
-
 def test(log):
     values = [
         "Generator A starts with 65",
@@ -58,10 +55,9 @@ def test(log):
     else:
         return False
 
-
 def run(log, values):
-    log(calc(log, values))
-    log(calc2(log, values))
+    log("Part 1: %d" % (calc(log, values),))
+    log("Part 2: %d" % (calc2(log, values),))
 
 if __name__ == "__main__":
     import sys, os

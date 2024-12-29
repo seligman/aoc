@@ -3,7 +3,6 @@
 DAY_NUM = 3
 DAY_DESC = 'Day 3: Spiral Memory'
 
-
 def calc(log, values):
     value = int(values[0])
     cur = 1
@@ -26,7 +25,7 @@ def calc(log, values):
                         oy += y
                         write += wrote.get((ox, oy), 0)
                     if write > value:
-                        log("First greater: " + str(write))
+                        log("Part 2: " + str(write))
                         wrote = None
                     if wrote is not None:
                         wrote[(x, y)] = write
@@ -34,7 +33,6 @@ def calc(log, values):
                 if cur == value:
                     return abs(x) + abs(y)
             change += inc
-
 
 def test(log):
     values = [
@@ -46,9 +44,8 @@ def test(log):
     else:
         return False
 
-
 def run(log, values):
-    log(calc(log, values))
+    log("Part 1: %d" % (calc(log, values),))
 
 if __name__ == "__main__":
     import sys, os

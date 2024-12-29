@@ -3,7 +3,6 @@
 DAY_NUM = 21
 DAY_DESC = 'Day 21: Fractal Art'
 
-
 class Infinity:
     def __init__(self, default="."):
         self.default = default
@@ -51,7 +50,6 @@ class Infinity:
             ret.append("".join(row))
         return ret
 
-
 def enum_layout(grid, x, y, skip):
     ret = ""
     for oy in range(skip):
@@ -81,7 +79,6 @@ def enum_layout(grid, x, y, skip):
             ret += grid.get(x+(skip-1)-ox, y+(skip-1)-oy)
     yield ret[1:]
 
-
     ret = ""
     for oy in range(skip):
         ret += "/"
@@ -109,7 +106,6 @@ def enum_layout(grid, x, y, skip):
         for ox in range(skip):
             ret += grid.get(x+(skip-1)-oy, y+(skip-1)-ox)
     yield ret[1:]
-
 
 def calc(log, values, iters):
     values = [x.split(" => ") for x in values]
@@ -144,7 +140,6 @@ def calc(log, values, iters):
                         log("Couldn't find %d: %s" % (cur_iter, layout,))
         grid = new_grid
 
-
     ret = 0
     for row in grid.grid:
         for cell in row:
@@ -152,7 +147,6 @@ def calc(log, values, iters):
                 ret += 1
 
     return ret
-
 
 def test(log):
     values = [
@@ -165,10 +159,9 @@ def test(log):
     else:
         return False
 
-
 def run(log, values):
-    log(calc(log, values, 5))
-    log(calc(log, values, 18))
+    log("Part 1: %d" % (calc(log, values, 5),))
+    log("Part 2: %d" % (calc(log, values, 18),))
 
 if __name__ == "__main__":
     import sys, os

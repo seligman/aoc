@@ -5,7 +5,6 @@ import itertools
 DAY_NUM = 2
 DAY_DESC = 'Day 2: Corruption Checksum'
 
-
 def calc(log, values):
     values = [[int(y) for y in x.replace('\t', ' ').split(' ')] for x in values]
     ret = 0
@@ -20,10 +19,9 @@ def calc(log, values):
             if a % b == 0:
                 ret2 += a // b
 
-    log("Second form: " + str(ret2))
+    log("Part 2: " + str(ret2))
 
     return ret
-
 
 def test(log):
     values = [
@@ -37,9 +35,8 @@ def test(log):
     else:
         return False
 
-
 def run(log, values):
-    log(calc(log, values))
+    log("Part 1: %d" % (calc(log, values),))
 
 if __name__ == "__main__":
     import sys, os

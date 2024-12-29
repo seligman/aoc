@@ -3,7 +3,6 @@
 DAY_NUM = 13
 DAY_DESC = 'Day 13: Packet Scanners'
 
-
 def calc(log, values, bail):
     layers = {}
     for cur in values:
@@ -45,7 +44,6 @@ def calc(log, values, bail):
 
     return ret
 
-
 def test(log):
     values = [
         "0: 3",
@@ -62,10 +60,9 @@ def test(log):
     else:
         return False
 
-
 def run(log, values):
-    log(calc(log, values, False))
-    log(calc(log, values, True))
+    log("Part 1: %d" % (calc(log, values, False),))
+    log("Part 2: %d" % (calc(log, values, True),))
 
 if __name__ == "__main__":
     import sys, os

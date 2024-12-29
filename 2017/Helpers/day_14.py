@@ -5,7 +5,6 @@ from collections import deque
 DAY_NUM = 14
 DAY_DESC = 'Day 14: Disk Defragmentation'
 
-
 def knot_hash(value):
     values = [ord(x) for x in list(value)] + [17, 31, 73, 47, 23]
     i = 0
@@ -28,7 +27,6 @@ def knot_hash(value):
         ret += "%02x" % (temp,)
 
     return ret
-
 
 def calc(log, values):
     ret = 0
@@ -84,10 +82,9 @@ def calc(log, values):
                     grid.remove((tx, ty))
                     todo.append((tx, ty))
 
-    log("There are " + str(groups) + " groups.")
+    log("Part 2: " + str(groups))
 
     return ret
-
 
 def test(log):
     values = [
@@ -99,9 +96,8 @@ def test(log):
     else:
         return False
 
-
 def run(log, values):
-    log(calc(log, values))
+    log("Part 1: %d" % (calc(log, values),))
 
 if __name__ == "__main__":
     import sys, os

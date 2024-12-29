@@ -3,6 +3,9 @@
 import re
 from collections import deque
 
+DAY_NUM = 7
+DAY_DESC = 'Day 7: Recursive Circus'
+
 class Node:
     def __init__(self, value):
         m = re.search("(.*) \\(([0-9]+)\\)(| -> (.*))$", value)
@@ -18,11 +21,6 @@ class Node:
         for sub in self.children:
             ret += nodes[sub].get_weight(nodes)
         return ret
-
-
-DAY_NUM = 7
-DAY_DESC = 'Day 7: Recursive Circus'
-
 
 def calc(log, values, balance):
     nodes = {}
@@ -71,7 +69,6 @@ def calc(log, values, balance):
 
     return None
 
-
 def test(log):
     values = [
         "pbga (66)",
@@ -97,10 +94,9 @@ def test(log):
     else:
         return False
 
-
 def run(log, values):
-    log(calc(log, values, 0))
-    log(calc(log, values, 1))
+    log("Part 1: %s" % (calc(log, values, 0),))
+    log("Part 2: %s" % (calc(log, values, 1),))
 
 if __name__ == "__main__":
     import sys, os

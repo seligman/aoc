@@ -3,7 +3,6 @@
 DAY_NUM = 5
 DAY_DESC = 'Day 5: A Maze of Twisty Trampolines, All Alike'
 
-
 def calc(log, values, mode):
     ip = 0
     steps = 0
@@ -27,7 +26,6 @@ def calc(log, values, mode):
 
     return steps
 
-
 def test(log):
     values = [
         "0",
@@ -45,10 +43,9 @@ def test(log):
     else:
         return False
 
-
 def run(log, values):
-    log(calc(log, values, 0))
-    log(calc(log, values, 1))
+    log("Part 1: %d" % (calc(log, values, 0),))
+    log("Part 2: %d" % (calc(log, values, 1),))
 
 if __name__ == "__main__":
     import sys, os

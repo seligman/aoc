@@ -3,7 +3,6 @@
 DAY_NUM = 10
 DAY_DESC = 'Day 10: Knot Hash'
 
-
 def calc(log, values, elements):
     values = [int(x) for x in values[0].split(",")]
     i = 0
@@ -18,7 +17,6 @@ def calc(log, values, elements):
         skip += 1
 
     return elements[0] * elements[1]
-
 
 def calc2(log, values):
     values = [ord(x) for x in list(values[0])] + [17, 31, 73, 47, 23]
@@ -43,7 +41,6 @@ def calc2(log, values):
 
     return ret
 
-
 def test(log):
     values = [
         "3,4,1,5",
@@ -57,10 +54,9 @@ def test(log):
     else:
         return False
 
-
 def run(log, values):
-    log(calc(log, values, 256))
-    log(calc2(log, values))
+    log("Part 1: %s" % (calc(log, values, 256),))
+    log("Part 2: %s" % (calc2(log, values, ),))
 
 if __name__ == "__main__":
     import sys, os

@@ -5,7 +5,6 @@ from collections import defaultdict
 DAY_NUM = 8
 DAY_DESC = 'Day 8: I Heard You Like Registers'
 
-
 def comp(a, b, c):
     if b == "==":
         return a == c
@@ -22,7 +21,6 @@ def comp(a, b, c):
     else:
         raise Exception()
 
-
 def calc(log, values):
     r = defaultdict(int)
     m_val = 0
@@ -38,10 +36,9 @@ def calc(log, values):
                 raise Exception()
         m_val = max(m_val, max(r.values()))
 
-    log("Max value: " + str(m_val))
+    log("Part 2: " + str(m_val))
 
     return max(r.values())
-
 
 def test(log):
     values = [
@@ -56,9 +53,8 @@ def test(log):
     else:
         return False
 
-
 def run(log, values):
-    log(calc(log, values))
+    log("Part 1: %d" % (calc(log, values),))
 
 if __name__ == "__main__":
     import sys, os

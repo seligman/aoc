@@ -5,7 +5,6 @@ import re
 DAY_NUM = 25
 DAY_DESC = 'Day 25: The Halting Problem'
 
-
 class Infinity:
     def __init__(self, default="."):
         self.default = default
@@ -53,7 +52,6 @@ class Infinity:
             ret.append("".join(row))
         return ret
 
-
 def calc(log, values):
     state = None
     diag = 0
@@ -67,7 +65,6 @@ def calc(log, values):
         m = re.search("Perform a diagnostic checksum after ([0-9]+) steps", cur)
         if m:
             diag = int(m.group(1))
-
 
     ins = {}
     ins_temp = None
@@ -124,7 +121,6 @@ def calc(log, values):
 
     return sum(tape.grid[0])
 
-
 def test(log):
     values = [
         "Begin in state A.",
@@ -156,9 +152,8 @@ def test(log):
     else:
         return False
 
-
 def run(log, values):
-    log(calc(log, values))
+    log("Part 1: %d" % (calc(log, values),))
 
 if __name__ == "__main__":
     import sys, os

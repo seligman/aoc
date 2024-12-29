@@ -14,7 +14,6 @@ def dist(tx, ty):
     else:
         return tx
 
-
 def calc(log, values):
     longest = 0
 
@@ -34,10 +33,9 @@ def calc(log, values):
         if cur_dist > longest:
             longest = cur_dist
 
-    log("Furthest away was: " + str(longest))
+    log("Part 2: " + str(longest))
 
     return dist(x, y)
-
 
 def test(log):
     values = [
@@ -49,9 +47,8 @@ def test(log):
     else:
         return False
 
-
 def run(log, values):
-    log(calc(log, values))
+    log("Part 1: %d" % (calc(log, values),))
 
 if __name__ == "__main__":
     import sys, os

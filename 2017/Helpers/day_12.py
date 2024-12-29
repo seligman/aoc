@@ -5,7 +5,6 @@ from collections import deque
 DAY_NUM = 12
 DAY_DESC = 'Day 12: Digital Plumber'
 
-
 def calc(log, values):
     progs = {}
     remaining = set()
@@ -32,14 +31,13 @@ def calc(log, values):
                     todo.append(sub)
         groups.append(seen)
 
-    log("There are " + str(len(groups)) + " groups")
+    log("Part 2: " + str(len(groups)))
 
     for group in groups:
         if "0" in group:
             return len(group)
 
     return None
-
 
 def test(log):
     values = [
@@ -57,9 +55,8 @@ def test(log):
     else:
         return False
 
-
 def run(log, values):
-    log(calc(log, values))
+    log("Part 1: %d" % (calc(log, values),))
 
 if __name__ == "__main__":
     import sys, os

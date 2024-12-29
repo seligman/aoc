@@ -66,7 +66,6 @@ def calc(log, values, show_heat, mode, bail=None):
         log("Final registers:")
         log(", ".join("%s=%d" % (x, r[x]) for x in sorted(r)))
 
-
     if mode == 0:
         return ret
     else:
@@ -76,7 +75,7 @@ def test(log):
     return True
 
 def run(log, values):
-    log(calc(log, values, False, 0))
+    log("Part 1: %d" % (calc(log, values, False, 0),))
     r = calc(log, values, False, 1, 9)
 
     h = 0
@@ -85,7 +84,7 @@ def run(log, values):
             if x % i == 0:
                 h += 1
                 break
-    log("Final value of H is %d" % (h,))
+    log("Part 2: %d" % (h,))
 
 class DummyLog:
     def __init__(self):
