@@ -129,8 +129,8 @@ def test(log):
 
 def run(log, values):
     with multiprocessing.Pool() as pool:
-        log(calc(log, values, 1, pool=pool))
-        log(calc(log, values, 2, pool=pool))
+        log(f"Part 1: {calc(log, values, 1, pool=pool)}")
+        log(f"Part 2: {calc(log, values, 2, pool=pool)}")
 
 if __name__ == "__main__":
     import sys, os

@@ -93,8 +93,8 @@ def other_dump(describe, values):
     calc(DummyLog(), values, 1, dump_output=True)
 
 def run(log, values):
-    log(calc(log, values, 1))
-    log(calc(log, values, 2))
+    log(f"Part 1: {calc(log, values, 1)}")
+    log(f"Part 2: {calc(log, values, 2)}")
 
 if __name__ == "__main__":
     import sys, os
