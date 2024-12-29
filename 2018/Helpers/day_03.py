@@ -5,7 +5,6 @@ import re
 DAY_NUM = 3
 DAY_DESC = 'Day 3: No Matter How You Slice It'
 
-
 def calc(log, values):
     max_width = 0
     max_height = 0
@@ -40,14 +39,12 @@ def calc(log, values):
         if tile > 1:
             over_used += 1
 
-    log("Valid Claims: " + ", ".join([str(x) for x in valid]))
+    log("Part 2: " + ", ".join([str(x) for x in valid]))
 
     return over_used
 
-
 def test(log):
     return True
-
 
 def run(log, values):
     r = re.compile("#([0-9]+) @ ([0-9]+),([0-9]+): ([0-9]+)x([0-9]+)")
@@ -56,7 +53,7 @@ def run(log, values):
         m = r.search(cur)
         if m:
             temp.append([int(x) for x in m.groups()])
-    log(calc(log, temp))
+    log("Part 1: %d" % (calc(log, temp),))
 
 if __name__ == "__main__":
     import sys, os

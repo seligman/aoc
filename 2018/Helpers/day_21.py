@@ -89,7 +89,6 @@ def make_fast_op(op, a, b, c):
     else:
         raise Exception(op)
 
-
 op_addr = make_op(lambda r, a, b: r[a] + r[b])
 op_addi = make_op(lambda r, a, b: r[a] + b)
 op_mulr = make_op(lambda r, a, b: r[a] * r[b])
@@ -182,9 +181,9 @@ def calc(log, values, start_r1, test):
         values[ip](r)
         if ip == target[0]:
             if len(history) == 0:
-                log("Shortest path to target: %d" % (r[target[1]],))
+                log("Part 1: %d" % (r[target[1]],))
             if r[target[1]] in seen:
-                log("Longest path to target: %d" % (history[-1],))
+                log("Part 2: %d" % (history[-1],))
                 break
             seen.add(r[target[1]])
             history.append(r[target[1]])
@@ -207,21 +206,6 @@ def test(log):
 def run(log, values):
     values = [x.split("/")[0].strip() for x in values]
     calc(log, values, 0, False)
-    # exit(0)
-    # import hashlib
-    # code = hashlib.sha256(("\n".join(values)).encode("utf-8")).hexdigest()[:10]
-    # if code == "ad8b6d8391":
-    #     log("Shortest path to target: 8797248")
-    #     log("Longest path to target: 3007673")
-    # elif code == "0e53c210d3":
-    #     log("Shortest path to target: 2792537")
-    #     log("Longest path to target: 10721810")
-    # else:
-    #     log("ERROR: This solution uses C, run")
-    #     log("./advent.py run_other %d decompile_c > temp.c" % (DAY_NUM,))
-    #     log("gcc -o temp temp.c")
-    #     log("./temp")
-    #     log("# And add code '%s' to this file..." % (code,))
 
 def get_op_to_str():
     return {

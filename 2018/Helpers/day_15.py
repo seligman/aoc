@@ -5,7 +5,6 @@ from collections import defaultdict
 DAY_NUM = 15
 DAY_DESC = 'Day 15: Beverage Bandits'
 
-
 class Creature:
     def __init__(self, x, y, name):
         self.x = x
@@ -14,7 +13,6 @@ class Creature:
         self.hp = 200
         self.name = name
         self.dead = False
-
 
 def calc(values, elve_power):
     creatures = {}
@@ -34,7 +32,6 @@ def calc(values, elve_power):
     starting_elves = counts['E']
 
     while counts['G'] > 0 and counts['E'] > 0:
-
         rounds += 1
         units = list(sorted(creatures.values(), key=lambda x: (x.y, x.x)))
         # for row in values:
@@ -121,7 +118,6 @@ def calc(values, elve_power):
     # print(str(rounds) + " -- " + ", ".join(f"{x.x}-{x.y}-{x.name}-{x.hp}" for x in units))
 
     return rounds * sum([x.hp for x in creatures.values()]), counts['E'], starting_elves
-
 
 def test(log):
     tests = [
@@ -211,10 +207,9 @@ def test(log):
         raise Exception()
     return True
 
-
 def run(log, values):
     ret = calc(values[:], 3)
-    log("Part 1: With initial conditions, combat ended at %d" % (ret[0],))
+    log("Part 1: %d" % (ret[0],))
 
     elve_power = 3
     skip = 32
@@ -226,7 +221,7 @@ def run(log, values):
             log("  With elf power of %d, there were %d losses" % (elve_power, ret[2] - ret[1]))
         if ret[1] == ret[2]:
             if skip == 1:
-                log("Part 2: That ended in a score of %d" % (ret[0],))
+                log("Part 2: %d" % (ret[0],))
                 break
             else:
                 skip //= 2

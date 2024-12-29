@@ -1,9 +1,7 @@
 #!/usr/bin/env python3
 
-
 DAY_NUM = 8
 DAY_DESC = 'Day 8: Memory Maneuver'
-
 
 class Index:
     def __init__(self):
@@ -14,7 +12,6 @@ class Index:
         self.val += 1
         return ret
 
-
 def sum_meta(node):
     ret = 0
 
@@ -24,7 +21,6 @@ def sum_meta(node):
     ret += sum(node['metadata_entries'])
 
     return ret
-
 
 def value_node(node):
     ret = 0
@@ -42,7 +38,6 @@ def value_node(node):
 
     return ret
 
-
 def load(values, i):
     ret = {}
     child_nodes = values[i.get()]
@@ -58,14 +53,12 @@ def load(values, i):
     
     return ret
 
-
 def calc(log, values):
     values = [int(x) for x in values[0].split(' ')]
 
     nodes = load(values, Index())
-    log("The target value is %d" % (value_node(nodes),))
+    log("Part 2: %d" % (value_node(nodes),))
     return sum_meta(nodes)
-
 
 def test(log):
     values = [
@@ -77,9 +70,8 @@ def test(log):
     else:
         return False
 
-
 def run(log, values):
-    log(calc(log, values))
+    log("Part 1: %d" % (calc(log, values),))
 
 if __name__ == "__main__":
     import sys, os

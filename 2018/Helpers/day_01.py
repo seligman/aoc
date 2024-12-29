@@ -3,7 +3,6 @@
 DAY_NUM = 1
 DAY_DESC = 'Day 1: Chronal Calibration'
 
-
 def calc(log, values, test_mode):
     ret = 0
     real_ret = None
@@ -15,14 +14,13 @@ def calc(log, values, test_mode):
             seen[ret] = seen.get(ret, 0) + 1
             if first:
                 if seen[ret] == 2:
-                    log("First twice is %d" % (ret,))
+                    log("Part 2: %d" % (ret,))
                     first = False
         if real_ret is None:
             real_ret = ret
         if test_mode:
             break
     return real_ret
-
 
 def test(log):
     test = [
@@ -39,10 +37,9 @@ def test(log):
 
     return True
 
-
 def run(log, values):
     values = [int(x) for x in values]
-    log(calc(log, values, False))
+    log("Part 1: %d" % (calc(log, values, False),))
 
 if __name__ == "__main__":
     import sys, os

@@ -3,7 +3,6 @@
 DAY_NUM = 5
 DAY_DESC = 'Day 5: Alchemical Reduction'
 
-
 def decode(polymer):
     found = True
     i = 0
@@ -21,7 +20,6 @@ def decode(polymer):
 
     return len(polymer)
 
-
 def calc(log, values):
     polymer = values[0]
     values = set()
@@ -36,10 +34,9 @@ def calc(log, values):
             best = test
             best_val = cur
 
-    log("Best to remove %s: Down to %d" % (best_val, best))
+    log("Part 2: %d" % (best,))
 
     return decode(polymer)
-
 
 def test(log):
     values = [
@@ -51,9 +48,8 @@ def test(log):
     else:
         return False
 
-
 def run(log, values):
-    log(calc(log, values))
+    log("Part 1: %d" % (calc(log, values),))
 
 if __name__ == "__main__":
     import sys, os

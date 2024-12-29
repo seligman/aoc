@@ -6,7 +6,6 @@ from collections import defaultdict
 DAY_NUM = 4
 DAY_DESC = 'Day 4: Repose Record'
 
-
 def calc(log, values):
     r = re.compile("\\[([0-9]{4})-([0-9]{2})-([0-9]{2}) ([0-9]{2}):([0-9]{2})\\] (Guard #([0-9]+) begins shift|falls asleep|wakes up)")
 
@@ -59,10 +58,9 @@ def calc(log, values):
                 best_val = (guard_id, minute)
                 best_count = count
 
-    log("Guard: %d, Minute %d == %d" % (best_val[0], best_val[1], best_val[0] * best_val[1]))
+    log("Part 2: %d" % (best_val[0] * best_val[1],))
 
     return sleepy[0] * best_min
-
 
 def test(log):
     values = [
@@ -90,9 +88,8 @@ def test(log):
     else:
         return False
 
-
 def run(log, values):
-    log(calc(log, values))
+    log("Part 1: %d" % (calc(log, values),))
 
 if __name__ == "__main__":
     import sys, os

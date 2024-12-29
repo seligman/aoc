@@ -3,7 +3,6 @@
 DAY_NUM = 12
 DAY_DESC = 'Day 12: Subterranean Sustainability'
 
-
 def calc(log, values, generations):
     state = values[0][15:]
     seed = 0
@@ -63,7 +62,6 @@ def calc(log, values, generations):
 
     return score
 
-
 def test(log):
     values = [
         "initial state: #..#.#..##......###...###",
@@ -89,10 +87,9 @@ def test(log):
     else:
         return False
 
-
 def run(log, values):
-    log(calc(log, values, 20))
-    log(calc(log, values, 50000000000))
+    log("Part 1: %d" % (calc(log, values, 20),))
+    log("Part 2: %d" % (calc(log, values, 50000000000),))
 
 if __name__ == "__main__":
     import sys, os

@@ -3,10 +3,8 @@
 import re
 from collections import deque
 
-
 DAY_NUM = 23
 DAY_DESC = 'Day 23: Experimental Emergency Teleportation'
-
 
 def get_bots(log, values):
     r = re.compile("pos=<([0-9-]+),([0-9-]+),([0-9-]+)>, r=([0-9]+)")
@@ -20,7 +18,6 @@ def get_bots(log, values):
                 log(cur)
             bots.append([int(x) for x in m.groups()])
     return bots
-
 
 def calc(log, values):
     bots = get_bots(log, values)
@@ -42,7 +39,6 @@ def calc(log, values):
             ret += 1
 
     return ret
-
 
 def find(done, bots, xs, ys, zs, dist, ox, oy, oz, forced_count):
     at_target = []
@@ -100,7 +96,6 @@ def find(done, bots, xs, ys, zs, dist, ox, oy, oz, forced_count):
     # be treated as a false path by our caller
     return None, None
 
-
 def calc2(log, values):
     bots = get_bots(log, values)
 
@@ -152,11 +147,9 @@ def calc2(log, values):
     log("The max count I found was: " + str(best_count))
     return best_val
 
-
 def run(log, values):
-    log("Nearest the big bot: " + str(calc(log, values)))
-    log("Best location value: " + str(calc2(log, values)))
-
+    log("Part 1: " + str(calc(log, values)))
+    log("Part 2: " + str(calc2(log, values)))
 
 def test(log):
     values = [

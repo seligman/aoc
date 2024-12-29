@@ -34,8 +34,8 @@ def test(log):
 def run(log, values):
     import re
     m = re.search("(?P<a>[0-9]+) players; last marble is worth (?P<b>[0-9]+) points", values[0])
-    log(calc(int(m['a']), int(m['b'])))
-    log(calc(int(m['a']), int(m['b']) * 100))
+    log("Part 1: %d" % (calc(int(m['a']), int(m['b'])),))
+    log("Part 2: %d" % (calc(int(m['a']), int(m['b']) * 100),))
 
 if __name__ == "__main__":
     import sys, os

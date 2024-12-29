@@ -12,7 +12,6 @@ def calc(log, values):
             power = ((power // 100) % 10) - 5
             powers[(x,y)] = power
 
-
     # cs[(x, y)] is the cumulative sum of d[(i, j)] for all i <= x and j <= y
     cumulative = {}
     for x in range(1, 301):
@@ -28,9 +27,8 @@ def calc(log, values):
             # k = d[(i, j)]
             if best is None or power > best:
                 best = power
-                best_at = "X,Y coordinates: %d,%d" % (x + 1, y + 1)
+                best_at = "Part 1: %d,%d" % (x + 1, y + 1)
     log(best_at)
-
 
     best = None
     best_at = None
@@ -43,7 +41,7 @@ def calc(log, values):
                 power = cumulative[(x + size, y + size)] + cumulative[(x, y)] - cumulative[(x + size, y)] - cumulative[(x, y + size)]
                 if best is None or power > best:
                     best = power
-                    best_at = "Largest total power: %d,%d,%d" % (x + 1, y + 1, size)
+                    best_at = "Part 2: %d,%d,%d" % (x + 1, y + 1, size)
 
     log(best_at)
 
@@ -55,9 +53,8 @@ def test(log):
     else:
         return False
 
-
 def run(log, values):
-    log(calc(log, int(values[0])))
+    calc(log, int(values[0]))
 
 if __name__ == "__main__":
     import sys, os

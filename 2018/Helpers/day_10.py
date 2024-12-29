@@ -5,7 +5,6 @@ import re
 DAY_NUM = 10
 DAY_DESC = 'Day 10: The Stars Align'
 
-
 class Point:
     def __init__(self, values):
         self.x = int(values[0])
@@ -91,8 +90,8 @@ def calc(log, values, test_mode):
                     break
             else:
                 log(best_output)
-                log("That decodes to: " + decode(best_output, log))
-                log(best_seconds)
+                log("Part 1: " + decode(best_output, log))
+                log("Part 2: " + str(best_seconds))
                 break
 
         for pt in pts:
@@ -141,7 +140,7 @@ def test(log):
 
 
 def run(log, values):
-    calc(log, values, False)
+    log(calc(log, values, False))
 
 if __name__ == "__main__":
     import sys, os

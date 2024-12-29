@@ -6,7 +6,6 @@ from collections import deque
 DAY_NUM = 17
 DAY_DESC = 'Day 17: Reservoir Research'
 
-
 class Spigot:
     def __init__(self, x, y, parent=None):
         self.x = x
@@ -14,7 +13,6 @@ class Spigot:
         self.parent = parent
         self.skip_down = False
         self.retried = False
-
 
 def calc(log, values):
     offset = 500
@@ -133,14 +131,12 @@ def calc(log, values):
                             drops += 1
                             spigots.append(Spigot(spill, cur.y + 1, parent=cur))
 
-
     for z in spigots:
         rows[z.y][z.x - offset] = '*'
 
-    log("Stored water: " + str(stored_water))
+    log("Part 2: " + str(stored_water))
 
     return drops - min_y
-
 
 def test(log):
     values = [
@@ -159,9 +155,8 @@ def test(log):
     else:
         return False
 
-
 def run(log, values):
-    log(calc(log, values))
+    log("Part 1: %d" % (calc(log, values),))
 
 if __name__ == "__main__":
     import sys, os

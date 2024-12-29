@@ -5,12 +5,10 @@ import re
 DAY_NUM = 19
 DAY_DESC = 'Day 19: Go With The Flow'
 
-
 def make_op(op):
     def make_op_internal(r, a, b, c):
         r[c] = op(r, a, b)
     return make_op_internal
-
 
 op_addr = make_op(lambda r, a, b: r[a] + r[b])
 op_addi = make_op(lambda r, a, b: r[a] + b)
@@ -28,7 +26,6 @@ op_gtrr = make_op(lambda r, a, b: 1 if (r[a] > r[b]) else 0)
 op_eqir = make_op(lambda r, a, b: 1 if (a == r[b]) else 0)
 op_eqri = make_op(lambda r, a, b: 1 if (r[a] == b) else 0)
 op_eqrr = make_op(lambda r, a, b: 1 if (r[a] == r[b]) else 0)
-
 
 def get_ops():
     return {
@@ -95,7 +92,6 @@ def calc(values, start_r1, test):
 
     return r[0]
 
-
 def test(log):
     values = [
         "#ip 0",
@@ -113,11 +109,9 @@ def test(log):
     else:
         return False
 
-
 def run(log, values):
-    log(calc(values, 0, False))
-    log(calc(values, 1, False))
-
+    log("Part 1: %d" % (calc(values, 0, False),))
+    log("Part 2: %d" % (calc(values, 1, False),))
 
 def get_op_to_str():
     return {
@@ -138,7 +132,6 @@ def get_op_to_str():
         "eqri": "r[c] = (r[a] == b) ? 1 : 0", 
         "eqrr": "r[c] = (r[a] == r[b]) ? 1 : 0", 
     }
-
 
 def decompile(instruction_line, ip_register, line_no, total_lines):
     vals = instruction_line.split(' ')
@@ -168,7 +161,6 @@ def decompile(instruction_line, ip_register, line_no, total_lines):
             else:
                 temp = "goto " + test
     return "%3d: %-14s -- %s" % (line_no, instruction_line, temp)
-
 
 def other_decompile(describe, values):
     if describe:

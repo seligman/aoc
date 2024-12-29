@@ -3,12 +3,10 @@
 DAY_NUM = 16
 DAY_DESC = 'Day 16: Chronal Classification'
 
-
 def make_op(op):
     def make_op_internal(r, a, b, c):
         r[c] = op(r, a, b)
     return make_op_internal
-
 
 op_addr = make_op(lambda r, a, b: r[a] + r[b])
 op_addi = make_op(lambda r, a, b: r[a] + b)
@@ -26,7 +24,6 @@ op_gtrr = make_op(lambda r, a, b: 1 if (r[a] > r[b]) else 0)
 op_eqir = make_op(lambda r, a, b: 1 if (a == r[b]) else 0)
 op_eqri = make_op(lambda r, a, b: 1 if (r[a] == b) else 0)
 op_eqrr = make_op(lambda r, a, b: 1 if (r[a] == r[b]) else 0)
-
 
 def calc(log, values):
     ops = [
@@ -79,7 +76,6 @@ def calc(log, values):
     for op in ops:
         lookup[list(op[1])[0]] = op[0]
 
-
     blanks = 0
     r = [0, 0, 0, 0]
     for i in range(len(values)):
@@ -92,17 +88,15 @@ def calc(log, values):
             else:
                 blanks = 0
 
-    log("Final registers: " + ", ".join([str(x) for x in r]))
+    log("Part 2: " + ", ".join([str(x) for x in r]))
 
     return matches
-
 
 def test(log):
     return True
 
-
 def run(log, values):
-    log(calc(log, values))
+    log("Part 1: %d" % (calc(log, values),))
 
 if __name__ == "__main__":
     import sys, os

@@ -3,7 +3,6 @@
 DAY_NUM = 14
 DAY_DESC = 'Day 14: Chocolate Charts'
 
-
 def calc(log, values, target=None):
     scores = [3, 7]
     elv_0 = 0
@@ -42,7 +41,6 @@ def calc(log, values, target=None):
         #     print("no")
     return "".join(str(x) for x in scores[values:values+10])
 
-
 def test(log):
     tests = [
         ((9,), "5158916779",),
@@ -64,10 +62,9 @@ def test(log):
 
     log("All good")
 
-
 def run(log, values):
-    log(calc(log, int(values[0])))
-    log(calc(log, 0, values[0]))
+    log("Part 1: %s" % (calc(log, int(values[0])),))
+    log("Part 2: %s" % (calc(log, 0, values[0]),))
 
 if __name__ == "__main__":
     import sys, os

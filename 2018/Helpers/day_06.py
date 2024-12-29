@@ -5,7 +5,6 @@ from collections import defaultdict
 DAY_NUM = 6
 DAY_DESC = 'Day 6: Chronal Coordinates'
 
-
 def calc(log, values, max_dist):
     values = [[int(y) for y in x.split(",")] for x in values]
     max_x = max([x[0] for x in values])
@@ -49,10 +48,9 @@ def calc(log, values, max_dist):
     ids = list(counts)
     ids.sort(key=lambda x:counts[x], reverse=True)
 
-    log("Size of safe area: %d" % (size_of_safe,))
+    log("Part 2: %d" % (size_of_safe,))
 
     return counts[ids[0]]
-
 
 def test(log):
     values = [
@@ -69,9 +67,8 @@ def test(log):
     else:
         return False
 
-
 def run(log, values):
-    log(calc(log, values, 10000))
+    log("Part 1: %d" % (calc(log, values, 10000),))
 
 if __name__ == "__main__":
     import sys, os

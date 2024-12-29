@@ -5,7 +5,6 @@ import heapq
 DAY_NUM = 22
 DAY_DESC = 'Day 22: Mode Maze'
 
-
 class Infinity:
     def __init__(self, default="#"):
         self.default = default
@@ -75,7 +74,6 @@ class Infinity:
     def risk(self, x, y, depth):
         return self.erosion(x, y, depth) % 3
 
-
 def calc(log, depth, target_x, target_y):
     grid = Infinity(None)
     grid.set(0, 0, 0)
@@ -98,7 +96,7 @@ def calc(log, depth, target_x, target_y):
 
         best[best_key] = time
         if best_key == target:
-            log("Best minutes: " + str(time))
+            log("Part 2: " + str(time))
             break
 
         for i in range(3):
@@ -113,18 +111,16 @@ def calc(log, depth, target_x, target_y):
 
     return total_risk
 
-
 def test(log):
     if calc(log, 510, 10, 10) == 114:
         return True
     else:
         return False
 
-
 def run(log, values):
     depth = int(values[0].split(' ')[1])
     x, y = int(values[1].split(' ')[1].split(",")[0]), int(values[1].split(' ')[1].split(",")[1])
-    log(calc(log, depth, x, y))
+    log("Part 1: %d" % (calc(log, depth, x, y),))
 
 if __name__ == "__main__":
     import sys, os

@@ -3,7 +3,6 @@
 DAY_NUM = 13
 DAY_DESC = 'Day 13: Mine Cart Madness'
 
-
 class Car:
     def __init__(self, x, y, train_dir):
         self.x = x
@@ -11,7 +10,6 @@ class Car:
         self.dir = train_dir
         self.choice = 0
         self.remove = False
-
 
 def calc(log, values, test_mode):
     trains = {
@@ -48,7 +46,7 @@ def calc(log, values, test_mode):
                     car.y += 1
                 
                 if (car.x, car.y) in cars:
-                    log("Collision at %d x %d" % (car.x, car.y))
+                    log("Part 1: %d,%d" % (car.x, car.y))
                     cars[(car.x, car.y)].remove = True
                     car.remove = True
                     del cars[(car.x, car.y)]
@@ -70,9 +68,8 @@ def calc(log, values, test_mode):
         
         if len(cars) == 1:
             temp = list(cars.values())
-            log("Final car at %d x %d" % (temp[0].x, temp[0].y))
+            log("Part 2: %d,%d" % (temp[0].x, temp[0].y))
             return
-
 
 def test(log):
     values = [
@@ -86,7 +83,6 @@ def test(log):
 
     calc(log, values, True) == 1234
     return True
-
 
 def run(log, values):
     calc(log, values, False)

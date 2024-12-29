@@ -3,7 +3,6 @@
 DAY_NUM = 18
 DAY_DESC = 'Day 18: Settlers of The North Pole'
 
-
 def calc(values, steps):
     # Helper reads the input file and stores it in values, steps is hard coded based on puzzle
 
@@ -89,7 +88,6 @@ def calc(values, steps):
     # All done, return the result!
     return lumber * trees
 
-
 def test(log):
     values = [
         ".#.#...|#.",
@@ -109,10 +107,9 @@ def test(log):
     else:
         return False
 
-
 def run(log, values):
-    log(calc(values, 10))
-    log(calc(values, 1000000000))
+    log("Part 1: %d" % (calc(values, 10),))
+    log("Part 2: %d" % (calc(values, 1000000000),))
 
 if __name__ == "__main__":
     import sys, os

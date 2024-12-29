@@ -3,7 +3,6 @@
 DAY_NUM = 2
 DAY_DESC = 'Day 2: Inventory Management System'
 
-
 def calc(log, values):
     hits = {}
     valid = []
@@ -31,7 +30,7 @@ def calc(log, values):
                 if valid[i][x] == valid[j][x]:
                     matches += valid[i][x]
             if len(matches) == len(valid[i]) - 1:
-                log(matches)
+                log("Part 2: " + matches)
                 found = matches
 
     ret = 1
@@ -39,7 +38,6 @@ def calc(log, values):
         ret *= value
 
     return ret
-
 
 def test(log):
     test = [
@@ -57,9 +55,8 @@ def test(log):
 
     return True
 
-
 def run(log, values):
-    log(calc(log, values))
+     log("Part 1: %d" % (calc(log, values),))
 
 if __name__ == "__main__":
     import sys, os

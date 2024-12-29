@@ -5,17 +5,14 @@ from collections import deque
 DAY_NUM = 25
 DAY_DESC = 'Day 25: Four-Dimensional Adventure'
 
-
 def get_points(values):
     ret = []
     for cur in values:
         ret.append([int(x) for x in cur.split(",")])
     return ret
 
-
 def dist(a, b):
     return abs(a[0] - b[0]) + abs(a[1] - b[1]) + abs(a[2] - b[2]) + abs(a[3] - b[3])
-
 
 def calc(values):
     points = get_points(values)
@@ -46,7 +43,6 @@ def calc(values):
 
     return ret
 
-
 def test(log):
     values = [
         "-1,2,2,0",
@@ -66,9 +62,8 @@ def test(log):
     else:
         return False
 
-
 def run(log, values):
-    log(calc(values))
+    log("Part 1: %d" % (calc(values),))
 
 if __name__ == "__main__":
     import sys, os

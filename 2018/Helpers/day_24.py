@@ -5,7 +5,6 @@ import re
 DAY_NUM = 24
 DAY_DESC = 'Day 24: Immune System Simulator 20XX'
 
-
 # Just store stats for a group
 class Group():
     def __init__(self, army, group_id, units, hp, specials, attack, attack_type, initiative):
@@ -24,7 +23,6 @@ class Group():
         self.damage = 0
         self.killed = 0
         self.mult = 0
-
 
 def calc(values, boost):
     groups = []
@@ -156,11 +154,10 @@ def calc(values, boost):
 
     return ret, winning
 
-
 def run(log, values):
     # Basic run is simple
     ret = calc(values, 0)
-    log("The %s system wins with %d units" % (ret[1], ret[0]))
+    log("Part 1: %d" % (ret[0],))
 
     # A simple binary search for the lowest option
     boost = 1
@@ -182,8 +179,7 @@ def run(log, values):
         else:
             boost += span
 
-    log("The %s system wins with %d units, with an immune boost of %d" % (found[boost][1], found[boost][0], boost))
-
+    log("Part 2: %d" % (found[boost][0],))
 
 def test(log):
     values = [

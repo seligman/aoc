@@ -5,7 +5,6 @@ import re
 DAY_NUM = 7
 DAY_DESC = 'Day 7: The Sum of Its Parts'
 
-
 def get_requires(order):
     requires = {}
     for a, b in order:
@@ -15,7 +14,6 @@ def get_requires(order):
         requires[b].add(a)
 
     return requires
-
 
 def calc(log, values, workers, time_pad):
     r = re.compile("Step (.) must be finished before step (.) can begin.")
@@ -70,10 +68,9 @@ def calc(log, values, workers, time_pad):
                         proc["left"] = (ord(cur) - ord("A") + 1) + time_pad
                         break
 
-    log("It took %d seconds for the workers to finish" % (tick,))
+    log("Part 2: %d" % (tick,))
 
     return ret
-
 
 def test(log):
     values = [
@@ -93,7 +90,7 @@ def test(log):
 
 
 def run(log, values):
-    log(calc(log, values, 5, 60))
+    log("Part 1: %s" % (calc(log, values, 5, 60),))
 
 if __name__ == "__main__":
     import sys, os

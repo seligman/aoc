@@ -6,7 +6,6 @@ import os
 DAY_NUM = 20
 DAY_DESC = 'Day 20: A Regular Map'
 
-
 class Infinity:
     def __init__(self, default="#"):
         self.default = default
@@ -55,7 +54,6 @@ class Infinity:
         ret.append(self.default * (len(self.grid[0]) + 2))
         return ret
 
-
 def decode(value, i, x, y, level, grid):
     i[0] += 1
     stack_x, stack_y = x, y
@@ -88,7 +86,6 @@ def decode(value, i, x, y, level, grid):
             i[0] += 1
         else:
             decode(value, i, x, y, level + 1, grid)
-
 
 def calc(log, values, show, frame_rate, track_long=None, highlight=None):
     grid = Infinity()
@@ -157,11 +154,10 @@ def calc(log, values, show, frame_rate, track_long=None, highlight=None):
                 track_long[0] = value[1]
 
     log("Shortest long distance: " + str(max([x[0] for x in locs.values()])))
-    log("1000 distance: " + str(sum([1 if x[0] >= 1000 else 0 for x in locs.values()])))
+    log("Part 2: " + str(sum([1 if x[0] >= 1000 else 0 for x in locs.values()])))
     log("Total Frames: " + str(total_frames))
 
     return max([x[0] for x in locs.values()])
-
 
 def other_ffmpeg(describe, values):
     if describe:
@@ -175,7 +171,6 @@ def other_ffmpeg(describe, values):
     cmd = ["ffmpeg", "-y", "-framerate", "30", "-i", src, dest]
     print("$ " + " ".join(cmd))
     subprocess.check_call(cmd)
-
 
 def other_animate_frames(describe, values):
     if describe:
@@ -291,7 +286,6 @@ def other_animate_frames(describe, values):
                 first_file = os.path.join("floods", "flood_%05d.png" % (out_file,))
             print("Done with 'flood_%05d.png'" % (out_file,))
 
-
 def test(log):
     values = [
         "^ENNWSWW(NEWS|)SSSEEN(WNSE|)EE(SWEN|)NNN$",
@@ -302,10 +296,8 @@ def test(log):
     else:
         return False
 
-
 def run(log, values):
-    log(calc(log, values, False, 0))
-
+    log("Part 1: %d" % (calc(log, values, False, 0),))
 
 class DummyLog:
     def __init__(self):
