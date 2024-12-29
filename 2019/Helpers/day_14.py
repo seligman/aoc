@@ -3,7 +3,6 @@
 DAY_NUM = 14
 DAY_DESC = 'Day 14: Space Stoichiometry'
 
-
 def calc(log, values):
     import re
 
@@ -80,7 +79,6 @@ def calc(log, values):
 
     return opf, got_fuel
 
-
 def test(log):
     values = log.decode_values("""
         157 ORE => 5 NZVS
@@ -101,11 +99,10 @@ def test(log):
 
     return True
 
-
 def run(log, values):
     ret = calc(log, values)
-    log("One fuel requires: " + str(ret[0]))
-    log("A trillion ore gives: " + str(ret[1]))
+    log("Part 1: " + str(ret[0]))
+    log("Part 2: " + str(ret[1]))
 
 if __name__ == "__main__":
     import sys, os

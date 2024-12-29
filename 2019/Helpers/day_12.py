@@ -3,7 +3,6 @@
 DAY_NUM = 12
 DAY_DESC = 'Day 12: The N-Body Problem'
 
-
 class Moon:
     def __init__(self, pos):
         self.pos = pos
@@ -12,14 +11,12 @@ class Moon:
     def freeze(self):
         return tuple(self.pos + self.vel)
 
-
 def get_lcm(vals):
     from math import gcd
     lcm = vals[0]
     for i in vals[1:]:
         lcm = lcm * i // gcd(lcm, i)
     return lcm
-
 
 def calc(log, values, get_energy=None):
     import re
@@ -63,7 +60,6 @@ def calc(log, values, get_energy=None):
                     break
         return get_lcm(vals)
 
-
 def test(log):
     values = log.decode_values("""
         <x=-1, y=0, z=2>
@@ -84,10 +80,9 @@ def test(log):
 
     return True
 
-
 def run(log, values):
-    log("Total energy: " + str(calc(log, values, get_energy=1000)))
-    log("Steps taken: " + str(calc(log, values)))
+    log("Part 1: " + str(calc(log, values, get_energy=1000)))
+    log("Part 2: " + str(calc(log, values)))
 
 if __name__ == "__main__":
     import sys, os

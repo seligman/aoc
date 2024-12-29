@@ -3,7 +3,6 @@
 DAY_NUM = 3
 DAY_DESC = 'Day 3: Crossed Wires'
 
-
 def calc(log, values, steps):
     grids = [{}, {}]
     dirs = {
@@ -33,7 +32,6 @@ def calc(log, values, steps):
         best = min([abs(x[0]) + abs(x[1]) for x in points])
     return best
 
-
 def test(log):
     values = log.decode_values("""
         R75,D30,R83,U83,L12,D49,R71,U7,L72
@@ -52,10 +50,9 @@ def test(log):
 
     return True
 
-
 def run(log, values):
-    log("Manhattan distance: " + str(calc(log, values, False)))
-    log("Fewest steps: " + str(calc(log, values, True)))
+    log("Part 1: " + str(calc(log, values, False)))
+    log("Part 2: " + str(calc(log, values, True)))
 
 if __name__ == "__main__":
     import sys, os

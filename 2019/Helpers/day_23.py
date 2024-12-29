@@ -3,7 +3,6 @@
 DAY_NUM = 23
 DAY_DESC = 'Day 23: Category Six'
 
-
 def calc(log, values, use_nat=False, log_traffic=False):
     from program import Program
 
@@ -59,7 +58,6 @@ def calc(log, values, use_nat=False, log_traffic=False):
                 last_nat_y = nat[1]
             nat = None
 
-
 def other_log(describe, values):
     if describe:
         return "Log network traffic"
@@ -67,14 +65,12 @@ def other_log(describe, values):
     calc(DummyLog(), values, use_nat=True, log_traffic=True)
     print("Done")
 
-
 def test(log):
     return True
 
-
 def run(log, values):
-    log("First output to 255: " + str(calc(log, values)))
-    log("First repeated NAT value: " + str(calc(log, values, use_nat=True)))
+    log("Part 1: " + str(calc(log, values)))
+    log("Part 2: " + str(calc(log, values, use_nat=True)))
 
 if __name__ == "__main__":
     import sys, os

@@ -3,7 +3,6 @@
 DAY_NUM = 10
 DAY_DESC = 'Day 10: Monitoring Station'
 
-
 def calc(log, values, animate=False):
     import math
     from grid import Grid
@@ -80,7 +79,7 @@ def calc(log, values, animate=False):
                     if animate:
                         to_clear.append((x, y))
                     if destroyed == 200:
-                        log("Destroyed #200 at %d, %d == %d" % (x, y, x * 100 + y))
+                        log("Part 2: %d" % (x * 100 + y,))
                     clean = False
                     break
         if clean:
@@ -119,7 +118,6 @@ def other_animate(describe, values):
     Grid.make_animation(output_name="animation_%02d" % (get_desc()[0],), file_format="mp4")
     print("Done, created animation...")
 
-
 def test(log):
     values = log.decode_values("""
         .#..##.###...#######
@@ -151,9 +149,8 @@ def test(log):
 
     return True
 
-
 def run(log, values):
-    log("Asteroids detected: " + str(calc(log, values)))
+    log("Part 1: " + str(calc(log, values)))
 
 if __name__ == "__main__":
     import sys, os

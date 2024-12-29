@@ -3,7 +3,6 @@
 DAY_NUM = 4
 DAY_DESC = 'Day 4: Secure Container'
 
-
 def enum_increasing(start):
     temp = [int(x) for x in start]
     last = 0
@@ -24,7 +23,6 @@ def enum_increasing(start):
             temp[-1] += 1
 
         yield "".join([str(x) for x in temp])
-
 
 def calc(log, values):
     values = values[0].split("-")
@@ -47,11 +45,10 @@ def calc(log, values):
             if 2 in counts:
                 hits_double += 1
 
-    log("Valid entries: " + str(hits))
-    log("Valid entries with a double: " + str(hits_double))
+    log("Part 1: " + str(hits))
+    log("Part 2: " + str(hits_double))
 
     return hits, hits_double
-
 
 def test(log):
     values = log.decode_values("""
@@ -64,7 +61,6 @@ def test(log):
         return False
 
     return True
-
 
 def run(log, values):
     calc(log, values)

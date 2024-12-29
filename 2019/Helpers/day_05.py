@@ -3,7 +3,6 @@
 DAY_NUM = 5
 DAY_DESC = 'Day 5: Sunny with a Chance of Asteroids'
 
-
 def calc(log, values, input_val):
     from program import Program
 
@@ -11,7 +10,6 @@ def calc(log, values, input_val):
     prog.add_to_input(input_val)
     prog.tick_till_end()
     return prog.last_output
-
 
 def test(log):
     values = log.decode_values("""
@@ -25,10 +23,9 @@ def test(log):
     
     return True
 
-
 def run(log, values):
-    log("Diagnostic for 1: " + str(calc(log, values, 1)))
-    log("Diagnostic for 5: " + str(calc(log, values, 5)))
+    log("Part 1: " + str(calc(log, values, 1)))
+    log("Part 2: " + str(calc(log, values, 5)))
 
 if __name__ == "__main__":
     import sys, os

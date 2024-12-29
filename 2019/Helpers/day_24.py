@@ -3,7 +3,6 @@
 DAY_NUM = 24
 DAY_DESC = 'Day 24: Planet of Discord'
 
-
 def calc(log, values):
     from grid import Grid
     
@@ -36,7 +35,6 @@ def calc(log, values):
                         n.set("#", x, y)
 
         cur = n
-
 
 def calc_ndimension(log, values, animate=False):
     from grid import Grid
@@ -133,7 +131,6 @@ def calc_ndimension(log, values, animate=False):
 
     return len(levels)
 
-
 def test(log):
     values = log.decode_values("""
         ....#
@@ -150,7 +147,6 @@ def test(log):
 
     return True
 
-
 def other_animate(describe, values):
     if describe:
         return "Animate the work"
@@ -161,10 +157,9 @@ def other_animate(describe, values):
     Grid.make_animation(file_format="mp4", output_name="animation_%02d" % (get_desc()[0],))
     print("Done, created animation...")
 
-
 def run(log, values):
-    log("Diversity value: " + str(calc(log, values)))
-    log("Number of multi-dimensional bugs: " + str(calc_ndimension(log, values)))
+    log("Part 1: " + str(calc(log, values)))
+    log("Part 2: " + str(calc_ndimension(log, values)))
 
 if __name__ == "__main__":
     import sys, os

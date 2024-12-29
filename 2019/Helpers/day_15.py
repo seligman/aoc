@@ -3,7 +3,6 @@
 DAY_NUM = 15
 DAY_DESC = 'Day 15: Oxygen System'
 
-
 def calc(log, values, animate=False):
     from grid import Grid
     from program import Program
@@ -49,7 +48,7 @@ def calc(log, values, animate=False):
                     if program.last_output == 2 and sensor_x is None:
                         grid.set("Oxygen", x + xo, y + yo)
                         sensor_x, sensor_y = x + xo, y + yo
-                        log("Steps to sensor: " + str(steps + 1))
+                        log("Part 1: " + str(steps + 1))
 
     last_steps = 0
     todo.appendleft((sensor_x, sensor_y, 0))
@@ -64,7 +63,7 @@ def calc(log, values, animate=False):
                 grid.set("Flood", x + xo, y + yo)
                 todo.appendleft((x + xo, y + yo, steps + 1))
 
-    log("Steps to flood oxygen: " + str(last_steps))
+    log("Part 2: " + str(last_steps))
     
     if animate:
         Grid.clear_frames()
@@ -80,10 +79,8 @@ def calc(log, values, animate=False):
 
         Grid.make_animation(output_name="animation_%02d" % (get_desc()[0],), file_format="mp4")
 
-
 def test(log):
     return True
-
 
 def other_animate(describe, values):
     if describe:
@@ -92,14 +89,12 @@ def other_animate(describe, values):
     calc(DummyLog(), values, animate=True)
     print("Done, created animation...")
 
-
 def other_debug(describe, values):
     if describe:
         return "Debug program"
 
     from program import Program
     Program.debug(values[0])
-
 
 def run(log, values):
     calc(log, values)

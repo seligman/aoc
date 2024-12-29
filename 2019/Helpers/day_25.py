@@ -6,6 +6,7 @@ DAY_DESC = 'Day 25: Cryostasis'
 from collections import deque, defaultdict
 from hashlib import sha256
 import textwrap
+import re
 
 def get_out(prog, end_at_nl=False):
     l = ""
@@ -214,6 +215,9 @@ def calc(log, values):
                 wrap_line(log, "Path: " + ", ".join(steps + [final_step]))
                 temp = [x for x in final_text.split("\n") if len(x)][-1]
                 wrap_line(log, "Final Message: " + temp)
+                m = re.search("[0-9]+", temp)
+                log("Part 1: " + m.group(0))
+                
                 return ""
 
 def test(log):

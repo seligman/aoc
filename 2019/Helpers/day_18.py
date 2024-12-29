@@ -3,7 +3,6 @@
 DAY_NUM = 18
 DAY_DESC = 'Day 18: Many-Worlds Interpretation'
 
-
 def calc(log, values, mode, animate=False):
     from grid import Grid, DEFAULT_COLOR_MAP
     from collections import deque
@@ -172,7 +171,6 @@ def calc(log, values, mode, animate=False):
 
     return best
 
-
 def test(log):
     values = log.decode_values("""
         ########################
@@ -190,7 +188,6 @@ def test(log):
 
     return True
 
-
 def other_animate(describe, values):
     if describe:
         return "Animate the work"
@@ -198,10 +195,9 @@ def other_animate(describe, values):
     calc(DummyLog(), values, 1, animate=True)
     print("Done, created animation...")
 
-
 def run(log, values):
-    log("With one worker: " + str(calc(log, values, 0)))
-    log("With four workers: " + str(calc(log, values, 1)))
+    log("Part 1: " + str(calc(log, values, 0)))
+    log("Part 2: " + str(calc(log, values, 1)))
 
 if __name__ == "__main__":
     import sys, os

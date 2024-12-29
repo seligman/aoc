@@ -3,7 +3,6 @@
 DAY_NUM = 8
 DAY_DESC = 'Day 8: Space Image Format'
 
-
 def calc(log, values, width, height):
     from collections import defaultdict
     from grid import Grid
@@ -37,13 +36,12 @@ def calc(log, values, width, height):
     # Show the output, don't try to decode these giant letters
     log("")
     grid.show_grid(log)
-    grid.decode_grid(log)
+    log("Part 2: " + grid.decode_grid(log))
     # grid.draw_grid()
     log("")
 
     # And return the number of "1" * "2" on the best layer
     return best_layer["1"] * best_layer["2"]
-
 
 def test(log):
     values = log.decode_values("""
@@ -56,7 +54,6 @@ def test(log):
         return False
 
     return True
-
 
 def other_glyphs(describe, values):
     if describe:
@@ -99,7 +96,6 @@ def other_glyphs(describe, values):
     with open("glyphs.txt", "w") as f:
         f.write(dump)
     print("Created glyphs.txt and frame_00000.png")
-
 
 def run(log, values):
     log("Part 1: " + str(calc(log, values, 25, 6)))

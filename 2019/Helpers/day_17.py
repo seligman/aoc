@@ -3,7 +3,6 @@
 DAY_NUM = 17
 DAY_DESC = 'Day 17: Set and Forget'
 
-
 def calc(log, values, animate=False):
     # Draw the grid out
     from program import Program
@@ -38,7 +37,7 @@ def calc(log, values, animate=False):
                 if count == 4:
                     ret += x * y
 
-    log("Intersections sum: " + str(ret))
+    log("Part 1: " + str(ret))
 
     # Find a path through
     x, y = start_x, start_y
@@ -159,14 +158,12 @@ def calc(log, values, animate=False):
         }, repeat_final=30)
         Grid.make_animation(output_name="animation_%02d" % (get_desc()[0],), file_format="mp4")
 
-    log("Cleaning readout: " + str(prog.last_output))
+    log("Part 2: " + str(prog.last_output))
 
     return prog.last_output
 
-
 def test(log):
     return True
-
 
 def other_animate(describe, values):
     if describe:
@@ -174,7 +171,6 @@ def other_animate(describe, values):
     from dummylog import DummyLog
     calc(DummyLog(), values, animate=True)
     print("Done, created animation...")
-
 
 def run(log, values):
     calc(log, values)

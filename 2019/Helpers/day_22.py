@@ -3,7 +3,6 @@
 DAY_NUM = 22
 DAY_DESC = 'Day 22: Slam Shuffle'
 
-
 def calc(log, values):
     import re
 
@@ -31,7 +30,7 @@ def calc(log, values):
         elif oper == "inc":
             card = card * value % deck
 
-    log("Card 2019 is at offset: " + str(card))
+    log("Part 1: " + str(card))
 
     deck = 119315717514047
     card = 2020
@@ -60,12 +59,10 @@ def calc(log, values):
     value = temp_a + b * temp_b * temp_c
     value %= deck
 
-    log("Card at position 2020: " + str(value))
-
+    log("Part 2: " + str(value))
 
 def test(log):
     return True
-
 
 def run(log, values):
     calc(log, values)

@@ -3,7 +3,6 @@
 DAY_NUM = 19
 DAY_DESC = 'Day 19: Tractor Beam'
 
-
 def calc(log, values):
     from program import Program
     ticker = Program.make_ticker(values)
@@ -28,7 +27,7 @@ def calc(log, values):
         x_stack.append(x)
         if getxy(x + 99, try_y - 99) == 1:
             if skip_y == 1:
-                log("The best 100x100 is: " + str(x * 10000 + (try_y - 99)))
+                log("Part 2: " + str(x * 10000 + (try_y - 99)))
                 break
             else:
                 try_y -= skip_y
@@ -53,14 +52,12 @@ def calc(log, values):
                 if not update_start or bail == 0:
                     break
 
-    log("The number in the 50x50 grid is: " + str(count))
+    log("Part 1: " + str(count))
 
     return count
 
-
 def test(log):
     return True
-
 
 def run(log, values):
     calc(log, values)

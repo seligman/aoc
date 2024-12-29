@@ -174,7 +174,7 @@ class Grid:
                     log("Code: " + str(code))
 
         log("That decodes to: " + ret)
-            
+        return ret
 
     def show_grid(self, log, disp_map=DEFAULT_DISP_MAP, dump_all=False):
         for y in self.y_range():

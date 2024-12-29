@@ -3,7 +3,6 @@
 DAY_NUM = 2
 DAY_DESC = 'Day 2: 1202 Program Alarm'
 
-
 def calc(log, values, replace_1=None, replace_2=None):
     ticker = [int(x) for x in values[0].split(",")]
     if replace_1:
@@ -24,7 +23,6 @@ def calc(log, values, replace_1=None, replace_2=None):
 
     return ticker[0]
 
-
 def test(log):
     if calc(log, ["1,9,10,3,2,3,11,0,99,30,40,50"]) != 3500:
         return False
@@ -37,9 +35,8 @@ def test(log):
 
     return True
 
-
 def run(log, values):
-    log("Position 0: " + str(calc(log, values, replace_1=12, replace_2=2)))
+    log("Part 1: " + str(calc(log, values, replace_1=12, replace_2=2)))
     found = False
     for a in range(100):
         if found:
@@ -47,12 +44,11 @@ def run(log, values):
         for b in range(200):
             try:
                 if calc(log, values, replace_1=a, replace_2=b) == 19690720:
-                    log("Noun * Verb: " + str(100 * a + b))
+                    log("Part 2: " + str(100 * a + b))
                     found = True
                     break
             except:
                 pass
-
 if __name__ == "__main__":
     import sys, os
     def find_input_file():

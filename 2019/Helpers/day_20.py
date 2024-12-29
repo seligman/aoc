@@ -3,7 +3,6 @@
 DAY_NUM = 20
 DAY_DESC = 'Day 20: Donut Maze'
 
-
 def calc(log, values, iterate, animate=False):
     from grid import Grid
     grid = Grid.from_text(values)
@@ -110,7 +109,6 @@ def calc(log, values, iterate, animate=False):
 
     raise Exception()
 
-
 def test(log):
     values = log.decode_values("""
         =                  A               
@@ -156,7 +154,6 @@ def test(log):
     log("Test returned %s, expected %s" % (str(ret), str(expected)))
     if ret != expected:
         return False
-
 
     values = log.decode_values("""
         =            Z L X W       C                 
@@ -205,7 +202,6 @@ def test(log):
 
     return True
 
-
 def other_animate(describe, values):
     if describe:
         return "Animate the work"
@@ -213,10 +209,9 @@ def other_animate(describe, values):
     calc(DummyLog(), values, True, animate=True)
     print("Done, created animation...")
 
-
 def run(log, values):
-    log("One Level: " + str(calc(log, values, False)))
-    log("Many Levels: " + str(calc(log, values, True)))
+    log("Part 1: " + str(calc(log, values, False)))
+    log("Part 2: " + str(calc(log, values, True)))
 
 if __name__ == "__main__":
     import sys, os

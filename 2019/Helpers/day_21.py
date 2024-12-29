@@ -3,7 +3,6 @@
 DAY_NUM = 21
 DAY_DESC = 'Day 21: Springdroid Adventure'
 
-
 def calc(log, values, walk):
     from program import Program
     prog = Program.from_values(values, log)
@@ -42,14 +41,12 @@ def calc(log, values, walk):
 
     return "ERROR"
 
-
 def test(log):
     return True
 
-
 def run(log, values):
-    log("Walk: " + str(calc(log, values, True)))
-    log("Run: " + str(calc(log, values, False)))
+    log("Part 1: " + str(calc(log, values, True)))
+    log("Part 2: " + str(calc(log, values, False)))
 
 if __name__ == "__main__":
     import sys, os

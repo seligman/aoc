@@ -3,7 +3,6 @@
 DAY_NUM = 9
 DAY_DESC = 'Day 9: Sensor Boost'
 
-
 def calc(log, values, first_input):
     from program import Program
 
@@ -14,7 +13,6 @@ def calc(log, values, first_input):
     prog.tick_till_end()
 
     return ",".join([str(x) for x in list(prog.output)[::-1]])
-
 
 def test(log):
     values = log.decode_values("""
@@ -28,10 +26,9 @@ def test(log):
 
     return True
 
-
 def run(log, values):
-    log("BOOST keycode: " + str(calc(log, values, 1)))
-    log("Coordinates of the distress signal: " + str(calc(log, values, 2)))
+    log("Part 1: " + str(calc(log, values, 1)))
+    log("Part 2: " + str(calc(log, values, 2)))
 
 if __name__ == "__main__":
     import sys, os

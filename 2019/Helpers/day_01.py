@@ -3,7 +3,6 @@
 DAY_NUM = 1
 DAY_DESC = 'Day 1: The Tyranny of the Rocket Equation'
 
-
 def calc(log, values, mode):
     ret = 0
     for cur in values:
@@ -23,7 +22,6 @@ def calc(log, values, mode):
 
     return ret
 
-
 def test(log):
     values = log.decode_values("""
         100756
@@ -40,10 +38,9 @@ def test(log):
 
     return True
 
-
 def run(log, values):
-    log("Fuel requirements: " + str(calc(log, values, 1)))
-    log("Including mass: " + str(calc(log, values, 2)))
+    log("Part 1: " + str(calc(log, values, 1)))
+    log("Part 2: " + str(calc(log, values, 2)))
 
 if __name__ == "__main__":
     import sys, os

@@ -3,14 +3,12 @@
 DAY_NUM = 16
 DAY_DESC = 'Day 16: Flawed Frequency Transmission'
 
-
 def get_lcm(vals):
     from fractions import gcd
     lcm = vals[0]
     for i in vals[1:]:
         lcm = lcm * i // gcd(lcm, i)
     return lcm
-
 
 def calc(log, values, phases):
     fft = list(map(int, values[0]))
@@ -33,7 +31,7 @@ def calc(log, values, phases):
         fft = step
 
     ret = "".join(map(str, fft[:8]))
-    log("First part: " + ret)
+    log("Part 1: " + ret)
 
     fft = list(map(int, values[0]))
     offset = int("".join(map(str, fft[:7])))
@@ -46,10 +44,9 @@ def calc(log, values, phases):
             step.append(last)
         fft = step
 
-    log("Second part: " + "".join(map(str, fft[:-9:-1])))
+    log("Part 2: " + "".join(map(str, fft[:-9:-1])))
 
     return ret
-
 
 def test(log):
     values = log.decode_values("""
@@ -62,7 +59,6 @@ def test(log):
         return False
 
     return True
-
 
 def run(log, values):
     calc(log, values, 100)

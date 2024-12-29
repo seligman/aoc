@@ -3,7 +3,6 @@
 DAY_NUM = 7
 DAY_DESC = 'Day 7: Amplification Circuit'
 
-
 def calc(log, values, feedback, debug=False):
     from program import Program
     import itertools
@@ -80,7 +79,6 @@ def calc(log, values, feedback, debug=False):
 
     return max_output
 
-
 def test(log):
     values = log.decode_values("""
         3,15,3,16,1002,16,10,16,1,16,15,15,4,15,99,0,0
@@ -102,11 +100,9 @@ def test(log):
 
     return True
 
-
 def run(log, values):
-    log("Highest signal: " + str(calc(log, values, False)))
-    log("Highest signal, with feedback: " + str(calc(log, values, True)))
-
+    log("Part 1: " + str(calc(log, values, False)))
+    log("Part 2: " + str(calc(log, values, True)))
 
 def other_debug(describe, values):
     if describe:

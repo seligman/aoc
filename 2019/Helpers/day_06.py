@@ -3,7 +3,6 @@
 DAY_NUM = 6
 DAY_DESC = 'Day 6: Universal Orbit Map'
 
-
 def calc(log, values, calc_all):
     orbits = {}
 
@@ -37,7 +36,6 @@ def calc(log, values, calc_all):
         # What's left is the orbits we need to 
         # bounce to, so just count them
         return sum([len(x) for x in paths])
-
 
 def test(log):
     values = log.decode_values("""
@@ -82,10 +80,9 @@ def test(log):
 
     return True
 
-
 def run(log, values):
-    log("Direct and indirect orbits: " + str(calc(log, values, True)))
-    log("Min orbital transfers: " + str(calc(log, values, False)))
+    log("Part 1: " + str(calc(log, values, True)))
+    log("Part 2: " + str(calc(log, values, False)))
 
 if __name__ == "__main__":
     import sys, os

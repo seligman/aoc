@@ -3,7 +3,6 @@
 DAY_NUM = 13
 DAY_DESC = 'Day 13: Care Package'
 
-
 def calc(log, values, play_game, animate=False):
     from program import Program
     from grid import Grid
@@ -133,10 +132,8 @@ def calc(log, values, play_game, animate=False):
 
     return count
 
-
 def test(log):
     return True
-
 
 def other_animate(describe, values):
     if describe:
@@ -146,10 +143,9 @@ def other_animate(describe, values):
     calc(DummyLog(), values, True, animate=True)
     print("Done, created animation...")
 
-
 def run(log, values):
-    log("Number of blocks: " + str(calc(log, values, False)))
-    log("Final Score: " + str(calc(log, values, True)))
+    log("Part 1: " + str(calc(log, values, False)))
+    log("Part 2: " + str(calc(log, values, True)))
 
 if __name__ == "__main__":
     import sys, os
