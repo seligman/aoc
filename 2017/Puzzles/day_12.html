@@ -10,8 +10,7 @@
 <link rel="shortcut icon" href="favicon.png"/>
 </head><body>
 <main>
-<style>article *[title]{border-bottom:1px dotted #ffff66;}</style><script>window.addEventListener('click', function(e,s,r){if(e.target.nodeName==='CODE'&&e.detail===3){s=window.getSelection();s.removeAllRanges();r=document.createRange();r.selectNodeContents(e.target);s.addRange(r);}});</script>
-<article class="day-desc"><h2>--- Day 12: Digital Plumber ---</h2><p>Walking along the memory banks of the stream, you find a small village that is experiencing a little confusion: some programs can't communicate with each other.</p>
+<style>article *[title]{border-bottom:1px dotted #ffff66;}</style><article class="day-desc"><h2>--- Day 12: Digital Plumber ---</h2><p>Walking along the memory banks of the stream, you find a small village that is experiencing a little confusion: some programs can't communicate with each other.</p>
 <p>Programs in this village communicate using a fixed system of <em>pipes</em>. Messages are passed between programs using these pipes, but most programs aren't connected to each other directly.  Instead, programs pass messages between each other until the message reaches the intended recipient.</p>
 <p>For some reason, though, some of these messages aren't ever reaching their intended recipient, and the programs suspect that some <span title="Yes, citizens, plumbing! It's the latest invention to hit Rome!">pipes</span> are missing. They would like you to investigate.</p>
 <p>You walk through the village and record the ID of each program and the IDs with which it can communicate directly (your puzzle input). Each program has one or more programs with which it can communicate, and these pipes are bidirectional; if <code>8</code> says it can communicate with <code>11</code>, then <code>11</code> will say it can communicate with <code>8</code>.</p>
@@ -46,7 +45,8 @@
 <p>At this point, all that is left is for you to <a href="/2017">admire your Advent calendar</a>.</p>
 <p>If you still want to see it, you can <a href="12/input" target="_blank">get your puzzle input</a>.</p>
 <p>You can also <span class="share">[Share<span class="share-content">on
+  <a href="https://bsky.app/intent/compose?text=I%27ve+completed+%22Digital+Plumber%22+%2D+Day+12+%2D+Advent+of+Code+2017+%23AdventOfCode+https%3A%2F%2Fadventofcode%2Ecom%2F2017%2Fday%2F12" target="_blank">Bluesky</a>
   <a href="https://twitter.com/intent/tweet?text=I%27ve+completed+%22Digital+Plumber%22+%2D+Day+12+%2D+Advent+of+Code+2017&amp;url=https%3A%2F%2Fadventofcode%2Ecom%2F2017%2Fday%2F12&amp;related=ericwastl&amp;hashtags=AdventOfCode" target="_blank">Twitter</a>
-  <a href="javascript:void(0);" onclick="var mastodon_instance=prompt('Mastodon Instance / Server Name?'); if(typeof mastodon_instance==='string' && mastodon_instance.length){this.href='https://'+mastodon_instance+'/share?text=I%27ve+completed+%22Digital+Plumber%22+%2D+Day+12+%2D+Advent+of+Code+2017+%23AdventOfCode+https%3A%2F%2Fadventofcode%2Ecom%2F2017%2Fday%2F12'}else{return false;}" target="_blank">Mastodon</a
+  <a href="javascript:void(0);" onclick="var ms; try{ms=localStorage.getItem('mastodon.server')}finally{} if(typeof ms!=='string')ms=''; ms=prompt('Mastodon Server?',ms); if(typeof ms==='string' && ms.length){this.href='https://'+ms+'/share?text=I%27ve+completed+%22Digital+Plumber%22+%2D+Day+12+%2D+Advent+of+Code+2017+%23AdventOfCode+https%3A%2F%2Fadventofcode%2Ecom%2F2017%2Fday%2F12';try{localStorage.setItem('mastodon.server',ms);}finally{}}else{return false;}" target="_blank">Mastodon</a
 ></span>]</span> this puzzle.</p>
 </main></body></html>

@@ -10,8 +10,7 @@
 <link rel="shortcut icon" href="favicon.png"/>
 </head><body>
 <main>
-<style>article *[title]{border-bottom:1px dotted #ffff66;}</style><script>window.addEventListener('click', function(e,s,r){if(e.target.nodeName==='CODE'&&e.detail===3){s=window.getSelection();s.removeAllRanges();r=document.createRange();r.selectNodeContents(e.target);s.addRange(r);}});</script>
-<article class="day-desc"><h2>--- Day 19: Tractor Beam ---</h2><p>Unsure of the state of Santa's ship, you <span title="&quot;borrowed&quot;">borrowed</span> the tractor beam technology from Triton. Time to test it out.</p>
+<style>article *[title]{border-bottom:1px dotted #ffff66;}</style><article class="day-desc"><h2>--- Day 19: Tractor Beam ---</h2><p>Unsure of the state of Santa's ship, you <span title="&quot;borrowed&quot;">borrowed</span> the tractor beam technology from Triton. Time to test it out.</p>
 <p>When you're safely away from anything else, you activate the tractor beam, but nothing happens.  It's hard to tell whether it's working if there's nothing to use it on. Fortunately, your ship's drone system can be configured to deploy a drone to specific coordinates and then check whether it's being pulled. There's even an <a href="9">Intcode</a> program (your puzzle input) that gives you access to the drone system.</p>
 <p>The program uses two input instructions to request the <em>X and Y position</em> to which the drone should be deployed.  Negative numbers are invalid and will confuse the drone; all numbers should be <em>zero or positive</em>.</p>
 <p>Then, the program will output whether the drone is <em>stationary</em> (<code>0</code>) or <em>being pulled by something</em> (<code>1</code>). For example, the coordinate X=<code>0</code>, Y=<code>0</code> is directly in front of the tractor beam emitter, so the drone control program will always report <code>1</code> at that location.</p>
@@ -78,7 +77,8 @@ Y .....####.
 <p>At this point, all that is left is for you to <a href="/2019">admire your Advent calendar</a>.</p>
 <p>If you still want to see it, you can <a href="19/input" target="_blank">get your puzzle input</a>.</p>
 <p>You can also <span class="share">[Share<span class="share-content">on
+  <a href="https://bsky.app/intent/compose?text=I%27ve+completed+%22Tractor+Beam%22+%2D+Day+19+%2D+Advent+of+Code+2019+%23AdventOfCode+https%3A%2F%2Fadventofcode%2Ecom%2F2019%2Fday%2F19" target="_blank">Bluesky</a>
   <a href="https://twitter.com/intent/tweet?text=I%27ve+completed+%22Tractor+Beam%22+%2D+Day+19+%2D+Advent+of+Code+2019&amp;url=https%3A%2F%2Fadventofcode%2Ecom%2F2019%2Fday%2F19&amp;related=ericwastl&amp;hashtags=AdventOfCode" target="_blank">Twitter</a>
-  <a href="javascript:void(0);" onclick="var mastodon_instance=prompt('Mastodon Instance / Server Name?'); if(typeof mastodon_instance==='string' && mastodon_instance.length){this.href='https://'+mastodon_instance+'/share?text=I%27ve+completed+%22Tractor+Beam%22+%2D+Day+19+%2D+Advent+of+Code+2019+%23AdventOfCode+https%3A%2F%2Fadventofcode%2Ecom%2F2019%2Fday%2F19'}else{return false;}" target="_blank">Mastodon</a
+  <a href="javascript:void(0);" onclick="var ms; try{ms=localStorage.getItem('mastodon.server')}finally{} if(typeof ms!=='string')ms=''; ms=prompt('Mastodon Server?',ms); if(typeof ms==='string' && ms.length){this.href='https://'+ms+'/share?text=I%27ve+completed+%22Tractor+Beam%22+%2D+Day+19+%2D+Advent+of+Code+2019+%23AdventOfCode+https%3A%2F%2Fadventofcode%2Ecom%2F2019%2Fday%2F19';try{localStorage.setItem('mastodon.server',ms);}finally{}}else{return false;}" target="_blank">Mastodon</a
 ></span>]</span> this puzzle.</p>
 </main></body></html>
