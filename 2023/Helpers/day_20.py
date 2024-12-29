@@ -90,28 +90,28 @@ def calc(log, values, mode):
 
 def test(log):
     values = log.decode_values("""
-broadcaster -> a, b, c
-%a -> b
-%b -> c
-%c -> inv
-&inv -> a
+        broadcaster -> a, b, c
+        %a -> b
+        %b -> c
+        %c -> inv
+        &inv -> a
     """)
 
     log.test(calc(log, values, 1), '32000000')
 
     values = log.decode_values("""
-broadcaster -> a
-%a -> inv, con
-&inv -> b
-%b -> con
-&con -> output
+        broadcaster -> a
+        %a -> inv, con
+        &inv -> b
+        %b -> con
+        &con -> output
     """)
 
     log.test(calc(log, values, 1), '11687500')
 
 def run(log, values):
-    log(calc(log, values, 1))
-    log(calc(log, values, 2))
+    log(f"Part 1: {calc(log, values, 1)}")
+    log(f"Part 2: {calc(log, values, 2)}")
 
 if __name__ == "__main__":
     import sys, os

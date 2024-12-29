@@ -65,33 +65,33 @@ def calc(log, values, mode, draw=False):
 
 def test(log):
     values = log.decode_values("""
-LLR
+        LLR
 
-AAA = (BBB, BBB)
-BBB = (AAA, ZZZ)
-ZZZ = (ZZZ, ZZZ)
+        AAA = (BBB, BBB)
+        BBB = (AAA, ZZZ)
+        ZZZ = (ZZZ, ZZZ)
     """)
 
     log.test(calc(log, values, 1), '6')
 
     values = log.decode_values("""
-LR
+        LR
 
-11A = (11B, XXX)
-11B = (XXX, 11Z)
-11Z = (11B, XXX)
-22A = (22B, XXX)
-22B = (22C, 22C)
-22C = (22Z, 22Z)
-22Z = (22B, 22B)
-XXX = (XXX, XXX)
+        11A = (11B, XXX)
+        11B = (XXX, 11Z)
+        11Z = (11B, XXX)
+        22A = (22B, XXX)
+        22B = (22C, 22C)
+        22C = (22Z, 22Z)
+        22Z = (22B, 22B)
+        XXX = (XXX, XXX)
     """)
 
     log.test(calc(log, values, 2), '6')
 
 def run(log, values):
-    log(calc(log, values, 1))
-    log(calc(log, values, 2))
+    log(f"Part 1: {calc(log, values, 1)}")
+    log(f"Part 2: {calc(log, values, 2)}")
 
 def other_draw(describe, values):
     if describe:
@@ -100,8 +100,6 @@ def other_draw(describe, values):
     import animate
     animate.prep()
     calc(DummyLog(), values, 2, draw=True)
-    # TODO
-    # animate.create_mp4(DAY_NUM, rate=30, final_secs=35)
 
 source_code = None
 def draw_frame(im_width, im_height, frame, seen, map, points):

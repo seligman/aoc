@@ -61,19 +61,19 @@ def calc(log, values, mode):
 
 def test(log):
     values = log.decode_values("""
-32T3K 765
-T55J5 684
-KK677 28
-KTJJT 220
-QQQJA 483
+        32T3K 765
+        T55J5 684
+        KK677 28
+        KTJJT 220
+        QQQJA 483
     """)
 
     log.test(calc(log, values, 1), '6440')
     log.test(calc(log, values, 2), '5905')
 
 def run(log, values):
-    log(calc(log, values, 1))
-    log(calc(log, values, 2))
+    log(f"Part 1: {calc(log, values, 1)}")
+    log(f"Part 2: {calc(log, values, 2)}")
 
 if __name__ == "__main__":
     import sys, os

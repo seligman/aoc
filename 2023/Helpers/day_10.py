@@ -121,33 +121,33 @@ def other_draw(describe, values):
 
 def test(log):
     values = log.decode_values("""
-.....
-.S-7.
-.|.|.
-.L-J.
-.....
+        .....
+        .S-7.
+        .|.|.
+        .L-J.
+        .....
     """)
 
     log.test(calc(log, values, 1), '4')
 
     values = log.decode_values("""
-.F----7F7F7F7F-7....
-.|F--7||||||||FJ....
-.||.FJ||||||||L7....
-FJL7L7LJLJ||LJ.L-7..
-L--J.L7...LJS7F-7L7.
-....F-J..F7FJ|L7L7L7
-....L7.F7||L7|.L7L7|
-.....|FJLJ|FJ|F7|.LJ
-....FJL-7.||.||||...
-....L---J.LJ.LJLJ...
+        .F----7F7F7F7F-7....
+        .|F--7||||||||FJ....
+        .||.FJ||||||||L7....
+        FJL7L7LJLJ||LJ.L-7..
+        L--J.L7...LJS7F-7L7.
+        ....F-J..F7FJ|L7L7L7
+        ....L7.F7||L7|.L7L7|
+        .....|FJLJ|FJ|F7|.LJ
+        ....FJL-7.||.||||...
+        ....L---J.LJ.LJLJ...
     """)
 
     log.test(calc(log, values, 2), '8')
 
 def run(log, values):
-    log(calc(log, values, 1))
-    log(calc(log, values, 2))
+    log(f"Part 1: {calc(log, values, 1)}")
+    log(f"Part 2: {calc(log, values, 2)}")
 
 if __name__ == "__main__":
     import sys, os

@@ -89,25 +89,25 @@ def calc(log, values, mode, target_steps):
 
 def test(log):
     values = log.decode_values("""
-...........
-.....###.#.
-.###.##..#.
-..#.#...#..
-....#.#....
-.##..S####.
-.##..#...#.
-.......##..
-.##.#.####.
-.##..##.##.
-...........
+        ...........
+        .....###.#.
+        .###.##..#.
+        ..#.#...#..
+        ....#.#....
+        .##..S####.
+        .##..#...#.
+        .......##..
+        .##.#.####.
+        .##..##.##.
+        ...........
     """)
 
     log.test(calc(log, values, 1, 6), '16')
     log.test(calc(log, values, 2, 100), '6536')
 
 def run(log, values):
-    log(calc(log, values, 1, 64))
-    log(calc(log, values, 2, 26501365))
+    log(f"Part 1: {calc(log, values, 1, 64)}")
+    log(f"Part 2: {calc(log, values, 2, 26501365)}")
 
 if __name__ == "__main__":
     import sys, os

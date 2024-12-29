@@ -118,19 +118,19 @@ def calc(log, values, mode, lower, upper):
             N += 1
 def test(log):
     values = log.decode_values("""
-19, 13, 30 @ -2,  1, -2
-18, 19, 22 @ -1, -1, -2
-20, 25, 34 @ -2, -2, -4
-12, 31, 28 @ -1, -2, -1
-20, 19, 15 @  1, -5, -3
+        19, 13, 30 @ -2,  1, -2
+        18, 19, 22 @ -1, -1, -2
+        20, 25, 34 @ -2, -2, -4
+        12, 31, 28 @ -1, -2, -1
+        20, 19, 15 @  1, -5, -3
     """)
 
     log.test(calc(log, values, 1, 7, 27), '2')
     log.test(calc(log, values, 2, 0, 0), '47')
 
 def run(log, values):
-    log(calc(log, values, 1, 200000000000000, 400000000000000))
-    log(calc(log, values, 2, 0, 0))
+    log(f"Part 1: {calc(log, values, 1, 200000000000000, 400000000000000)}")
+    log(f"Part 2: {calc(log, values, 2, 0, 0)}")
 
 if __name__ == "__main__":
     import sys, os

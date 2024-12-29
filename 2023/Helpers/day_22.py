@@ -98,21 +98,21 @@ def calc(log, values, mode):
 
 def test(log):
     values = log.decode_values("""
-1,0,1~1,2,1
-0,0,2~2,0,2
-0,2,3~2,2,3
-0,0,4~0,2,4
-2,0,5~2,2,5
-0,1,6~2,1,6
-1,1,8~1,1,9
+        1,0,1~1,2,1
+        0,0,2~2,0,2
+        0,2,3~2,2,3
+        0,0,4~0,2,4
+        2,0,5~2,2,5
+        0,1,6~2,1,6
+        1,1,8~1,1,9
     """)
 
     log.test(calc(log, values, 1), '5')
     log.test(calc(log, values, 2), '7')
 
 def run(log, values):
-    log(calc(log, values, 1))
-    log(calc(log, values, 2))
+    log(f"Part 1: {calc(log, values, 1)}")
+    log(f"Part 2: {calc(log, values, 2)}")
 
 if __name__ == "__main__":
     import sys, os

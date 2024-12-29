@@ -29,16 +29,16 @@ def calc(log, values, mode):
 
 def test(log):
     values = log.decode_values("""
-Time:      7  15   30
-Distance:  9  40  200
+        Time:      7  15   30
+        Distance:  9  40  200
     """)
 
     log.test(calc(log, values, 1), '288')
     log.test(calc(log, values, 2), '71503')
 
 def run(log, values):
-    log(calc(log, values, 1))
-    log(calc(log, values, 2))
+    log(f"Part 1: {calc(log, values, 1)}")
+    log(f"Part 2: {calc(log, values, 2)}")
 
 if __name__ == "__main__":
     import sys, os

@@ -3,8 +3,6 @@
 DAY_NUM = 25
 DAY_DESC = 'Day 25: Snowverload'
 
-from collections import defaultdict
-
 def calc(log, values, mode):
     import igraph
     values = {key: value.split(' ') for key, value in [x.split(': ') for x in values]}
@@ -13,25 +11,25 @@ def calc(log, values, mode):
 
 def test(log):
     values = log.decode_values("""
-jqt: rhn xhk nvd
-rsh: frs pzl lsr
-xhk: hfx
-cmg: qnr nvd lhk bvb
-rhn: xhk bvb hfx
-bvb: xhk hfx
-pzl: lsr hfx nvd
-qnr: nvd
-ntq: jqt hfx bvb xhk
-nvd: lhk
-lsr: lhk
-rzs: qnr cmg lsr rsh
-frs: qnr lhk lsr
+        jqt: rhn xhk nvd
+        rsh: frs pzl lsr
+        xhk: hfx
+        cmg: qnr nvd lhk bvb
+        rhn: xhk bvb hfx
+        bvb: xhk hfx
+        pzl: lsr hfx nvd
+        qnr: nvd
+        ntq: jqt hfx bvb xhk
+        nvd: lhk
+        lsr: lhk
+        rzs: qnr cmg lsr rsh
+        frs: qnr lhk lsr
     """)
 
     log.test(calc(log, values, 1), '54')
 
 def run(log, values):
-    log(calc(log, values, 1))
+    log(f"Part 1: {calc(log, values, 1)}")
 
 if __name__ == "__main__":
     import sys, os

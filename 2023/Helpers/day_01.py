@@ -35,29 +35,29 @@ def calc(log, values, mode):
 
 def test(log):
     values = log.decode_values("""
-1abc2
-pqr3stu8vwx
-a1b2c3d4e5f
-treb7uchet
+        1abc2
+        pqr3stu8vwx
+        a1b2c3d4e5f
+        treb7uchet
     """)
 
     log.test(calc(log, values, 1), '142')
 
     values = log.decode_values("""
-two1nine
-eightwothree
-abcone2threexyz
-xtwone3four
-4nineeightseven2
-zoneight234
-7pqrstsixteen
+        two1nine
+        eightwothree
+        abcone2threexyz
+        xtwone3four
+        4nineeightseven2
+        zoneight234
+        7pqrstsixteen
     """)
 
     log.test(calc(log, values, 2), '281')
 
 def run(log, values):
-    log(calc(log, values, 1))
-    log(calc(log, values, 2))
+    log(f"Part 1: {calc(log, values, 1)}")
+    log(f"Part 2: {calc(log, values, 2)}")
 
 if __name__ == "__main__":
     import sys, os

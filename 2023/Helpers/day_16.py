@@ -236,33 +236,33 @@ def other_draw(describe, values):
 
 def test(log):
     values = log.decode_values(r"""
-.|...\....
-|.-.\.....
-.....|-...
-........|.
-..........
-.........\
-..../.\\..
-.-.-/..|..
-.|....-|.\
-..//.|....
+        .|...\....
+        |.-.\.....
+        .....|-...
+        ........|.
+        ..........
+        .........\
+        ..../.\\..
+        .-.-/..|..
+        .|....-|.\
+        ..//.|....
     """)
 
     log.test(calc(log, values, 1), '46')
     log.test(calc(log, values, 2), '51')
 
     values = log.decode_values(r"""
-.....
-./-\.
-.|.|.
-.\-/.
-.....
+        .....
+        ./-\.
+        .|.|.
+        .\-/.
+        .....
     """)
     log.test(calc(log, values, 2), '9')
 
 def run(log, values):
-    log(calc(log, values, 1))
-    log(calc(log, values, 2))
+    log(f"Part 1: {calc(log, values, 1)}")
+    log(f"Part 2: {calc(log, values, 2)}")
 
 if __name__ == "__main__":
     import sys, os

@@ -27,17 +27,17 @@ def calc(log, values, mode):
 
 def test(log):
     values = log.decode_values("""
-0 3 6 9 12 15
-1 3 6 10 15 21
-10 13 16 21 30 45
+        0 3 6 9 12 15
+        1 3 6 10 15 21
+        10 13 16 21 30 45
     """)
 
     log.test(calc(log, values, 1), '114')
     log.test(calc(log, values, 2), '2')
 
 def run(log, values):
-    log(calc(log, values, 1))
-    log(calc(log, values, 2))
+    log(f"Part 1: {calc(log, values, 1)}")
+    log(f"Part 2: {calc(log, values, 2)}")
 
 if __name__ == "__main__":
     import sys, os

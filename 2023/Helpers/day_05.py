@@ -75,47 +75,47 @@ def calc(log, values, mode):
 
 def test(log):
     values = log.decode_values("""
-seeds: 79 14 55 13
+        seeds: 79 14 55 13
 
-seed-to-soil map:
-50 98 2
-52 50 48
+        seed-to-soil map:
+        50 98 2
+        52 50 48
 
-soil-to-fertilizer map:
-0 15 37
-37 52 2
-39 0 15
+        soil-to-fertilizer map:
+        0 15 37
+        37 52 2
+        39 0 15
 
-fertilizer-to-water map:
-49 53 8
-0 11 42
-42 0 7
-57 7 4
+        fertilizer-to-water map:
+        49 53 8
+        0 11 42
+        42 0 7
+        57 7 4
 
-water-to-light map:
-88 18 7
-18 25 70
+        water-to-light map:
+        88 18 7
+        18 25 70
 
-light-to-temperature map:
-45 77 23
-81 45 19
-68 64 13
+        light-to-temperature map:
+        45 77 23
+        81 45 19
+        68 64 13
 
-temperature-to-humidity map:
-0 69 1
-1 0 69
+        temperature-to-humidity map:
+        0 69 1
+        1 0 69
 
-humidity-to-location map:
-60 56 37
-56 93 4
+        humidity-to-location map:
+        60 56 37
+        56 93 4
     """)
 
     log.test(calc(log, values, 1), '35')
     log.test(calc(log, values, 2), '46')
 
 def run(log, values):
-    log(calc(log, values, 1))
-    log(calc(log, values, 2))
+    log(f"Part 1: {calc(log, values, 1)}")
+    log(f"Part 2: {calc(log, values, 2)}")
 
 if __name__ == "__main__":
     import sys, os
