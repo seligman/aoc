@@ -207,7 +207,6 @@ def other_draw(describe, values):
     print("$ " + " ".join(cmd))
     subprocess.check_call(cmd)
 
-
 def test(log):
     log.test(calc(log, ["1 + (2 * 3) + (4 * (5 + 6))"], 1), 51)
     log.test(calc(log, ["2 * 3 + (4 * 5)"], 1), 26)
@@ -226,8 +225,8 @@ def test(log):
     log.test(calc(log, ["5 + 1 tree 3"], 2), 7)
 
 def run(log, values):
-    log(calc(log, values, 1))
-    log(calc(log, values, 2))
+    log(f"Part 1: {calc(log, values, 1)}")
+    log(f"Part 2: {calc(log, values, 2)}")
 
 if __name__ == "__main__":
     import sys, os

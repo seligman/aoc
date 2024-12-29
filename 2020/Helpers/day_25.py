@@ -34,7 +34,7 @@ def test(log):
     log.test(calc(log, values, 1), 14897079)
 
 def run(log, values):
-    log(calc(log, values, 1))
+    log(f"Part 1: {calc(log, values, 1)}")
 
 if __name__ == "__main__":
     import sys, os
