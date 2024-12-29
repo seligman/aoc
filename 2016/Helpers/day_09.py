@@ -3,7 +3,6 @@
 DAY_NUM = 9
 DAY_DESC = 'Day 9: Explosives in Cyberspace'
 
-
 def calc(value, ver):
     ret = 0
     in_paren = None
@@ -36,7 +35,6 @@ def calc(value, ver):
 
     return ret
 
-
 def test(log):
     values = [
         "X(8x2)(3x3)ABCY",
@@ -47,10 +45,9 @@ def test(log):
     else:
         return False
 
-
 def run(log, values):
-    log(calc(values[0], 1))
-    log(calc(values[0], 2))
+    log("Part 1: %d" % (calc(values[0], 1),))
+    log("Part 2: %d" % (calc(values[0], 2),))
 
 if __name__ == "__main__":
     import sys, os

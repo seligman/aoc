@@ -3,14 +3,12 @@
 DAY_NUM = 23
 DAY_DESC = 'Day 23: Safe Cracking'
 
-
 def get_value(r, value):
     deref = {"a": 0, "b": 1, "c": 2, "d": 3}
     if value in deref:
         return r[deref[value]]
     else:
         return int(value)
-
 
 def calc(log, values, init_a, munge_code, show_hot_spots):
     deref = {"a": 0, "b": 1, "c": 2, "d": 3}
@@ -71,7 +69,6 @@ def calc(log, values, init_a, munge_code, show_hot_spots):
 
     return r[0]
 
-
 def test(log):
     values = [
         "cpy 2 a",
@@ -88,14 +85,13 @@ def test(log):
     else:
         return False
 
-
 class DummyLog:
     def __init__(self):
         pass
-
     def show(self, value):
         print(value)
-
+    def __call__(self, value):
+        self.show(value)
 
 def other_hotspots(describe, values):
     if describe:
@@ -103,10 +99,9 @@ def other_hotspots(describe, values):
 
     calc(DummyLog(), values, 7, False, True)
 
-
 def run(log, values):
-    log(calc(log, values, 7, True, False))
-    log(calc(log, values, 12, True, False))
+    log("Part 1: %d" % (calc(log, values, 7, True, False),))
+    log("Part 2: %d" % (calc(log, values, 12, True, False),))
 
 if __name__ == "__main__":
     import sys, os

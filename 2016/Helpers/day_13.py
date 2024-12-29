@@ -5,7 +5,6 @@ from collections import deque
 DAY_NUM = 13
 DAY_DESC = 'Day 13: A Maze of Twisty Little Cubicles'
 
-
 def calc_point(x, y, num):
     num = ((x * x) + (3 * x) + (2 * x * y) + y + (y * y)) + num
     ret = 0
@@ -17,7 +16,6 @@ def calc_point(x, y, num):
         return "."
     else:
         return "#"
-
 
 def calc(values, target_x, target_y, target_dist):
     num = int(values[0])
@@ -49,7 +47,6 @@ def calc(values, target_x, target_y, target_dist):
 
     return len(seen)
 
-
 def test(log):
     values = [
         "10",
@@ -60,10 +57,9 @@ def test(log):
     else:
         return False
 
-
 def run(log, values):
-    log(calc(values, 31, 39, None))
-    log(calc(values, None, None, 50))
+    log("Part 1: %d" % (calc(values, 31, 39, None),))
+    log("Part 2: %d" % (calc(values, None, None, 50),))
 
 if __name__ == "__main__":
     import sys, os

@@ -3,14 +3,12 @@
 DAY_NUM = 25
 DAY_DESC = 'Day 25: Clock Signal'
 
-
 def get_value(r, value):
     deref = {"a": 0, "b": 1, "c": 2, "d": 3}
     if value in deref:
         return r[deref[value]]
     else:
         return int(value)
-
 
 def calc(log, values, init_a, munge_code, show_hot_spots):
     deref = {"a": 0, "b": 1, "c": 2, "d": 3}
@@ -84,16 +82,14 @@ def calc(log, values, init_a, munge_code, show_hot_spots):
 
     return r[0]
 
-
 def test(log):
     return True
-
 
 def run(log, values):
     to_try = 0
     while True:
         if calc(log, values, to_try, False, False):
-            log("The target value is " + str(to_try))
+            log("Part 1: " + str(to_try))
             break
         to_try += 1
 

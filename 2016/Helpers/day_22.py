@@ -6,7 +6,6 @@ from collections import deque
 DAY_NUM = 22
 DAY_DESC = 'Day 22: Grid Computing'
 
-
 def find_path(nodes, lx, ly, start, end, goal=None):
     for value in nodes.values():
         value['dist'] = None
@@ -31,7 +30,6 @@ def find_path(nodes, lx, ly, start, end, goal=None):
                         path.append(nodes[path[-1]]['prev'])
                     return path[-2::-1]
 
-
 def calc(log, values):
     nodes = {}
 
@@ -52,7 +50,6 @@ def calc(log, values):
             if vals[j]['used'] != 0 and vals[j]['used'] <= vals[i]['avail']:
                 pairs += 1
 
-
     start = (0, 0)
     goal = (lx - 1, 0)
     empty = (None, None)
@@ -70,17 +67,15 @@ def calc(log, values):
         empty = goal
         goal = target_path[-1]
 
-    log("Found the path in: " + str(steps))
+    log("Part 2: " + str(steps))
 
     return pairs
-
 
 def test(log):
     return True
 
-
 def run(log, values):
-    log(calc(log, values))
+    log("Part 1: %d" % (calc(log, values),))
 
 if __name__ == "__main__":
     import sys, os

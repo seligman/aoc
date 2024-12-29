@@ -3,7 +3,6 @@
 DAY_NUM = 16
 DAY_DESC = 'Day 16: Dragon Checksum'
 
-
 def calc(values, target_len):
     value = values[0]
 
@@ -24,7 +23,6 @@ def calc(values, target_len):
 
     return value
 
-
 def test(log):
     values = [
         "10000",
@@ -35,10 +33,9 @@ def test(log):
     else:
         return False
 
-
 def run(log, values):
-    log(calc(values, 272))
-    log(calc(values, 35651584))
+    log("Part 1: %s" % (calc(values, 272),))
+    log("Part 2: %s" % (calc(values, 35651584),))
 
 if __name__ == "__main__":
     import sys, os

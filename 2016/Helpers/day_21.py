@@ -6,7 +6,6 @@ from collections import deque
 DAY_NUM = 21
 DAY_DESC = 'Day 21: Scrambled Letters and Hash'
 
-
 def calc(log, values, code, reverse):
     if reverse:
         values = reversed(values)
@@ -77,7 +76,6 @@ def calc(log, values, code, reverse):
 
     return code
 
-
 def test(log):
     values = [
         "swap position 4 with position 0",
@@ -97,10 +95,9 @@ def test(log):
             return True
     return False
 
-
 def run(log, values):
-    log(calc(log, values, "abcdefgh", False))
-    log(calc(log, values, "fbgdceah", True))
+    log("Part 1: " + calc(log, values, "abcdefgh", False))
+    log("Part 2: " + calc(log, values, "fbgdceah", True))
 
 if __name__ == "__main__":
     import sys, os

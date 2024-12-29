@@ -6,7 +6,6 @@ import itertools
 DAY_NUM = 24
 DAY_DESC = 'Day 24: Air Duct Spelunking'
 
-
 def calc(log, values, zero_finish):
     values = [list(x) for x in values]
     digits = []
@@ -59,7 +58,6 @@ def calc(log, values, zero_finish):
 
     return best_total
 
-
 def test(log):
     values = [
         "###########",
@@ -74,10 +72,9 @@ def test(log):
     else:
         return False
 
-
 def run(log, values):
-    log("Finish anywhere: " + str(calc(log, values, False)))
-    log("Finish at the start: " + str(calc(log, values, True)))
+    log("Part 1: " + str(calc(log, values, False)))
+    log("Part 2: " + str(calc(log, values, True)))
 
 if __name__ == "__main__":
     import sys, os

@@ -104,14 +104,14 @@ def test(log):
         return False
 
 def run(log, values):
-    log(calc(values))
+    log("Part 1: %d" % (calc(values),))
     extra = [
         "an elerium generator",
         "an elerium-compatible microchip",
         "a dilithium generator",
         "a dilithium-compatible microchip",
     ]
-    log(calc(values, extra))
+    log("Part 2: %d" % (calc(values, extra),))
 
 if __name__ == "__main__":
     import sys, os

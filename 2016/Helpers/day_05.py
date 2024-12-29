@@ -6,7 +6,6 @@ import multiprocessing
 DAY_NUM = 5
 DAY_DESC = 'Day 5: How About a Nice Game of Chess?'
 
-
 def internal_worker(queue, work_unit, queue_done, data):
     def internal_found(value):
         queue_done.put((True, value))
@@ -18,7 +17,6 @@ def internal_worker(queue, work_unit, queue_done, data):
             break
         worker(job, work_unit, data, internal_found)
         queue_done.put((False,))
-
 
 def launch_workers(target_count, worker, data=None, work_unit=1000):
     workers = multiprocessing.cpu_count()
@@ -58,13 +56,11 @@ def launch_workers(target_count, worker, data=None, work_unit=1000):
 
     return ret[0:target_count]
 
-
 def worker(value, work_unit, data, found):
     for i in range(work_unit):
         test = hashlib.md5((data['value'] + str(i + value)).encode("utf8")).hexdigest()
         if test.startswith("00000"):
             found((i + value, test[5:6], test[6:7]))
-
 
 def calc(values, mode):
     temp = []
@@ -81,7 +77,6 @@ def calc(values, mode):
                     ret[int(cur[1])] = cur[2]
         return "".join(ret)
 
-
 def test(log):
     values = [
         "abc",
@@ -92,10 +87,9 @@ def test(log):
     else:
         return False
 
-
 def run(log, values):
-    log(calc(values, 0))
-    log(calc(values, 1))
+    log("Part 1: %s" % (calc(values, 0),))
+    log("Part 2: %s" % (calc(values, 1),))
 
 if __name__ == "__main__":
     import sys, os

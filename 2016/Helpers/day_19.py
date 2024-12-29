@@ -5,7 +5,6 @@ from collections import deque
 DAY_NUM = 19
 DAY_DESC = 'Day 19: An Elephant Named Joseph'
 
-
 def calc2(values):
     elves = int(values[0])
     left = deque()
@@ -30,7 +29,6 @@ def calc2(values):
     else:
         return right.pop()
 
-
 def calc(values):
     elves = int(values[0])
     has_presents = deque(range(1, elves + 1))
@@ -40,7 +38,6 @@ def calc(values):
         has_presents.popleft()
 
     return has_presents.pop()
-
 
 def test(log):
     values = [
@@ -55,10 +52,9 @@ def test(log):
     else:
         return False
 
-
 def run(log, values):
-    log("To the left: " + str(calc(values)))
-    log("Across the circle: " + str(calc2(values)))
+    log("Part 1: " + str(calc(values)))
+    log("Part 2: " + str(calc2(values)))
 
 if __name__ == "__main__":
     import sys, os

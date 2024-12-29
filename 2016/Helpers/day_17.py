@@ -6,7 +6,6 @@ from collections import deque
 DAY_NUM = 17
 DAY_DESC = 'Day 17: Two Steps Forward'
 
-
 def calc(values):
     valid = "bcdef"
     key = values[0]
@@ -35,7 +34,6 @@ def calc(values):
 
     return shortest, longest
 
-
 def test(log):
     values = [
         "ulqzkmiv",
@@ -46,11 +44,10 @@ def test(log):
     else:
         return False
 
-
 def run(log, values):
     vals = calc(values)
-    log("The shortest path is: " + vals[0])
-    log("The longest path took %d steps." % (vals[1],))
+    log("Part 1: " + vals[0])
+    log("Part 2: %d" % (vals[1],))
 
 if __name__ == "__main__":
     import sys, os

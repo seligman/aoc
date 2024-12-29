@@ -5,7 +5,6 @@ from collections import defaultdict
 DAY_NUM = 1
 DAY_DESC = 'Day 1: No Time for a Taxicab'
 
-
 def calc(log, values):
     values = values[0].split(", ")
 
@@ -31,15 +30,9 @@ def calc(log, values):
             if not shown:
                 if seen[(x, y)] == 2:
                     shown = True
-                    log("Visited %s[%d] x %s[%d] twice, which is %d away." % (
-                        "W" if x < 0 else "E",
-                        abs(x), 
-                        "N" if y < 0 else "S",
-                        abs(y), 
-                        abs(x) + abs(y)))
+                    log("Part 2: %d" % (abs(x) + abs(y),))
 
     return abs(x) + abs(y)
-
 
 def test(log):
     values = [
@@ -51,9 +44,8 @@ def test(log):
     else:
         return False
 
-
 def run(log, values):
-    log(calc(log, values))
+    log("Part 1: %d" % (calc(log, values),))
 
 if __name__ == "__main__":
     import sys, os

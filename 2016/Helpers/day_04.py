@@ -6,7 +6,6 @@ from collections import defaultdict
 DAY_NUM = 4
 DAY_DESC = 'Day 4: Security Through Obscurity'
 
-
 def calc(log, values):
     r = re.compile("([a-z-]+)-([0-9]+)\\[([a-z]+)\\]")
     ret = 0
@@ -29,11 +28,10 @@ def calc(log, values):
                 else:
                     temp += chr((((ord(sub) - ord('a')) + int(m[1])) % 26) + ord('a'))
             if "north" in temp and "pole" in temp:
-                log("%s - %s" % (temp, m[1]))
+                log("Part 2: %s" % (m[1],))
             ret += int(m[1])
 
     return ret
-
 
 def test(log):
     values = [
@@ -48,9 +46,8 @@ def test(log):
     else:
         return False
 
-
 def run(log, values):
-    log(calc(log, values))
+    log("Part 1: %d" % (calc(log, values),))
 
 if __name__ == "__main__":
     import sys, os

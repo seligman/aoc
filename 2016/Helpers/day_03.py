@@ -5,7 +5,6 @@ import re
 DAY_NUM = 3
 DAY_DESC = 'Day 3: Squares With Three Sides'
 
-
 def calc(values, mode):
     valid = 0
 
@@ -31,7 +30,6 @@ def calc(values, mode):
 
     return valid
 
-
 def test(log):
     values = [
         "  5  10  25",
@@ -42,10 +40,9 @@ def test(log):
     else:
         return False
 
-
 def run(log, values):
-    log(calc(values, 0))
-    log(calc(values, 1))
+    log("Part 1: %d" % (calc(values, 0),))
+    log("Part 2: %d" % (calc(values, 1),))
 
 if __name__ == "__main__":
     import sys, os

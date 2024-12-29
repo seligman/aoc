@@ -5,7 +5,6 @@ import re
 DAY_NUM = 10
 DAY_DESC = 'Day 10: Balance Bots'
 
-
 def calc(log, values):
     bots = {}
 
@@ -29,10 +28,8 @@ def calc(log, values):
                         if b not in bots:
                             bots[b] = []
 
-                        if bots[m.group(1)][0] == "61" and bots[m.group(1)][1] == "17":
-                            log("Bot with 17 and 61: " + m.group(1))
-                        if bots[m.group(1)][0] == "17" and bots[m.group(1)][1] == "61":
-                            log("Bot with 17 and 61: " + m.group(1))
+                        if bots[m.group(1)][0] in {"61", "17"} and bots[m.group(1)][1] in {"61", "17"}:
+                            log("Part 1: " + m.group(1).split(" ")[-1])
 
                         if int(bots[m.group(1)][0]) < int(bots[m.group(1)][1]):
                             bots[a].append(bots[m.group(1)][0])
@@ -46,15 +43,13 @@ def calc(log, values):
                         c = bots.get("output 2", None)
 
                         if a is not None and b is not None and c is not None:
-                            log("Final answer: " + str(int(a[0]) * int(b[0]) * int(c[0])))
+                            log("Part 2: " + str(int(a[0]) * int(b[0]) * int(c[0])))
                             return
 
                         bots[m.group(1)] = []
 
-
 def test(log):
     return True
-
 
 def run(log, values):
     calc(log, values)

@@ -3,7 +3,6 @@
 DAY_NUM = 20
 DAY_DESC = 'Day 20: Firewall Rules'
 
-
 def calc(values, max_ip):
     values = [[int(y) for y in x.split("-")] for x in values]
     values.sort(key=lambda x: x[0])
@@ -41,7 +40,6 @@ def calc(values, max_ip):
             else:
                 ip = best + 1
 
-
 def test(log):
     values = [
         "5-8",
@@ -54,11 +52,10 @@ def test(log):
     else:
         return False
 
-
 def run(log, values):
     vals = calc(values, 4294967295)
-    log("The lowest IP: %d" % (vals[0],))
-    log("The number of allowed: %d" % (vals[1],))
+    log("Part 1: %d" % (vals[0],))
+    log("Part 2: %d" % (vals[1],))
 
 if __name__ == "__main__":
     import sys, os

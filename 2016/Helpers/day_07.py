@@ -3,7 +3,6 @@
 DAY_NUM = 7
 DAY_DESC = 'Day 7: Internet Protocol Version 7'
 
-
 def calc(log, values):
     ret = 0
     ssl_count = 0
@@ -46,9 +45,8 @@ def calc(log, values):
         if good:
             ret += 1
 
-    log("SSL: " + str(ssl_count))
+    log("Part 2: " + str(ssl_count))
     return ret
-
 
 def test(log):
     values = [
@@ -61,9 +59,8 @@ def test(log):
     else:
         return False
 
-
 def run(log, values):
-    log(calc(log, values))
+    log("Part 1: %d" % (calc(log, values),))
 
 if __name__ == "__main__":
     import sys, os

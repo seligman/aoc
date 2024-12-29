@@ -73,7 +73,7 @@ def calc(log, values, width, height, show):
                 decoded += chars[code][0]
             if problems > 0:
                 exit(1)
-            log("That decodes to %s" % (decoded,))
+            log("Part 2: %s" % (decoded,))
     return ret
 
 def test(log):
@@ -90,7 +90,7 @@ def test(log):
         return False
 
 def run(log, values):
-    log(calc(log, values, 50, 6, True))
+    log("Part 1: %d" % (calc(log, values, 50, 6, True),))
 
 if __name__ == "__main__":
     import sys, os

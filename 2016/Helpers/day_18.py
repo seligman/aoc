@@ -3,7 +3,6 @@
 DAY_NUM = 18
 DAY_DESC = 'Day 18: Like a Rogue'
 
-
 def calc(values, rows):
     ret = 0
     row = [0 if x == "^" else 1 for x in values[0]]
@@ -17,7 +16,6 @@ def calc(values, rows):
 
     return ret
 
-
 def test(log):
     values = [
         ".^^.^.^^^^",
@@ -28,10 +26,9 @@ def test(log):
     else:
         return False
 
-
 def run(log, values):
-    for rows in [40, 400000]:
-        log("There are %d safe tiles in %d rows." % (calc(values, rows), rows))
+    for part_no, rows in [(1, 40), (2, 400000)]:
+        log("Part %d: %d" % (part_no, calc(values, rows)))
 
 if __name__ == "__main__":
     import sys, os

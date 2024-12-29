@@ -7,7 +7,6 @@ import multiprocessing
 DAY_NUM = 14
 DAY_DESC = 'Day 14: One-Time Pad'
 
-
 def get_hash(i, key, stretch):
     key += str(i)
     ret = hashlib.md5(key.encode("utf8")).hexdigest()
@@ -15,7 +14,6 @@ def get_hash(i, key, stretch):
         for _ in range(stretch):
             ret = hashlib.md5(ret.encode("utf8")).hexdigest()
     return ret
-
 
 def worker(queue, queue_done, work_size, key, stretch):
     while True:
@@ -27,7 +25,6 @@ def worker(queue, queue_done, work_size, key, stretch):
         for i in range(work_size):
             ret.append((job + i, get_hash(job + i, key, stretch)))
         queue_done.put((job, ret))
-
 
 def calc(values, stretch):
     key = values[0]
@@ -100,7 +97,6 @@ def calc(values, stretch):
 
     return 0
 
-
 def test(log):
     values = [
         "abc",
@@ -115,13 +111,12 @@ def test(log):
     else:
         return False
 
-
 def run(log, values):
     a = calc(values, 0)
     b = calc(values, 2016)
 
-    log("With no key stretching: " + str(a))
-    log("With key stretching: " + str(b))
+    log("Part 1: " + str(a))
+    log("Part 2: " + str(b))
 
 if __name__ == "__main__":
     import sys, os

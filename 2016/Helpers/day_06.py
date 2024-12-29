@@ -5,7 +5,6 @@ from collections import defaultdict
 DAY_NUM = 6
 DAY_DESC = 'Day 6: Signals and Noise'
 
-
 def calc(values, first_pass):
     ret = ""
     for i in range(len(values[0])):
@@ -17,7 +16,6 @@ def calc(values, first_pass):
         ret += letters[0]
 
     return ret
-
 
 def test(log):
     values = [
@@ -44,10 +42,9 @@ def test(log):
     else:
         return False
 
-
 def run(log, values):
-    log(calc(values, True))
-    log(calc(values, False))
+    log("Part 1: %s" % (calc(values, True),))
+    log("Part 2: %s" % (calc(values, False),))
 
 if __name__ == "__main__":
     import sys, os

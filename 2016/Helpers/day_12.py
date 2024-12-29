@@ -3,14 +3,12 @@
 DAY_NUM = 12
 DAY_DESC = 'Day 12: Leonardo\'s Monorail'
 
-
 def get_value(r, value):
     deref = {"a": 0, "b": 1, "c": 2, "d": 3}
     if value in deref:
         return r[deref[value]]
     else:
         return int(value)
-
 
 def calc(values, init_c):
     deref = {"a": 0, "b": 1, "c": 2, "d": 3}
@@ -36,7 +34,6 @@ def calc(values, init_c):
 
     return r[0]
 
-
 def test(log):
     values = [
         "cpy 41 a",
@@ -52,10 +49,9 @@ def test(log):
     else:
         return False
 
-
 def run(log, values):
-    log(calc(values, 0))
-    log(calc(values, 1))
+    log("Part 1: %d" % (calc(values, 0),))
+    log("Part 2: %d" % (calc(values, 1),))
 
 if __name__ == "__main__":
     import sys, os

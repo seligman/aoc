@@ -5,7 +5,6 @@ import re
 DAY_NUM = 15
 DAY_DESC = 'Day 15: Timing is Everything'
 
-
 def calc(values, extra=None):
     discs = []
     r = re.compile("has ([0-9]+) positions; at time=0, it is at position ([0-9]+)\\.")
@@ -27,7 +26,6 @@ def calc(values, extra=None):
             return tick
         tick += 1
 
-
 def test(log):
     values = [
         "Disc #1 has 5 positions; at time=0, it is at position 4.",
@@ -39,10 +37,9 @@ def test(log):
     else:
         return False
 
-
 def run(log, values):
-    log(calc(values))
-    log(calc(values, (11, 0)))
+    log("Part 1: %d" % (calc(values),))
+    log("Part 2: %d" % (calc(values, (11, 0)),))
 
 if __name__ == "__main__":
     import sys, os

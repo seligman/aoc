@@ -3,7 +3,6 @@
 DAY_NUM = 2
 DAY_DESC = 'Day 2: Bathroom Security'
 
-
 def calc(values, mode):
     steps = {}
 
@@ -37,7 +36,6 @@ def calc(values, mode):
                     'R': keypad[y][x] if keypad[y][x+1] == " " else keypad[y][x+1],
                 }
 
-
     ret = ""
 
     digit = '5'
@@ -47,7 +45,6 @@ def calc(values, mode):
         ret += digit
 
     return ret
-
 
 def test(log):
     values = [
@@ -62,10 +59,9 @@ def test(log):
     else:
         return False
 
-
 def run(log, values):
-    log(calc(values, 0))
-    log(calc(values, 1))
+    log("Part 1: %s" % (calc(values, 0),))
+    log("Part 2: %s" % (calc(values, 1),))
 
 if __name__ == "__main__":
     import sys, os
