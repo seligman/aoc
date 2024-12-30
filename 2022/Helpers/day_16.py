@@ -70,7 +70,7 @@ def layout_points(points, im_width, im_height):
 
 source_code = None
 def draw_frame(nodes, points, last_step, step, info, offsets, im_width, im_height):
-    from PIL import Image, ImageDraw, ImageFont
+    from PIL import Image, ImageDraw, ImageFont # optional package
     import os
 
     font_size = im_width * 0.01

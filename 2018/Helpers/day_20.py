@@ -176,7 +176,7 @@ def other_animate_frames(describe, values):
     if describe:
         return "Animate all frames from dump_frames"
 
-    from PIL import Image, ImageDraw, ImageFont
+    from PIL import Image, ImageDraw, ImageFont # optional package
     from collections import deque
     import os
 

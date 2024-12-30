@@ -38,8 +38,8 @@ def other_draw(describe, values):
     if describe:
         return "Draw this"
     from dummylog import DummyLog
-    import colorsys
-    from PIL import Image, ImageDraw
+    import colorsys # optional package
+    from PIL import Image, ImageDraw # optional package
     import animate
     import math
 

@@ -96,7 +96,7 @@ def calc(log, values, mode, draw=False, return_swaps=False, perform_swaps=None, 
             height = int(max(x["y"] for x in locs.values()) + 1.5)
             scale = 4
             size = 10 * scale
-            from PIL import Image, ImageDraw
+            from PIL import Image, ImageDraw # optional package
             im = Image.new('RGB', (width * size, height * size), (0, 0, 0))
             dr = ImageDraw.Draw(im)
 

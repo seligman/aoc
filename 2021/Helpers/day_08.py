@@ -106,7 +106,7 @@ def draw_all(data, step, pos=None, text=None):
         data.frame += 1
     else:
         import os
-        from PIL import Image, ImageDraw, ImageFont
+        from PIL import Image, ImageDraw, ImageFont # optional package
         source_code = os.path.join('Helpers', 'Font-SourceCodePro-Bold.ttf')
         fnt = ImageFont.truetype(source_code, 30)
         off = 0

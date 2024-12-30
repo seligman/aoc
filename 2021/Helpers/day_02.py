@@ -5,7 +5,7 @@ DAY_DESC = 'Day 2: Dive!'
 
 def calc(log, values, mode, draw=False):
     if draw:
-        from PIL import Image, ImageDraw
+        from PIL import Image, ImageDraw # optional package
 
     pos = 0
     depth = 0

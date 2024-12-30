@@ -65,8 +65,8 @@ def other_draw(describe, values):
     animate.prep()
     grid, escapes_cube = calc(DummyLog(), values, 2, draw=True)
 
-    import matplotlib.pyplot as plt
-    import numpy as np
+    import matplotlib.pyplot as plt # optional package
+    import numpy as np # optional package
 
     for limit in range(22):
         print(f"Working on frame {limit}")

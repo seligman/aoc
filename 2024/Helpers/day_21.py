@@ -31,7 +31,7 @@ class Pad:
 _fnt = None
 def draw_helper(job):
     from grid import Grid
-    from PIL import Image, ImageDraw
+    from PIL import Image, ImageDraw # optional package
 
     global _fnt
     if _fnt is None:

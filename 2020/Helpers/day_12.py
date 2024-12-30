@@ -20,7 +20,7 @@ def calc(log, values, mode, draw=False):
             pos = complex(0, 0)
             if pass_no == 1:
                 if draw:
-                    from PIL import Image
+                    from PIL import Image # optional package
                     im = Image.new('RGB',(int(max_pos.real - min_pos.real) + 10, int(max_pos.imag - min_pos.imag) + 10), color=(0,0,0))
                     pixels = im.load()
                     frame = 0

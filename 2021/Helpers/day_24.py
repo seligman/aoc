@@ -148,7 +148,7 @@ def other_animate(describe, values):
     if describe:
         return "Animate this"
 
-    from PIL import ImageDraw, ImageFont, Image
+    from PIL import ImageDraw, ImageFont, Image # optional package
     from dummylog import DummyLog
     from grid import Grid
     import animate

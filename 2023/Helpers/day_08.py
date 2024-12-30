@@ -103,7 +103,7 @@ def other_draw(describe, values):
 
 source_code = None
 def draw_frame(im_width, im_height, frame, seen, map, points):
-    from PIL import Image, ImageDraw, ImageFont
+    from PIL import Image, ImageDraw, ImageFont # optional package
     import os
 
     # font_size = im_width * 0.01

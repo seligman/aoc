@@ -22,14 +22,14 @@ def calc(log, values, mode):
     computers = list(sorted(computers))
 
     if mode == 3:
-        import networkx as nx
+        import networkx as nx # optional package
         import os
         graph = nx.Graph()
         for x in computers:
             graph.add_node(x)
         for x, y in connected:
             graph.add_edge(x, y)
-        import matplotlib.pyplot as plt
+        import matplotlib.pyplot as plt # optional package
         layout = nx.kamada_kawai_layout(graph)
         fig = plt.figure(1, figsize=(1920/100, 1080/100), dpi=100)
         nx.draw(graph, with_labels=False, node_size=500, pos=layout)

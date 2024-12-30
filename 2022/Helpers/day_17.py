@@ -24,7 +24,7 @@ class DrawHelper:
                 self.skip -= 1
                 return
         from grid import Grid
-        from PIL import Image, ImageDraw
+        from PIL import Image, ImageDraw # optional package
 
         if self.target_off < self.off:
             self.off -= self.speed

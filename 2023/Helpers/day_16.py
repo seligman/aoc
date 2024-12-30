@@ -37,7 +37,7 @@ def finish_draw():
     [x.join() for x in procs]
 
 def draw_worker(queue):
-    from PIL import Image, ImageDraw
+    from PIL import Image, ImageDraw # optional package
     while True:
         job = queue.get()
         if job is None:
