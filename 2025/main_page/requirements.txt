@@ -1,0 +1,6 @@
+pip
+wheel
+setuptools
+selenium
+slackclient
+pillow
