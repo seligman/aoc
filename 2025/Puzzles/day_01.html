@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en-us">
+<head>
+<meta charset="utf-8"/>
+<title>Advent of Code 2025</title>
+<!--[if lt IE 9]><script src="html5.js"></script><![endif]-->
+<link href='SourceCodePro.css' rel='stylesheet' type='text/css'>
+<link rel="stylesheet" type="text/css" href="style.css"/>
+<link rel="stylesheet alternate" type="text/css" href="highcontrast.css?0" title="High Contrast"/>
+<link rel="shortcut icon" href="favicon.png"/>
+</head><body>
+<main>
+<article class="day-desc"><h2>--- Day 1: Secret Entrance ---</h2><p>The Elves have good news and bad news.</p>
+<p>The good news is that they've discovered <a href="https://en.wikipedia.org/wiki/Project_management" target="_blank">project management</a>! This has given them the tools they need to prevent their usual Christmas emergency. For example, they now know that the North Pole decorations need to be finished soon so that other critical tasks can start on time.</p>
+<p>The bad news is that they've realized they have a <em>different</em> emergency: according to their resource planning, none of them have any time left to decorate the North Pole!</p>
+<p>To save Christmas, the Elves need <em>you</em> to <em>finish decorating the North Pole by December 12th</em>.</p>
+<p>Collect stars by solving puzzles.  Two puzzles will be made available on each day; the second puzzle is unlocked when you complete the first.  Each puzzle grants <em class="star">one star</em>. Good luck!</p>
+<p>You arrive at the secret entrance to the North Pole base ready to start decorating. Unfortunately, the <em>password</em> seems to have been changed, so you can't get in. A document taped to the wall helpfully explains:</p>
+<p>"Due to new security protocols, the password is locked in the safe below. Please see the attached document for the new combination."</p>
+<p>The safe has a dial with only an arrow on it; around the dial are the numbers <code>0</code> through <code>99</code> in order. As you turn the dial, it makes a small <em>click</em> noise as it reaches each number.</p>
+<p>The attached document (your puzzle input) contains a sequence of <em>rotations</em>, one per line, which tell you how to open the safe. A rotation starts with an <code>L</code> or <code>R</code> which indicates whether the rotation should be to the <em>left</em> (toward lower numbers) or to the <em>right</em> (toward higher numbers). Then, the rotation has a <em>distance</em> value which indicates how many clicks the dial should be rotated in that direction.</p>
+<p>So, if the dial were pointing at <code>11</code>, a rotation of <code>R8</code> would cause the dial to point at <code>19</code>. After that, a rotation of <code>L19</code> would cause it to point at <code>0</code>.</p>
+<p>Because the dial is a circle, turning the dial <em>left from <code>0</code></em> one click makes it point at <code>99</code>. Similarly, turning the dial <em>right from <code>99</code></em> one click makes it point at <code>0</code>.</p>
+<p>So, if the dial were pointing at <code>5</code>, a rotation of <code>L10</code> would cause it to point at <code>95</code>. After that, a rotation of <code>R5</code> could cause it to point at <code>0</code>.</p>
+<p>The dial starts by pointing at <code>50</code>.</p>
+<p>You could follow the instructions, but your recent required official North Pole secret entrance security training seminar taught you that the safe is actually a decoy. The actual password is <em>the number of times the dial is left pointing at <code>0</code> after any rotation in the sequence</em>.</p>
+<p>For example, suppose the attached document contained the following rotations:</p>
+<pre><code>L68
+L30
+R48
+L5
+R60
+L55
+L1
+L99
+R14
+L82
+</code></pre>
+<p>Following these rotations would cause the dial to move as follows:</p>
+<ul>
+<li>The dial starts by pointing at <code>50</code>.</li>
+<li>The dial is rotated <code>L68</code> to point at <code>82</code>.</li>
+<li>The dial is rotated <code>L30</code> to point at <code>52</code>.</li>
+<li>The dial is rotated <code>R48</code> to point at <code><em>0</em></code>.</li>
+<li>The dial is rotated <code>L5</code> to point at <code>95</code>.</li>
+<li>The dial is rotated <code>R60</code> to point at <code>55</code>.</li>
+<li>The dial is rotated <code>L55</code> to point at <code><em>0</em></code>.</li>
+<li>The dial is rotated <code>L1</code> to point at <code>99</code>.</li>
+<li>The dial is rotated <code>L99</code> to point at <code><em>0</em></code>.</li>
+<li>The dial is rotated <code>R14</code> to point at <code>14</code>.</li>
+<li>The dial is rotated <code>L82</code> to point at <code>32</code>.</li>
+</ul>
+<p>Because the dial points at <code>0</code> a total of three times during this process, the password in this example is <code><em>3</em></code>.</p>
+<p>Analyze the rotations in your attached document. <em>What's the actual password to open the door?</em></p>
+</article>
+<p>To begin, <a href="1/input" target="_blank">get your puzzle input</a>.</p>
+<form method="post" action="1/answer"><input type="hidden" name="level" value="1"/><p>Answer: <input type="text" name="answer" autocomplete="off"/> <input type="submit" value="[Submit]"/></p></form>
+<p>You can also <span class="share">[Share<span class="share-content">on
+  <a href="https://bsky.app/intent/compose?text=%22Secret+Entrance%22+%2D+Day+1+%2D+Advent+of+Code+2025+%23AdventOfCode+https%3A%2F%2Fadventofcode%2Ecom%2F2025%2Fday%2F1" target="_blank">Bluesky</a>
+  <a href="https://twitter.com/intent/tweet?text=%22Secret+Entrance%22+%2D+Day+1+%2D+Advent+of+Code+2025&amp;url=https%3A%2F%2Fadventofcode%2Ecom%2F2025%2Fday%2F1&amp;related=ericwastl&amp;hashtags=AdventOfCode" target="_blank">Twitter</a>
+  <a href="javascript:void(0);" onclick="var ms; try{ms=localStorage.getItem('mastodon.server')}finally{} if(typeof ms!=='string')ms=''; ms=prompt('Mastodon Server?',ms); if(typeof ms==='string' && ms.length){this.href='https://'+ms+'/share?text=%22Secret+Entrance%22+%2D+Day+1+%2D+Advent+of+Code+2025+%23AdventOfCode+https%3A%2F%2Fadventofcode%2Ecom%2F2025%2Fday%2F1';try{localStorage.setItem('mastodon.server',ms);}finally{}}else{return false;}" target="_blank">Mastodon</a
+></span>]</span> this puzzle.</p>
+</main></body></html>
