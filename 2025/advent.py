@@ -205,16 +205,16 @@ def gen_comment(for_sharing=False):
         max_day = max(helper.DAY_NUM, max_day)
     
     scores_url = "https://adventofcode.com/" + YEAR_NUMBER + "/leaderboard/self"
-    score_re = re.compile(r"^ *(?P<day>\d+) +\d+:\d+:\d+ +(?P<score1>\d+) +\d+ +\d+:\d+:\d+ +(?P<score2>\d+) +\d+ *$")
+    score_re = re.compile(r"^ *(?P<day>\d+) +(?P<time1>\d+:\d+:\d+) +(?P<time2>\d+:\d+:\d+) *$")
     scores = get_page(scores_url)
 
     found = False
-    day, score1, score2 = -1, -1, -1
+    day, time1, time2 = -1, "", ""
 
     for cur in scores.split("\n"):
         m = score_re.search(cur)
         if m is not None:
-            day, score1, score2 = int(m.group("day")), int(m.group("score1")), int(m.group("score2"))
+            day, time1, time2 = int(m.group("day")), m.group("time1"), m.group("time2")
             if day == max_day:
                 found = True
                 break
@@ -224,9 +224,10 @@ def gen_comment(for_sharing=False):
         print("")
     
     if for_sharing:
-        msg = f"Advent of Code, day {max_day}: {score1} / {score2}\n"
+        msg = f"Advent of Code, day {max_day}: {time1} / {time2}\n"
     else:
-        msg = f"[LANGUAGE: Python] {score1} / {score2}\n"
+        # No times, keep with the spirit of no leaderboard
+        msg = f"[LANGUAGE: Python]\n" # {time1} / {time2}\n"
         msg += "\n"
         msg += f"[github](https://github.com/seligman/aoc/blob/master/{YEAR_NUMBER}/Helpers/day_{max_day:02}.py)\n"
 
@@ -855,9 +856,9 @@ def dl_day(helper_day, input_only="no"):
                 f.write(resp)
 
             print(f"Wrote out puzzle input for day #{helper_day}")
-        else:
-            print(f"Unable to write file {filename}!")
-            exit(1)
+        # else:
+        #     print(f"Unable to write file {filename}!")
+        #     exit(1)
 
         if not input_only:
             resp = get_page(f"https://adventofcode.com/{YEAR_NUMBER}/day/{helper_day}")
