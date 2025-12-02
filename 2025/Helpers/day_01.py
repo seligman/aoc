@@ -9,17 +9,11 @@ def calc(log, values, mode):
     for row in values:
         if mode == 2:
             for _ in range(int(row[1:])):
-                if row[0] == "L":
-                    pos = (99 + pos) % 100
-                else:
-                    pos = (pos + 1) % 100
+                pos = (pos + (1 if row[0] == "L" else -1)) % 100
                 if pos == 0:
                     ret += 1
         else:
-            if row.startswith("L"):
-                pos = (pos + 100 - int(row[1:])) % 100
-            else:
-                pos = (pos + int(row[1:])) % 100
+            pos = (pos + int(row[1:]) * (1 if row[0] == "L" else -1)) % 100
             if pos == 0:
                 ret += 1
     return ret
@@ -43,8 +37,10 @@ L82
     log.test(calc(log, values, 2), '6')
 
 def run(log, values):
-    log(f"Part 1: {calc(log, values, 1)}")
-    log(f"Part 2: {calc(log, values, 2)}")
+    log("Part 1")
+    log(calc(log, values, 1))
+    log("Part 2")
+    log(calc(log, values, 2))
 
 if __name__ == "__main__":
     import sys, os
