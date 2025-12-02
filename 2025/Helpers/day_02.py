@@ -41,8 +41,7 @@ def is_valid_2(a):
 
 def calc(log, values, mode):
     ret = 0
-    ab, ac = 999999999999, 0
-    for cur in values[0].split(","):
+    for cur in "".join(values).split(","):
         a, b = cur.split('-')
         for i in range(int(a), int(b) + 1):
             if (mode == 1 and is_valid_1(i)) or (mode == 2 and is_valid_2(i)):
@@ -51,7 +50,9 @@ def calc(log, values, mode):
 
 def test(log):
     values = log.decode_values("""
-11-22,95-115,998-1012,1188511880-1188511890,222220-222224,1698522-1698528,446443-446449,38593856-38593862,565653-565659,824824821-824824827,2121212118-2121212124
+11-22,95-115,998-1012,1188511880-1188511890,222220-222224,
+1698522-1698528,446443-446449,38593856-38593862,565653-565659,
+824824821-824824827,2121212118-2121212124
     """)
 
     log.test(calc(log, values, 1), '1227775554')
