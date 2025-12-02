@@ -1,24 +1,54 @@
 #!/usr/bin/env python3
 
+import math
+
 DAY_NUM = 2
 DAY_DESC = 'Day 2: Gift Shop'
 
+_mult_1 = {}
+def is_valid_1(a):
+    if len(_mult_1) == 0:
+        for digits in range(1, 15):
+            _mult_1[digits] = []
+            if digits % 2 == 0:
+                temp = 1 + 10 ** (digits // 2)
+                _mult_1[digits].append((temp, 10 ** (digits // 2)))
+
+    digits = int(math.log10(a) + 1)
+
+    for test, part in _mult_1[int(math.log10(a) + 1)]:
+        if test * (a % part) == a:
+            return True
+
+    return False
+
+_mult_2 = {}
+def is_valid_2(a):
+    if len(_mult_2) == 0:
+        for digits in range(1, 15):
+            _mult_2[digits] = []
+            for digits_i in range(1, digits):
+                if digits % digits_i == 0:
+                    temp = 0
+                    for _ in range(digits // digits_i):
+                        temp *= 10 ** digits_i
+                        temp += 1
+                    _mult_2[digits].append((temp, 10 ** digits_i))
+
+    for test, part in _mult_2[int(math.log10(a) + 1)]:
+        if test * (a % part) == a:
+            return True
+
+    return False
+
 def calc(log, values, mode):
     ret = 0
+    ab, ac = 999999999999, 0
     for cur in values[0].split(","):
         a, b = cur.split('-')
         for i in range(int(a), int(b) + 1):
-            seen = set()
-            i = str(i)
-            if mode == 1 and len(i) % 2 == 1:
-                continue
-            for num in [len(i) // 2] if mode == 1 else range(1, len(i)//2+1):
-                count, left = divmod(len(i), num)
-                if left == 0:
-                    if (i[:num] * count) == i:
-                        if i not in seen:
-                            seen.add(i)
-                            ret += int(i)
+            if (mode == 1 and is_valid_1(i)) or (mode == 2 and is_valid_2(i)):
+                ret += i
     return ret
 
 def test(log):
