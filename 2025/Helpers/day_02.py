@@ -7,16 +7,14 @@ DAY_DESC = 'Day 2: Gift Shop'
 
 _mult_1 = {}
 def is_valid_1(a):
-    if len(_mult_1) == 0:
-        for digits in range(1, 15):
-            _mult_1[digits] = []
-            if digits % 2 == 0:
-                temp = 1 + 10 ** (digits // 2)
-                _mult_1[digits].append((temp, 10 ** (digits // 2)))
-
     digits = int(math.log10(a) + 1)
+    if digits not in _mult_1:
+        _mult_1[digits] = []
+        if digits % 2 == 0:
+            temp = 1 + 10 ** (digits // 2)
+            _mult_1[digits].append((temp, 10 ** (digits // 2)))
 
-    for test, part in _mult_1[int(math.log10(a) + 1)]:
+    for test, part in _mult_1[digits]:
         if test * (a % part) == a:
             return True
 
@@ -24,18 +22,18 @@ def is_valid_1(a):
 
 _mult_2 = {}
 def is_valid_2(a):
-    if len(_mult_2) == 0:
-        for digits in range(1, 15):
-            _mult_2[digits] = []
-            for digits_i in range(1, digits):
-                if digits % digits_i == 0:
-                    temp = 0
-                    for _ in range(digits // digits_i):
-                        temp *= 10 ** digits_i
-                        temp += 1
-                    _mult_2[digits].append((temp, 10 ** digits_i))
+    digits = int(math.log10(a) + 1)
+    if digits not in _mult_2:
+        _mult_2[digits] = []
+        for digits_i in range(1, digits):
+            if digits % digits_i == 0:
+                temp = 0
+                for _ in range(digits // digits_i):
+                    temp *= 10 ** digits_i
+                    temp += 1
+                _mult_2[digits].append((temp, 10 ** digits_i))
 
-    for test, part in _mult_2[int(math.log10(a) + 1)]:
+    for test, part in _mult_2[digits]:
         if test * (a % part) == a:
             return True
 
