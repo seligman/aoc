@@ -4,9 +4,11 @@ DAY_NUM = 3
 DAY_DESC = 'Day 3: Lobby'
 
 def get_best(battery, left):
-    temp = [(a, i) for i, a in enumerate(battery)]
-    temp.sort(key=lambda x: (-int(x[0]), x[1]))
-    for a, i in temp:
+    seen = {}
+    for i, a in enumerate(battery):
+        if a not in seen:
+            seen[a] = i
+    for a, i in [(a, seen[a]) for a in sorted(seen, key=int, reverse=True)]:
         if left == 1:
             return a
         else:
