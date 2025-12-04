@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 
+from collections import defaultdict
+
 DAY_NUM = 4
 DAY_DESC = 'Day 4: Printing Department'
 
@@ -16,30 +18,50 @@ def calc(log, values, mode, draw=False):
     from grid import Grid, Point
     grid = Grid.from_text(values)
 
+    counts = {}
+    to_decrease = defaultdict(list)
+
+    # Note the location of all paper rolls, and
+    # also track the items near it that will
+    # have one less item if they're removed
+    for xy in grid.xy_range():
+        if grid[xy] == "@":
+            counts[xy] = 0
+            for oxy in Grid.get_dirs(2):
+                if grid[Point(xy) + Point(oxy)] == "@":
+                    counts[xy] += 1
+                    temp = (Point(xy) + Point(oxy)).tuple
+                    to_decrease[xy].append(temp)
+
     ret = 0
     while True:
         to_remove = []
         if draw:
             grid.save_frame()
-        for xy in grid.xy_range():
-            xy = Point(xy)
-            if grid[xy] == "@":
-                total = 0
-                for oxy in Grid.get_dirs(2):
-                    oxy = Point(oxy)
-                    if grid[xy + oxy] == "@":
-                        total += 1
-                if total < 4:
-                    ret += 1
-                    to_remove.append(xy)
+
+        # Find how many we could remove
+        for xy, count in counts.items():
+            if count < 4:
+                ret += 1
+                to_remove.append(xy)
+
         if mode == 1 or len(to_remove) == 0:
             break
+
         if draw:
             for xy in to_remove:
                 grid[xy] = "*"
             grid.save_frame()
+
         for xy in to_remove:
-            grid[xy] = "."
+            if draw:
+                grid[xy] = "."
+            # For each item we removed, decrease the count
+            # from all of its neighbors, and remove it
+            for oxy in to_decrease[xy]:
+                if oxy in counts:
+                    counts[oxy] -= 1
+            del counts[xy]
 
     if draw:
         grid.draw_frames(repeat_final=30)
