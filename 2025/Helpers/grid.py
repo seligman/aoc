@@ -177,7 +177,7 @@ class Point:
         return self.x != other.x or self.y != other.y
     
     def __hash__(self):
-        return hash(self.x) ^ hash(self.y)
+        return hash((self.x, self.y))
 
     def line_to(self, other, include_perc=False):
         if self.x == other.x and not include_perc:
@@ -271,7 +271,7 @@ class Grid:
                 self[(x, height - y)] = temp[(x, y)]
 
     @staticmethod
-    def cardinal(compass, x=0, y=0):
+    def cardinal(compass, x=0, y=0, as_point=False):
         if compass == "e":
             x += 1
         elif compass == "w":
@@ -282,10 +282,13 @@ class Grid:
             y -= 1
         else:
             raise Exception()
-        return x, y
+        if as_point:
+            return Point(x, y)
+        else:
+            return x, y
 
     @staticmethod
-    def cardinal_hex(compass, x=0, y=0):
+    def cardinal_hex(compass, x=0, y=0, as_point=False):
         if compass == "e":
             x += 2
         elif compass == "w":
@@ -304,17 +307,22 @@ class Grid:
             x -= 1
         else:
             raise Exception()
-        return x, y
+        if as_point:
+            return Point(x, y)
+        else:
+            return x, y
 
     @staticmethod
-    def get_dirs_hex(offset=None):
+    def get_dirs_hex(offset=None, as_point=False):
         ret = [(-1, -1), (1, -1), (-2, 0), (2, 0), (-1, 1), (1, 1)]
         if offset is not None:
             ret = [(x + offset[0], y + offset[1]) for x, y in ret]
+        if as_point:
+            ret = [Point(xy) for xy in ret]
         return ret
 
     @staticmethod
-    def get_dirs(axis_count, offset=None, diagonal=True):
+    def get_dirs(axis_count, offset=None, diagonal=True, as_point=False):
         ret = []
 
         if diagonal:
@@ -346,6 +354,9 @@ class Grid:
 
         if offset is not None:
             ret = [tuple(a+b for a,b in zip(pt, offset)) for pt in ret]
+
+        if as_point:
+            ret = [Point(xy) for xy in ret]
 
         return ret
 
@@ -499,10 +510,13 @@ class Grid:
         else:
             return [x for x in self.x_range(pad=pad) if x % 2 == 1]
 
-    def xy_range(self, pad=0):
+    def xy_range(self, pad=0, as_point=False):
         for x in self.axis_range(0, pad=pad):
             for y in self.axis_range(1, pad=pad):
-                yield x, y
+                if as_point:
+                    yield Point(x, y)
+                else:
+                    yield x, y
 
     def axises_range(self, axis_count, axis_start=0, pad=0):
         if axis_count == 1:

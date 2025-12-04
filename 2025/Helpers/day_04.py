@@ -24,14 +24,13 @@ def calc(log, values, mode, draw=False):
     # Note the location of all paper rolls, and
     # also track the items near it that will
     # have one less item if they're removed
-    for xy in grid.xy_range():
+    for xy in grid.xy_range(as_point=True):
         if grid[xy] == "@":
             counts[xy] = 0
-            for oxy in Grid.get_dirs(2):
-                if grid[Point(xy) + Point(oxy)] == "@":
+            for oxy in Grid.get_dirs(2, as_point=True):
+                if grid[xy + oxy] == "@":
                     counts[xy] += 1
-                    temp = (Point(xy) + Point(oxy)).tuple
-                    to_decrease[xy].append(temp)
+                    to_decrease[xy].append(xy + oxy)
 
     ret = 0
     while True:
