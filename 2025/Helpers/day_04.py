@@ -3,13 +3,24 @@
 DAY_NUM = 4
 DAY_DESC = 'Day 4: Printing Department'
 
-def calc(log, values, mode):
+def other_draw(describe, values):
+    if describe:
+        return "Draw this"
+    from dummylog import DummyLog
+    import animate
+    animate.prep()
+    calc(DummyLog(), values, 2, draw=True)
+    animate.create_mp4(DAY_NUM, rate=15, final_secs=5)
+
+def calc(log, values, mode, draw=False):
     from grid import Grid, Point
     grid = Grid.from_text(values)
 
     ret = 0
     while True:
         to_remove = []
+        if draw:
+            grid.save_frame()
         for xy in grid.xy_range():
             xy = Point(xy)
             if grid[xy] == "@":
@@ -23,8 +34,15 @@ def calc(log, values, mode):
                     to_remove.append(xy)
         if mode == 1 or len(to_remove) == 0:
             break
+        if draw:
+            for xy in to_remove:
+                grid[xy] = "*"
+            grid.save_frame()
         for xy in to_remove:
             grid[xy] = "."
+
+    if draw:
+        grid.draw_frames(repeat_final=30)
 
     return ret
 
@@ -40,7 +58,6 @@ def test(log):
 @.@@@.@@@@
 .@@@@@@@@.
 @.@.@@@.@.
-
     """)
 
     log.test(calc(log, values, 1), '13')
