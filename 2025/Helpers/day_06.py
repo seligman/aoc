@@ -3,17 +3,10 @@
 DAY_NUM = 6
 DAY_DESC = 'Day 6: Trash Compactor'
 
+import re
+from collections import defaultdict
+
 def calc(log, values, mode):
-    # TODO: Delete or use these
-    # from parsers import get_ints, get_floats
-    # from grid import Grid, Point
-    # grid = Grid.from_text(values)
-    # from program import Program
-    # program = Program(values)
-
-    import re
-    from collections import defaultdict
-
     nums = defaultdict(list)
     ops = {}
 
@@ -31,27 +24,20 @@ def calc(log, values, mode):
         for i in range(len(values[0]) - 1, -1, -1):
             temp = [x[i] for x in values]
             if all(x == ' ' for x in temp):
-                pass
+                off += 1
             else:
                 nums[off].append(int("".join(temp[:-1])))
                 if temp[-1] != ' ':
                     ops[off] = temp[-1]
-                    off += 1
 
     ret = 0
     for i in ops:
-        temp = None
-        for cur in nums[i]:
+        temp = nums[i][0]
+        for cur in nums[i][1:]:
             if ops[i] == "+":
-                if temp is None:
-                    temp = cur
-                else:
-                    temp += cur
+                temp += cur
             elif ops[i] == "*":
-                if temp is None:
-                    temp = cur
-                else:
-                    temp *= cur
+                temp *= cur
             else:
                 raise Exception()
         ret += temp
