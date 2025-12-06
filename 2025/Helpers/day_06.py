@@ -3,44 +3,45 @@
 DAY_NUM = 6
 DAY_DESC = 'Day 6: Trash Compactor'
 
-import re
 from collections import defaultdict
 
 def calc(log, values, mode):
     nums = defaultdict(list)
     ops = {}
+    off = 0
 
-    if mode == 1:
-        for row in values:
-            row = re.sub(" +", " ", row).split(' ')
-            row = [x for x in row if len(x)]
-            if len("".join(row)) == len(row):
-                ops = {i: k for i, k in enumerate(row)}
+    values = [[x[i] for x in values] for i in range(len(values[0]))]
+
+    for row in values:
+        if all(x == ' ' for x in row):
+            off += 1
+        else:
+            if mode == 1:
+                if len(nums[off]) == 0:
+                    nums[off] = [''] * (len(row) - 1)
+                for i, x in enumerate(row[:-1]):
+                    nums[off][i] += x
+                if row[-1] != ' ':
+                    ops[off] = row[-1]
             else:
-                for i, k in enumerate(row):
-                    nums[i].append(int(k))
-    else:
-        off = 0
-        for i in range(len(values[0]) - 1, -1, -1):
-            temp = [x[i] for x in values]
-            if all(x == ' ' for x in temp):
-                off += 1
-            else:
-                nums[off].append(int("".join(temp[:-1])))
-                if temp[-1] != ' ':
-                    ops[off] = temp[-1]
+                nums[off].append(int("".join(row[:-1])))
+                if row[-1] != ' ':
+                    ops[off] = row[-1]
+
+    for i in range(len(nums)):
+        nums[i] = [int(x) for x in nums[i]]
 
     ret = 0
     for i in ops:
-        temp = nums[i][0]
+        row = nums[i][0]
         for cur in nums[i][1:]:
             if ops[i] == "+":
-                temp += cur
+                row += cur
             elif ops[i] == "*":
-                temp *= cur
+                row *= cur
             else:
                 raise Exception()
-        ret += temp
+        ret += row
     return ret
 
 def test(log):
