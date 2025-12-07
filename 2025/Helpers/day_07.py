@@ -7,6 +7,15 @@ from functools import cache
 
 _grid = None
 
+def other_draw(describe, values):
+    if describe:
+        return "Draw this"
+    from dummylog import DummyLog
+    import animate
+    animate.prep()
+    calc(DummyLog(), values, 1, draw=True)
+    animate.create_mp4(DAY_NUM, rate=15, final_secs=5)
+
 @cache
 def dest_count(start):
     from grid import Grid, Point
@@ -26,7 +35,7 @@ def dest_count(start):
                 break
     return ret
 
-def calc(log, values, mode):
+def calc(log, values, mode, draw=False):
     from grid import Grid, Point
     grid = Grid.from_text(values)
     global _grid
@@ -36,26 +45,34 @@ def calc(log, values, mode):
             start = xy
 
     if mode == 1:
+        if draw:
+            grid.save_frame()
         ret = 0
         pts = [start]
         ret = 0
         seen = set()
         while True:
+            if draw:
+                grid.save_frame()
             todo = []
             for pt in pts:
                 if pt not in seen:
                     seen.add(pt)
                     pt += Point(0, 1)
                     if grid[pt] == "^":
+                        grid[pt] = "|"
                         ret += 1
                         todo.append(pt + Point(1, 0))
                         todo.append(pt + Point(-1, 0))
                         pass
                     elif grid[pt] == ".":
+                        grid[pt] = "|"
                         todo.append(pt)
             if len(todo) == 0:
                 break
             pts = todo
+        if draw:
+            grid.draw_frames(color_map={"^": (0, 255, 0), ".": (0, 0, 0), "|": (255, 96, 0)})
         return ret
     else:
         return dest_count(start)

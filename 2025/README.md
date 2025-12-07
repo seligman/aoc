@@ -7,3 +7,4 @@ The Solutions themselves are in the `Puzzles` folder.  They're meant to be run w
 Some visualizations for your viewing pleasure:
 
 * Day 4: [Clearing the paper](https://imgur.com/a/TGpkijM)
+* Day 7: [Lighting up the manifold](https://imgur.com/a/8Q6vSoB)
