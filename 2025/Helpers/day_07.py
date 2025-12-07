@@ -6,6 +6,7 @@ DAY_DESC = 'Day 7: Laboratories'
 from functools import cache
 
 _grid = None
+_seen = None
 
 def other_draw(describe, values):
     if describe:
@@ -16,23 +17,29 @@ def other_draw(describe, values):
     calc(DummyLog(), values, 1, draw=True)
     animate.create_mp4(DAY_NUM, rate=15, final_secs=5)
 
+_helper = None
 @cache
-def dest_count(start):
+def dest_count_cached(pt):
+    return dest_count(pt)
+
+def dest_count(pt):
     from grid import Grid, Point
-    todo = [start]
     ret = 1
-    while len(todo) > 0:
-        pt = todo.pop(0)
-        while True:
-            pt += Point(0, 1)
-            if _grid[pt] == "^":
-                ret += dest_count(pt + Point(1, 0)) - 1
-                ret += dest_count(pt + Point(-1, 0)) 
-                break
-            elif _grid[pt] == ".":
-                pass
-            else:
-                break
+    while True:
+        pt += Point(0, 1)
+        if _seen is not None and pt in _seen:
+            break
+
+        if _seen is not None:
+            _seen.add(pt)
+        if _grid[pt] == "^":
+            ret += _helper(pt + Point(1, 0)) - 1
+            ret += _helper(pt + Point(-1, 0)) 
+            break
+        elif _grid[pt] == ".":
+            pass
+        else:
+            break
     return ret
 
 def calc(log, values, mode, draw=False):
@@ -44,16 +51,12 @@ def calc(log, values, mode, draw=False):
         if grid[xy] == "S":
             start = xy
 
-    if mode == 1:
-        if draw:
-            grid.save_frame()
-        ret = 0
+    if draw:
+        grid.save_frame()
         pts = [start]
-        ret = 0
         seen = set()
         while True:
-            if draw:
-                grid.save_frame()
+            grid.save_frame()
             todo = []
             for pt in pts:
                 if pt not in seen:
@@ -61,7 +64,6 @@ def calc(log, values, mode, draw=False):
                     pt += Point(0, 1)
                     if grid[pt] == "^":
                         grid[pt] = "|"
-                        ret += 1
                         todo.append(pt + Point(1, 0))
                         todo.append(pt + Point(-1, 0))
                         pass
@@ -71,11 +73,23 @@ def calc(log, values, mode, draw=False):
             if len(todo) == 0:
                 break
             pts = todo
+        grid.draw_frames(color_map={"^": (0, 255, 0), ".": (0, 0, 0), "|": (255, 96, 0)})
+        return
+
+    global _seen, _helper
+    if mode == 1:
+        if draw:
+            grid.save_frame()
+        _seen = set()
+        _helper = dest_count
+        ret = dest_count(start) - 1
         if draw:
             grid.draw_frames(color_map={"^": (0, 255, 0), ".": (0, 0, 0), "|": (255, 96, 0)})
         return ret
     else:
-        return dest_count(start)
+        _seen = None
+        _helper = dest_count_cached
+        return dest_count_cached(start)
 
 def test(log):
     values = log.decode_values("""
