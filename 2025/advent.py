@@ -8,9 +8,9 @@ if sys.version_info >= (3, 11): from datetime import UTC
 else: import datetime as datetime_fix; UTC=datetime_fix.timezone.utc
 
 ALT_DATA_FILE = None
-SOURCE_CONTROL = None
+SOURCE_CONTROL = None if 'SKIP_P4' in os.environ else 'p4'
 DESC = """
-### The suggested dail routine looks like this:
+### The suggested daily routine looks like this:
 advent.py launch        # This launches some useful links, and waits to make the next day
 advent.py test cur      # This tests the current day, keep going till it works!
                         # Or, use "retest cur" to test over and over again whenever 
