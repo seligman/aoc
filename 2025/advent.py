@@ -8,7 +8,7 @@ if sys.version_info >= (3, 11): from datetime import UTC
 else: import datetime as datetime_fix; UTC=datetime_fix.timezone.utc
 
 ALT_DATA_FILE = None
-SOURCE_CONTROL = "p4"
+SOURCE_CONTROL = None
 DESC = """
 ### The suggested dail routine looks like this:
 advent.py launch        # This launches some useful links, and waits to make the next day
