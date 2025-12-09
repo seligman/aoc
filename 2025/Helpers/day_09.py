@@ -5,11 +5,11 @@ DAY_DESC = 'Day 9: Movie Theater'
 
 def is_pt_on_seg(px, py, x1, y1, x2, y2):
     cross = (x2 - x1) * (py - y1) - (y2 - y1) * (px - x1)
-    if abs(cross) > 1e-9:
+    if abs(cross) > 0:
         return False
-    if px < min(x1, x2) - 1e-9 or px > max(x1, x2) + 1e-9:
+    if px < min(x1, x2) or px > max(x1, x2):
         return False
-    if py < min(y1, y2) - 1e-9 or py > max(y1, y2) + 1e-9:
+    if py < min(y1, y2) or py > max(y1, y2):
         return False
     return True
 
