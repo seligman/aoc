@@ -51,12 +51,11 @@ def rect_in_poly(x1, x2, y1, y2, points):
         if not is_pt_in_poly(cx, cy, points):
             return False
     n = len(points)
-    for e1 in [((x1, y1), (x2, y1)),((x2, y1), (x2, y2)),((x2, y2), (x1, y2)),((x1, y2), (x1, y1))]:
+    for e1 in [((x1, y1), (x2, y1)), ((x2, y1), (x2, y2)), ((x2, y2), (x1, y2)),((x1, y2), (x1, y1))]:
         for i in range(n):
             e2 = ((points[i].x, points[i].y), (points[(i + 1) % n].x, points[(i + 1) % n].y))
             if get_seg_inter(e1[0], e1[1], e2[0], e2[1]):
                 return False
-
     return True
 
 def calc(log, values, mode):
