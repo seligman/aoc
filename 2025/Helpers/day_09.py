@@ -3,80 +3,86 @@
 DAY_NUM = 9
 DAY_DESC = 'Day 9: Movie Theater'
 
-def is_pt_on_seg(px, py, x1, y1, x2, y2):
-    cross = (x2 - x1) * (py - y1) - (y2 - y1) * (px - x1)
-    if abs(cross) > 0:
+intervals = None
+_critical_y = None
+def rect_in_poly(x1, y1, x2, y2):
+    if y1 not in _intervals or y2 not in _intervals:
         return False
-    if px < min(x1, x2) or px > max(x1, x2):
-        return False
-    if py < min(y1, y2) or py > max(y1, y2):
-        return False
-    return True
 
-def is_pt_in_poly(px, py, poly):
-    inside = False
-    n = len(poly)
-    for i in range(n):
-        x1, y1 = poly[i].tuple
-        x2, y2 = poly[(i + 1) % n].tuple
-        if is_pt_on_seg(px, py, x1, y1, x2, y2):
-            return True
-        if ((y1 > py) != (y2 > py)):
-            x_intersect = (x2 - x1) * (py - y1) / (y2 - y1) + x1
-            if px < x_intersect:
-                inside = not inside
-    return inside
+    idx1 = _critical_y.index(y1)
+    idx2 = _critical_y.index(y2)
 
-def get_orient(ax, ay, bx, by, cx, cy):
-    v = (bx - ax) * (cy - ay) - (by - ay) * (cx - ax)
-    if v > 0:
-        return 1
-    if v < 0:
-        return -1
-    return 0
+    for idx in range(idx1, idx2 + 1):
+        y = _critical_y[idx]
+        y_intervals = _intervals[y]
 
-def get_seg_inter(a1, a2, b1, b2):
-    x1, y1 = a1
-    x2, y2 = a2
-    x3, y3 = b1
-    x4, y4 = b2
-    o1 = get_orient(x1, y1, x2, y2, x3, y3)
-    o2 = get_orient(x1, y1, x2, y2, x4, y4)
-    o3 = get_orient(x3, y3, x4, y4, x1, y1)
-    o4 = get_orient(x3, y3, x4, y4, x2, y2)
-    return o1 * o2 < 0 and o3 * o4 < 0
+        covered = False
+        for start, end in y_intervals:
+            if start <= x1 and x2 <= end:
+                covered = True
+                break
 
-def rect_in_poly(x1, x2, y1, y2, points):
-    for cx, cy in [(x1, y1),(x1, y2),(x2, y1),(x2, y2)]:
-        if not is_pt_in_poly(cx, cy, points):
+        if not covered:
             return False
-    n = len(points)
-    for e1 in [((x1, y1), (x2, y1)), ((x2, y1), (x2, y2)), ((x2, y2), (x1, y2)),((x1, y2), (x1, y1))]:
-        for i in range(n):
-            e2 = ((points[i].x, points[i].y), (points[(i + 1) % n].x, points[(i + 1) % n].y))
-            if get_seg_inter(e1[0], e1[1], e2[0], e2[1]):
-                return False
+
     return True
 
-def check_line(x1, y1, x2, y2, pt1, pt2):
-    if pt1.x == pt2.x:
-        if pt1.x < x1 or pt1.x > x2:
-            return True
-        line_min_y, line_max_y = min(pt1.y, pt2.y), max(pt1.y, pt2.y)
-        if line_min_y < y1 or line_max_y > y2:
-            return True
-        if (pt1.x == x1 or pt1.x == x2) and line_min_y >= y1 and line_max_y <= y2:
-            return True
-    else:
-        if pt1.y < y1 or pt1.y > y2:
-            return True
-        line_min_x, line_max_x = min(pt1.x, pt2.x), max(pt1.x, pt2.x)
-        if line_min_x < x1 or line_max_x > x2:
-            return True
-        if (pt1.y == y1 or pt1.y == y2) and line_min_x >= x1 and line_max_x <= x2:
-            return True
-    
-    return False
+def build_interval_cache(points):
+    from collections import defaultdict
+
+    global _critical_y, _intervals
+
+    n = len(points)
+    edges = []
+
+    for i in range(n):
+        p1 = points[i]
+        p2 = points[(i + 1) % n]
+        edges.append((p1, p2))
+
+    critical_y_set = set(p.y for p in points)
+    _critical_y = sorted(critical_y_set)
+    _intervals = defaultdict(list)
+
+    for y in _critical_y:
+        crossings = []
+        horizontal_edges = []
+
+        for p1, p2 in edges:
+            if p1.y == p2.y and p1.y == y:
+                horizontal_edges.append((min(p1.x, p2.x), max(p1.x, p2.x)))
+            else:
+                if min(p1.y, p2.y) < y <= max(p1.y, p2.y):
+                    if p1.x == p2.x:
+                        crossings.append(p1.x)
+                    else:
+                        t = (y - p1.y) / (p2.y - p1.y)
+                        x = p1.x + t * (p2.x - p1.x)
+                        crossings.append(int(x))
+
+        crossings.sort()
+
+        filled_intervals = []
+        for i in range(0, len(crossings) - 1, 2):
+            filled_intervals.append((crossings[i], crossings[i + 1]))
+
+        for h_start, h_end in horizontal_edges:
+            filled_intervals.append((h_start, h_end))
+
+        if filled_intervals:
+            filled_intervals.sort()
+            merged = []
+            current_start, current_end = filled_intervals[0]
+
+            for start, end in filled_intervals[1:]:
+                if start <= current_end + 1:
+                    current_end = max(current_end, end)
+                else:
+                    merged.append((current_start, current_end))
+                    current_start, current_end = start, end
+
+            merged.append((current_start, current_end))
+            _intervals[y] = merged
 
 def calc(log, values, mode):
     from itertools import combinations
@@ -85,13 +91,10 @@ def calc(log, values, mode):
     to_check = []
     for row in values:
         x, y = [int(i) for i in row.split(",")]
-        # grid[x, y] = "#"
         to_check.append(Point(x, y))
     
-    # if mode == 2:
-    #     edges = []
-    #     for i in range(len(to_check)):
-    #         edges.append((to_check[i], to_check[(i + 1) % len(to_check)]))
+    if mode == 2:
+        build_interval_cache(to_check)
 
     best = 0
     for a, b in combinations(to_check, 2):
@@ -99,17 +102,11 @@ def calc(log, values, mode):
         y1, y2 = min(a.y, b.y), max(a.y, b.y)
 
         if mode == 1:
-            for other in to_check:
-                hit = False
-                if x1 <= other.x <= x2 and y1 <= other.y <= y2:
-                    hit = True
-                    break
-                if not hit:
-                    area = (x2 - x1 + 1) * (y2 - y1 + 1)
-                    if area > best:
-                        best = area
+            area = (x2 - x1 + 1) * (y2 - y1 + 1)
+            if area > best:
+                best = area
         elif mode == 2:
-            if rect_in_poly(x1, x2, y1, y2, to_check):
+            if rect_in_poly(x1, y1, x2, y2):
                 area = (x2 - x1 + 1) * (y2 - y1 + 1)
                 if area > best:
                     best = area
