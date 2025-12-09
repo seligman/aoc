@@ -3,21 +3,14 @@
 DAY_NUM = 9
 DAY_DESC = 'Day 9: Movie Theater'
 
-intervals = None
-_critical_y = None
+_intervals = None
+_y_by_index = None
+_y_offsets = None
+
 def rect_in_poly(x1, y1, x2, y2):
-    if y1 not in _intervals or y2 not in _intervals:
-        return False
-
-    idx1 = _critical_y.index(y1)
-    idx2 = _critical_y.index(y2)
-
-    for idx in range(idx1, idx2 + 1):
-        y = _critical_y[idx]
-        y_intervals = _intervals[y]
-
+    for y in _y_by_index[_y_offsets[y1]: _y_offsets[y2]+1]:
         covered = False
-        for start, end in y_intervals:
+        for start, end in _intervals[y]:
             if start <= x1 and x2 <= end:
                 covered = True
                 break
@@ -28,23 +21,14 @@ def rect_in_poly(x1, y1, x2, y2):
     return True
 
 def build_interval_cache(points):
-    from collections import defaultdict
+    global _y_by_index, _intervals, _y_offsets
 
-    global _critical_y, _intervals
+    edges = list(zip(points, points[1:] + points[0:1]))
+    _y_by_index = sorted(set(p.y for p in points))
+    _y_offsets = {x: i for i, x in enumerate(_y_by_index)}
+    _intervals = {}
 
-    n = len(points)
-    edges = []
-
-    for i in range(n):
-        p1 = points[i]
-        p2 = points[(i + 1) % n]
-        edges.append((p1, p2))
-
-    critical_y_set = set(p.y for p in points)
-    _critical_y = sorted(critical_y_set)
-    _intervals = defaultdict(list)
-
-    for y in _critical_y:
+    for y in _y_by_index:
         crossings = []
         horizontal_edges = []
 
@@ -56,9 +40,7 @@ def build_interval_cache(points):
                     if p1.x == p2.x:
                         crossings.append(p1.x)
                     else:
-                        t = (y - p1.y) / (p2.y - p1.y)
-                        x = p1.x + t * (p2.x - p1.x)
-                        crossings.append(int(x))
+                        raise Exception()
 
         crossings.sort()
 
@@ -69,20 +51,19 @@ def build_interval_cache(points):
         for h_start, h_end in horizontal_edges:
             filled_intervals.append((h_start, h_end))
 
-        if filled_intervals:
-            filled_intervals.sort()
-            merged = []
-            current_start, current_end = filled_intervals[0]
+        filled_intervals.sort()
+        merged = []
+        current_start, current_end = filled_intervals[0]
 
-            for start, end in filled_intervals[1:]:
-                if start <= current_end + 1:
-                    current_end = max(current_end, end)
-                else:
-                    merged.append((current_start, current_end))
-                    current_start, current_end = start, end
+        for start, end in filled_intervals[1:]:
+            if start <= current_end + 1:
+                current_end = max(current_end, end)
+            else:
+                merged.append((current_start, current_end))
+                current_start, current_end = start, end
 
-            merged.append((current_start, current_end))
-            _intervals[y] = merged
+        merged.append((current_start, current_end))
+        _intervals[y] = merged
 
 def calc(log, values, mode):
     from itertools import combinations
