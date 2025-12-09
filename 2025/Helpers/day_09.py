@@ -17,8 +17,8 @@ def is_pt_in_poly(px, py, poly):
     inside = False
     n = len(poly)
     for i in range(n):
-        x1, y1 = poly[i]
-        x2, y2 = poly[(i + 1) % n]
+        x1, y1 = poly[i].tuple
+        x2, y2 = poly[(i + 1) % n].tuple
         if is_pt_on_seg(px, py, x1, y1, x2, y2):
             return True
         if ((y1 > py) != (y2 > py)):
@@ -47,30 +47,13 @@ def get_seg_inter(a1, a2, b1, b2):
     return o1 * o2 < 0 and o3 * o4 < 0
 
 def rect_in_poly(x1, x2, y1, y2, points):
-    poly = [(p.x, p.y) for p in points]
-
-    corners = [
-        (x1, y1),
-        (x1, y2),
-        (x2, y1),
-        (x2, y2),
-    ]
-
-    for cx, cy in corners:
-        if not is_pt_in_poly(cx, cy, poly):
+    for cx, cy in [(x1, y1),(x1, y2),(x2, y1),(x2, y2)]:
+        if not is_pt_in_poly(cx, cy, points):
             return False
-
-    rect_edges = [
-        ((x1, y1), (x2, y1)),
-        ((x2, y1), (x2, y2)),
-        ((x2, y2), (x1, y2)),
-        ((x1, y2), (x1, y1)),
-    ]
-
-    n = len(poly)
-    for e1 in rect_edges:
+    n = len(points)
+    for e1 in [((x1, y1), (x2, y1)),((x2, y1), (x2, y2)),((x2, y2), (x1, y2)),((x1, y2), (x1, y1))]:
         for i in range(n):
-            e2 = (poly[i], poly[(i + 1) % n])
+            e2 = ((points[i].x, points[i].y), (points[(i + 1) % n].x, points[(i + 1) % n].y))
             if get_seg_inter(e1[0], e1[1], e2[0], e2[1]):
                 return False
 
