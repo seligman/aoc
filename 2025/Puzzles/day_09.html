@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en-us">
+<head>
+<meta charset="utf-8"/>
+<title>Advent of Code 2025</title>
+<!--[if lt IE 9]><script src="html5.js"></script><![endif]-->
+<link href='SourceCodePro.css' rel='stylesheet' type='text/css'>
+<link rel="stylesheet" type="text/css" href="style.css"/>
+<link rel="stylesheet alternate" type="text/css" href="highcontrast.css?0" title="High Contrast"/>
+<link rel="shortcut icon" href="favicon.png"/>
+</head><body>
+<main>
+<article class="day-desc"><h2>--- Day 9: Movie Theater ---</h2><p>You <span title="wheeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee">slide down</span> the <a href="https://en.wikipedia.org/wiki/Fireman%27s_pole">firepole</a> in the corner of the playground and land in the North Pole base movie theater!</p>
+<p>The movie theater has a big tile floor with an interesting pattern. Elves here are redecorating the theater by switching out some of the square tiles in the big grid they form. Some of the tiles are <em>red</em>; the Elves would like to find the largest rectangle that uses red tiles for two of its opposite corners. They even have a list of where the red tiles are located in the grid (your puzzle input).</p>
+<p>For example:</p>
+<pre><code>7,1
+11,1
+11,7
+9,7
+9,5
+2,5
+2,3
+7,3
+</code></pre>
+<p>Showing red tiles as <code>#</code> and other tiles as <code>.</code>, the above arrangement of red tiles would look like this:</p>
+<pre><code>..............
+.......#...#..
+..............
+..#....#......
+..............
+..#......#....
+..............
+.........#.#..
+..............
+</code></pre>
+<p>You can choose any two red tiles as the opposite corners of your rectangle; your goal is to find the largest rectangle possible.</p>
+<p>For example, you could make a rectangle (shown as <code>O</code>) with an area of <code>24</code> between <code>2,5</code> and <code>9,7</code>:</p>
+<pre><code>..............
+.......#...#..
+..............
+..#....#......
+..............
+..<em>O</em>OOOOOOO....
+..OOOOOOOO....
+..OOOOOOO<em>O</em>.#..
+..............
+</code></pre>
+<p>Or, you could make a rectangle with area <code>35</code> between <code>7,1</code> and <code>11,7</code>:</p>
+<pre><code>..............
+.......<em>O</em>OOOO..
+.......OOOOO..
+..#....OOOOO..
+.......OOOOO..
+..#....OOOOO..
+.......OOOOO..
+.......OOOO<em>O</em>..
+..............
+</code></pre>
+<p>You could even make a thin rectangle with an area of only <code>6</code> between <code>7,3</code> and <code>2,3</code>:</p>
+<pre><code>..............
+.......#...#..
+..............
+..<em>O</em>OOOO<em>O</em>......
+..............
+..#......#....
+..............
+.........#.#..
+..............
+</code></pre>
+<p>Ultimately, the largest rectangle you can make in this example has area <code><em>50</em></code>. One way to do this is between <code>2,5</code> and <code>11,1</code>:</p>
+<pre><code>..............
+..OOOOOOOOO<em>O</em>..
+..OOOOOOOOOO..
+..OOOOOOOOOO..
+..OOOOOOOOOO..
+..<em>O</em>OOOOOOOOO..
+..............
+.........#.#..
+..............
+</code></pre>
+<p>Using two red tiles as opposite corners, <em>what is the largest area of any rectangle you can make?</em></p>
+</article>
+<p>Your puzzle answer was <code>4781377701</code>.</p><article class="day-desc"><h2 id="part2">--- Part Two ---</h2><p>The Elves just remembered: they can only switch out tiles that are <em>red</em> or <em>green</em>. So, your rectangle can only include red or green tiles.</p>
+<p>In your list, every red tile is connected to the red tile before and after it by a straight line of <em>green tiles</em>. The list wraps, so the first red tile is also connected to the last red tile. Tiles that are adjacent in your list will always be on either the same row or the same column.</p>
+<p>Using the same example as before, the tiles marked <code>X</code> would be green:</p>
+<pre><code>..............
+.......#XXX#..
+.......X...X..
+..#XXXX#...X..
+..X........X..
+..#XXXXXX#.X..
+.........X.X..
+.........#X#..
+..............
+</code></pre>
+<p>In addition, all of the tiles <em>inside</em> this loop of red and green tiles are <em>also</em> green. So, in this example, these are the green tiles:</p>
+<pre><code>..............
+.......#XXX#..
+.......XXXXX..
+..#XXXX#XXXX..
+..XXXXXXXXXX..
+..#XXXXXX#XX..
+.........XXX..
+.........#X#..
+..............
+</code></pre>
+<p>The remaining tiles are never red nor green.</p>
+<p>The rectangle you choose still must have red tiles in opposite corners, but any other tiles it includes must now be red or green. This significantly limits your options.</p>
+<p>For example, you could make a rectangle out of red and green tiles with an area of <code>15</code> between <code>7,3</code> and <code>11,1</code>:</p>
+<pre><code>..............
+.......OOOO<em>O</em>..
+.......OOOOO..
+..#XXXX<em>O</em>OOOO..
+..XXXXXXXXXX..
+..#XXXXXX#XX..
+.........XXX..
+.........#X#..
+..............
+</code></pre>
+<p>Or, you could make a thin rectangle with an area of <code>3</code> between <code>9,7</code> and <code>9,5</code>:</p>
+<pre><code>..............
+.......#XXX#..
+.......XXXXX..
+..#XXXX#XXXX..
+..XXXXXXXXXX..
+..#XXXXXX<em>O</em>XX..
+.........OXX..
+.........<em>O</em>X#..
+..............
+</code></pre>
+<p>The largest rectangle you can make in this example using only red and green tiles has area <code><em>24</em></code>. One way to do this is between <code>9,5</code> and <code>2,3</code>:</p>
+<pre><code>..............
+.......#XXX#..
+.......XXXXX..
+..<em>O</em>OOOOOOOXX..
+..OOOOOOOOXX..
+..OOOOOOO<em>O</em>XX..
+.........XXX..
+.........#X#..
+..............
+</code></pre>
+<p>Using two red tiles as opposite corners, <em>what is the largest area of any rectangle you can make using only red and green tiles?</em></p>
+</article>
+<p>Your puzzle answer was <code>1470616992</code>.</p><p class="day-success">Both parts of this puzzle are complete! They provide two gold stars: **</p>
+<p>At this point, you should <a href="/2025">return to your Advent calendar</a> and try another puzzle.</p>
+<p>If you still want to see it, you can <a href="9/input" target="_blank">get your puzzle input</a>.</p>
+<p>You can also <span class="share">[Share<span class="share-content">on
+  <a href="https://bsky.app/intent/compose?text=I%27ve+completed+%22Movie+Theater%22+%2D+Day+9+%2D+Advent+of+Code+2025+%23AdventOfCode+https%3A%2F%2Fadventofcode%2Ecom%2F2025%2Fday%2F9" target="_blank">Bluesky</a>
+  <a href="https://twitter.com/intent/tweet?text=I%27ve+completed+%22Movie+Theater%22+%2D+Day+9+%2D+Advent+of+Code+2025&amp;url=https%3A%2F%2Fadventofcode%2Ecom%2F2025%2Fday%2F9&amp;related=ericwastl&amp;hashtags=AdventOfCode" target="_blank">Twitter</a>
+  <a href="javascript:void(0);" onclick="var ms; try{ms=localStorage.getItem('mastodon.server')}finally{} if(typeof ms!=='string')ms=''; ms=prompt('Mastodon Server?',ms); if(typeof ms==='string' && ms.length){this.href='https://'+ms+'/share?text=I%27ve+completed+%22Movie+Theater%22+%2D+Day+9+%2D+Advent+of+Code+2025+%23AdventOfCode+https%3A%2F%2Fadventofcode%2Ecom%2F2025%2Fday%2F9';try{localStorage.setItem('mastodon.server',ms);}finally{}}else{return false;}" target="_blank">Mastodon</a
+></span>]</span> this puzzle.</p>
+</main></body></html>
