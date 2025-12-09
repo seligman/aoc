@@ -58,6 +58,26 @@ def rect_in_poly(x1, x2, y1, y2, points):
                 return False
     return True
 
+def check_line(x1, y1, x2, y2, pt1, pt2):
+    if pt1.x == pt2.x:
+        if pt1.x < x1 or pt1.x > x2:
+            return True
+        line_min_y, line_max_y = min(pt1.y, pt2.y), max(pt1.y, pt2.y)
+        if line_min_y < y1 or line_max_y > y2:
+            return True
+        if (pt1.x == x1 or pt1.x == x2) and line_min_y >= y1 and line_max_y <= y2:
+            return True
+    else:
+        if pt1.y < y1 or pt1.y > y2:
+            return True
+        line_min_x, line_max_x = min(pt1.x, pt2.x), max(pt1.x, pt2.x)
+        if line_min_x < x1 or line_max_x > x2:
+            return True
+        if (pt1.y == y1 or pt1.y == y2) and line_min_x >= x1 and line_max_x <= x2:
+            return True
+    
+    return False
+
 def calc(log, values, mode):
     from itertools import combinations
     from grid import Grid, Point
@@ -68,6 +88,11 @@ def calc(log, values, mode):
         # grid[x, y] = "#"
         to_check.append(Point(x, y))
     
+    # if mode == 2:
+    #     edges = []
+    #     for i in range(len(to_check)):
+    #         edges.append((to_check[i], to_check[(i + 1) % len(to_check)]))
+
     best = 0
     for a, b in combinations(to_check, 2):
         x1, x2 = min(a.x, b.x), max(a.x, b.x)
