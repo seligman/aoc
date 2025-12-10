@@ -4,6 +4,7 @@ DAY_NUM = 10
 DAY_DESC = 'Day 10: Factory'
 
 import itertools
+from multiprocessing import Pool
 
 def solve_part2(buttons, joltages):
     n = len(buttons)
@@ -129,8 +130,8 @@ def calc(log, values, mode):
         buttons.append(cur)
 
     ret = 0
-    for cur in buttons:
-        if mode == 1:
+    if mode == 1:
+        for cur in buttons:
             todo = []
             seen = set()
             for button in cur['buttons']:
@@ -148,10 +149,17 @@ def calc(log, values, mode):
                         seen.add(new_state)
                         for button in cur['buttons']:
                             todo.append({"press": button, "state": temp['state'][:], "score": temp['score'] + 1})
-        else:
-            ret += sum(solve_part2(cur['buttons'], cur['joltage']))
+    else:
+        with Pool() as pool:
+            for solved in pool.imap_unordered(helper, buttons):
+                ret += sum(solved)
+        # for cur in buttons:
+        #     ret += sum(solve_part2(cur['buttons'], cur['joltage']))
 
     return ret
+
+def helper(cur):
+    return solve_part2(cur['buttons'], cur['joltage'])
 
 def test(log):
     values = log.decode_values("""
