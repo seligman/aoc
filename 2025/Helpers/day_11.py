@@ -25,9 +25,9 @@ def calc(log, values, mode):
         return ret
 
     def count_paths_with_required(src, dest, required_nodes):
-        from functools import lru_cache
+        from functools import cache
 
-        @lru_cache(maxsize=None)
+        @cache
         def count_from(current, visited_mask):
             if current == dest:
                 return 1 if visited_mask == 3 else 0
