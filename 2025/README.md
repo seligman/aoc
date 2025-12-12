@@ -1,4 +1,4 @@
-<img align="right" width="303" height="289" src="https://raw.githubusercontent.com/seligman/aoc/master/2025/Puzzles/main_page_small.png">
+<img align="right" width="323" height="291" src="https://raw.githubusercontent.com/seligman/aoc/master/2025/Puzzles/main_page_small.png">
 
 These are my solutions to the [Advent of Code for 2025](https://adventofcode.com/2025).
 
@@ -8,3 +8,4 @@ Some visualizations for your viewing pleasure:
 
 * Day 4: [Clearing the paper](https://imgur.com/a/TGpkijM)
 * Day 7: [Lighting up the manifold](https://imgur.com/a/8Q6vSoB)
+* [The calendar itself](https://youtu.be/hJErN7g3VNw)
