@@ -10,7 +10,7 @@
 <link rel="shortcut icon" href="favicon.png"/>
 </head><body>
 <main>
-<article class="day-desc"><h2>--- Day 1: Secret Entrance ---</h2><p>The Elves have good news and bad news.</p>
+<style>article *[title]{border-bottom:1px dotted #ffff66;}</style><article class="day-desc"><h2>--- Day 1: Secret Entrance ---</h2><p>The Elves have good news and bad news.</p>
 <p>The good news is that they've discovered <a href="https://en.wikipedia.org/wiki/Project_management" target="_blank">project management</a>! This has given them the tools they need to prevent their usual Christmas emergency. For example, they now know that the North Pole decorations need to be finished soon so that other critical tasks can start on time.</p>
 <p>The bad news is that they've realized they have a <em>different</em> emergency: according to their resource planning, none of them have any time left to decorate the North Pole!</p>
 <p>To save Christmas, the Elves need <em>you</em> to <em>finish decorating the North Pole by December 12th</em>.</p>
@@ -53,11 +53,34 @@ L82
 <p>Because the dial points at <code>0</code> a total of three times during this process, the password in this example is <code><em>3</em></code>.</p>
 <p>Analyze the rotations in your attached document. <em>What's the actual password to open the door?</em></p>
 </article>
-<p>To begin, <a href="1/input" target="_blank">get your puzzle input</a>.</p>
-<form method="post" action="1/answer"><input type="hidden" name="level" value="1"/><p>Answer: <input type="text" name="answer" autocomplete="off"/> <input type="submit" value="[Submit]"/></p></form>
+<p>Your puzzle answer was <code>1076</code>.</p><article class="day-desc"><h2 id="part2">--- Part Two ---</h2><p>You're sure that's the right password, but the door won't open. You knock, but nobody answers. You build a snowman while you think.</p>
+<p>As you're rolling the snowballs for your snowman, you find another security document that must have fallen into the snow:</p>
+<p>"Due to newer security protocols, please use <em>password method <span title="You should have seen the chaos when the Elves overflowed their 32-bit password method counter.">0x434C49434B</span></em> until further notice."</p>
+<p>You remember from the training seminar that "method 0x434C49434B" means you're actually supposed to count the number of times <em>any click</em> causes the dial to point at <code>0</code>, regardless of whether it happens during a rotation or at the end of one.</p>
+<p>Following the same rotations as in the above example, the dial points at zero a few extra times during its rotations:</p>
+<ul>
+<li>The dial starts by pointing at <code>50</code>.</li>
+<li>The dial is rotated <code>L68</code> to point at <code>82</code>; during this rotation, it points at <code>0</code> <em>once</em>.</li>
+<li>The dial is rotated <code>L30</code> to point at <code>52</code>.</li>
+<li>The dial is rotated <code>R48</code> to point at <code><em>0</em></code>.</li>
+<li>The dial is rotated <code>L5</code> to point at <code>95</code>.</li>
+<li>The dial is rotated <code>R60</code> to point at <code>55</code>; during this rotation, it points at <code>0</code> <em>once</em>.</li>
+<li>The dial is rotated <code>L55</code> to point at <code><em>0</em></code>.</li>
+<li>The dial is rotated <code>L1</code> to point at <code>99</code>.</li>
+<li>The dial is rotated <code>L99</code> to point at <code><em>0</em></code>.</li>
+<li>The dial is rotated <code>R14</code> to point at <code>14</code>.</li>
+<li>The dial is rotated <code>L82</code> to point at <code>32</code>; during this rotation, it points at <code>0</code> <em>once</em>.</li>
+</ul>
+<p>In this example, the dial points at <code>0</code> three times at the end of a rotation, plus three more times during a rotation. So, in this example, the new password would be <code><em>6</em></code>.</p>
+<p>Be careful: if the dial were pointing at <code>50</code>, a single rotation like <code>R1000</code> would cause the dial to point at <code>0</code> ten times before returning back to <code>50</code>!</p>
+<p>Using password method 0x434C49434B, <em>what is the password to open the door?</em></p>
+</article>
+<p>Your puzzle answer was <code>6379</code>.</p><p class="day-success">Both parts of this puzzle are complete! They provide two gold stars: **</p>
+<p>At this point, all that is left is for you to <a href="/2025">admire your Advent calendar</a>.</p>
+<p>If you still want to see it, you can <a href="1/input" target="_blank">get your puzzle input</a>.</p>
 <p>You can also <span class="share">[Share<span class="share-content">on
-  <a href="https://bsky.app/intent/compose?text=%22Secret+Entrance%22+%2D+Day+1+%2D+Advent+of+Code+2025+%23AdventOfCode+https%3A%2F%2Fadventofcode%2Ecom%2F2025%2Fday%2F1" target="_blank">Bluesky</a>
-  <a href="https://twitter.com/intent/tweet?text=%22Secret+Entrance%22+%2D+Day+1+%2D+Advent+of+Code+2025&amp;url=https%3A%2F%2Fadventofcode%2Ecom%2F2025%2Fday%2F1&amp;related=ericwastl&amp;hashtags=AdventOfCode" target="_blank">Twitter</a>
-  <a href="javascript:void(0);" onclick="var ms; try{ms=localStorage.getItem('mastodon.server')}finally{} if(typeof ms!=='string')ms=''; ms=prompt('Mastodon Server?',ms); if(typeof ms==='string' && ms.length){this.href='https://'+ms+'/share?text=%22Secret+Entrance%22+%2D+Day+1+%2D+Advent+of+Code+2025+%23AdventOfCode+https%3A%2F%2Fadventofcode%2Ecom%2F2025%2Fday%2F1';try{localStorage.setItem('mastodon.server',ms);}finally{}}else{return false;}" target="_blank">Mastodon</a
+  <a href="https://bsky.app/intent/compose?text=I%27ve+completed+%22Secret+Entrance%22+%2D+Day+1+%2D+Advent+of+Code+2025+%23AdventOfCode+https%3A%2F%2Fadventofcode%2Ecom%2F2025%2Fday%2F1" target="_blank">Bluesky</a>
+  <a href="https://twitter.com/intent/tweet?text=I%27ve+completed+%22Secret+Entrance%22+%2D+Day+1+%2D+Advent+of+Code+2025&amp;url=https%3A%2F%2Fadventofcode%2Ecom%2F2025%2Fday%2F1&amp;related=ericwastl&amp;hashtags=AdventOfCode" target="_blank">Twitter</a>
+  <a href="javascript:void(0);" onclick="var ms; try{ms=localStorage.getItem('mastodon.server')}finally{} if(typeof ms!=='string')ms=''; ms=prompt('Mastodon Server?',ms); if(typeof ms==='string' && ms.length){this.href='https://'+ms+'/share?text=I%27ve+completed+%22Secret+Entrance%22+%2D+Day+1+%2D+Advent+of+Code+2025+%23AdventOfCode+https%3A%2F%2Fadventofcode%2Ecom%2F2025%2Fday%2F1';try{localStorage.setItem('mastodon.server',ms);}finally{}}else{return false;}" target="_blank">Mastodon</a
 ></span>]</span> this puzzle.</p>
 </main></body></html>
