@@ -10,9 +10,8 @@
 <link rel="shortcut icon" href="favicon.png"/>
 </head><body>
 <main>
-<p>The first puzzles will unlock on December 1st at midnight EST (UTC-5).  See you then!</p>
-<p>Also, starting this year, there will be <a href="/2025/about#faq_num_days">12 days</a> of puzzles each December.</p><pre class="calendar"><span aria-hidden="true" class="calendar-day1">         ____           *                               
-________/O___\__________|________________________  <span class="calendar-day"> 1</span><span id="calendar-countdown"></span><script>
+<pre class="calendar"><span aria-hidden="true" class="calendar-day1">         ____           *                               
+________/O___\__________|________________________  <span class="calendar-day"> 1</span><span id="calendar-countdown"></span><span id="calendar-countdown"></span><script>
 (function(){
 var countdown = document.getElementById("calendar-countdown");
 if (!countdown) return;
@@ -84,4 +83,9 @@ function update_countdown() {
 <span aria-hidden="true" class="calendar-day12">                                                        
                                                    <span class="calendar-day">12</span></span>
 </pre>
-</main></body></html>
+</main>
+<script>
+  var countdown = document.getElementById("calendar-countdown");
+  countdown.textContent = window.location.hash.substr(1);
+</script>
+</body></html>
